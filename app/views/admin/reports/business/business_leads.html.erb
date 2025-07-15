@@ -1,0 +1,100 @@
+<% content_for :title, 'Business leads report' %>
+
+<section class="box-header">
+  <h1>Business leads</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_dashboard_path %>">Dashboard</a>
+    </li>
+    <li><a href="<%= admin_reports_path %>">Reports</a></li>
+    <li class="active">Business leads</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <form action="<%= admin_reports_business_leads_path %>">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Business</label>
+            <select name="business_id" class="form-control selectize">
+              <option value="">All</option>
+              <%= options_for_select Business.pluck(:name, :id), @options.business_id %>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Start date</label>
+            <input name="start_date"
+              class="form-control flatpickr-datepicker"
+              value="<%= @options.start_date.strftime("%Y-%m-%d") if @options.start_date.present? %>"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d"
+              >
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>End date</label>
+            <input name="end_date"
+              class="form-control flatpickr-datepicker"
+              value="<%= @options.end_date.strftime("%Y-%m-%d") if @options.end_date.present?  %>"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d"
+              >
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>&nbsp;</label><br>
+            <button type="submit" class="btn sitebtn">Report</button>
+            <a href="<%= admin_reports_business_leads_path %>" class="btn linebtn">Clear filters</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Business</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @report.result[:paginated_businesses].each do |business| %>
+        <tr>
+          <td><%= business.name %></td>
+          <td><%= business.leads_count %></td>
+          <td><a href="<%= admin_reports_business_leads_details_path(business_id: business.id)%>">Details</a></td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @report.result[:paginated_businesses].total_count == 0 %>
+      <p class="text-muted">No data found to display.</p>
+    <% else %>
+      <div class="row hidden-print">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @report.result[:paginated_businesses], entry_name: 'business' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @report.result[:paginated_businesses] %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,57 @@
+<% content_for :body_class, 'login-page' %>
+
+<div class="login-box">
+  <div class="row">
+
+    <div class="col-sm-6 col-xs-12">
+      <img src="<%= asset_pack_path 'static/images/tracksy-logo.jpeg' %>" alt="Tracksy" height="55px">
+    </div>
+    <div class="col-sm-6 text-right hidden-xs">
+      <span style="font-size: 21px">Reset Password</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h3 class="visible-xs">
+    Reset password
+  </h3>
+
+  <div class="login-box-body">
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+      <%= devise_error_messages! %>
+      <%= f.hidden_field :reset_password_token %>
+
+      <div class="form-group">
+        <%= f.label :password, "New password" %>
+        <% if @minimum_password_length %>
+          <em>(<%= @minimum_password_length %> characters minimum)</em><br />
+        <% end %>
+        <%= f.password_field :password, autofocus: true, autocomplete: "off", class: "form-control" %>
+      </div>
+
+
+      <div class="form-group">
+        <%= f.label :password_confirmation, "Confirm new password" %><br />
+        <%= f.password_field :password_confirmation, autocomplete: "off", class: "form-control" %>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <button type="submit" class="btn sitebtn btn-block">
+            Set my password
+          </button>
+        </div>
+      </div>
+    <% end %>
+
+    <hr>
+
+    <div class="row">
+      <div class="col-xs-6 text-left"><a href="<%= new_user_session_path %>">Login</a></div>
+      <div class="col-xs-6 text-right">
+        <a href="<%= frontend_home_path %>" class="normal-link"><i class="fa fa-home"></i> Homepage</a>
+      </div>
+    </div>
+  </div>
+</div>

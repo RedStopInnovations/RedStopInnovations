@@ -1,0 +1,26 @@
+<div class="modal fade" id="modal-add-outcome-measure-test">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-aqua">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Record new test</h4>
+      </div>
+      <%= simple_form_for OutcomeMeasureTest.new, url: create_test_patient_outcome_measure_path(patient, outcome_measure), method: 'POST', html: { novalidate: false }, remote: true do |f| %>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="control-label">Result</label>
+            <div class="input-group">
+              <%= f.input_field :result, class: 'form-control', required: true %>
+              <span class="input-group-addon"><%= outcome_measure.outcome_measure_type.unit %></span>
+            </div>
+          </div>
+          <%= f.input :date_performed, as: :string, input_html: { class: 'input-date-performed datepicker', data: { format: 'DD MMM YYYY' } } %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn linebtn" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn sitebtn">Create record</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<script type="text/template" id="modal-calendar-appearance-settings-tmpl">
+  <modal :value="show" :backdrop="false" effect="fade" v-cloak @closed="onModalClosed" class="modal-calendar-appearance-settings">
+    <div slot="modal-header" class="modal-header bg-gray-light">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="show = false">
+        <span aria-hidden="true">×</span></button>
+      <h4 class="modal-title">Appearance settings</h4>
+    </div>
+
+    <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+      <div class="loading-backdrop" v-if="loading"></div>
+      <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+
+      <legend class="sub">Availability blocks:
+        <span class="pull-right"><a href="#" class="small" @click.prevent="onClickSetAvailabilityTypesToDefault">Reset to default</a></span>
+      </legend>
+      <div class="form-group" v-for="avail_type in settings.availability_type_colors" key="avail_type.id">
+        <label>{{ availabilityTypeName(avail_type.id) }}:</label>
+        <div class="row">
+          <div class="col-xs-10">
+            <div class="input-group">
+              <input type="text" class="form-control" v-model="avail_type.color">
+              <span class="input-group-addon color-picker-wrap">
+                <color-picker v-model="avail_type.color"></color-picker>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <legend class="sub">Appointments:</legend>
+      <v-multiselect
+        class="appointment-type-search"
+        :options="selectableAppointmentTypes"
+        :multiple="false"
+        :close-on-select="true"
+        :reset-after="true"
+        :options-limit="50"
+        :searchable="true"
+        :hide-selected="true"
+        placeholder="Search appointment type to customize colors"
+        select-label="Add"
+        label="name"
+        track-by="id"
+        @select="onAppointmentTypeSelected"
+        >
+        <template slot="option" scope="props">
+          <div class="desc">
+            <span class="text-bolder" v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+            <small>({{ availabilityTypeName(props.option.availability_type_id) }})</small>
+          </div>
+        </template>
+        <template slot="noResult">
+          <span>No appointment type match!</span>
+        </template>
+      </v-multiselect>
+
+      <div id="appointment-types-color-wrap" class="mt-20">
+
+        <div class="form-group row-appointment-type" v-for="appt_type in settings.appointment_type_colors" key="appt_type.id">
+          <label>{{ appointmentTypeName(appt_type.id) }}:</label>
+          <div class="row">
+
+            <div class="col-xs-10">
+              <div class="input-group">
+                <input type="text" class="form-control" v-model="appt_type.color">
+                <span class="input-group-addon color-picker-wrap">
+                  <color-picker v-model="appt_type.color"></color-picker>
+                </span>
+              </div>
+            </div>
+
+            <div class="col-xs-2">
+              <a href="#" class="text-danger small" @click.prevent="onClickRemoveAppointmentType(appt_type)">Remove</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <legend class="sub">Tasks:</legend>
+      <div>
+        <div class="check-box">
+          <input type="checkbox" id="cb-show-tasks" v-model="settings.is_show_tasks">
+          <label for="cb-show-tasks">Show completed tasks</label>
+        </div>
+      </div>
+
+    </div>
+    <div slot="modal-footer" class="modal-footer bg-gray-light">
+      <button class="btn btn-primary" type="button" @click="saveSettings" :disabled="loading">Save settings</button>
+      <button class="btn btn-white" type="button" @click="show = false" :disabled="loading">Cancel</button>
+    </div>
+  </modal>
+</script>

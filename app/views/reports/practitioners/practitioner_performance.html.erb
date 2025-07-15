@@ -1,0 +1,421 @@
+<% content_for :title, 'Practitioner performance' %>
+
+<section class="box-header">
+  <h1>Practitioner performance</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Practitioner</a>
+    </li>
+    <li class="active">Performance</li>
+  </ul>
+</section>
+
+<% if @report %>
+<section class="print-head">
+  <h3 class="text-center">Practitioner performance</h3>
+  <div class="date-range text-center">
+    <%= @options.start_date.strftime(t('date.common')) %> -
+    <%= @options.end_date.strftime(t('date.common')) %>
+  </div>
+</section>
+<% end %>
+
+<section class="content">
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+      <form action="<%= reports_practitioner_performance_path %>">
+        <div class="row">
+
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Date:</label>
+              <div class="input-group">
+                <input type="text"
+                  class="form-control flatpickr-datepicker"
+                  name="start_date"
+                  value="<%= @options.start_date.strftime("%Y-%m-%d") %>"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  >
+                <span class="input-group-addon input-group-addon-middle">to</span>
+                <input type="text"
+                  class="form-control flatpickr-datepicker"
+                  value="<%= @options.end_date.strftime("%Y-%m-%d") %>"
+                  name="end_date"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  >
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <% today = Date.current %>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_week %>" data-end-date="<%= today.end_of_week %>">This week</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_week.beginning_of_week %>" data-end-date="<%= today.last_week.end_of_week %>">Last week</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Practitioners: </label>
+              <select class="form-control selectize" name="practitioner_ids[]" multiple="true" id="js-input-practitioner-ids">
+                <option value="">All</option>
+                <%=
+                  options_for_select(
+                    business_pracititioner_options_for_select(current_business, include_inactive: true),
+                    @options.practitioner_ids
+                  )
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Practitioner groups:</label>
+              <select class="form-control selectize" name="practitioner_group_ids[]" multiple id="js-input-practitioner-group-ids">
+              <option value="">All</option>
+              <%=
+                  options_for_select(
+                  practitioner_group_options_for_select(current_business),
+                  @options.practitioner_group_ids
+                  )
+              %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-2 <%= 'visually-disabled' if @options.practitioner_group_ids.present? || @options.practitioner_ids.present? %>" id="js-cb-include-inactive-wrap">
+            <div class="check-box mt-30">
+              <input type="checkbox" name="include_inactive_practitioner" id="cb-include-inactive" value="1" <%= 'checked' if @options.include_inactive_practitioner %> >
+              <label for="cb-include-inactive">Include inactive practitioners</label>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="check-box mt-30">
+              <input type="checkbox" name="invoice_stats_by_service_date" id="cb-invoice_stats_by_service_date" value="1" <%= 'checked' if @options.invoice_stats_by_service_date %>>
+              <label for="cb-invoice_stats_by_service_date">Invoice stats by service date</label>
+              <i class="fa fa-question-circle"
+                data-toggle="popover"
+                data-title="Invoice stats by service date"
+                data-trigger="hover"
+                data-placement="top"
+                data-content="Check this option to calculate invoice statistics based on the service date(either appointment date or task completion date). If unchecked, the issue date will be used."></i>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if @report %>
+    <div class="text-right hidden-print mb-10">
+      <a href="<%= reports_practitioner_performance_path(@options.to_params.merge(format: :csv)) %>"
+      class="btn btn-white">
+        <i class="fa fa-download"></i> CSV
+      </a>
+
+      <button type="button" class="btn btn-white" onclick="print()"><i class="fa fa-print"></i> Print</button>
+
+      <button class="btn btn-white btn-form"
+        type="button"
+        data-form-url="<%= reports_send_practitioner_performance_path(@options.to_params) %>"
+        data-form-method="POST"
+        data-form-confirmation="Are you sure you want to send to all practitioners?"
+        ><i class="fa fa-envelope-o"></i> Send all</button>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Practitioner</th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Number of appointments, excluding cancelled or deleted ones."
+                    >Appointments</span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Number of appointments divided by maximum appointments specified in practitioner availability blocks."
+                    >Occupancy
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Number of cancelled appointments."
+                    >Cancelation
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Number of treatment notes created by the practitioner."
+                    >Treatment<br>notes
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Number of letters created by the practitioner."
+                    >Letters
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Number of invoices, excluding voided ones."
+                    >Invoices
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total invoiced amount"
+                    >Invoice total
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total invoiced amount excludes tax"
+                    >Invoice total<br>ex tax
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="The average invoice amount."
+                    >Average invoice
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Patient visit average. The number of appointments divided by the number of clients."
+                    >PVA
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total availability hours, excluding non-billable availability."
+                    >Availability<br><small>(hrs)</small>
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total duration of appointments"
+                    >Appointment duration<br><small>(hrs)</small>
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total travel distance for home visit appointments."
+                    >Travel distance<br><small>(km)</small>
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total travel duration for home visit appointments."
+                    >Travel duration<br><small>(hrs)</small>
+                  </span>
+                </th>
+                <th>
+                  <span
+                    data-toggle="popover"
+                    data-trigger="hover"
+                    data-content="Total availability minus appointment and travel duration."
+                    >Vacant<br><small>(hrs)</small>
+                  </span>
+                </th>
+                <th class="hidden-print"></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @report.result[:data].each do |row| %>
+                <%
+                  practitioner = row[:practitioner]
+                  occupancy = ((row['appointments_count'] / row['max_appointments'].to_f) * 100).round(2)
+                  avg_invoice_amount = (row['invoices_count'].zero? || row['invoiced_amount'].zero?) ? 0 : (row['invoiced_amount'].to_f / row['invoices_count'].to_f)
+                  pva = (row['appointments_count'].zero? || row['patients_count'].zero?) ? 0 : (row['appointments_count'].to_f / row['patients_count'].to_f).round(1)
+                %>
+                <tr>
+                  <td>
+                    <b><%= practitioner.full_name %></b>
+                    <% if !practitioner.active? %>
+                      <span class="label label-sm label-default">Inactive</span>
+                    <% end %>
+                    <div class="text-smaller">
+                      <%= practitioner.profession %>
+                    </div>
+                  </td>
+                  <td>
+                    <%= row['appointments_count'] %>
+                  </td>
+                  <td>
+                    <%= occupancy %>%
+                  </td>
+                  <td>
+                    <%= row['cancelleds_count'] %>
+                  </td>
+                  <td>
+                    <%= row['treatment_notes_count'] %>
+                  </td>
+                  <td>
+                    <%= row['letters_count'] %>
+                  </td>
+                  <td><%= row['invoices_count'] %></td>
+                  <td><%= format_money row['invoiced_amount'] %></td>
+                  <td><%= format_money row['invoiced_amount_ex_tax'] %></td>
+                  <td><%= format_money avg_invoice_amount.to_s %></td>
+                  <td><%= pva %></td>
+                  <td>
+                    <%= (row['availability_duration'].to_f / 3600).round(2) %>
+                  </td>
+                  <td>
+                    <%= (row['appointments_duration'].to_f / 3600).round(2) %>
+                  </td>
+                  <td>
+                    <%= format_travel_distance_report row['travel_distance'] %>
+                  </td>
+                  <td>
+                    <%= format_travel_duration_report row['travel_duration'] %>
+                  </td>
+                  <td>
+                    <%= format_travel_duration_report row['vacant_duration'] %>
+                  </td>
+                  <td class="hidden-print">
+                    <button class="btn btn-white btn-form"
+                      type="button"
+                      data-form-url="<%= reports_send_practitioner_performance_path(@options.to_params.merge(practitioner_ids: [practitioner.id])) %>"
+                      data-form-method="POST"
+                      data-form-confirmation="Are you sure?"
+                      >Send</button>
+                  </td>
+                </tr>
+              <% end %>
+
+              <% if @report.result[:data].present? %>
+                <%
+                  total_schedules = @report.result[:data].sum {|r| r["appointments_count"].to_i}
+                  total_cancellations = @report.result[:data].sum {|r| r["cancelleds_count"].to_i}
+                  total_max_appointments = @report.result[:data].sum {|r| r["max_appointments"].to_i}
+                  total_invoices_amount = @report.result[:data].sum {|r| r["invoiced_amount"].to_f}
+                  total_invoices_amount_ex_tax = @report.result[:data].sum {|r| r["invoiced_amount_ex_tax"].to_f}
+                  total_created_treatment_notes = @report.result[:data].sum { |r| r["treatment_notes_count"] }
+                  total_created_letters = @report.result[:data].sum { |r| r["letters_count"] }
+                  total_invoices_count = @report.result[:data].sum { |r| r["invoices_count"] }
+                  total_availability_duration = @report.result[:data].sum { |r| r["availability_duration"] }
+                  total_appointments_duration = @report.result[:data].sum { |r| r["appointments_duration"] }
+                  total_travel_duration = @report.result[:data].sum { |r| r["travel_duration"] }
+                  total_travel_distance = @report.result[:data].sum { |r| r["travel_distance"] }
+                  total_vacant_duration = @report.result[:data].sum { |r| r["vacant_duration"] }
+                  total_avg_invoice_amount = (total_invoices_amount / total_invoices_count.to_f)
+
+                  total_pva = (@report.result[:total_patients_count].zero? || total_schedules.zero?) ? 0 : (total_schedules.to_f / @report.result[:total_patients_count].to_f).round(1)
+                %>
+
+                <tr class="text-bolder bg-gray-light">
+                  <td>Total</td>
+                  <td><%= total_schedules %></td>
+                  <td>
+                    <% if total_schedules > 0 && total_max_appointments > 0 %>
+                      <%= ((total_schedules / total_max_appointments.to_f) * 100).to_f.round(2) %>%
+                    <% end %>
+                  </td>
+                  <td><%= total_cancellations %></td>
+                  <td><%= total_created_treatment_notes %></td>
+                  <td><%= total_created_letters %></td>
+                  <td><%= total_invoices_count %></td>
+                  <td><%= format_money total_invoices_amount.to_s %></td>
+                  <td><%= format_money total_invoices_amount_ex_tax.to_s %></td>
+                  <td><%= format_money total_avg_invoice_amount.to_s %></td>
+                  <td>
+                    <%= total_pva %>
+                  </td>
+                  <td>
+                    <%= (total_availability_duration.to_f / 3600).round(2) %>
+                  </td>
+                  <td>
+                    <%= (total_appointments_duration.to_f / 3600).round(2) %>
+                  </td>
+                  <td>
+                    <%= format_travel_distance_report total_travel_distance %>
+                  </td>
+                  <td>
+                    <%= format_travel_duration_report total_travel_duration %>
+                  </td>
+                  <td>
+                    <%= format_travel_duration_report total_vacant_duration %>
+                  </td>
+                  <td></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-btn-date-range]').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+    $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+  });
+
+  $('#js-input-practitioner-ids, #js-input-practitioner-group-ids').on('change', function() {
+    var isAnyPractitionerSpecified = ($('#js-input-practitioner-ids').val() != null) || ($('#js-input-practitioner-group-ids').val() != null);
+    $('#js-cb-include-inactive-wrap').toggleClass('visually-disabled', isAnyPractitionerSpecified);
+  });
+</script>
+
+<% end %>

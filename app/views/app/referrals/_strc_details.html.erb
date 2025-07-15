@@ -1,0 +1,42 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>STRC details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Company name</strong>
+          <p>
+            <%= @referral.patient_attrs[:strc_company_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Company phone</strong>
+          <p>
+            <%= @referral.patient_attrs[:strc_company_phone].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Invoice to name</strong>
+          <p>
+            <%= @referral.patient_attrs[:strc_invoice_to_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Invoice to email</strong>
+          <p>
+            <%= @referral.patient_attrs[:strc_invoice_to_email].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

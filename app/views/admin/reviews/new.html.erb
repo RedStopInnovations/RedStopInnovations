@@ -1,0 +1,25 @@
+<section class="box-header">
+  <h1>Add review</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_reviews_path %>">Manage reviews</a>
+    </li>
+    <li class="active">Add review</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <%= render 'form', review: @review %>
+      </div>
+    </div>
+  </div>
+</section>

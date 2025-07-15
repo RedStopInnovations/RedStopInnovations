@@ -1,0 +1,51 @@
+<%= content_for :body_class, 'white'%>
+
+<section class="practitioner-page">
+  <% if @practitioner.present? %>
+  <div class="sidebar">
+    <div class="box-avatar">
+      <img src="<%= @practitioner.profile_picture_url(:medium) %>" class="avatar"/>
+    </div>
+    <div class="member-block-body">
+      <div class="contact-info">
+        <h4 class="name"><%= @practitioner.full_name %></h4>
+        <h5><%= @practitioner.profession %></h5>
+      </div>
+    </div>
+    <div class="block">
+      <h3 class="text-left">Registration</h3>
+      <ul>
+        <li>
+          <strong>AHPRA:</strong> <%= @practitioner.ahpra %>
+        </li>
+        <li>
+          <strong>Medicare:</strong> <%= @practitioner.medicare %>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="content">
+    <div class="block box-profession">
+      <h5><%= @practitioner.full_name %></h5>
+      <h6><%= @practitioner.profession %></h6>
+    </div>
+
+    <div class="block center">
+      <a href="#" class="btn btn-ellipse btn-default"
+        target="_blank">
+        Book Home Visit
+      </a>
+    </div>
+
+    <div class="offset-top-66 text-left">
+      <h3>Summary</h3>
+      <p><%= simple_format @practitioner.summary %></p>
+    </div>
+  </div>
+  <% else %>
+    <div class="alert">
+      Not found practitioner
+    </div>
+  <% end %>
+</section>
+<a href="#"></a>

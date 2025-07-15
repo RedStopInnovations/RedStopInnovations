@@ -1,0 +1,8 @@
+(function() {
+  <% if @result.success %>
+  $('#modal-edit-patient-access').modal('hide');
+  Flash.success('Client access has been successfully updated.');
+  <% else %>
+  Flash.error('An error has occurred. Sorry for the inconvenience.');
+  <% end %>
+})();

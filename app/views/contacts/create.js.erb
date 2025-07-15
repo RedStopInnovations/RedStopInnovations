@@ -1,0 +1,24 @@
+(function() {
+    <% if @contact.valid? %>
+        $("#modal-add-contact").modal("hide");
+        Flash['success']('Contact was successfully created.');
+        var contactSelectize = $("#select-invoice-contact")[0].selectize;
+        contactSelectize.addOption(
+                {
+                    id: <%= @contact.id %>,
+                    business_name: '<%= @contact.business_name %>',
+                    full_name: '<%= @contact.full_name %>',
+                    first_name: '<%= @contact.first_name %>',
+                    last_name: '<%= @contact.last_name %>',
+                },
+                true
+            );
+        contactSelectize.refreshOptions();
+        contactSelectize.setValue(<%= @contact.id %>);
+    <% else %>
+        var modalHTML = $.parseHTML('<%= j(render 'modal_add', object: @contact) %>');
+        $("#modal-add-contact form .modal-body").remove();
+        $("#modal-add-contact form").prepend($(modalHTML).find('.modal-body'));
+        Flash['error']('Failed to create contact. Please check for form errors.');
+    <% end %>
+})();

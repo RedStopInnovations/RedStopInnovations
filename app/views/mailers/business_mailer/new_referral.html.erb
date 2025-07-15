@@ -1,0 +1,40 @@
+Dear <%= @business.name %>,
+<br>
+<br>
+
+New referral received:
+<p>
+  <b>Service:</b> <br>
+  Professions: <%= @referral.professions.join(', ') %> <br>
+  Availability type: <%= @referral.availability_type.try(:name) %> <br>
+  Practitioner: <%= @referral.practitioner ? @referral.practitioner.full_name : "Any Practitioner" %>
+</p>
+
+<p>
+  <b>Client details:</b> <br>
+  Name: <%= @referral.patient_name %> <br>
+  Address: <%= @referral.patient_address %> <br>
+  <% if @referral.patient_attrs[:phone] %>
+    Phone: <%= @referral.patient_attrs[:phone] %> <br>
+  <% end %>
+  <% if @referral.patient_attrs[:mobile] %>
+    Mobile: <%= @referral.patient_attrs[:mobile] %> <br>
+  <% end %>
+
+  <% if @referral.patient_attrs[:email] %>
+    Email: <%= @referral.patient_attrs[:email] %>
+  <% end %>
+</p>
+
+<p>
+  <b>Referrer details:</b> <br>
+  Business name: <%= @referral.referrer_business_name %> <br>
+  Name: <%= @referral.referrer_name %> <br>
+  Email: <%= @referral.referrer_email %> <br>
+  Phone: <%= @referral.referrer_phone %>
+</p>
+
+<a href="<%= app_referral_url(@referral) %>">View more details</a>
+<br>
+<br>
+

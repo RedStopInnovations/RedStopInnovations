@@ -1,0 +1,273 @@
+<% content_for :title, @business.name %>
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @business.name %> <% if @business.suspended? %> <span class="label label-default">Suspended</span><% end %></h1>
+    </div>
+    <div class="col-xs-6 text-right">
+
+      <a href="<%= approve_admin_business_path(@business) %>" data-method="PUT" data-confirm="Are you sure you want to <%= @business.active? ? 'Disapprove' : 'APPROVE' %> this business account?" class="btn btn-white">
+        <% if @business.active? %>
+          Disapprove
+        <% else %>
+          Approve
+        <% end %>
+      </a>
+
+      <a href="#" class="btn btn-danger btn-form"
+        data-form-url="<%= suspend_admin_business_path(@business) %>"
+        data-form-method="PUT"
+        data-form-confirmation="Are you sure you want to <%= @business.suspended? ? 'Unsuspend' : 'Suspend' %> this business account?"
+        >
+          <% if @business.suspended? %>
+            Unsuspend
+          <% else %>
+            Suspend
+          <% end %>
+        </a>
+      <a href="<%= edit_admin_business_path(@business) %>" class="btn btn-white">
+        <i class="fa fa-pencil"></i> Edit details
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_businesses_path %>">Businesses</a>
+    </li>
+    <li><%= @business.name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-xs-3">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>ID:</strong>
+            <p><%= @business.id %></p>
+          </div>
+          <div class="block-info">
+            <strong>Logo:</strong>
+            <p>
+              <% if @business.avatar.exists? %>
+                <img src="<%= @business.avatar.url(:thumb) %>">
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Name:</strong>
+            <p><%= @business.name %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Address:</strong>
+            <p><%= @business.short_address %></p>
+          </div>
+          <div class="block-info">
+            <strong>Phone:</strong>
+            <p>
+              <% if @business.phone.present? %>
+                <%= @business.phone %>
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Mobile:</strong>
+            <p>
+              <% if @business.mobile.present? %>
+                <%= @business.mobile %>
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Email:</strong>
+            <p><%= @business.email %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-3">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Join date:</strong>
+            <p>
+              <%= @business.created_at.strftime('%d/%b/%Y') %> (<%= (Date.today - @business.created_at.to_date).to_i %> days)
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Admin last login:</strong>
+            <p>
+              <% first_admin_user = @business.users.role_administrator.order(id: :asc).first %>
+              <% if first_admin_user %>
+                <%= (first_admin_user.current_sign_in_at || first_admin_user.last_sign_in_at).strftime(t('datetime.short_12h_z')) %>
+              <% end %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>No. users:</strong>
+            <p>
+              All: <%= @business.users.count %>; Active: <%= @business.users.where(active: true).count %>; Practitioners: <%= @business.users.practitioner_user.count %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Credit card added?</strong>
+            <p>
+              <% if @business.subscription.credit_card_added? %>
+                <i class="fa fa-check"></i>
+              <% else %>
+                <span class="text-muted">No</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Subscription:</strong>
+            <%
+              subscription = @business.subscription
+              last_invoice = @business.business_invoices.order(created_at: :desc).first
+            %>
+            <p>
+              Current period: <%= subscription.billing_start.strftime('%d/%b/%Y') %> - <%= subscription.billing_end.strftime('%d/%b/%Y') %> <br>
+              Invoices created: <%= @business.business_invoices.count %> <br>
+              Last invoice: <% if last_invoice %> <%= last_invoice.issue_date.strftime('%d/%b/%Y') %> | $<%= last_invoice.amount %> <% else %> <span class="text-muted">N/A</span> <% end %> <br>
+              <a href="<%= admin_subscription_path(subscription.id) %>">Subscription details</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">Last 30 days</div>
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Appoinments:</strong>
+            <p>
+              <%= @business.appointments.where(start_time: 30.days.ago...Time.current).count %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Appoinments created:</strong>
+            <p>
+              <%= @business.appointments.where('appointments.created_at >= ?', 30.days.ago).count %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Invoices:</strong>
+            <p>
+              <%= @business.invoices.where(created_at: 30.days.ago...Time.current).count %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>New patients:</strong>
+            <p>
+              <%= @business.patients.where(created_at: 30.days.ago...Time.current).count %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Active users:</strong>
+            <p>
+              <%= @business.users.where('current_sign_in_at >= ?', 30.days.ago).count %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Users</div>
+    <div class="panel-body">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Is practitioner?</th>
+            <th>Role</th>
+            <th>2FA enabled</th>
+            <th>Last login</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @business.users.order(active: :desc, full_name: :asc).each do |user| %>
+            <tr>
+              <td>
+                <a href="<%= admin_user_path(user) %>"><%= user.full_name %></a>
+                <% if !user.active? %>
+                  <span class="label label-default">Inactive</span>
+                <% end %>
+                <br>
+                <span class="text-smaller"><%= user.email %></span>
+              </td>
+
+              <td>
+                <% if user.is_practitioner? %>
+                  <i class="fa fa-check"></i><br>
+                <% end %>
+              </td>
+
+              <td><%= user.role.titleize %></td>
+
+              <td>
+                <% if user.enable_google_authenticator? %>
+                  <i class="fa fa-check"></i>
+                <% end %>
+              </td>
+              <td>
+                <% if user.current_sign_in_at %>
+                  <%= user.current_sign_in_at.strftime(t('datetime.short_12h_z')) %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </td>
+
+              <td>
+                <div class="btn-group">
+                  <a href="<%= admin_user_path(user) %>" class="btn btn-white">Details</a>
+                  <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                      <a href="<%= edit_admin_user_path(user) %>">Edit details</a>
+                    </li>
+                    <% if user.active? %>
+                      <li>
+                        <a href="<%= login_as_admin_user_path(user) %>" target="_blank">Login as this user</a>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+</section>

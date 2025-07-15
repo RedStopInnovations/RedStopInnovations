@@ -1,0 +1,244 @@
+<% content_for :title, 'Account settings - Profile' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Profile</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+
+    <%= render 'app/account_settings/tabs', { active_tab: 'profile' } %>
+
+      <%= simple_nested_form_for @form, as: :user, url: app_account_settings_profile_path, method: 'PUT', wrapper: :vertical_form, html: { enctype: 'multipart/form-data' } do |f| %>
+        <div class="row">
+          <div class="col-md-6 col-xs-12">
+            <div class="box">
+              <div class="form-group">
+                <label>Profile picture</label>
+                <br>
+                <div class="box-avatar-preview" <% if @user.avatar.exists? %> style="background-image: url(<%= @user.avatar.url(:thumb) %>)" <% end %>>
+                  <span class="btn-edit" id="btn-select-avatar"><i class="fa fa-pencil"></i> Edit </span>
+                </div>
+              </div>
+
+              <%= f.input :first_name, required: true %>
+              <%= f.input :last_name, required: true %>
+              <%= f.input :timezone, collection: timezone_options %>
+              <%= f.input :email, required: true %>
+              <a href="<%= app_account_settings_profile_pre_change_password_path %>" data-remote="true">Change password</a>
+            </div>
+          </div>
+        </div>
+
+        <% if @user.is_practitioner? %>
+          <h4>Practitioner information</h4>
+          <%= render 'practitioner_fields', f: f %>
+        <% end %>
+        <hr>
+        <button class="btn btn-primary">Update</button>
+        <a href="<%= app_account_settings_profile_path %>" class="btn btn-white">Cancel</a>
+      <% end %>
+  </div>
+</section>
+
+<%= render 'modal_change_signature' %>
+
+<% if @user.is_practitioner? %>
+  <% content_for :page_js do %>
+  <script type="text/javascript">
+    // Modal change practitioner signature
+    (function() {
+      var $btnTriggerModal = $('.js-btn-change-signature');
+      var $modal = $("#modal-practitioner-signature");
+
+      var signaturePad;
+      var $btnClear = $modal.find('.js-btn-clear-pad');
+      var $btnUndo = $modal.find('.js-btn-undo-pad');
+      var $signaturePadCanvas = $modal.find('.js-signature-pad');
+      var $signaturePadCanvasWrap = $modal.find('.js-signature-pad-wrap');
+      var $btnSubmitDraw = $modal.find('.js-btn-submit-pad');
+
+      var $btnSelectFile = $modal.find('.js-btn-select-file');
+      var $inputFile = $modal.find('.js-input-file');
+      var $btnUploadFile = $modal.find('.js-btn-upload-file');
+
+      var init = function() {
+        $btnSubmitDraw.attr('disabled', true);
+        $btnUploadFile.attr('disabled', true);
+        $inputFile.val('');
+
+        if (!signaturePad) {
+          $signaturePadCanvas.attr('width', $signaturePadCanvasWrap.width());
+          $signaturePadCanvas.attr('height', $signaturePadCanvasWrap.height());
+
+          signaturePad = new SignaturePad($signaturePadCanvas.get(0), {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(0, 0, 0)'
+          });
+
+          signaturePad.onEnd = function() {
+            $btnSubmitDraw.removeAttr('disabled');
+          }
+        }
+
+        signaturePad.clear();
+      };
+
+      $btnClear.click(function(e) {
+        e.preventDefault();
+        signaturePad.clear();
+        $btnSubmitDraw.removeAttr('disabled');
+      });
+
+      $btnUndo.click(function(e) {
+        e.preventDefault();
+
+        var data = signaturePad.toData();
+        if (data) {
+          data.pop(); // remove the last dot or line
+          signaturePad.fromData(data);
+        }
+      });
+
+      $btnSelectFile.click(function(e) {
+        e.preventDefault();
+        $inputFile.val('');
+        $inputFile.trigger('click');
+      });
+
+      var validateSelectedFile = function(file) {
+        // Validate file size
+        if (file.size > 100 * 1024) {
+          Flash.warning('The selected file is too large. Maximum is 100KB.');
+          return false;
+        }
+
+        // Validate file mimetype
+        if (["image/jpeg", "image/png", "image/jpg"].indexOf(file.type) === -1) {
+          Flash.warning('Only PNG or JPG images are allowed.');
+          return false;
+        }
+
+        return true;
+      };
+
+      var uploadSelectedFile = function(file) {
+        var formData = new FormData;
+        formData.append('signature_image_file', file);
+
+        $.ajax({
+          method: 'POST',
+          url: '<%= app_account_settings_profile_change_signature_path %>',
+          data: formData,
+          contentType: false,
+          cache: false,
+          processData: false,
+        });
+      };
+
+      $inputFile.on('change', function() {
+        var file = $inputFile.get(0).files[0];
+
+        if (file) {
+          var isValid = validateSelectedFile(file);
+          if (isValid) {
+            $btnUploadFile.removeAttr('disabled');
+          } else {
+            $inputFile.val('');
+            $btnUploadFile.attr('disabled', true);
+          }
+        } else {
+          $btnUploadFile.attr('disabled', true);
+        }
+      });
+
+      $btnSubmitDraw.click(function(e) {
+        e.preventDefault();
+
+        if (signaturePad.isEmpty()) {
+          Flash.warning('Signature is blank!');
+        } else {
+          var formData = {
+            signature_image_data_url: signaturePad.toDataURL()
+          };
+
+          $.ajax({
+            method: 'POST',
+            url: '<%= app_account_settings_profile_change_signature_path %>',
+            data: formData,
+          });
+        }
+      });
+
+      $btnUploadFile.click(function(e) {
+        e.preventDefault();
+
+        if ($inputFile.get(0).files.length === 0) {
+          Flash.warning('No file chosen!');
+        } else {
+          var file = $inputFile.get(0).files[0];
+          var isValid = validateSelectedFile(file);
+          if (isValid) {
+            uploadSelectedFile(file);
+          }
+        }
+      });
+
+      $btnTriggerModal.on('click', function(e) {
+        e.preventDefault();
+        $modal.modal('show');
+      });
+
+      $modal.on('shown.bs.modal', function() {
+        init();
+      });
+
+    })();
+  </script>
+  <% end %>
+<% end %>
+
+<%= render 'modal_crop_avatar' %>
+
+<% content_for :page_js do %>
+  <script>
+  $('#btn-select-avatar').click(function() {
+    $("#modal-crop-avatar").modal({
+      backdrop: 'static',
+      keyboard: false
+    })
+    .modal('show');
+
+    // Open file dialog automatically
+    setTimeout(function() {
+      $("#modal-crop-avatar").find('.input-file').click();
+    }, 100);
+  });
+
+  $('#modal-crop-avatar').on('cropped', function(event, file, imageDataUrl) {
+    $.ajax({
+      url: '<%= app_account_settings_profile_update_avatar_path %>',
+      method: 'PUT',
+      data: {
+        avatar_data_url: imageDataUrl
+      },
+      success: function(res) {
+        $('.box-avatar-preview').css('background-image', 'url(' + res.avatar.thumb + ')');
+        $('.user-image').attr('src', res.avatar.thumb);
+        Flash.success('Your profile picture has been successfully updated.');
+      },
+      error: function(xhr) {
+        var errorMsg = 'An error has occured. Sorry for the inconvenience.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMsg = xhr.responseJSON.message;
+        }
+        Flash.error(errorMsg);
+      }
+    });
+  });
+  </script>
+<% end %>

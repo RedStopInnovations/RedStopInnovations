@@ -1,0 +1,82 @@
+<%
+predefined_ranges =  ['next7days', 'next14days', 'next28days']
+%>
+<section class="search-form">
+  <form action="<%= frontend_facility_bookings_path %>" method="GET" id="form-search">
+    <input type="hidden" name="business_id" value="<%= @filters.business_id %>">
+    <input type="hidden" name="contact_id" value="<%= @filters.contact_id %>">
+
+    <div class="row">
+      <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+          <label class="text-muted">Profession</label>
+          <select name="profession"
+            class="form-control"
+            id="select-profession">
+            <option value="">All</option>
+            <%= options_for_select(@available_professions, params[:profession]) %>
+          </select>
+        </div>
+      </div>
+      <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+          <label class="text-muted">Practitioner</label>
+          <select name="practitioner_id"
+            class="form-control"
+            id="select-practitioner">
+            <option value="">Any</option>
+            <%= options_from_collection_for_select(practitioners, :id, :full_name, params[:practitioner_id]) %>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row list-days">
+      <div class="col-sm-4 col-xs-6">
+        <div class="row">
+          <div class="col-sm-6 col-xs-6">
+            <div class="form-group">
+              <label class="text-muted">Date:</label>
+              <select name="date"
+                class="form-control <%= 'active' if predefined_ranges.include?(@filters.date) %>"
+                id="select-date-range">
+                <option disabled <%= 'selected' unless predefined_ranges.include?(@filters.date) %>> Select date range</option>
+                <option value="next7days" <%= 'selected' if @filters.date == 'next7days' %>>Next 7 days</option>
+                <option value="next14days" <%= 'selected' if @filters.date == 'next14days' %>>Next 14 days</option>
+                <option value="next28days" <%= 'selected' if @filters.date == 'next28days' %>>Next 28 days</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-xs-6">
+            <%
+              specific_date = nil
+              unless predefined_ranges.include?(@filters.date) || @filters.date.blank?
+                 begin
+                   specific_date = @filters.date.to_date
+                 rescue ArgumentError
+                 end
+              end
+            %>
+
+            <div class="form-group datepicker-wrap">
+              <label for="input-custom-date" class="text-muted">Or specific date:</label>
+              <input type="date" class="form-control daterpicker input-custom-date <%= 'active' if specific_date %>"
+                placeholder="Select date"
+                <% if specific_date %>
+                  name="date"
+                  value="<%= specific_date.strftime('%Y-%m-%d') %>"
+                <% end %>
+                />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-sm-6 col-xs-12">
+        <button class="btn btn-warning btn-search mt-md-6">Search</button>
+      </div>
+    </div>
+  </form>
+</section>

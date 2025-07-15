@@ -1,0 +1,54 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Registered providers</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= settings_claiming_integration_register_providers_path %>" class="btn sitebtn">Add providers</a>
+    </div>
+  </div>
+
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= settings_claiming_integration_path %>">Medicare & DVA integration</a></li>
+    <li class="active">Registered providers</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <table class="table-flat">
+      <thead>
+        <th>Name</th>
+        <th>Number</th>
+        <th>Date</th>
+      </thead>
+      <tbody>
+        <% @providers.each do |provider| %>
+          <tr>
+            <td><%= provider.name %></td>
+            <td><%= provider.provider_number %></td>
+            <td>
+              <%= provider.created_at.strftime('%d %b, %Y %l:%M%P') %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @providers, entry_name: 'provider' %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @providers %>
+      </div>
+    </div>
+
+  </div>
+</section>

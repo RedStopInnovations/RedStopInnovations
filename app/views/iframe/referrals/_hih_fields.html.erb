@@ -1,0 +1,63 @@
+
+  <h3>Client hospital details</h3>
+  <div class="box">
+    <div class="row">
+    <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_hospital, label: 'Hospital name' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_procedure, label: 'Surgical procedure' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_surgery_date, required: true, as: :string, wrapper: :vertical_input_group, label: 'Surgery date' do %>
+        <%= ff.input_field :hih_surgery_date, class: "form-control daterpicker", placeholder: 'dd/mm/yyyy' %>
+        <div class="input-group-btn">
+          <button class="btn btn-default btn-trigger-datepicker data-toggle" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_discharge_date, required: true, as: :string, wrapper: :vertical_input_group, label: 'Anticipated discharge date' do %>
+        <%= ff.input_field :hih_discharge_date, class: "form-control daterpicker", placeholder: 'dd/mm/yyyy' %>
+        <div class="input-group-btn">
+          <button class="btn btn-default btn-trigger-datepicker data-toggle" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_doctor_name, label: 'Doctor name' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_doctor_phone, label: 'Doctor phone' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hih_doctor_email, label: 'Doctor email' %>
+    </div>
+    <% end %>
+  </div>
+</div>
+
+
+<h3>Client health insurance</h3>
+<div class="box">
+  <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+  <div class="row">
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hi_company_name, label: 'Health Insurer Name' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hi_number, label: 'Member Number' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hi_manager_name, label: 'Invoice to name' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hi_manager_email, label: 'Invoice to email' %>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <%= ff.input :hi_manager_phone, label: 'Contact phone' %>
+    </div>
+  </div>
+  <% end %>
+</div>

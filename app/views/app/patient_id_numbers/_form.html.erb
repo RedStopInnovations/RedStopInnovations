@@ -1,0 +1,90 @@
+<%
+  selected_contact = nil
+  contact_options = []
+  if patient_number.contact_id?
+    selected_contact = current_business.contacts.find_by(id: patient_number.contact_id)
+  end
+
+  if selected_contact
+    contact_options << selected_contact
+  end
+
+  @patient.invoice_to_contacts.each do |contact|
+    if selected_contact.nil? || (selected_contact.id != contact.id)
+      contact_options << contact
+    end
+  end
+%>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <%= simple_form_for patient_number, url: patient_number.new_record? ? app_patient_id_numbers_path(@patient) : app_patient_id_number_path(@patient, patient_number) do |f| %>
+
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :contact_id, as: :select, collection: [], label_method: :business_name, input_html: { id: 'select-contact' } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :id_number, label: 'ID number' %>
+      </div>
+    </div>
+
+    <div>
+      <button class="btn btn-primary" type="submit"><%= patient_number.new_record? ? "Save ID" : "Update ID" %></button>
+      <a href="<%= app_patient_id_numbers_path(@patient) %>" class="btn btn-white">Cancel</a>
+    </div>
+
+    <% end %>
+  </div>
+</div>
+
+<% content_for :page_js do %>
+<script>
+  (function() {
+    var currentContactOptions = <%= contact_options.to_json.html_safe %>;
+    var selectedContact = <%= selected_contact.to_json.html_safe %>;
+    console.log(currentContactOptions);
+    $('#select-contact').selectize({
+      plugins: ['no_results'],
+      valueField: 'id',
+      labelField: 'business_name',
+      searchField: ['business_name', 'full_name'],
+      create: false,
+      placeholder: "Type to search contact",
+      options: currentContactOptions,
+      render: {
+        option: function(item, escape) {
+          var text = item.business_name;
+          if (item.full_name) {
+            text += ' | ' + item.full_name;
+          }
+          return '<div>' + escape(text) + '</div>';
+        }
+      },
+      load: function(query, callback) {
+        if(!query.length) return callback();
+        var self = this;
+
+        $.get(
+          '/api/contacts/search?business_id=' + window.session.user.business_id + '&s=' + query,
+          function(res) {
+            self.clearOptions();
+            if (res.contacts.length > 0) {
+              callback(res.contacts);
+            } else {
+              self.$empty_results_container.show();
+            }
+          }
+        );
+      }
+    });
+
+    if (selectedContact) {
+      setTimeout(function() {
+        $('#select-contact')[0].selectize.setValue(selectedContact.id, true);
+      }, 200);
+    }
+  })();
+
+</script>
+<% end %>

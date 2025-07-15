@@ -1,0 +1,12 @@
+(function() {
+  if ($('#js-modal-edit-payment-methods').length > 0) {
+    $('#js-modal-edit-payment-methods').remove();
+  }
+
+  $('body').append('<%= j render('modal_edit_payment_methods', patient: @patient) %>');
+
+  const $modal = $('#js-modal-edit-payment-methods');
+  $modal.modal('show');
+
+  $modal.find('.flatpickr-datepicker').bindFlatpickr();
+})();

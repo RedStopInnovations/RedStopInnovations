@@ -1,0 +1,75 @@
+<div>
+    <span class="pull-right label <%= get_priority_class(@task.priority) %>">
+    <%= @task.priority %>
+    </span>
+    <strong><%= @task.name %></strong>
+    <p class="text-smaller mt-10">
+        <%= @task.description %>
+    </p>
+</div>
+
+<hr>
+
+<div class="block-info">
+    <strong>Client:</strong>
+    <p>
+        <% if @task.patient %>
+        <a href="<%= patient_path(@task.patient) %>"><%= @task.patient.full_name %></a>
+        <% else %>
+        <span class="text-muted">--</span>
+        <% end %>
+    </p>
+</div>
+
+<div class="block-info">
+    <strong>Due:</strong>
+    <p>
+        <%= @task.due_on&.strftime(t('date.common')) %>
+    </p>
+</div>
+
+<div class="block-info">
+    <strong>Assignees:</strong>
+    <ul class="pl-20 mt-5">
+        <% @task.task_users.each do |task_user| %>
+        <li>
+            <strong> <%= task_user.user&.full_name %></strong>
+            <% if task_user.status_complete? %>
+            <span> <span class="text-success">completed</span> the task <% if task_user.complete_at %> on <%= task_user.complete_at&.strftime(t('date.common')) %>.<% end %></span><% if task_user.completion_duration.present? %> Duration is <%= task_user.completion_duration %> minutes.<% end %>
+            <% if task_user.user_id == current_user.id %>
+                <a href="<%= modal_update_completion_task_path(@task) %>" data-remote="true" class="text-smaller">Edit</a>
+            <% end %>
+            <% end %>
+        </li>
+        <% end %>
+    </ul>
+</div>
+
+<div class="block-info">
+    <strong>Created:</strong>
+    <p>
+        <strong><%= @task.owner.full_name %></strong> <span> on <%= @task.created_at.strftime(t('date.common')) %></span>
+    </p>
+</div>
+
+<% if @task.patient_id? %>
+    <div class="block-info">
+        <strong>Invoice:</strong>
+        <p>
+        <% if @task.invoices.present? %>
+            <% @task.invoices.each do |inv| %>
+            <a href="<%= invoice_path(inv) %>"><%= inv.invoice_number %></a> <span class="text-muted"> | </span> Amount <%= format_money inv.amount %> <span class="text-muted"> | </span> Issued <%= inv.issue_date.strftime(t('date.common')) %>
+            <% end %>
+        <% else %>
+            <% if @task.is_invoice_required? %>
+            <span class="text-muted">--</span>
+              <% if @task.has_user_complete? %>
+                <a href="<%= new_invoice_path(task_id: @task.id, patient_id: @task.patient_id) %>">Add invoice</a>
+              <% end %>
+            <% else %>
+            <span class="text-muted">Not required</span>
+            <% end %>
+        <% end %>
+        </p>
+    </div>
+<% end %>

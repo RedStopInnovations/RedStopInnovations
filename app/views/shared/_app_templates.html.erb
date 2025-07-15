@@ -1,0 +1,3 @@
+<% Dir.glob(Rails.root.join('app/assets/javascripts/app/templates/**/*.html')).each do |file| %>
+  <%= File.read(file).html_safe %>
+<% end %>

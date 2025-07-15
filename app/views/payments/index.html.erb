@@ -1,0 +1,59 @@
+<% content_for :title, 'Payments' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Payments</h1>
+    </div>
+    <div class="text-right col-xs-6">
+      <a class="btn btn-primary" href="<%= new_payment_path %>">Add payment</a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Payment date</th>
+              <th>Amount</th>
+              <th>Allocated invoices</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @payments.each do |payment| %>
+              <tr>
+                <td><%= link_to payment.patient.full_name, patient_path(payment.patient) %></td>
+                <td><%= payment.payment_date.try(:strftime, t('date.common')) %></td>
+                <td><%= format_money payment.amount %></td>
+                <td>
+                  <% payment.payment_allocations.each do |pa| %>
+                    <a href="<%= invoice_path(pa.invoice) %>"><%= pa.invoice.invoice_number %></a>: <%= format_money pa.amount %>
+                    <br>
+                  <% end %>
+                </td>
+                <td>
+                  <a href="<%= payment_path(payment) %>" class="btn btn-white">Details</a>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col-md-6 text-left">
+            <%= page_entries_info @payments %>
+          </div>
+          <div class="col-md-6 text-right">
+            <%= paginate @payments, theme: 'app' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

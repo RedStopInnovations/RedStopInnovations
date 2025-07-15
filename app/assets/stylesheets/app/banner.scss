@@ -1,0 +1,47 @@
+.banner {
+  width: 100%;
+  padding: 3px 0px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  color: #515151;
+  background: #FFF;
+  border-bottom: 1px solid #ddd;
+  position: fixed;
+  z-index: 1030;
+  top: 0;
+  left: 0;
+  .danger-text {
+    color: #f44336;
+  }
+
+  &.banner-warning {
+    color: #FF8F00;
+  }
+
+  + .main-header {
+    top: 24px;
+    + .main-sidebar {
+      padding-top: 85px;
+      + .content-wrapper {
+        padding-top: 85px;
+      }
+    }
+  }
+
+  @media (max-width: 767px) {
+    min-height: 41px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    + .main-header {
+      top: 41px;
+      + .main-sidebar {
+        padding-top: 94px;
+        + .content-wrapper {
+          padding-top: 90px;
+        }
+      }
+    }
+  }
+}

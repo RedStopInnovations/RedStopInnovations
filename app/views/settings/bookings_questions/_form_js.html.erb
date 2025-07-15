@@ -1,0 +1,171 @@
+<script type="text/javascript">
+  (function() {
+    new Vue({
+      el: '#form-questions-wrap',
+      data: {
+        questions: [],
+        busy: false,
+        savedQuestionsCount: 0
+      },
+      mounted: function() {
+        // Fetch questions
+        var self = this;
+        $.ajax({
+          method: 'GET',
+          contentType: 'application/json',
+          beforeSend: function() {
+            self.busy = true
+          },
+          success: function(res) {
+            var questions = res.questions;
+
+            // Intitial `answers` for Text and Paragraph question to make it reactive
+            // incase user change to Checkboxes or Radiobuttons
+            for (var i = 0; i < questions.length; i++) {
+              var question = questions[i];
+              if ((question.answers == null) || typeof(question.answers) === 'undefined') {
+                question.answers = [];
+              }
+              question.errors = [];
+            }
+            self.questions = questions;
+            self.savedQuestionsCount = res.questions.length;
+          },
+          error: function(xhr) {
+            Flash.error('An error has occurred while loading the questions. Sorry for the inconvenience.');
+          },
+          complete: function() {
+            self.busy = false;
+          }
+        });
+      },
+      watch: {
+        busy: function(newVal, oldVal) {
+          if (newVal) {
+            $('#form-questions-wrap').loadingOn();
+          } else {
+            $('#form-questions-wrap').loadingOff();
+          }
+        }
+      },
+      methods: {
+        addQuestion: function() {
+          this.questions.push({
+            title: null,
+            type: 'Text',
+            required: true,
+            answers: [],
+            errors: []
+          });
+
+          // Auto focus the newest quetion title
+          this.$nextTick(function() {
+            $('#form-questions-wrap').find('.input-question-title:last-child').focus();
+          });
+        },
+        removeQuestion: function(question) {
+          if (confirm('Are you sure want to remove this question?')) {
+            this.questions.splice(this.questions.indexOf(question), 1);
+          }
+        },
+        onQuestionTypeChanged: function(question) {
+          switch (question.type) {
+            case 'Text':
+              question.answers = [];
+              break;
+            case 'Checkboxes':
+              if (question.answers.length === 0) {
+                question.answers = [
+                  {
+                    content: null
+                  }
+                ];
+              }
+            break;
+            case 'Radiobuttons':
+              if (question.answers.length === 0) {
+                question.answers = [
+                  {
+                    content: null
+                  }
+                ];
+              }
+
+            break;
+          }
+        },
+        addAnswer: function(question) {
+          if (!question.answers) {
+            question.answers = [];
+          }
+
+          question.answers.push({
+            content: null
+          });
+        },
+        buildFormData: function() {
+          var questionsData = []
+          for(var i = 0, l = this.questions.length; i < l; i++) {
+            var q = this.questions[i];
+            var sanitizedQuestion = {
+              id: q.id,
+              title: q.title,
+              type: q.type,
+              required: q.required
+            };
+
+            if ((sanitizedQuestion.type === 'Checkboxes')
+                || (sanitizedQuestion.type === 'Radiobuttons')) {
+              sanitizedQuestion.answers = q.answers;
+            }
+            questionsData.push(sanitizedQuestion);
+          }
+          return { questions: questionsData };
+        },
+        removeAnswer: function(question, answer) {
+          question.answers.splice(question.answers.indexOf(answer), 1);
+        },
+        submit: function() {
+          if (this.busy) {
+            return
+          }
+          var self = this;
+
+          $.ajax({
+            method: 'POST',
+            data: JSON.stringify(self.buildFormData()),
+            contentType: 'application/json',
+            dataType: 'json',
+            beforeSend: function() {
+              self.busy = true;
+            },
+            success: function(res) {
+              var questions = res.questions;
+              for (var i = questions.length - 1; i >= 0; i--) {
+                questions[i].errors = [];
+              }
+              self.questions = questions;
+              self.savedQuestionsCount = questions.length;
+              Flash.success('Questionnaire has been successfully updated.');
+            },
+            error: function(xhr) {
+              if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                Flash.error('Could not save questions. Please check for form errors.');
+                var errors = xhr.responseJSON.errors;
+                for (var i = errors.length - 1; i >= 0; i--) {
+                  self.questions[errors[i].index].errors = errors[i].errors;
+                }
+
+              } else {
+                Flash.error('An error has occurred while saving questions. Sorry for the inconvenience.');
+              }
+            },
+            complete: function() {
+              self.busy = false;
+            }
+          });
+        }
+      }
+    })
+  })();
+</script>

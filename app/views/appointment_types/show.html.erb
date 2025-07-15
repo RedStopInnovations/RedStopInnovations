@@ -1,0 +1,131 @@
+<% content_for :title, @appointment_type.name %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>
+        <%= @appointment_type.name %>
+      </h1>
+    </div>
+    <% unless @appointment_type.deleted_at? %>
+    <div class="col-xs-6 text-right">
+      <a href="<%= edit_appointment_type_path(@appointment_type) %>" class="btn btn-primary">
+        Edit details
+      </a>
+    </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= appointment_types_path %>">
+        Appointment types
+      </a>
+    </li>
+    <li class="active"><%= @appointment_type.name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="box">
+        <div class="block-info">
+          <strong>Name:</strong>
+          <p>
+            <%= @appointment_type.name %>
+            <% if @appointment_type.deleted_at? %>
+              <br>
+              <span class="label label-default">Archived <%= @appointment_type.deleted_at.strftime(t('date.common')) %></span>
+            <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Availability type:</strong>
+          <p><%= @appointment_type.availability_type.name %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Description:</strong>
+          <p>
+            <% if @appointment_type.description.present? %>
+              <%= @appointment_type.description %>
+            <% else %>
+              <span class="text-muted">--</span>
+            <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Duration (minutes):</strong>
+          <p><%= @appointment_type.duration %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Default billable items:</strong>
+          <p>
+          <% if @appointment_type.billable_items.count > 0 %>
+            <% @appointment_type.billable_items.each do |bi| %>
+              <a href="<%= billable_item_path(bi) %>"><%= bi.name %></a>
+              <br>
+            <% end %>
+          <% else %>
+            <span class="text-muted">N/A</span>
+          <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Default treatment template:</strong>
+          <p>
+          <% if @appointment_type.default_treatment_template %>
+            <a href="<%= treatment_template_path(@appointment_type.default_treatment_template) %>"><%= @appointment_type.default_treatment_template.name %></a>
+          <% else %>
+            <span class="text-muted">N/A</span>
+          <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Reminder enable:</strong>
+          <div class="check-box mt-10 check-box-readonly">
+            <input type="checkbox" readonly <%= @appointment_type.reminder_enable? ? "checked" : "" %>>
+            <label>&nbsp;</label>
+          </div>
+        </div>
+
+        <div class="block-info">
+          <strong>Display on online bookings:</strong>
+          <div class="check-box mt-10 check-box-readonly">
+            <input type="checkbox" readonly <%= @appointment_type.display_on_online_bookings? ? "checked" : "" %>>
+            <label>&nbsp;</label>
+          </div>
+        </div>
+
+        <% if current_business.stripe_payment_available? %>
+          <div class="block-info">
+            <strong>Online bookings pre-payment:</strong>
+            <div class="check-box mt-10 check-box-readonly">
+              <input type="checkbox" readonly <%= @appointment_type.is_online_booking_prepayment? ? "checked" : "" %>>
+              <label>&nbsp;</label>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="block-info">
+          <strong>Practitioners (<%= @appointment_type.practitioners.size %>):</strong>
+          <p>
+            <%= @appointment_type.practitioners.order('full_name asc').pluck(:full_name).join(', ') %>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

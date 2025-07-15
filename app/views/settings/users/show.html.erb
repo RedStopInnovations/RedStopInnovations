@@ -1,0 +1,243 @@
+<% content_for :title, @user.full_name %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @user.full_name %> details
+        <% unless @user.active? %>
+          <span class="label label-default">Inactive</span>
+        <% end %>
+      </h1>
+    </div>
+    <div class="text-right col-xs-6">
+      <a href="<%= edit_settings_user_path(@user) %>" class="btn btn-white">
+        <i class="fa fa-pencil"></i> Edit user
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_users_path %>">
+        Users & Practitioners
+      </a>
+    </li>
+    <li class="active"><%= @user.full_name %></li>
+  </ul>
+</section>
+
+<section class="content">
+
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">Personal details</div>
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Profile picture:</strong>
+            <p>
+              <% if @user.avatar.exists? %>
+                <img src="<%= @user.avatar.url(:thumb) %>" width="50">
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>First name:</strong>
+            <p><%= @user.first_name %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Last name:</strong>
+            <p><%= @user.last_name %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Email:</strong>
+            <p>
+              <%= @user.email %>
+              <% if @user.invited_to_sign_up? %>
+                <a href="<%= resend_invitation_email_settings_user_path(@user) %>" data-method="POST" data-confirm="Are you sure?">Resend invitation email</a>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Employee number</strong>
+            <p>
+              <% if @user.employee_number.present? %>
+                <%= @user.employee_number %>
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">Account settings</div>
+          <div class="panel-body">
+            <div class="block-info">
+              <strong>Role:</strong>
+              <p>
+                <%= @user.role.titleize %>
+              </p>
+            </div>
+
+            <div class="block-info">
+              <strong>Active:</strong>
+              <p>
+                <% if @user.active? %>
+                  <span>Yes</span>
+                <% else %>
+                  <span>No</span>
+                <% end %>
+              </p>
+            </div>
+
+            <div class="block-info">
+              <strong>Last login:</strong>
+              <p>
+                <% if @user.current_sign_in_at? %>
+                  <%= @user.current_sign_in_at.in_time_zone(current_user.timezone).strftime(t('datetime.short_12h_z')) %>
+                <% end %>
+                <a href="<%= login_activity_settings_user_path(@user) %>" class="small">View login activity</a>
+              </p>
+            </div>
+
+            <div class="block-info">
+              <strong>2FA enable?:</strong>
+              <p>
+                <%= @user.enable_google_authenticator? ? 'Yes' : 'No' %>
+                <br>
+                <% if @user.enable_google_authenticator? %>
+                  <span>
+                    <a href="#" class="btn-form" data-form-url="<%= remove_2fa_settings_user_path(@user) %>" data-form-method="PUT" data-form-confirmation="Are you sure you want to remove 2FA for this account?">Remove 2FA?</a>
+                  </span>
+                <% end %>
+              </p>
+
+              <div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if @user.is_practitioner? && @user.practitioner %>
+  <h4>Practitioner information</h4>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Phone:</strong>
+          <p>
+            <% if @practitioner.phone.present? %>
+              <%= @practitioner.phone %>
+            <% else %>
+              <span class="text-muted">N/A</span>
+            <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Mobile:</strong>
+          <p>
+            <% if @practitioner.mobile.present? %>
+              <%= @practitioner.mobile %>
+            <% else %>
+              <span class="text-muted">N/A</span>
+            <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Address:</strong>
+          <p><%= @practitioner.full_address %></p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Profession:</strong>
+          <p><%= @practitioner.profession %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Medicare number:</strong>
+          <p>
+            <% if @practitioner.medicare.present? %>
+              <%= @practitioner.medicare %>
+            <% else %>
+              <span class="text-muted">N/A</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="block-info">
+          <strong>Profile:</strong>
+          <p><%= @practitioner.summary %></p>
+          <p></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <% if @user.practitioner.signature.exists? %>
+        <h3>Signature</h3>
+        <div class="box box-signature">
+          <img src="<%= @user.practitioner.signature.url(:medium) if @user.practitioner.signature.exists? %>" class="img-responsive"
+            style="box-shadow: 0px 0px 2px #ccc;max-width: 300px;">
+        </div>
+    <% end %>
+
+    <h4>Documents</h4>
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="box">
+          <table class="table table-borderless">
+            <thead>
+              <th>Type</th>
+              <th>File</th>
+              <th>Expiry</th>
+            </thead>
+            <tbody>
+              <% documents = @user.practitioner.documents.to_a %>
+              <% PractitionerDocument::TYPES.each do |type| %>
+                <% doc = documents.find { |doc| doc.type == type } %>
+                <% next unless doc.present? %>
+                <tr>
+                  <td>
+                    <%= type.humanize %>:
+                  </td>
+                  <td>
+                    <a href="<%= doc.document_url %>" target="_blank" class="normal-link"><i class="fa fa-download"></i></a>
+                  </td>
+                  <td>
+                    <% if doc.expiry_date? %>
+                      <%= doc.expiry_date.strftime(t('date.common')) %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</section>

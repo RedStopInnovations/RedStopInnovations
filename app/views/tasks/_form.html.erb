@@ -1,0 +1,139 @@
+<%= simple_nested_form_for @task, url: @task.new_record? ? tasks_path : task_path(@task), html: { 'novalidate' => false } do |f| %>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-body">
+          <%= f.input :name %>
+
+          <div class="form-group">
+            <label>Client:</label>
+            <select class="form-control" js-input-patient-id name="task[patient_id]" placeholder="-- Select client --">
+              <% if @task.patient.present? %>
+                <%=
+                  options_from_collection_for_select(
+                    current_business.patients.where(id: @task.patient_id),
+                    :id,
+                    :full_name,
+                    [@task.patient.id]
+                  )
+                %>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="form-group" js-invoice-require-inpput-wrap <% if !@task.patient_id? %> style="display: none;" <% end %> >
+            <label>Invoice required?</label>
+            <div class="form-control">
+              <div class="checkbox-inline npl">
+                <input type="radio"
+                  <% if !@task.is_invoice_required %> checked <% end %>
+                  name="task[is_invoice_required]"
+                  value="0"
+                  id="cb_invoice_required_no"
+                  >
+                <label for="cb_invoice_required_no">No</label>
+              </div>
+              <div class="checkbox-inline">
+                <input type="radio"
+                  <% if @task.is_invoice_required %> checked <% end %>
+                  name="task[is_invoice_required]"
+                  value="1"
+                  id="cb_invoice_required_yes">
+                <label for="cb_invoice_required_yes">Yes</label>
+              </div>
+            </div>
+          </div>
+
+          <%= f.input :description, input_html: { rows: 3 } %>
+
+          <div class="form-group">
+            <label><abbr title="required">*</abbr> Priority</label>
+            <div class="form-control <%= 'has-error' if @task.errors.key?(:priority) %>">
+              <% Task::PRIORITIES.each_with_index do |priority, index| %>
+              <div class="checkbox-inline <%= 'npl' if index === 0 %>">
+                <input type="radio"
+                  name="task[priority]"
+                  value="<%= priority %>"
+                  id="cb_task_priority_<%= index %>"
+                  <% if @task.priority === priority %>
+                    checked
+                  <% end %>
+                  />
+                <label for="cb_task_priority_<%= index %>" class="fw-400"><%= priority.titleize %></label>
+              </div>
+              <% end %>
+
+            <span class="help-block">
+              <%= @task.errors[:priority].first %>
+            </span>
+
+            </div>
+          </div>
+
+          <%= f.input :due_on, label: 'Due', as: :string, input_html: { class: 'bg-white flatpickr-datepicker', value: (@task.due_on? ? @task.due_on.strftime('%Y-%m-%d') : nil), data: { 'alt-format' => 'd M Y', 'date-format' => 'Y-m-d' } } %>
+
+          <%= f.association :users, as: :select, collection: user_option_for_task(current_business),
+            label: 'Assignees', input_html: { class: 'selectize', multiple: true} %>
+
+          <%= f.submit class: "btn btn-primary" %>
+
+          <a href="<%= @task.new_record? ? tasks_path : task_path(@task) %>" class="btn btn-white">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-input-patient-id').each(function () {
+    var $this = $(this);
+    var plcHolder = 'Type to search client';
+    var plugins = ['no_results'];
+    if ($this.attr('placeholder')) {
+      plcHolder = $this.attr('placeholder');
+    }
+    if ($this.attr('multiple')) {
+      plugins.push('remove_button');
+    }
+    $this.selectize({
+      plugins: plugins,
+      valueField: 'id',
+      labelField: 'full_name',
+      searchField: 'full_name',
+      create: false,
+      placeholder: plcHolder,
+      render: {
+        option: function (item, escape) {
+          return '<div>' + escape(item.full_name) + '</div>';
+        }
+      },
+      load: function (query, callback) {
+        if (!query.length) return callback();
+        var self = this;
+
+        $.get(
+          '/api/patients/search?s=' + query,
+          function (res) {
+            if (res.patients.length > 0) {
+              callback(res.patients);
+            } else {
+              self.$empty_results_container.show();
+            }
+          }
+        );
+      },
+      onChange: function(value) {
+        if (value) {
+          $('[js-invoice-require-inpput-wrap]').show();
+        } else {
+          $('[js-invoice-require-inpput-wrap]').hide();
+        }
+      }
+    });
+
+  });
+
+</script>
+<% end %>

@@ -1,0 +1,66 @@
+<% content_for :title, 'Leave a review' %>
+
+<section class="sptb">
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mt-0">Tracksy</h2>
+      </div>
+
+      <div class="card-body">
+        <h2>Leave a review</h2>
+          <div class="row">
+            <div class="col-md-6 col-xs-12">
+              <span>To practitioner:</span>
+              <div class="mt-5 border p-3 shadow rounded">
+                <div class="row">
+                  <div class="col-auto">
+                    <img src="<%= @practitioner.profile_picture_url(:medium) %>" alt="Practitioner" height="120px" class="brround">
+                  </div>
+                  <div class="col">
+                    <strong class="font-size-bigger"><%= @practitioner.full_name %></strong> <br>
+                    <i class="fa fa-map-marker"></i> <%= @practitioner.city %> <br>
+                    <span class="badge badge-dark"><%= @practitioner.profession %></span> <br>
+                    <%= @practitioner.business.name %> <br>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        <div class="mt-5">
+          <div class="row">
+            <div class="col-md-6 col-xs-12">
+              <%= simple_form_for @review_form, as: :review, url: create_review_path(@appointment.public_token), html: { id: 'js-form-review' } do |f| %>
+                <%= f.input :score, as: :select, label: 'Rating', required: true, collection: [['5', 5], ['4', 4], ['3', 3], ['2', 2], ['1', '1']], input_html: { rows: 3 }, prompt: '-- Select score --' %>
+
+                <%= f.input :comment, as: :text, hint: 'Minimum is 10 characters.', input_html: { rows: 5 } %>
+
+                <div class="form-group">
+                  <%= f.submit 'Submit Review', class: 'btn btn-lg btn-primary', id: 'js-btn-submit-review' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <a href="<%= frontend_home_path %>" class="btn btn-light">Back to homepage</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  document.getElementById('js-form-review').onsubmit = function(event) {
+    document.getElementById('js-btn-submit-review').disabled = true;
+  };
+</script>
+
+<% end %>

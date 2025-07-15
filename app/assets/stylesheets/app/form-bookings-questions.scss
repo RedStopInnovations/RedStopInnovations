@@ -1,0 +1,34 @@
+#form-questions-wrap {
+  .question-wrap {
+    border: 1px solid #eee;
+    padding: 10px;
+
+    + .question-wrap {
+      margin-top: 15px;
+    }
+
+    &:hover {
+      background-color: #f8fff4;
+      border-color: #ddd;
+    }
+
+    .list-answers-wrap {
+      margin-top: 5px;
+
+      ul {
+        padding-left: 0;
+        list-style: none;
+
+        li {
+          .input-group .input-group-addon {
+            background-color: #fff;
+          }
+        }
+
+        li + li {
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+}

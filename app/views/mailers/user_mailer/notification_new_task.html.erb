@@ -1,0 +1,11 @@
+Hi <%= @user.full_name %>,
+<br>
+<br>
+<p>You has been assigned the task "<%= @task.name %>"</p>
+<p>
+  <strong>Due on:</strong> <%= @task.due_on&.strftime("%b %d, %Y") %> <br>
+  <strong>Priority:</strong> <%= @task.priority %> <br>
+  <strong>Description:</strong> <%= @task.description %>
+</p>
+<br>
+<br>

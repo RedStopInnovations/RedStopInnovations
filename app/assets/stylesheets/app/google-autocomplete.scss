@@ -1,0 +1,21 @@
+/* Fix places dropdown not visible on modals */
+body.modal-open {
+  .pac-container {
+    z-index: 1070;
+  }
+}
+
+/* Make place dropdowns look better */
+.pac-container {
+  .pac-item {
+    font-size: 13px;
+    line-height: 35px;
+
+    &:hover, &.pac-item-selected {
+      background-color: #dff9d0 !important;
+    }
+  }
+  .pac-icon {
+    display: none !important;
+  }
+}

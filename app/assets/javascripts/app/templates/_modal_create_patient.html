@@ -1,0 +1,184 @@
+<script id="modal-create-patient-tmpl" type="text/template">
+  <modal :value="show" large effect="fade" v-cloak @closed="onModalClosed">
+    <div slot="modal-header" class="modal-header bg-gray-light">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="show = false">
+          <span aria-hidden="true">×</span></button>
+      <h4 class="modal-title">New client info</h4>
+    </div>
+    <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+      <div class="loading-backdrop" v-if="loading"></div>
+      <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+      <form v-on:submit.prevent="submitForm" autocomplete="off">
+        <input type="submit" class="hide">
+        <div class="alert alert-danger" v-show="formErrors.length">
+          <a href="#" class="close" v-on:click.prevent="formErrors = []" aria-label="close">&times;</a>
+          <ul>
+            <li v-for="error in formErrors">{{ error }}</li>
+          </ul>
+        </div>
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label">First name <abbr title="required">*</abbr></label>
+              <input class="form-control"
+                     type="text"
+                     v-model="patient.first_name">
+            </div>
+            <div class="col-md-6">
+              <label class="control-label">Last name <abbr title="required">*</abbr></label>
+              <input class="form-control"
+                     type="text"
+                     v-model="patient.last_name">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label">Email</label>
+              <input class="form-control"
+                     type="text"
+                     v-model="patient.email">
+            </div>
+            <div class="col-md-6">
+              <label class="control-label">Dob <abbr title="required">*</abbr></label>
+              <div class="input-group">
+                <v-flatpickr
+                  v-model="patient.dob"
+                  placeholder="dd/mm/yyyy"
+                  :config="dobDatepickerConfig"
+                  ref="dobDatepicker"
+                  >
+                </v-flatpickr>
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"
+                    @click="openDatepicker"
+                    ><i class="fa fa-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label">Phone</label>
+              <input class="form-control"
+                     type="text"
+                     v-model="patient.phone">
+            </div>
+            <div class="col-md-6">
+              <label class="control-label">Mobile</label>
+              <input class="form-control"
+                     type="text"
+                     v-model="patient.mobile">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="row">
+            <div class="col-sm-6">
+              <label class="control-label">Address line 1 <abbr title="required">*</abbr></label>
+              <input class="form-control"
+                     type="text"
+                     @focus.once="bindGoogleAutocomplete"
+                     ref="inputAddress1"
+                     autocomplete="off"
+                     placeholder=""
+                     v-model="patient.address1">
+              <span class="help-block">Street address (e.g. 10 Main St)</span>
+            </div>
+            <div class="col-sm-6">
+              <label class="control-label">Address line 2</label>
+              <input class="form-control"
+                     type="text"
+                     placeholder=""
+                     v-model="patient.address2">
+              <span class="help-block">Apartment, suite, unit, building, floor, etc.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="control-label">City <abbr title="required">*</abbr></label>
+                <input class="form-control"
+                       type="text"
+                       v-model="patient.city">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="control-label">State <abbr title="required">*</abbr></label>
+                <input class="form-control"
+                       type="text"
+                       v-model="patient.state">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="control-label">Postcode <abbr title="required">*</abbr></label>
+                <input class="form-control"
+                       type="text"
+                       v-model="patient.postcode"></div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="control-label">Country</label>
+                <select class="form-control"
+                        v-model="patient.country"
+                        v-country-select>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label
+            title="Reminder enable">
+            <input type="checkbox" v-model="patient.reminder_enable">
+            Reminder enable
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Privacy policy</label>
+          <p>Does the client consent to your privacy policy?</p>
+          <label class="radio-inline">
+            <input type="radio"
+              :value="null"
+              v-model="patient.accepted_privacy_policy">
+            No response
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio"
+              :value="true"
+              v-model.boolean="patient.accepted_privacy_policy"
+              />
+              Accepted
+          </label>
+
+          <label class="radio-inline">
+            <input type="radio"
+              :value="false"
+              v-model.boolean="patient.accepted_privacy_policy"
+              />
+              Rejected
+          </label>
+        </div>
+      </form>
+    </div>
+    <div slot="modal-footer" class="modal-footer bg-gray-light">
+      <button class="btn btn-primary" type="button" v-on:click.prevent="submitForm" :disabled="loading">Save client</button>
+      <button class="btn btn-white" type="button" v-on:click="show = false" :disabled="loading">Cancel</button>
+    </div>
+  </modal>
+</script>

@@ -1,0 +1,453 @@
+<% content_for :title, 'Outstanding invoices' %>
+
+<section class="box-header">
+  <h1>Outstanding invoices</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">
+        Transactions
+      </a>
+    </li>
+    <li class="active">Outstanding invoices</li>
+  </ul>
+</section>
+
+<section class="print-head">
+  <h3 class="text-center">Outstanding Invoices</h3>
+  <div class="date-range text-center">
+    <%= @options.start_date.strftime(t('date.common')) %> -
+    <%= @options.end_date.strftime(t('date.common')) %>
+  </div>
+</section>
+
+<section class="content">
+
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+      <form action="<%= reports_outstanding_invoices_path %>">
+        <div class="row">
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Issue date:</label>
+              <div class="input-group">
+                <input type="text"
+                  class="form-control flatpickr-datepicker"
+                  name="start_date"
+                  value="<%= @options.start_date.try(:strftime, '%Y-%m-%d') %>"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  data-allow-input="true"
+                  />
+                <span class="input-group-addon input-group-addon-middle">to</span>
+
+                <input type="text"
+                  class="form-control flatpickr-datepicker"
+                  name="end_date"
+                  value="<%= @options.end_date.try(:strftime, '%Y-%m-%d') %>"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  data-allow-input="true"
+                  >
+
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <% today = Date.current %>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_week %>" data-end-date="<%= today.end_of_week %>">This week</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_week.beginning_of_week %>" data-end-date="<%= today.last_week.end_of_week %>">Last week</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Practitioners:</label>
+              <select class="form-control selectize" name="practitioner_ids[]" multiple="true">
+                <option value="">All practitioners</option>
+                <%=
+                  options_for_select(
+                    pracititioner_options_for_select(current_business),
+                    @options.practitioner_ids
+                  )
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Contacts:</label>
+              <select class="form-control selectize-contacts-ajax" name="contact_ids[]"
+                multiple="true"
+                placeholder="All">
+                <% if params[:contact_ids].present? && params[:contact_ids].is_a?(Array) %>
+                <%=
+                  options_from_collection_for_select(
+                    current_business.contacts.select(:id, :business_name).where(id: params[:contact_ids]),
+                    :id,
+                    :business_name,
+                    params[:contact_ids]
+                  )
+                %>
+                <% end %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Account statement:</label>
+              <input class="form-control" name="account_statement_number" placeholder="E.g. CAS0001" value="<%= params[:account_statement_number] %>"/>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if @report.result[:invoices].size > 0 %>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading"><strong>Summary</strong></div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+                <tbody>
+                  <tr>
+                    <td style="width: 150px">Total outstanding</td>
+                    <td><%= format_money @report.result[:total_outstanding] %></td>
+                  </tr>
+                  <tr>
+                    <td>Total amount</td>
+                    <td><%= format_money @report.result[:total_amount] %></td>
+                  </tr>
+                  <tr>
+                    <td>Total amount ex tax</td>
+                    <td><%= format_money @report.result[:total_amount_ex_tax] %></td>
+                  </tr>
+                  <tr>
+                    <td>No. invoices</td>
+                    <td><%= @report.result[:invoices_count] %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row mb-20 hidden-print">
+    <div class="col-xs-6">
+
+      <div class="dropdown">
+        <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" disabled js-btn-toggle-dropdown-bulk-actions>
+        Bulk actions <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu custom-dropdown">
+          <li><a href="#" js-btn-bulk-send-outstanding-reminder>Send outstanding reminder</a></li>
+          <!-- <li><a href="#">Bulk create payments</a></li> -->
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <a href="<%= reports_outstanding_invoices_path(@report.options.to_params.merge(format: :csv))%>"
+        class="btn btn-white">
+        <i class="fa fa-download"></i> CSV
+      </a>
+      <a class="btn btn-white"
+        href="#"
+        onclick="print()"><i class="fa fa-print"></i> Print</a>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" js-cb-toggle-select-all-records <% if @report.result[:paginated_invoices].total_count == 0 %> disabled <% end %>>
+              </th>
+              <th style="width: 80px;">Number</th>
+              <th style="width: 110px;">Issue date</th>
+              <th>Client</th>
+              <th>Service date</th>
+              <th>Practitioner</th>
+              <th>Invoice to</th>
+              <th class="hidden-print">Account<br/>statements</th>
+              <th style="width: 100px;">Amount<br/>ex tax</th>
+              <th style="width: 100px;">Amount</th>
+              <th>Outstanding</th>
+              <th>Days<br/>outstanding</th>
+              <th class="hidden-print"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @report.result[:paginated_invoices].each do |invoice| %>
+              <tr>
+                <td>
+                  <input type="checkbox" js-cb-bulk-select data-record-id="<%= invoice.id %>">
+                </td>
+                <td>
+                  <a href="<%= invoice_path(invoice.id) %>"><%= invoice.invoice_number %></a>
+                </td>
+                <td><%= invoice.issue_date.strftime(t('date.common')) %></td>
+
+                <td>
+                  <% if invoice.patient.present? %>
+                    <a href="<%= patient_path(invoice.patient) %>"><%= invoice.patient.full_name %></a>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.service_date %>
+                    <%= invoice.service_date.strftime(t('date.common')) %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= invoice.practitioner&.full_name %>
+                </td>
+                <td>
+                  <% if invoice.invoice_to_contact.present? %>
+                    <a href="<%= contact_path(invoice.invoice_to_contact.id) %>"><%= invoice.invoice_to_contact.business_name %></a>
+                  <% end %>
+                </td>
+                <td class="hidden-print">
+                  <div class="help-text">
+                    <% invoice.account_statements.each do |as| %>
+                      <% if as.source_type == 'Patient' %>
+                        <a href="<%= patient_account_statement_path(as.source, as.id, format: :pdf) %>" target="_blank">#<%= as.number %></a>
+
+                      <% elsif as.source_type == 'Contact' %>
+                        <a href="<%= contact_account_statement_path(as.source, as.id) %>" target="_blank">#<%= as.number %></a>
+                      <% end %>
+                    <% end %>
+
+                  </div>
+                </td>
+                <td><%= format_money invoice.amount_ex_tax %></td>
+                <td><%= format_money invoice.amount %></td>
+                <td><%= format_money invoice.outstanding %></td>
+                <td>
+                  <% if invoice.issue_date < Date.current %>
+                    <%= (Date.current - invoice.issue_date).to_i %>
+                  <% end %>
+                </td>
+                <td class="hidden-print">
+
+                  <div class="btn-group" style="min-width: 110px">
+                    <a href="<%= invoice_path(invoice) %>" class="btn btn-white">Details</a>
+                    <button type="button" class="btn btn-white btn-flat dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                      <span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                      <li>
+                        <a href="<%= new_payment_path(invoice_id: invoice.id) %>"  target="_blank" title="Add payment">
+                          <i class="fa fa-credit-card"></i> Add payment
+                        </a>
+                      </li>
+
+                      <li>
+                        <a href="<%= invoice_path(invoice, format: "pdf") %>" target="_blank">
+                          <i class="fa fa-print" aria-hidden="true"></i> Print
+                        </a>
+                      </li>
+                      <li>
+                        <a href="<%= edit_invoice_path(invoice) %>">
+                          <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                        </a>
+                      </li>
+
+                      <li>
+                        <a href="<%= deliver_invoice_path(invoice) %>"
+                          <%
+                            send_invoice_confirm = ""
+                            if !invoice.patient.reminder_enable?
+                              send_invoice_confirm << "Warning: #{invoice.patient.full_name} has disabled reminders on their profile.\n\n"
+                            end
+
+                            if invoice.last_send_patient_at.present?
+                              send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                            else
+                              send_invoice_confirm << "Are you sure want to send invoice?"
+                            end
+                          %>
+                          data-confirm="<%= send_invoice_confirm %>"
+                          data-method="POST"
+                          ><i class="fa fa-envelope-o <% if invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
+                      </li>
+
+                      <% if invoice.invoice_to_contact_id? %>
+                        <li>
+                          <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoices_path, contact_ids: [invoice.invoice_to_contact_id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
+                            <i class="fa fa-envelope-o <% if invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
+                          </a>
+                        </li>
+                      <% end %>
+
+                      <li>
+                        <a data-href="<%= modal_email_others_invoice_path(invoice) %>" class="btn-send-invoice-others"
+                          href="javascript:void(0)">
+                          <i class="fa fa-send-o"></i> Email others
+                        </a>
+                      </li>
+
+                      <li>
+                        <% # @TODO: N+1 query %>
+                        <a href="#" class="js-btn-trigger-sms" data-sms="<%= build_data_for_button_trigger_sms(invoice.patient.mobile_formated, outstanding_invoice_reminder_sms_body(invoice, current_business)) %>"><i class="fa fa-commenting-o"></i> SMS client</a>
+                      </li>
+
+                    </ul>
+                  </div>
+
+                </td>
+              </tr>
+            <% end %>
+            <% if @report.result[:invoices_count] == 0 %>
+              <tr>
+                <td colspan="12" class="text-muted">
+                  No invoices found
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <% if @report.result[:invoices_count] > 0 %>
+    <div class="panel-footer hidden-print">
+        <div class="row">
+          <div class="col-md-6 text-left">
+            <%= page_entries_info @report.result[:paginated_invoices] %>
+          </div>
+          <div class="col-md-6 text-right">
+            <%= paginate @report.result[:paginated_invoices], theme: 'app' %>
+          </div>
+        </div>
+    </div>
+    <% end %>
+  </div>
+
+</section>
+
+<%= render 'invoices/modal_email_others_js' %>
+
+<% if params[:print] == '1' %>
+  <% content_for :page_js do %>
+    <script>
+      $(document).ready(function() {
+        window.print();
+        window.close();
+      });
+    </script>
+  <% end %>
+<% end %>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-btn-date-range]').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+    $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+  });
+</script>
+
+<script>
+ //=== Handle bulk actions
+  const $cbToggleSelectAllRecords = $('[js-cb-toggle-select-all-records]');
+  const $btnToggleBulkActions = $('[js-btn-toggle-dropdown-bulk-actions]');
+  const $btnBulkSendOutstandingReminder = $('[js-btn-bulk-send-outstanding-reminder]');
+
+  const updateBtnBulkActionsClickable = function() {
+    if ($('[js-cb-bulk-select]:checked').length > 0) {
+      $btnToggleBulkActions.removeAttr('disabled');
+    } else {
+      $btnToggleBulkActions.attr('disabled', 'disabled');
+    }
+  };
+
+  const isAllRecordsSelected = function() {
+    return $('[js-cb-bulk-select]:checked').length === $('[js-cb-bulk-select]').length;
+  };
+
+  const getSelectedRecordIds = function() {
+    return $('[js-cb-bulk-select]:checked').map(function() {
+      return $(this).data('record-id');
+    }).toArray();
+  };
+
+  $cbToggleSelectAllRecords.on('change', function() {
+    $('[js-cb-bulk-select]').prop('checked', $(this).prop('checked'));
+    updateBtnBulkActionsClickable();
+  });
+
+  $('[js-cb-bulk-select]').on('change', function() {
+    const $input = $(this);
+
+    $cbToggleSelectAllRecords.prop('checked', isAllRecordsSelected());
+    updateBtnBulkActionsClickable();
+  });
+
+  $btnBulkSendOutstandingReminder.on('click', function(e) {
+    e.preventDefault();
+    const selectedRecordIds = getSelectedRecordIds();
+
+    if (confirm('Are you sure you want to send outstanding reminder for the selected invoices?')) {
+      const $form = $('<form>', {
+        method: 'POST',
+        action: '<%= bulk_send_outstanding_reminder_invoices_path %>'
+      });
+
+      var csrfInput = $('<input>', {
+        type: 'hidden',
+        name: 'authenticity_token',
+        value: $('meta[name="csrf-token"]').attr('content')
+      });
+
+      selectedRecordIds.forEach(function(recordId) {
+        $form.append(
+          $('<input>', {
+            name: 'invoice_ids[]',
+            type: 'checkbox',
+            checked: true,
+            value: recordId,
+            class: 'hide'
+          })
+        );
+      });
+
+      $form.append(csrfInput).appendTo('body');
+      $form.submit();
+    }
+  });
+
+</script>
+<% end %>

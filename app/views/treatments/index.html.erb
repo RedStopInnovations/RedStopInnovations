@@ -1,0 +1,268 @@
+<%= render 'patients/show_layout' do %>
+
+  <div class="row">
+    <div class="col-md-8 col-xs-6">
+      <h4>Treatment notes</h4>
+    </div>
+
+    <div class="col-md-4 col-xs-6 text-right">
+      <a href="<%= new_patient_treatment_path(@patient) %>" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Add <span class="hidden-xs">note</span>
+      </a>
+
+      <% if @treatments.total_count > 0 %>
+        <div class="btn-group">
+          <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+            Action
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+              <a href="<%= send_all_to_patient_patient_treatments_path(@patient) %>"
+                data-method="POST"
+                data-confirm="Are you sure?">
+                Send all to client
+              </a>
+            </li>
+            <li>
+              <a href="<%= pre_send_all_to_others_patient_treatments_path(@patient) %>"
+                data-remote="true">
+                Send all to others
+              </a>
+            </li>
+            <li>
+              <a href="<%= export_all_patient_treatments_path(@patient, format: :pdf)%>" target="_blank">Print all</a>
+            </li>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row mt-10">
+    <div class="col-lg-8 col-md-7 col-xs-12">
+
+      <form action="<%= patient_treatments_path(@patient) %>">
+        <div class="row">
+          <div class="col-xs-7 col-md-8">
+            <input class="form-control" placeholder="Search" type="text" name="q" value="<%= params[:q] %>">
+          </div>
+          <% if @treatments.total_count > 0 %>
+          <div class="col-xs-5 col-md-4 text-right">
+            <div class="mt-5">
+              <span class="hidden-xs">Order: </span>
+              <select name="order" id="js-input-treatment-notes-order">
+                <option value="" disabled>--- Select order ---</option>
+                <option value="created_date" <% if !params.key?(:order) || (params[:order] == 'created_date') %> selected <% end %> >Created date</option>
+                <option value="appointment_date" <% if params[:order] == 'appointment_date' %> selected <% end %> >Appointment date</option>
+                <option value="author" <% if params[:order] == 'author' %> selected <% end %> >Author</option>
+              </select>
+            </div>
+          </div>
+          <% end %>
+        </div>
+
+      </form>
+
+      <div class="text-right">
+        <a href="#" class="normal-link text-smaller" id="btn-toggle-details" data-show="true">Show/hide note details</a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row list-treatments mt-10">
+    <div class="col-lg-8 col-md-7">
+
+      <% @treatments.each do |treatment| %>
+        <div class="panel panel-default js-panel-treatment-note">
+          <div class="panel-heading">
+            <div class="pull-right">
+              <div class="btn-group">
+                <a href="<%= patient_treatment_path(@patient, treatment) %>" class="btn btn-white">
+                  Details
+                </a>
+
+                <a href="<%= export_pdf_patient_treatment_path(@patient, treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+                  <i class="fa fa-print"></i> Print
+                </a>
+
+                <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a href="<%= deliver_patient_treatment_path(@patient, treatment) %>"
+                      data-method="POST"
+                      data-confirm="Are you sure?">
+                      <i class="fa fa-envelope-o"></i> Email to client
+                    </a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)" data-href="<%= modal_email_others_patient_treatment_path(@patient, treatment, redirect: patient_treatments_path(@patient)) %>" class="btn-email-others">
+                      <i class="fa fa-send"></i> Email to others
+                    </a>
+                  </li>
+                  <% unless treatment.status == Treatment::STATUS_FINAL %>
+                    <li>
+                      <a href="<%= edit_patient_treatment_path(@patient, treatment) %>">
+                        <i class="fa fa-pencil-square-o"></i> Edit
+                      </a>
+                    </li>
+                    <% if can?(:destroy, treatment) %>
+                      <li>
+                        <a href="<%= patient_treatment_path(@patient, treatment, redirect: patient_treatments_path(@patient)) %>"
+                          data-confirm="Are you sure?" data-method="DELETE">
+                          <i class="fa fa-trash"></i> Delete
+                        </a>
+                      </li>
+                    <% end %>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+
+            <h4 class="text-bolder"><%= treatment.name %></h4>
+
+            <div class="text-smaller">
+              Author: <% if treatment.author %> <%= treatment.author.full_name %> <% else %> <%= treatment.author_name %> <% end %> <br>
+              ID: <%= treatment.id %> <br>
+              Status: <span class="<%= {Treatment::STATUS_DRAFT => 'text-yellow'}[treatment.status] %>"><%= treatment.status %></span> <br>
+              Appointment:
+              <%  if treatment.appointment %>
+                <%= treatment.appointment.start_time.strftime(t('date.common')) %> <span class="hidden-print"><span class="text-muted"> | </span> <a href="<%= appointment_path(treatment.appointment) %>">View</a></span>
+              <% else %>
+                <span class="text-muted">--</span>
+              <% end %>
+              <br>
+              Created: <%= treatment.created_at.strftime(t('date.common')) %>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <%= render 'sections', treatment: treatment %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <% if @treatments.blank? %>
+            <% if params[:q].present? && @treatments.blank? %>
+              <p class="text-muted">Not found any treatment notes match your query. <a href="<%= patient_treatments_path(@patient) %>">Clear filters</a></p>
+            <% else %>
+              <p class="text-muted">No treatment note created.</p>
+            <% end %>
+          <% else %>
+            <div class="row">
+              <div class="text-center">
+                <%= page_entries_info @treatments, entry_name: 'items' %>
+              </div>
+              <div class="text-center mt-10">
+                <%= paginate @treatments, theme: 'app' %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-4 col-md-5">
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Open cases</strong></div>
+        <div class="panel-body">
+          <% if @open_cases.count > 0 %>
+            <% @open_cases.each do |kase| %>
+            <table class="table table-bordered">
+              <tbody>
+                  <tr>
+                    <td>Type:</td>
+                    <td><%= kase.case_type.try(:title) %></td>
+                  </tr>
+                  <tr>
+                    <td>Last updated:</td>
+                    <td><%= kase.updated_at.strftime(t('date.common')) %></td>
+                  </tr>
+                  <tr>
+                    <td>Invoices:</td>
+                    <td>
+                        <%= kase.invoices.count %>
+                        <% if kase.invoice_number? %>
+                          <span> / <%= kase.invoice_number %>
+                          </span>
+                        <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Budget:</td>
+                    <td>
+                        <%= format_money kase.invoices.sum(&:amount), current_business.currency %>
+                        <% if kase.invoice_total? %>
+                          <span> / <%= format_money kase.invoice_total, current_business.currency %>
+                          </span>
+                        <% end %>
+                    </td>
+                  </tr>
+              </tbody>
+            </table>
+            <% end %>
+          <% else %>
+            <p class="text-muted">No open cases</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="panel panel-default mt-20">
+        <div class="panel-heading"><strong>Upcoming appointments</strong></div>
+        <div class="panel-body">
+          <% if @upcoming_appointments.count > 0 %>
+            <% @upcoming_appointments.each do |appt| %>
+              <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                      <td>Time:</td>
+                      <td><%= appt.start_time.strftime(t('datetime.common')) %></td>
+                    </tr>
+                    <tr>
+                      <td>Practitioner:</td>
+                      <td><%= appt.practitioner.full_name %></td>
+                    </tr>
+                    <tr>
+                      <td>Type:</td>
+                      <td><%= appt.appointment_type&.name %> </td>
+                    </tr>
+                </tbody>
+              </table>
+              <hr>
+            <% end %>
+          <% else %>
+            <p class="text-muted">No upcoming appointments</p>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :page_js do %>
+  <%= render 'modal_email_others_js' %>
+  <script>
+    $('#btn-toggle-details').on('click', function(e) {
+      e.preventDefault();
+      const $btn = $(this);
+      const isShowing = $btn.data('show');
+
+      if (!isShowing) {
+        $('.js-panel-treatment-note > .panel-body').removeClass('hide');
+      } else {
+        $('.js-panel-treatment-note > .panel-body').addClass('hide');
+      }
+
+      $btn.data('show', !isShowing);
+    });
+
+    $('#js-input-treatment-notes-order').on('change', function() {
+      $(this).closest('form').trigger('submit');
+    })
+  </script>
+<% end %>

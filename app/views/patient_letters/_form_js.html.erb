@@ -1,0 +1,66 @@
+<script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
+<script type="text/javascript">
+  $(function() {
+    var $inputLetterContent = $('#input-letter-content');
+    var $inputLetterWrap = $('#input-letter-wrap');
+
+    var ckeditor = CKEDITOR.replace($inputLetterContent.get(0), {
+      enterMode: CKEDITOR.ENTER_BR,
+      on: {
+        instanceReady: function(env) {
+          this.dataProcessor.writer.indentationChars = '';
+          this.dataProcessor.writer.lineBreakChars = '';
+        }
+      }
+    });
+
+    /* Handle changing template to update letter content */
+    $('#select-letter-template-id').on('change', function() {
+      var tmplId = $(this).val();
+      if (tmplId) {
+        $.ajax({
+          method: 'GET',
+          url: '/app/letter_templates/' + tmplId + '/preview.json?' + 'patient_id=' + '<%= @patient.id %>',
+          beforeSend: function() {
+            $inputLetterWrap.loadingOn();
+          },
+          success: function(res) {
+            if (res.letter) {
+              ckeditor.setData(res.letter.content);
+              if (res.letter.missing_variables.length > 0) {
+                new PNotify({
+                  text: 'We have found some missing variables(hightlighted) in the letter. Please update or remove them.',
+                  type: 'warn',
+                  width: '350px',
+                  buttons: {
+                    sticker: false
+                  },
+                  delay: 7000
+                });
+              }
+            }
+          },
+          error: function(xhr) {
+            var errMsg = 'An error has occurred. Could not load letter preview. Sorry for the inconvenience.'
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+              errMsg = xhr.responseJSON.message;
+            }
+
+            new PNotify({
+              text: errMsg,
+              type: 'error',
+              width: '350px',
+              buttons: {
+                sticker: false
+              },
+              delay: 7000
+            });
+          },
+          complete: function() {
+            $inputLetterWrap.loadingOff();
+          }
+        });
+      }
+    });
+  });
+</script>

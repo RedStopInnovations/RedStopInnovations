@@ -1,0 +1,51 @@
+<div class="dashboard-box">
+    <div class="box-heading"><span class="title">Referrals</span>
+        <a href="<%= app_referrals_path(status: Referral::STATUS_PENDING) %>" class="pull-right">View all</a>
+    </div>
+    <div class="box-body">
+        <% if (current_user.role_administrator? || current_user.role_supervisor?) && current_user.is_practitioner? %>
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#tab-all-referrals" data-toggle="tab">All</a></li>
+                <li role="presentation"><a href="#tab-assigned-referrals" data-toggle="tab">Assigned to me</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tab-all-referrals">
+                    <% if @dashboard.recent_pending_referrals.present? %>
+                        <%= render 'pending_referrals_list', referrals: @dashboard.recent_pending_referrals %>
+                    <% else %>
+                        <p class="text-muted text-smaller mt-10">No referrals found</p>
+                    <% end %>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="tab-assigned-referrals">
+                    <% if @dashboard.recent_pending_assigned_referrals.present? %>
+                        <ul>
+                        <%= render 'pending_referrals_list', referrals: @dashboard.recent_pending_assigned_referrals %>
+                        </ul>
+                    <% else %>
+                        <p class="text-muted text-smaller mt-10">No referrals found</p>
+                    <% end %>
+                </div>
+            </div>
+
+        <% else %>
+            <% if (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
+                <% if @dashboard.recent_pending_referrals.present? %>
+                    <%= render 'pending_referrals_list', referrals: @dashboard.recent_pending_referrals %>
+                <% else %>
+                    <p class="text-muted text-smaller">No referrals found</p>
+                <% end %>
+            <% end %>
+
+            <% if current_user.is_practitioner? %>
+                <% if @dashboard.recent_pending_assigned_referrals.present? %>
+                    <%= render 'pending_referrals_list', referrals: @dashboard.recent_pending_assigned_referrals %>
+                <% else %>
+                    <p class="text-muted text-smaller">No referrals found</p>
+                <% end %>
+            <% end %>
+        <% end %>
+
+    </div>
+</div>

@@ -1,0 +1,24 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Medicare details</strong></div>
+  <div class="panel-body">
+    <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_card_number, label: 'Card number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_card_irn, label: 'Card reference number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_referrer_name, label: 'Doctor name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_referrer_provider_number, label: 'Doctor provider number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_referral_date, required: true, as: :string, label: 'Referral date' %>
+      </div>
+    </div>
+    <% end %>
+  </div>
+</div>

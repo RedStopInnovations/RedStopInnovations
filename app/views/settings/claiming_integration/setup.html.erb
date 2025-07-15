@@ -1,0 +1,41 @@
+<section class="box-header">
+  <h1>Medicare & DVA integration</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= settings_claiming_integration_path %>">Medicare & DVA integration</a></li>
+    <li class="active">Setup</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <%=
+          simple_form_for @registration_form,
+                          url: settings_claiming_integration_register_path,
+                          as: :registration,
+                          method: 'POST' do |f| %>
+          <%= f.input :name, label: 'Practice name' %>
+          <legend>Providers</legend>
+          <p>Select practitioners to register along with the group. Can be added later.</p>
+          <%=
+            f.input :practitioner_ids,
+                    as: :select,
+                    input_html: { class: 'selectize', multiple: true },
+                    label: false,
+                    include_hidden: false,
+                    collection: @practitioners,
+                    label_method: :full_name
+          %>
+          <%= f.submit 'Submit', class: 'btn sitebtn' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

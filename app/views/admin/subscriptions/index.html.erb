@@ -1,0 +1,86 @@
+<section class="box-header">
+  <h1>Manage subscriptions</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>Subscriptions</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= search_form_for @search_query, url: admin_subscriptions_path, enforce_utf8: false, class: 'form-filter form-filter-invoices' do |f| %>
+    <div class="row">
+      <div class="col-md-5 col-xs-6">
+        <%= f.search_field :business_name_cont, class: 'form-control', placeholder: 'Search by business name' %>
+      </div>
+      <div class="col-md-3 col-xs-6">
+      <%= f.select :subscription_plan_id_eq, subscription_plans_options_for_select(SubscriptionPlan.all), { include_blank: 'Any plan' }, { class: 'form-control' } %>
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <hr class="visible-xs">
+        <button type="submit" class="btn sitebtn"><i class="fa fa-search"></i> Search</button>
+        <a href="<%= admin_subscriptions_path %>" class="btn linebtn"><i class="fa fa-times"></i> Clear</a>
+      </div>
+    </div>
+    <% end %>
+  </div>
+
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th style="width: 250px">Business</th>
+          <th>Plan</th>
+          <th>Card added</th>
+          <th>Next invoice</th>
+          <th>Billing status</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @subscriptions.each do |subscription| %>
+          <tr>
+            <td>
+              <a href="<%= admin_subscription_path(subscription) %>"><%= subscription.business.name %></a>
+            </td>
+            <td><%= subscription.subscription_plan.name.titleize %></td>
+            <td>
+              <% if subscription.stripe_customer_id.nil? %>
+                <span class="text-muted">-</span>
+              <% else %>
+                <i class="fa fa-check text-success"></i>
+              <% end %>
+            </td>
+            <td>
+              <%= (subscription.billing_end + 1.days).try(:strftime, '%d %b, %Y') %>
+            </td>
+            <td>
+              <% if subscription.business.in_trial_period? %>
+                <span class="label label-warning">In-trial</span>
+              <% else %>
+                <span class="label label-success">Active</span>
+              <% end %>
+            </td>
+            <td>
+              <a href="<%= admin_subscription_path(subscription) %>">Details</a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @subscriptions %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @subscriptions %>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,132 @@
+<% content_for :title, 'Messages' %>
+<section class="box-header">
+  <h1>Messages</h1>
+</section>
+
+
+<section class="content">
+  <div class="panel">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: communications_path, enforce_utf8: false do |f| %>
+        <div class="row">
+          <div class="col-md-3">
+            <label>Category:</label>
+            <%= f.select :category_eq, communication_category_options_for_select, { include_blank: 'All' }, { class: 'form-control' } %>
+          </div>
+          <div class="col-md-2">
+            <label>Delivery method:</label>
+            <%= f.select :message_type_eq, ['Email', 'SMS'], { include_blank: 'All' }, { class: 'form-control' } %>
+          </div>
+          <div class="col-md-2">
+            <label>Delivery status:</label>
+            <%= f.select :delivery_status_eq, [['Delivered', CommunicationDelivery::STATUS_DELIVERED], ['Error', CommunicationDelivery::STATUS_ERROR]], { include_blank: 'All' }, { class: 'form-control' } %>
+          </div>
+          <div class="col-md-2">
+            <label>&nbsp;</label><br>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
+            <% if can?(:export, Communication) %>
+              <button type="submit" class="btn btn-white" name="format" value="csv"><i class="fa fa-download"></i> CSV</button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-body">
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 210px">Category</th>
+              <th style="width: 250px">Recipient</th>
+              <th style="width: 220px">Subject</th>
+              <th style="width: 100px">Method</th>
+              <th style="width: 170px">Send at</th>
+              <th style="width: 150px">
+                <span
+                  data-toggle="popover"
+                  data-html="true"
+                  data-trigger="hover" title="Message delivery status"
+                  data-content="- <b>Scheduled</b>: The message is scheduled to be sent.<br/><br/>- <b>Processed</b>: The message has been sent to 3rd service provider. Delivery status is not yet confirmed.<br/><br/>- <b> Delivered</b>: The message has been confirmed as received by the recipient.<br/><br/>- <b>Error</b>: The message is not delivered for some reason.<br/><br/>- <b>Untracked, N/A</b>: The delivery status is not tracking."
+                  >Delivery status</span>
+              </th>
+              <th class="text-right"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @communications.each do |communication| %>
+            <tr>
+
+              <td>
+                <% if communication.category.present? %>
+                  <%= t("communication.categories.#{communication.category}") %>
+                <% end %>
+              </td>
+              <td>
+                <% if communication.recipient.is_a?(Patient) %>
+                  <a href="<%= patient_path(communication.recipient) %>"><%= communication.recipient.full_name %></a>
+                <% elsif communication.recipient.is_a?(Contact) %>
+                  <a href="<%= contact_path(communication.recipient) %>"><%= communication.recipient.business_name %></a>
+                <% end %>
+              </td>
+
+              <td>
+                <% if communication.source %>
+                  <%= link_to_communication_source(communication.source) %>
+                  <% if communication.source.is_a?(Invoice) && communication.source.paid? %>
+                    <small><span class="label label-success">Paid</span></small>
+                  <% end %>
+                <% else %>
+                  <span class="text-muted">-</span>
+                <% end %>
+              </td>
+              <td><%= communication.message_type %></td>
+              <td><%= communication.created_at.strftime(t('datetime.common')) %></td>
+
+              <td>
+                <% if communication.delivery %>
+                  <% delivery = communication.delivery %>
+                  <span
+                    <% if delivery.status_error? %>
+                      class="text-danger"
+                      data-toggle="popover"
+                      data-html="true"
+                      data-trigger="hover"
+                      title="Delivery info"
+                      data-content="
+                        <b>Recipient</b>: <%= delivery.recipient %><br/>
+                        <b>Status</b>: <%= delivery.status.try(:titleize) %><br/>
+                        <b>Error type</b>: <%= delivery.error_type.try(:titleize) %>
+                        "
+                    <% end %>
+                    >
+                    <%= delivery.status.titleize %>
+                  </span>
+                <% else %>
+                  <span class="text-muted" title="Not available">N/A</span>
+                <% end %>
+              </td>
+
+              <td class="text-center">
+                <a href="<%= communication_path(communication) %>" class="btn btn-white">Details</a>
+                </td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row mt-20">
+        <div class="col-md-6 text-xs-center">
+          <%= page_entries_info @communications, entry_name: 'messages' %>
+        </div>
+
+        <div class="col-md-6 text-right text-xs-center mt-xs-5">
+          <%= paginate @communications, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+</section>

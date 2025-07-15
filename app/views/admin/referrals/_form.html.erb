@@ -1,0 +1,141 @@
+<%= simple_nested_form_for [:admin, referral] do |f| %>
+  <h3>Referral</h3>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6">
+        <%=
+          f.input :professions,
+                  as: :select,
+                  required: true,
+                  collection: Practitioner::PROFESSIONS,
+                  include_hidden: false,
+                  include_blank: "-- Select Professions --",
+                  input_html: {
+                    class: 'selectize',
+                    multiple: true
+                  }
+        %>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <%= f.input :availability_type_id, as: :select, collection: AvailabilityType::ALL.collect {|t| [t[:name], t[:id]]},
+            include_blank: "-- Select Availability Type --" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <%= f.input :practitioner_id, as: :select, collection: Practitioner.approved.collect {|p| [p.full_name, p.id]},
+            include_blank: "-- Any Practitioner --" %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h3>Client details</h3>
+  <div class="box">
+    <%= f.simple_fields_for :patient do |ff| %>
+    <div class="row">
+      <div class="col-md-6">
+        <%= ff.input :first_name %>
+      </div>
+      <div class="col-md-6">
+        <%= ff.input :last_name %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <%= ff.input :dob, as: :string %>
+      </div>
+      <div class="col-md-6">
+        <%= ff.input :phone %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <%= ff.input :email %>
+      </div>
+      <div class="col-md-6">
+        <%= ff.input :address1 %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <%= ff.input :city %>
+      </div>
+      <div class="col-md-6">
+        <%= ff.input :state %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <%= ff.input :postcode %>
+      </div>
+      <div class="col-md-6">
+        <%= ff.input :country, priority: [ "Australia" ]%>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <label>Attachments</label>
+        <span class="help-block">PDF and images only. Maximum by 5MB</span>
+        <%= f.fields_for :attachments do |attm_form| %>
+          <div class="form-group">
+            <%=
+              attm_form.input :attachment,
+                              as: :file,
+                              label: false,
+                              wrapper: false,
+                              input_html: {
+                                class: 'bs-file-input', accept: "image/jpeg,image/png,application/pdf",
+                                style: 'display: inline-block;'
+                              }
+
+            %>
+            <%= attm_form.link_to_remove "Remove", class: 'text-danger' %>
+          </div>
+        <% end %>
+
+        <%= f.link_to_add "Add file", :attachments, class: 'btn btn-sm btn-default mt-5' %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :medical_note, input_html: { rows: 3 } %>
+      </div>
+    </div>
+    <% end %>
+  </div>
+  <h3>Referrer details</h3>
+  <div class="box">
+    <div class="form-group">
+      <%= f.input :referrer_business_name %>
+    </div>
+    <div class="form-group">
+      <%= f.input :referrer_name %>
+    </div>
+    <div class="form-group">
+      <%= f.input :referrer_phone %>
+    </div>
+    <div class="form-group">
+      <%= f.input :referrer_email %>
+    </div>
+  </div>
+  <div class="text-center">
+    <div class="switch-button">
+      <a href="<%= admin_referrals_path %>">Back</a>
+      <button type="submit">Create</button>
+    </div>
+  </div>
+<% end %>
+
+<%= content_for :page_js do %>
+  <script>
+  (function() {
+    // Auto open file select dialog
+    $(document).on('nested:fieldAdded:attachments', function(event){
+      var $fieldWrap = event.field;
+      $fieldWrap.find('input[type=file]').click();
+    })
+  })();
+  </script>
+<% end %>

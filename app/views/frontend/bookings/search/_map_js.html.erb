@@ -1,0 +1,111 @@
+ <script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    var searchCoords = <%= Geocoder.coordinates("#{search_filters.location}, AU").to_json %>
+    var centerLatLng = {
+      lat: searchCoords[0],
+      lng: searchCoords[1]
+    };
+
+    var map;
+
+    map = new google.maps.Map(document.getElementById('map-near-practitioners-wrap'), {
+      center: centerLatLng,
+      zoom: 11,
+      mapTypeId: 'roadmap'
+    });
+
+    var nearPractitioners =
+      <%=
+        near_practitioners.map do |pract|
+          {
+            full_name: pract.full_name,
+            profession: pract.profession,
+            city: pract.city,
+            state: pract.state,
+            postcode: pract.postcode,
+            distance: pract.distance,
+            business_phone: pract.business.phone,
+            business_email: pract.business.email,
+            avatar_url: pract.profile_picture_url(:medium),
+            local_latitude: pract.local_latitude,
+            local_longitude: pract.local_longitude,
+            modal_profile_url: frontend_team_modal_profile_path(slug: pract.slug)
+          }
+        end.to_json.html_safe
+      %>
+    ;
+
+    var infoWindow = new google.maps.InfoWindow({
+      maxWidth: 320
+    });
+    for (var i = 0, l = nearPractitioners.length; i < l; i++) {
+
+      var pract = nearPractitioners[i];
+      var latLng = {
+        lat: pract.local_latitude,
+        lng: pract.local_longitude
+      };
+      var infoWindowContent =
+        '<div class="practitioner-info-window">' +
+          '<img class="profile-pic" width="55px" height="55px" src="' + pract.avatar_url + '"/>' +
+          '<div class="summary">' +
+            '<span class="practitioner-name">' + pract.full_name + '</span><br/>' +
+            '<span>' + pract.profession + '</span><br/>' +
+            '<span>' + pract.city + ', ' + pract.state + '</span>' +
+          '</div>' +
+          '<hr>' +
+          '<div class="contact-info">' +
+            '<i class="fa fa-car"></i> <span class="text-primary">' + pract.distance.toFixed(1) + ' km</span><br/>';
+        if (pract.business_phone) {
+          infoWindowContent +=
+            '<i class="fa fa-phone"></i> <a href="tel:' + pract.business_phone + '">' + pract.business_phone + '</a><br>';
+        }
+        if (pract.business_email) {
+          infoWindowContent +=
+            '<i class="fa fa-envelope-o"></i> <a href="mailto:' + pract.business_email + '">' + pract.business_email + '</a>';
+        }
+        infoWindowContent += '<br><a href="#" class="js-btn-modal-practitioner-profile" data-url="' + pract.modal_profile_url +'">>> More info</a>'
+          '</div>' +
+        '</div>';
+
+      var marker = new google.maps.Marker({
+        position: latLng,
+        map: map,
+        title: 'Practitioner',
+        icon: {
+          url: pract.avatar_url,
+          scaledSize: new google.maps.Size(32, 32)
+        },
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(0, 0),
+        infoWindowContent: infoWindowContent
+      });
+
+      // Add this overlay is just for adding a custom css to make user avatars circle style
+      var markerOverlay = new google.maps.OverlayView();
+      markerOverlay.draw = function () {
+        this.getPanes().markerLayer.id = 'practitioner-markers-overlay';
+      };
+
+      markerOverlay.setMap(map);
+
+      marker.addListener('click', function() {
+        infoWindow.setContent(this.infoWindowContent);
+        infoWindow.open(map, this);
+      });
+    }
+
+    new google.maps.Marker({
+      position: centerLatLng,
+      map: map,
+      title: 'Your location',
+      label: {
+        text: "\uf015", // fa-home
+        fontFamily: "FontAwesome",
+        color: "#ffffff",
+        fontSize: "18px",
+      }
+    });
+
+  });
+</script>

@@ -1,0 +1,11 @@
+<% if @success %>
+  Flash['success']('User was successfully created.');
+  window.location = "<%= settings_users_url %>"
+<% else %>
+  var modalHTML = $.parseHTML('<%= j(render template: 'settings/users/new') %>');
+  $(".new_user, .edit_user").html($(modalHTML).find('form').html());
+  Flash['error']('Failed to create user. Please check for form errors.');
+
+  var offset = $('.wrapper').scrollTop() + $('.has-error.form-group').offset().top - 100;
+  $('.wrapper').animate({ scrollTop: offset + 'px' }, 500);
+<% end %>

@@ -1,0 +1,34 @@
+<div class="dashboard-box">
+    <div class="box-heading"><span class="title">Uninvoiced appointments</span>
+        <% if can?(:read, :reports) %>
+        <a href="<%= reports_uninvoiced_appointments_path %>" class="pull-right">View all</a>
+        <% end %>
+    </div>
+    <div class="box-body">
+        <% if @dashboard.uninvoiced_appointments.present? %>
+        <ul>
+            <% @dashboard.uninvoiced_appointments.each_with_index do |appt, idx| %>
+            <li class="mt-5 pa-5 <%= 'bg-gray-light' if idx.odd? %>">
+            <div class="pull-right text-smaller">
+                <a href="<%= appointment_path(appt) %>" class="normal-link">Details</a>
+                <% if can?(:create, Invoice) %>
+                    <span class="text-muted"> | </span>
+                    <a href="<%= new_invoice_path(appointment_id: appt.id) %>" class="normal-link">Add invoice</a>
+                <% end %>
+            </div>
+            <a href="<%= patient_path(appt.patient) %>"><%= appt.patient.full_name %></a> <br>
+            <span class="text-smaller"><%= appt.start_time.strftime(t('date.common')) %></span><br>
+            <div class="text-smaller">
+                <%= appt.appointment_type.name %> <br>
+                <% if current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor? %>
+                  Practitioner: <span class="text-bolder"><%= appt.practitioner.full_name %></span>
+                <% end %>
+            </div>
+            </li>
+            <% end %>
+        </ul>
+        <% else %>
+        <p class="text-muted text-smaller">No appointments found</p>
+        <% end %>
+    </div>
+</div>

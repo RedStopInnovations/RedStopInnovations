@@ -1,0 +1,62 @@
+Dear <%= @practitioner.full_name %>,
+<br>
+<br>
+This is your daily appointment schedule for <b><%= @date.strftime('%a, %d %B') %></b>.
+<br>
+<br>
+<table style="border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid #eee; padding: 5px">Availability</th>
+            <th style="border: 1px solid #eee; padding: 5px">Arrival time</th>
+            <th style="border: 1px solid #eee; padding: 5px">Client</th>
+            <th style="border: 1px solid #eee; padding: 5px">Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% @appointments.each do |appt| %>
+        <% patient = appt.patient %>
+        <%
+            availability = appt.availability
+            av_start_time = availability.start_time.in_time_zone(@practitioner.user_timezone)
+            av_end_time = availability.end_time.in_time_zone(@practitioner.user_timezone)
+        %>
+        <tr>
+            <td style="border: 1px solid #eee; padding: 5px">
+                <%= av_start_time.strftime('%l:%M%P') %> - <%= av_end_time.strftime('%l:%M%P') %>
+            </td>
+
+            <td style="border: 1px solid #eee; padding: 5px">
+                <% if appt.arrival && appt.arrival.arrival_at %>
+                    <%= appt.arrival.arrival_at.in_time_zone(@practitioner.user_timezone).strftime('%l:%M%P') %>
+                <% end %>
+            </td>
+
+            <td style="border: 1px solid #eee; padding: 5px">
+                <%= patient.full_name %> <br>
+                Address: <a href="https://www.google.com/maps/place/<%= u patient.full_address %>"><%= patient.short_address %></a> <br>
+                <% if patient.phone? %>
+                Phone: <a href="tel:<%= patient.phone %>"><%= patient.phone %></a> |
+                <% end %>
+                <% if patient.mobile? %>
+                Mobile: <a href="tel:<%= patient.mobile %>"><%= patient.mobile %></a>
+                <% end %>
+            </td>
+
+            <td style="border: 1px solid #eee; padding: 5px"><%= appt.appointment_type.name %></td>
+        </tr>
+        <% end %>
+    </tbody>
+</table>
+<br>
+<br>
+<i>* Times are in <%= @practitioner.user_timezone %></i>
+<br>
+* <i> Appointments created or updated after this notification will not appear in this email.</i>
+
+<br>
+<br>
+Kind regards,
+<br>
+<br>
+<%= @business.name %>

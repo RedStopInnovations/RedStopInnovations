@@ -1,0 +1,13 @@
+<div class="callout callout-danger">
+  <h4><i class="fa fa-exclamation-triangle"></i> We have found a few problems.</h4>
+  <ul>
+    <% payment_availability.errors.each do |key, error| %>
+      <li>
+        <%= error %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+<p>
+  Please check the above info before send request payment to Medipass.
+</p>

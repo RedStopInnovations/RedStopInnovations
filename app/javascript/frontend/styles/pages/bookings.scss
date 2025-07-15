@@ -1,0 +1,646 @@
+.bookings-wrap {
+  .card .card-header > h4 {
+    margin: 0;
+  }
+
+  .list-results {
+    .card-practitioner {
+      .card-header {
+        background-color: #f9f9f9;
+      }
+      .card-header, .card-body {
+        padding: 1rem 1.5rem;
+      }
+      transition: border 250ms ease-out;
+
+      .booking-hint {
+        visibility: hidden;
+      }
+
+      &:hover {
+        border: 1px solid #48A679;
+        box-shadow: rgba(92, 119, 131, 0.3) 0px 1px 10px 0px;
+
+        .booking-hint {
+          visibility: visible;
+        }
+
+        .btn-send-referral {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .heading {
+    font-size: 18px;
+  }
+
+  .notification {
+    margin-bottom: 20px;
+  }
+  label abbr {
+    color: #a94442;
+    margin-left: 3px;
+    border-bottom: none;
+    text-decoration: none;
+  }
+  .form-control::-moz-placeholder {
+    color: #b3b3b3;
+    opacity: 1;
+  }
+
+  .form-control::-ms-input-placeholder {
+    color: #b3b3b3;
+  }
+
+  .form-control::-webkit-input-placeholder {
+    color: #b3b3b3;
+  }
+
+  &.facility {
+    // Decrease profile picture for facility bookings as we show less practitioner info
+    .card-practitioner .box-head .user-info .profile-picture {
+      width: 70px;
+      height: 70px;
+    }
+  }
+
+  .search-form {
+    .list-days {
+      #select-date-range {
+        width: auto;
+
+        &.active {
+          color: #48A679;
+          font-weight: 600;
+        }
+
+        &:not(.active) {
+          font-weight: 400;
+          opacity: 0.7;
+        }
+
+        &:hover, &:focus, &:active {
+          opacity: 1;
+        }
+      }
+      .btn-search {
+        min-width: 120px;
+      }
+      .datepicker-wrap {
+        display: inline-block;
+      }
+
+      .date-option {
+        display: inline-block;
+        label {
+          cursor: pointer;
+        }
+        &.active {
+          label {
+            font-weight: 600;
+            color: #48A679;
+          }
+        }
+        &:hover {
+          label {
+            color: #48A679;
+          }
+        }
+        + .date-option {
+          margin-left: 15px;
+        }
+      }
+
+      .input-custom-date {
+        &.active {
+          color: #48A679;
+        }
+        &[disabled] {
+          background-color: #fff;
+        }
+      }
+    }
+  }
+
+  .btn-time {
+    display: inline-block;
+    cursor: pointer;
+
+    &.home-visit {
+      width: 200px;
+    }
+
+    .avail-time {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .date {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .timezone {
+      font-weight: 400;
+    }
+  }
+
+  .form-group {
+    position: relative;
+    margin-bottom: 10px;
+    &.input-group {
+      .form-control {
+        border-bottom: none;
+      }
+      border-bottom: 1px dotted #e5e5e5;
+    }
+    .input-icon {
+      position: absolute;
+      right: 0;
+      bottom: 15px;
+      margin: auto;
+      height: 15px;
+      pointer-events: none;
+    }
+    label.control-label {
+      position: absolute;
+      color: #555;
+      margin-bottom: 0px;
+      left: 0;
+      top: 0;
+      z-index: 99;
+    }
+  }
+
+  .form-control {
+    // border: none;
+    // border-bottom: 1px dotted #e5e5e5;
+    // border-radius: 0px;
+    // padding-left: 0px;
+
+    &[disabled] {
+      background-color: #fff;
+    }
+  }
+  .form-control:not(textarea) {
+    height: 40px;
+  }
+
+  .input-group-addon {
+    background: transparent;
+    border: none;
+    border-radius: 2px;
+    color: #555;
+  }
+
+  .list-results {
+    .card-practitioner {
+      .btn-call {
+        text-align: left;
+        display: block;
+        font-size: 14px;
+
+        i {
+          color: #6e82a9;
+        }
+      }
+
+      .btn-send-referral {
+        display: none;
+      }
+
+      .box-head {
+        position: relative;
+        width: 100%;
+
+        .user-info {
+          .profile-picture {
+            width: 70px;
+            height: 70px;
+            float: left;
+            margin-right: 10px;
+            background-position: center;
+            background-size: cover;
+            border-radius: 50%;
+          }
+
+          .business-name {
+            font-weight: 600;
+          }
+
+          p {
+            margin: 0px;
+            color: #555;
+          }
+        }
+
+        .user-rating {
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+      }
+
+      .box-body {
+        margin-top: 10px;
+        border-radius: 3px;
+      }
+      .box-appointment-types {
+        border-top: 1px solid #e5e5e5;
+        margin-top: 10px;
+        padding-top: 10px;
+      }
+      .list-times {
+        a {
+          font-weight: 600;
+          font-size: 13px;
+          margin-right: 20px;
+          margin-top: 10px;
+          display: inline-block;
+        }
+        + .list-times {
+          margin-top: 10px;
+          border-top: 1px dotted #d2d2d2;
+        }
+      }
+    }
+  }
+  .btn-toggle {
+    padding: 5px 10px;
+    border-radius: 100%;
+    margin-top: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+  }
+
+  .pagination {
+    li a {
+      font-size: 13px;
+      border: none;
+      border-radius: 3px;
+      min-width: 35px;
+    }
+  }
+
+  .box {
+    background: #FFF;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    h3 {
+      font-size: 30px;
+    }
+    .btn-process, .btn-cancel {
+      color: #FFF;
+      padding: 10px 0px;
+      text-align: center;
+      width: 100%;
+      border-radius: 5px;
+      margin-top: 15px;
+      border: none;
+      font-size: 15px;
+
+      &[disabled] {
+        cursor: not-allowed;
+        opacity: 0.65;
+      }
+    }
+    .btn-process {
+      background: #48A679;
+    }
+    .btn-cancel {
+      background: #aaa;
+    }
+    hr {
+      border-top: 1px dotted #48A679;
+      margin: 20px 0px;
+    }
+    .user-info {
+      img {
+        width: 100px;
+        height: 100px;
+        float: left;
+        border-radius: 3px;
+        margin-right: 5px;
+      }
+      .name {
+        display: block;
+        font-weight: 600;
+        color: #666;
+        font-size: 15px;
+      }
+      p {
+        margin: 0px;
+        color: #555;
+      }
+    }
+    .block {
+      border-bottom: 1px dotted #d2d2d2;
+      padding-bottom: 5px;
+      margin-top: 5px;
+      strong {
+        font-size: 13px;
+        color: #666;
+      }
+      p {
+        color: #555;
+      }
+    }
+  }
+  .booking-success {
+    h2 {
+      font-size: 30px;
+      text-transform: none;
+      text-align: center;
+      color: #FFF;
+      background: #48A679;
+      padding: 25px 15px;
+      border-radius: 5px
+    }
+  }
+
+  #input-location-wrap {
+    position: relative;
+
+    .btn-set-current-location {
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      display: inline-block;
+      text-align: center;
+      font-size: 1.2em;
+      position: absolute;
+      right: 5px;
+      top: 33px;
+      color: #6e82a9;
+
+      &:hover {
+        color: #48A679;
+      }
+    }
+  }
+  .booking-questions-wrap {
+    ul {
+      list-style: none;
+      padding-left: 10px;
+    }
+  }
+
+  .list-near-practitioners-wrap {
+    border-bottom: 1px dotted #d2d2d2;
+    max-height: 450px;
+    overflow-y: scroll;
+    .heading {
+      color: #585858;
+    }
+
+    .practitioners-row + .practitioners-row {
+      margin-top: 15px;
+    }
+
+    .practitioner-card {
+      padding: 10px 0;
+      background: #fff;
+      overflow: hidden;
+
+      &:hover {
+        background-color: #f9f9f9;
+      }
+
+      a.contact-link {
+        font-size: 90%;
+      }
+
+      .profile-picture {
+        width: 55px;
+        height: 55px;
+        float: left;
+        border-radius: 50%;
+        background-position: center;
+        background-size: cover;
+      }
+
+      .info {
+        padding-left: 70px;
+        position: relative;
+        color: #555;
+        line-height: 21px;
+
+        .contact-info {
+          position: absolute;
+          right: 0;
+          top: 0;
+          text-align: left;
+          width: 90px;
+          font-size: 13px;
+
+          .icon {
+            margin-right: 4px;
+          }
+        }
+      }
+    }
+
+    .practitioner-card + .practitioner-card {
+      border-top: 1px solid #eee;
+    }
+
+    @media screen and (max-width: 768px) {
+      .practitioner-card {
+        margin-top: 15px;
+
+        .profile-picture {
+          width: 90px;
+          height: 90px;
+        }
+
+        .info {
+          padding-left: 100px;
+        }
+      }
+    }
+  }
+
+  .practitioner-name {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  #results-filter-wrap-sticky-wrapper {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .flatpickr-calendar {
+    width: 100%;
+    border-radius: 2px;
+
+    .flatpickr-rContainer {
+      width: 100%;
+    }
+
+    .flatpickr-days {
+      width: 100%;
+      border: none;
+    }
+
+    .dayContainer {
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+      padding: 5px;
+
+      .flatpickr-day {
+        width: 50px;
+        height: 50px;
+        max-width: unset;
+        line-height: 50px;
+        border: none;
+        border-radius: 50%;
+        margin: 1px;
+
+        &.selected {
+          background: #48A679;
+          border-color: #48A679;
+        }
+
+        &.has-availability-day {
+          color: #48A679;
+          font-weight: 600;
+
+          &.selected {
+            color: #fff;
+          }
+        }
+
+        .has-availability-dot {
+          position: absolute;
+          width: 5px;
+          height: 5px;
+          border-radius: 150px;
+          bottom: 3px;
+          left: calc(50% - 1.5px);
+          content: " ";
+          display: block;
+          background: #48A679;
+        }
+      }
+    }
+
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .bookings-wrap {
+    margin-top: 2rem;
+
+    .card {
+      .card-header {
+        padding: 0.75rem;
+      }
+
+      .card-body {
+        padding: 0.75rem;
+      }
+    }
+
+    .search-form {
+      width: 100%;
+      z-index: 999;
+
+      .list-days {
+        .date-option {
+          margin: 5px 0;
+
+          + .date-option {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+
+    .datepicker-wrap {
+      > input {
+        width: 170px;
+      }
+    }
+
+    .pagination {
+      text-align: center;
+    }
+
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .bookings-wrap {
+    .list-results {
+      .card-practitioner {
+
+        .box-head {
+          .user-info {
+
+          }
+
+          .user-rating {
+            float: left;
+            position: inherit;
+            width: 100%;
+            margin-top: 10px;
+            padding-top: 10px;
+            padding-left: 75px;
+            border-top: 1px dashed #eee;
+          }
+        }
+      }
+
+    }
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .btn-time  + .btn-time {
+    margin-left: 5px;
+  }
+}
+
+.practitioner-info-window {
+  line-height: 20px;
+  font-weight: 400;
+  font-size: 14px;
+
+  .name {
+    font-weight: 600;
+  }
+
+  .profile-pic {
+    display: inline;
+    float: left;
+    border-radius: 50%;
+  }
+
+  .summary {
+    padding-left: 65px;
+  }
+
+  .contact-info {
+    .fa {
+      margin-right: 5px;
+    }
+  }
+
+  hr {
+    margin: 5px 0;
+  }
+}
+
+#practitioner-markers-overlay img {
+  border-radius: 50%;
+}
+
+.btn-availability {
+  min-width: 165px;
+}

@@ -1,0 +1,19 @@
+<% content_for :title, 'Add product' %>
+
+<section class="box-header">
+  <h1>Add product</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= products_path %>">Products</a></li>
+    <li class="active">Add product</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', product: @product %>
+</section>

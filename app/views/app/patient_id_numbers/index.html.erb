@@ -1,0 +1,52 @@
+<%= render 'patients/show_layout' do %>
+
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>Client ID's</h4>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_app_patient_id_number_path(@patient)%>" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Add ID
+      </a>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Contact</th>
+            <th>ID's</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @patient_numbers.each do |patient_number| %>
+          <tr>
+            <td><%= patient_number.contact.business_name %></td>
+            <td><%= patient_number.id_number %></td>
+            <td>
+              <a href="<%= edit_app_patient_id_number_path(@patient, patient_number) %>" class="btn btn-link" title="Edit">
+                <i class="fa fa-pencil-square-o"></i>
+              </a>
+              <a href="<%= app_patient_id_number_path(@patient, patient_number) %>" class="btn btn-link"
+                data-confirm="Are you sure?" title="Delete" data-method="DELETE">
+                <i class="fa fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          <% end %>
+
+          <% if @patient_numbers.blank? %>
+          <tr>
+            <td colspan="3" class="text-muted">Not any ID number added</td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<% end %>

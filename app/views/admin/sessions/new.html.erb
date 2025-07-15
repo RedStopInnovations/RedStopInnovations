@@ -1,0 +1,57 @@
+<% content_for :body_class, 'login-page' %>
+<div class="login-box">
+  <div class="">
+    <span>LOGIN</span>
+    <h2 class="mt-0">Tracksy</h2>
+  </div>
+
+  <div class="login-box-body mt-20">
+    <%= simple_form_for resource, as: resource_name, url: session_path(resource_name), wrapper: :vertical_form, html: { id: 'js-form-login' } do |f| %>
+      <%= f.input :email, placeholder: "Enter email", autofocus: true %>
+      <%= f.input :password,  placeholder: "Enter password" %>
+
+      <% if App::RECAPTCHA_ENABLE %>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <div id="js-recaptcha-container"></div>
+        </div>
+      </div>
+      <% end %>
+
+      <div class="mt-10">
+        <button type="submit" class="btn btn-primary" id="js-btn-submit">Login</button>
+      </div>
+    <% end %>
+
+  </div>
+</div>
+
+<% if App::RECAPTCHA_ENABLE %>
+  <% content_for :page_js do %>
+  <script>
+    let isCaptchaPass = false;
+
+    $('#js-form-login').on('submit', function(e) {
+      if (!isCaptchaPass) {
+        Flash.warning('Please complete the Captcha to continue!');
+        e.preventDefault();
+        return false;
+      }
+
+      $('#js-btn-submit').attr('disabled');
+    });
+
+    window.recaptchaLoad = function() {
+      grecaptcha.render('js-recaptcha-container', {
+        'sitekey' : '<%= ENV['RECAPTCHA_SITE_KEY'] %>',
+        'theme' : 'light',
+        callback: function() {
+          isCaptchaPass = true;
+        }
+      });
+    }
+
+  </script>
+  <script src="https://www.google.com/recaptcha/api.js?onload=recaptchaLoad&render=explicit" async defer></script>
+  <% end %>
+<% end %>

@@ -1,0 +1,140 @@
+<%
+  target_method = params[:payment_method]
+  modal_title = {
+    'medicare' => 'Medicare',
+    'dva' => 'DVA',
+    'ndis' => 'NDIS',
+    'hih' => 'Hospital in home',
+    'hcp' => 'Home care package',
+    'hi' => 'Health insurance',
+    'strc' => 'STRC',
+  }[target_method] || 'Edit payment method'
+%>
+
+<div class="modal fade" id="js-modal-edit-payment-methods">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title"><%= modal_title %></h4>
+      </div>
+
+      <%= simple_form_for patient, url: update_payment_methods_patient_path(patient), method: 'PUT', remote: true do |f| %>
+        <div class="modal-body">
+
+          <% if target_method == 'medicare' %>
+            <%
+              # Standardize dates
+              medicare_referral_date = f.object.medicare_referral_date
+
+              if medicare_referral_date
+                medicare_referral_date = medicare_referral_date.to_date.strftime('%Y-%m-%d') rescue nil
+              end
+            %>
+            <%= f.input :medicare_card_number, label: 'Card number' %>
+            <%= f.input :medicare_card_irn, label: 'Card IRN' %>
+            <%= f.input :medicare_referrer_name, label: 'Doctor name' %>
+            <%= f.input :medicare_referrer_provider_number, label: 'Doctor provider number' %>
+            <%= f.input :medicare_referral_date, label: 'Referral date', input_html: { value: medicare_referral_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %>
+          <% end %>
+
+          <% if target_method == 'dva' %>
+            <%
+              # Standardize dates
+              dva_referral_date = f.object.dva_referral_date
+
+              if dva_referral_date
+                dva_referral_date = dva_referral_date.to_date.strftime('%Y-%m-%d') rescue nil
+              end
+            %>
+            <%= f.input :dva_file_number, label: 'DVA File number' %>
+            <%= f.input :dva_card_type, label: 'DVA Card type', collection: ['Gold Card', 'White Card'], input_html: { id: 'input-dva-card-type' } %>
+            <%= f.input :dva_white_card_disability, label: 'White Card disability', wrapper_html: { id: 'input-dva-card-disability-wrap' } %>
+            <%= f.input :dva_referrer_name, label: 'Doctor name' %>
+            <%= f.input :dva_referrer_provider_number, label: 'Doctor provider number' %>
+            <%= f.input :dva_referral_date, label: 'Referral date', input_html: { value: dva_referral_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %>
+            <%= f.input :dva_hospital, label: 'Hospital Facility Provider Number' %>
+          <% end %>
+
+          <% if target_method == 'ndis' %>
+            <%
+              # Standardize dates
+              ndis_plan_start_date = f.object.ndis_plan_start_date
+
+              if ndis_plan_start_date
+                ndis_plan_start_date = ndis_plan_start_date.to_date.strftime('%Y-%m-%d') rescue nil
+              end
+
+              ndis_plan_end_date = f.object.ndis_plan_end_date
+              if ndis_plan_end_date
+                ndis_plan_end_date = ndis_plan_end_date.to_date.strftime('%Y-%m-%d') rescue nil
+              end
+            %>
+            <%= f.input :ndis_client_number, label: 'NDIS client number' %>
+            <div class="row">
+              <div class="col-xs-6"><%= f.input :ndis_plan_start_date, label: 'Plan start date', input_html: { value: ndis_plan_start_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+              <div class="col-xs-6"><%= f.input :ndis_plan_end_date, label: 'Plan end date', input_html: { value: ndis_plan_end_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+            </div>
+            <%= f.input :ndis_plan_manager_name, label: 'Invoice to name' %>
+            <%= f.input :ndis_plan_manager_phone, label: 'Manager phone' %>
+            <%= f.input :ndis_plan_manager_email, label: 'Manager email' %>
+          <% end %>
+
+          <% if target_method == 'hih' %>
+            <%
+                # Standardize dates
+                hih_surgery_date = f.object.hih_surgery_date
+
+                if hih_surgery_date
+                  hih_surgery_date = hih_surgery_date.to_date.strftime('%Y-%m-%d') rescue nil
+                end
+
+                hih_discharge_date = f.object.hih_discharge_date
+                if hih_discharge_date
+                  hih_discharge_date = hih_discharge_date.to_date.strftime('%Y-%m-%d') rescue nil
+                end
+            %>
+            <%= f.input :hih_hospital, label: 'Hospital' %>
+            <%= f.input :hih_procedure, label: 'Procedure' %>
+            <div class="row">
+                <div class="col-xs-6"><%= f.input :hih_surgery_date, label: 'Surgery date', input_html: { value: hih_surgery_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+                <div class="col-xs-6"><%= f.input :hih_discharge_date, label: 'Discharge date', input_html: { value: hih_discharge_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+            </div>
+            <%= f.input :hih_doctor_name, label: 'Doctor name' %>
+            <%= f.input :hih_doctor_phone, label: 'Doctor phone' %>
+            <%= f.input :hih_doctor_email, label: 'Doctor email' %>
+          <% end %>
+
+          <% if target_method == 'hcp' %>
+            <%= f.input :hcp_company_name, label: 'Company name' %>
+            <%= f.input :hcp_manager_name, label: 'Manager name' %>
+            <%= f.input :hcp_manager_phone, label: 'Manager phone' %>
+            <%= f.input :hcp_manager_email, label: 'Manager email' %>
+          <% end %>
+
+          <% if target_method == 'hi' %>
+            <%= f.input :hi_company_name, label: 'Insurer Name' %>
+            <%= f.input :hi_number, label: 'Member number' %>
+            <%= f.input :hi_manager_name, label: 'Invoice to name' %>
+            <%= f.input :hi_manager_email, label: 'Manager email' %>
+            <%= f.input :hi_manager_phone, label: 'Manager phone' %>
+          <% end %>
+
+          <% if target_method == 'strc' %>
+            <%= f.input :strc_company_name, label: 'Company name'  %>
+            <%= f.input :strc_company_phone, label: 'Company phone' %>
+            <%= f.input :strc_invoice_to_name, label: 'Invoice to name' %>
+            <%= f.input :strc_invoice_to_email, label: 'Invoice to email' %>
+          <% end %>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Save</button>
+          <button class="btn btn-white" type="button" data-dismiss="modal">Close</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

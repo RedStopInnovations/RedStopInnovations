@@ -1,0 +1,29 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "shared/helper";
+@import "pdf/common";
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    width: 210mm;
+    height: 297mm;
+  }
+}
+
+a {
+  color: #5ea444;
+  font-weight: 600;
+}
+
+body {
+  background: #FFF;
+  padding: 20px;
+  width: 210mm;
+  margin: 0 auto;
+}

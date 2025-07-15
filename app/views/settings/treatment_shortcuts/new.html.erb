@@ -1,0 +1,21 @@
+<% content_for :title, 'Add treatment note shortcut' %>
+
+<section class="box-header">
+  <h1>Add treatment note shortcut</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_treatment_shortcuts_path %>">Treatment note shortcuts</a>
+    </li>
+    <li class="active">Add treatment note shortcut</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form' %>
+</section>

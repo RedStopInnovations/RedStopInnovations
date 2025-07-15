@@ -1,0 +1,65 @@
+<%= simple_form_for business, url: business.new_record? ? admin_businesses_path : admin_business_path(business), html: { multipart: true } do |f| %>
+
+<h3>General info</h3>
+<div class="box">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :name, readonly: true %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :abn, label: 'ABN' %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :phone %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :website %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :fax %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :email, readonly: true %>
+    </div>
+  </div>
+</div>
+
+<h3>Address</h3>
+<div class="box">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :address1 %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :address2 %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :city %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :state %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :postcode %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :country, priority: [ "Australia" ] %>
+    </div>
+  </div>
+</div>
+
+<div class="box">
+  <%= f.input :is_partner, as: :boolean, label: "Is Partner", wrapper: false %>
+</div>
+
+<div>
+  <button class="btn sitebtn"><%= business.new_record? ? "Create" : "Update" %></button>
+  <a href="<%= admin_businesses_path %>" class="btn linebtn">Cancel</a>
+</div>
+<% end %>

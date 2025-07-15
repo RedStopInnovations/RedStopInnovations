@@ -1,0 +1,10 @@
+Hi <%= @author.first_name %>,
+<br>
+<br>
+An export of client attachments is ready to download.
+<br>
+Please view export details to find the link to download:
+<a href="<%= app_data_export_patient_attachments_export_url(@export.id) %>">View export details</a>
+<br>
+<br>
+

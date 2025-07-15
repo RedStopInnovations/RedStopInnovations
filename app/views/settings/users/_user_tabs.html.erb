@@ -1,0 +1,15 @@
+<%
+  active_tab_id = nil
+  if local_assigns[:active_tab]
+    active_tab_id = active_tab
+  end
+%>
+
+<ul class="nav nav-tabs mb-15">
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'edit_profile' %>"><a href="<%= edit_settings_user_path(@user) %>">Profile & settings</a></li>
+    <% if @user.is_practitioner? %>
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'timeable_settings' %>"><a href="<%= timeable_settings_settings_user_path(@user) %>">Timeable settings</a></li>
+    <% end %>
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'allocated_items' %>"><a href="<%= allocated_items_settings_user_path(@user) %>">Allocated items</a></li>
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'Security' %>"><a href="<%= login_activity_settings_user_path(@user) %>">Security</a></li>
+</ul>

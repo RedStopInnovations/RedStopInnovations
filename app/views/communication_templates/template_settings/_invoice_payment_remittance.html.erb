@@ -1,0 +1,32 @@
+<%
+  billable_items = current_business.billable_items.not_deleted.select(:id, :name, :item_number).order(name: :asc).to_a
+  billable_item_options = billable_items.map do |bi|
+    ["#{bi.name} [#{bi.item_number}]", bi.id]
+  end
+  enabled_billable_item_ids = template.settings['billable_item_ids'].presence || []
+%>
+
+<div class="row">
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <% if template.errors.key?(:settings) %>
+                    <p class="text-danger">
+                        <%= template.errors[:settings].join('. ') %>
+                    </p>
+                <% end %>
+                <p class="text-smaller">Enable sending remittance for certain billable items:</p>
+                <select name="communication_template[settings][billable_item_ids][]" id="js-select-billable-items" class="selectize" multiple>
+                    <option value="">Search billable items</option>
+                    <%=
+                      options_for_select(
+                        billable_item_options,
+                        enabled_billable_item_ids
+                      )
+                    %>
+                </select>
+                <span class="text-muted">Leave blank to enable for all</span>
+            </div>
+        </div>
+    </div>
+</div>

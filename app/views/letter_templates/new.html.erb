@@ -1,0 +1,23 @@
+<% content_for :title, 'Add letter template' %>
+
+<section class="box-header">
+  <h1>Add letter template</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= letter_templates_path %>">Letter templates</a>
+    </li>
+    <li class="active">Add</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="letter_container">
+    <%= render 'form', letter_template: @letter_template %>
+  </div>
+</section>

@@ -1,0 +1,66 @@
+<% content_for :title, 'Map' %>
+<% content_for :no_gmapjs, 1 %>
+<% content_for :page_additional_html do %>
+  <%= render 'shared/app_templates' %>
+<% end %>
+
+<section class="box-header">
+  <h1>Map</h1>
+</section>
+<section class="content">
+  <div class="box">
+    <div id="availability-map-wrap">
+      <availability-map ref="map"></availability-map>
+    </div>
+  </div>
+</section>
+
+
+<%= content_for :page_js do %>
+<script>
+  Vue.use(VueGoogleMaps, {
+    load: {
+      key: '<%= ENV['GOOGLE_API_KEY'] %>',
+      libraries: 'drawing',
+      v: '3.53',
+    },
+    installComponents: false,
+  });
+
+  $(document).ready(function() {
+    VueGoogleMaps.loaded.then(function() {
+        new Vue({
+          el: '#availability-map-wrap',
+          data: function() {
+            return {
+              business: null
+            };
+          },
+          mounted: function() {
+            var that = this;
+            $.ajax({
+              method: 'GET',
+              url: '/api/businesses/<%= current_business.id %>.json',
+              success: function(res) {
+                if (res.business) {
+                  that.setBusiness(res.business);
+                }
+              }
+            });
+          },
+          methods: {
+            setBusiness: function(business) {
+              this.business = business;
+              var preselectedPractIds = [];
+              if (window.session.user.is_practitioner) {
+                preselectedPractIds.push(window.session.user.practitioner_id);
+              }
+              this.$refs.map.setBusiness(business, preselectedPractIds);
+            },
+          }
+        });
+      })
+  });
+
+</script>
+<% end %>

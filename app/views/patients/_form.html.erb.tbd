@@ -1,0 +1,302 @@
+<%= simple_nested_form_for patient, url: patient.new_record? ? patients_path : patient_path(patient) do |f| %>
+<div class="box mt-20">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :first_name %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :last_name %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :dob, as: :string, input_html: { placeholder: 'dd/mm/yyyy', value: (patient.dob? ? patient.dob.try(:strftime, '%d/%m/%Y') : nil) } %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :email %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :phone %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :mobile %>
+    </div>
+  </div>
+</div>
+
+<h3>Address</h3>
+<div class="box mt-20">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :address1, hint: 'Street address (e.g. 10 Main St)' %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :address2, hint: 'Apartment, suite, unit, building, floor, etc.' %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-20 clearfix">
+      <%= f.input :city %>
+    </div>
+    <div class="col-md-6 mb-20 clearfix">
+      <%= f.input :state %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-20 clearfix">
+      <%= f.input :postcode %>
+    </div>
+    <div class="col-md-6 mb-20 clearfix">
+      <%= f.input :country, priority: [ current_business.country ]%>
+    </div>
+  </div>
+</div>
+
+<h3>Additional</h3>
+<div class="box mt-20">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :gender, as: :select, collection: Patient::GENDERS %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :nationality %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :spoken_languages %>
+    </div>
+    <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+      <div class="col-md-6">
+        <%= f.input :aboriginal_status, collection: ['No', 'Aboriginal', 'Torres Strait Islander', 'Both'] %>
+      </div>
+      <div class="col-md-12">
+        <%= f.input :next_of_kin, as: :text, input_html: { rows: 5 } %>
+      </div>
+    <% end %>
+  </div>
+  <%= f.input :general_info, as: :text, label: "Additional information", input_html: { rows: 10 } %>
+  <br>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label class="control-label">Privacy policy</label>
+        <p>Does the client consent to privacy policy?</p>
+        <%= f.input :accepted_privacy_policy, as: :radio_buttons, label: false, collection: [['No response', ''], ['Accepted', true], ['Rejected', false]], item_wrapper_tag: false, item_label_class: 'radio-inline' %>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <br>
+      <%= f.input :reminder_enable %>
+    </div>
+  </div>
+</div>
+
+  <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+    <div class="row">
+      <div class="col-sm-6">
+        <h3>Medicare</h3>
+        <div class="box">
+          <%
+            # Standardize dates
+            medicare_referral_date = f.object.medicare_referral_date
+
+            if medicare_referral_date
+              medicare_referral_date = medicare_referral_date.to_date.strftime('%Y-%m-%d') rescue nil
+            end
+          %>
+          <%= f.input :medicare_card_number, label: 'Medicare Card number' %>
+          <%= f.input :medicare_card_irn, label: 'Medicare Card IRN' %>
+          <%= f.input :medicare_referrer_name, label: 'Doctor name' %>
+          <%= f.input :medicare_referrer_provider_number, label: 'Doctor provider number' %>
+          <%= f.input :medicare_referral_date, label: 'Referral date', input_html: { value: medicare_referral_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <h3>DVA</h3>
+        <div class="box">
+          <%
+            # Standardize dates
+            dva_referral_date = f.object.dva_referral_date
+
+            if dva_referral_date
+              dva_referral_date = dva_referral_date.to_date.strftime('%Y-%m-%d') rescue nil
+            end
+          %>
+          <%= f.input :dva_file_number, label: 'DVA File number' %>
+          <%= f.input :dva_card_type, label: 'DVA Card type', collection: ['Gold Card', 'White Card'], input_html: { id: 'input-dva-card-type' } %>
+          <%= f.input :dva_white_card_disability, label: 'White Card disability', wrapper_html: { id: 'input-dva-card-disability-wrap' } %>
+          <%= f.input :dva_referrer_name, label: 'Doctor name' %>
+          <%= f.input :dva_referrer_provider_number, label: 'Doctor provider number' %>
+          <%= f.input :dva_referral_date, label: 'Referral date', input_html: { value: dva_referral_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %>
+          <%= f.input :dva_hospital, label: 'Hospital Facility Provider Number' %>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <h3>Health insurance</h3>
+        <div class="box">
+          <%= f.input :hi_company_name, label: 'Health Insurer Name' %>
+          <%= f.input :hi_number, label: 'Member number' %>
+          <%= f.input :hi_manager_name, label: 'Invoice to name' %>
+          <%= f.input :hi_manager_email, label: 'Manager email' %>
+          <%= f.input :hi_manager_phone, label: 'Manager phone' %>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <h3>NDIS</h3>
+        <div class="box">
+          <%
+            # Standardize dates
+            ndis_plan_start_date = f.object.ndis_plan_start_date
+
+            if ndis_plan_start_date
+              ndis_plan_start_date = ndis_plan_start_date.to_date.strftime('%Y-%m-%d') rescue nil
+            end
+
+            ndis_plan_end_date = f.object.ndis_plan_end_date
+            if ndis_plan_end_date
+              ndis_plan_end_date = ndis_plan_end_date.to_date.strftime('%Y-%m-%d') rescue nil
+            end
+          %>
+          <%= f.input :ndis_client_number, label: 'NDIS client number' %>
+          <div class="row">
+            <div class="col-xs-6"><%= f.input :ndis_plan_start_date, label: 'Plan start date', input_html: { value: ndis_plan_start_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+            <div class="col-xs-6"><%= f.input :ndis_plan_end_date, label: 'Plan end date', input_html: { value: ndis_plan_end_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+          </div>
+          <%= f.input :ndis_plan_manager_name, label: 'Invoice to name' %>
+          <%= f.input :ndis_plan_manager_phone, label: 'Manager phone' %>
+          <%= f.input :ndis_plan_manager_email, label: 'Manager email' %>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <h3>Hospital in home</h3>
+        <div class="box">
+          <%
+            # Standardize dates
+            hih_surgery_date = f.object.hih_surgery_date
+
+            if hih_surgery_date
+              hih_surgery_date = hih_surgery_date.to_date.strftime('%Y-%m-%d') rescue nil
+            end
+
+            hih_discharge_date = f.object.hih_discharge_date
+            if hih_discharge_date
+              hih_discharge_date = hih_discharge_date.to_date.strftime('%Y-%m-%d') rescue nil
+            end
+          %>
+          <%= f.input :hih_hospital, label: 'Hospital' %>
+          <%= f.input :hih_procedure, label: 'Procedure' %>
+          <div class="row">
+            <div class="col-xs-6"><%= f.input :hih_surgery_date, label: 'Surgery date', input_html: { value: hih_surgery_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+            <div class="col-xs-6"><%= f.input :hih_discharge_date, label: 'Discharge date', input_html: { value: hih_discharge_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <%= f.input :hih_doctor_name, label: 'Doctor name' %>
+            </div>
+            <div class="col-md-6">
+              <%= f.input :hih_doctor_phone, label: 'Doctor phone' %>
+            </div>
+          </div>
+          <%= f.input :hih_doctor_email, label: 'Doctor email' %>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <h3>Home care package</h3>
+        <div class="box">
+          <%= f.input :hcp_company_name, label: 'Company name' %>
+          <%= f.input :hcp_manager_name, label: 'Manager name' %>
+          <%= f.input :hcp_manager_phone, label: 'Manager phone' %>
+          <%= f.input :hcp_manager_email, label: 'Manager email' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <h3>STRC details</h3>
+        <div class="box">
+          <%= f.input :strc_company_name, label: 'Company name'  %>
+          <%= f.input :strc_company_phone, label: 'Company phone' %>
+          <%= f.input :strc_invoice_to_name, label: 'Invoice to name' %>
+          <%= f.input :strc_invoice_to_email, label: 'Invoice to email' %>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+
+  <div class="mb-20 clearfix">
+    <button class="btn btn-primary" type="submit">Save client</button>
+    <a href="<%= patient.new_record? ? patients_path : patient_path(patient) %>" class="btn btn-white">Cancel</a>
+  </div>
+<% end %>
+
+<% content_for :page_js do %>
+  <script>
+    (function () {
+
+      var toogleDvaWhiteCardDisability = function () {
+        if ($('#input-dva-card-type').val() == 'White Card') {
+          $('#input-dva-card-disability-wrap').show();
+        } else {
+          $('#input-dva-card-disability-wrap').hide();
+          $('#input-dva-card-disability-wrap').find('input').val('');
+        }
+      };
+
+      $('#input-dva-card-type').on('change', function () {
+        toogleDvaWhiteCardDisability();
+      });
+
+      var autocomplete;
+
+      function locationSelected() {
+        var place = autocomplete.getPlace();
+
+        var componentForm = {
+          street_number: 'patient_address1',
+          subpremise: 'patient_address1',
+          locality: 'patient_city',
+          administrative_area_level_1: 'patient_state',
+          postal_code: 'patient_postcode',
+          country: 'patient_country',
+          postal_town: 'patient_city'
+        };
+
+        if (place.address_components) {
+          $.each(componentForm, function (index, element) {
+            $('#' + element).val('');
+          });
+          $.each(place.address_components, function (index, item) {
+            if (componentForm[item.types[0]]) {
+              $inputElement = $('#' + componentForm[item.types[0]]);
+              if (item.types[0] == 'subpremise') {
+                $($inputElement).val(item.short_name + '/')
+              } else {
+                $($inputElement).val($inputElement.val() + item.short_name)
+              }
+            }
+
+            if (item.types[0] == 'country') {
+              $('#patient_country').val(item.short_name);
+            }
+
+            if (item.types[0] == 'route') {
+              $('#patient_address1').val($('#patient_address1').val() + ' ' + item.short_name);
+            }
+          });
+        }
+      };
+      autocomplete = new google.maps.places.Autocomplete($('#patient_address1')[0], autocompleteDefaultOptions);
+
+      autocomplete.addListener('place_changed', locationSelected);
+
+      toogleDvaWhiteCardDisability();
+    })();
+  </script>
+<% end %>

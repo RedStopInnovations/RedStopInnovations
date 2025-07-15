@@ -1,0 +1,136 @@
+<% content_for :title, @business.name %>
+<% content_for :with_google_map_js, true %>
+
+<% unless params[:_iframe] %>
+<div class="header-main header-style3">
+    <div class="top-bar p-3">
+        <div class="container text-center">
+            <% if @business.avatar.exists? %>
+                <img src="<%= @business.avatar.url(:medium) %>" alt="Logo" style="max-height: 70px;">
+            <% end %>
+        </div>
+    </div>
+</div>
+<% end %>
+
+<section class="sptb">
+  <div class="container">
+      <div class="mt-3 mb-3">
+        <form id="js-embed-team-page-form-search" method="GET">
+            <% if params[:_iframe] %>
+                <input type="hidden" name="_iframe" value="1">
+            <% end %>
+            <div class="form row no-gutters">
+
+            <div class="form-group col-xl-6 col-lg-6 col-md-12 mb-0">
+                <input class="form-control input-lg br-md-0" name="location" placeholder="Search your home address" type="text" value="<%= params[:location] %>"> <span class="js-btn-local-get-user-location"><i class="fa fa-crosshairs location-gps mr-1"></i></span>
+            </div>
+
+            <div class="form-group col-xl-4 col-lg-4 col-md-12 mb-0">
+                <select class="form-control h-100 w-100" name="profession">
+                <option value="">-- Select profession --</option>
+                <% @available_professions.each do |prof| %>
+                    <option value="<%= prof %>"
+                    <% if params[:profession] == prof %>
+                        selected
+                    <% end %>
+                    ><%= prof %></option>
+                <% end %>
+                </select>
+            </div>
+
+            <div class="col-xl-2 col-lg-2 col-md-12 mb-0">
+                <button class="btn btn-lg btn-block btn-warning br-tl-md-0 br-bl-md-0" type="submit"><i class="fa fa-search"></i> Search</button>
+            </div>
+
+            </div>
+        </form>
+      </div>
+
+
+        <div id="tab-grid-style">
+            <div class="row">
+            <% @practitioners.each do |pract| %>
+                <%
+                    generate_params = {
+                        business_id: @business.id,
+                        business_slug: @business.name.parameterize,
+                        practitioner_id: pract.id,
+                        practitioner_slug: pract.full_name.parameterize,
+                    }
+
+                    if params[:_iframe]
+                        generate_params.merge!(_iframe: 1)
+                    end
+
+                    profile_url = iframe_team_practitioner_profile_page_url generate_params
+                %>
+                <div class="col-lg-6 col-md-6 col-xl-3">
+                    <div class="card overflow-hidden">
+                        <div class="item-card9-img">
+                            <div class="item-card9-imgs">
+                                <a href="<%= profile_url %>"></a>
+                                <img alt="img" class="cover-image" src="<%= pract.profile_picture_url(:medium) %>" loading="lazy">
+                            </div>
+
+                            <div class="item-overly-trans">
+                                <span class="badge badge-dark"><%= pract.profession %></span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <% if pract.respond_to?(:distance) %>
+                            <% distance = pract.distance.to_f.floor %>
+                            <div class="pull-right small">
+                                <span class="text-muted" title="Approximate distance from your location">
+                                <% if distance <= 1 %>
+                                <i class="fa fa-car"></i> 1km
+                                <% else %>
+                                <i class="fa fa-car"></i> <%= distance %>kms
+                                <% end %>
+                                </span>
+                            </div>
+                            <% end %>
+
+                            <div class="item-card9">
+                                <a class="text-dark" href="<%= profile_url %>">
+                                <h4 class="font-weight-bold mb-1"><%= pract.full_name %> <i class="ion-checkmark-circled  text-success fs-14 ml-1"></i></h4></a>
+                                <span class="text-muted fs-13 mt-0"><i class="fa fa-map-marker text-muted mr-2"></i><%= pract.city %></span>
+                                <div class="mb-0 mt-2">
+                                <ul class="item-card-features mb-0">
+                                    <li><span>
+                                    <i class="fe fe-phone mr-1 text-muted"></i>
+                                        <% if pract.business.phone.present? %>
+                                        <% phone = pract.business.phone %>
+                                        <%= link_to_reveal_contact_info(pract, phone, :phone) %>
+                                        <% end %>
+                                    </span></li>
+                                    <li><span>
+                                    <i class="fe fe-mail mr-1 text-muted"></i>
+                                    <% if pract.business.email.present? %>
+                                        <% email = pract.business.email %>
+                                        <%= link_to_reveal_contact_info(pract, email, :email, max_length: 15) %>
+                                    <% end %>
+                                    </span></li>
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer p-0 btn-appointment">
+                            <div class="btn-group w-100">
+                                <a class="w-50 btn btn-outline-light p-2 border-top-0 border-bottom-0 border-left-0 border-right-0" href="<%= profile_url %>"><i class="fe fe-eye mr-1"></i> View profile</a>
+                                <a class="w-50 btn btn-outline-light p-2 border-top-0 border-bottom-0 border-right-0" href="#"><i class="fe fe-calendar mr-1"></i> Appointment</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% end %>
+            </div>
+        </div>
+
+        <% if @practitioners.empty? %>
+            <p class="text-muted text-center">No practitioners found</p>
+        <% end %>
+  </div>
+</section>

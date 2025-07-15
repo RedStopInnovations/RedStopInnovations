@@ -1,0 +1,59 @@
+<section class="box-header">
+  <h1>Subscription payments</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>Subscription payments</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Business</th>
+          <th>Invoice</th>
+          <th>Payment type</th>
+          <th>Amount</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @subscription_payments.each do |subscription_payment| %>
+          <tr>
+            <td><%= subscription_payment.payment_date.strftime('%b %d, %Y') %></td>
+            <td>
+              <a href="<%= admin_business_path(subscription_payment.business) %>"><%= subscription_payment.business.name %></a>
+            </td>
+            <td>
+              #<%= subscription_payment.business_invoice.invoice_number %>
+            </td>
+            <td>
+              <%= subscription_payment.payment_type %>
+            </td>
+            <td><%= format_money subscription_payment.amount %></td>
+            <td>
+              <a href="<%= admin_subscription_payment_path(subscription_payment) %>">Details</a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @subscription_payments, entry_name: 'payment' %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @subscription_payments %>
+      </div>
+    </div>
+  </div>
+</section>

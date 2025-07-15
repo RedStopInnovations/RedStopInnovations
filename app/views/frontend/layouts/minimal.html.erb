@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=5">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="robots" content="noindex, nofollow"/>
+        <%= render 'frontend/layouts/shared/dns_prefetch' %>
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Lato:400italic,400,500,700&display=swap">
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap">
+
+        <title><%= page_title %></title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+
+        <%= csrf_meta_tags %>
+        <%= stylesheet_pack_tag 'frontend' %>
+    </head>
+
+    <body>
+        <%= yield %>
+
+        <%= javascript_pack_tag 'frontend' %>
+
+        <%= yield :page_js %>
+    </body>
+</html>

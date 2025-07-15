@@ -1,0 +1,527 @@
+<% content_for :title, 'Invoice summary' %>
+
+<section class="box-header">
+  <h1>Invoice summary</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Transactions</a>
+    </li>
+    <li class="active">Invoice summary</li>
+  </ul>
+</section>
+
+<section class="print-head">
+  <h3 class="text-center">Invoice summary</h3>
+  <div class="date-range text-center">
+    <%= @options.start_date.try(:strftime, t('date.common')) %> -
+    <%= @options.end_date.try(:strftime, t('date.common')) %>
+  </div>
+</section>
+
+<section class="content">
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+
+      <form action="<%= reports_invoices_raised_path %>">
+
+        <div class="row">
+          <div class="col-md-11 col-xs-12">
+            <div class="row">
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Issue date:</label>
+                  <div class="input-group">
+                    <input type="text"
+                      class="form-control flatpickr-datepicker"
+                      name="start_date"
+                      value="<%= @options.start_date.try(:strftime, '%Y-%m-%d') %>"
+                      data-alt-format="d M Y"
+                      data-date-format="Y-m-d"
+                      data-allow-input="true"
+                      />
+                    <span class="input-group-addon input-group-addon-middle">to</span>
+
+                    <input type="text"
+                      class="form-control flatpickr-datepicker"
+                      name="end_date"
+                      value="<%= @options.end_date.try(:strftime, '%Y-%m-%d') %>"
+                      data-alt-format="d M Y"
+                      data-date-format="Y-m-d"
+                      data-allow-input="true"
+                      >
+
+                    <div class="input-group-btn">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <% today = Date.current %>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_week %>" data-end-date="<%= today.end_of_week %>">This week</a></li>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today.last_week.beginning_of_week %>" data-end-date="<%= today.last_week.end_of_week %>">Last week</a></li>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Practitioners:</label>
+                  <select class="form-control selectize" name="practitioner_ids[]" multiple="true">
+                    <option value="">All</option>
+                    <%=
+                      options_for_select(
+                        business_pracititioner_options_for_select(current_business, include_inactive: true),
+                        @options.practitioner_ids
+                      )
+                    %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Contacts:</label>
+                  <select class="form-control selectize-contacts-ajax" name="contact_ids[]"
+                    multiple="true"
+                    placeholder="All">
+                    <% if @options.contact_ids.present? %>
+                    <%=
+                      options_from_collection_for_select(
+                        current_business.contacts.select(:id, :business_name).where(id: @options.contact_ids),
+                        :id,
+                        :business_name,
+                        @options.contact_ids
+                      )
+                    %>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label>Has tax?</label>
+                  <select name="has_tax" class="form-control">
+                    <option value="">-- Not selected --</option>
+                    <option value="1" <% if(@options.has_tax == 1) %> selected <% end %> >Yes</option>
+                    <option value="0" <% if(@options.has_tax == 0) %> selected <% end %> >No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row collapse <%= 'in' if [:practitioner_group_id, :billable_item_ids, :billing_type].any? { |filter| @options.try(filter).present? } %>" id="js-collapse-more-filters">
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Billable items</label>
+                  <select multiple class="form-control selectize" name="billable_item_ids[]"
+                    id="input-billable-item-ids">
+                    <%=
+                      options_for_select(
+                        billable_items_options_for_eclaims_report(
+                          current_business.billable_items.order(name: :asc).select(:id, :name, :item_number)
+                      ),
+                        @options.billable_item_ids
+                      )
+                    %>
+                  </select>
+                </div>
+              </div>
+
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Practitioner group:</label>
+                  <select class="form-control selectize" name="practitioner_group_id">
+                    <option value="">All</option>
+                    <%=
+                      options_for_select(
+                        practitioner_group_options_for_select(current_business),
+                        @options.practitioner_group_id
+                      )
+                    %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Billed for:</label>
+                  <select class="form-control" name="billing_type">
+                    <option value="">All</option>
+                    <%=
+                      options_for_select(
+                        invoice_billing_type_options_for_select,
+                        @options.billing_type
+                      )
+                    %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <a role="button" data-toggle="collapse" href="#js-collapse-more-filters" aria-expanded="false" class="btn-toggle-advanced-form-filters">More filters</a>
+            </div>
+
+          </div>
+
+          <div class="col-md-1 col-xs-12">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary btn-block">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mb-20 hidden-print">
+    <div class="col-xs-5">
+      <a href="<%= bulk_payments_path %>" class="btn btn-white">Bulk create payments</a>
+    </div>
+
+    <div class="col-xs-7 text-right">
+      <div class="btn-group">
+        <a href="<%= reports_invoices_raised_path(@options.to_params.merge(format: :csv)) %>"
+        class="btn btn-white" target="_blank">
+          <i class="fa fa-download"></i> CSV
+        </a>
+
+        <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+          <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+              <a href="<%= reports_invoices_raised_path(@options.to_params.merge(format: :csv, csv_type: 'xero')) %>" target="_blank">
+                CSV for Xero import
+              </a>
+            </li>
+          </ul>
+
+        <% end %>
+      </div>
+
+      <a class="btn btn-white"
+        target="_blank"
+        href="#" onclick="print()"><i class="fa fa-print"></i> Print</a>
+    </div>
+  </div>
+
+  <% if @report.result[:invoices].size > 0 %>
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Summary</strong></div>
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="table table-borderless">
+              <tbody>
+                <tr>
+                  <td style="width: 180px;">Total amount:</td>
+                  <td><%= format_money @report.result[:total_amount] %></td>
+                </tr>
+                <tr>
+                  <td>Total outstanding:</td>
+                  <td><%= format_money @report.result[:total_outstanding] %></td>
+                </tr>
+                <tr>
+                  <td>Total amount ex. tax:</td>
+                  <td><%= format_money @report.result[:total_amount_ex_tax] %></td>
+                </tr>
+                <tr>
+                  <td>No. invoices:</td>
+                  <td><%= @report.result[:invoices_count] %></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% end %>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Service revenue</strong></div>
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Item code</th>
+              <th># of items</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @report.result[:billable_items].each do |billable_item| %>
+              <tr>
+                <td><%= billable_item.name %></td>
+                <td><%= billable_item.item_number %></td>
+                <td><%= billable_item.items_count %></td>
+                <td><%= format_money billable_item.total_amount %></td>
+              </tr>
+            <% end %>
+            <% if @report.result[:billable_items].present? %>
+              <tr class="total">
+                <td>Total</td>
+                <td></td>
+                <td><%= @report.result[:billable_items].sum(&:items_count) %></td>
+                <td><%= format_money @report.result[:billable_items].sum(&:total_amount) %></td>
+              </tr>
+            <% else %>
+            <tr>
+              <td colspan="4" class="text-muted">Not found any items</td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Product revenue</strong></div>
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Item code</th>
+              <th># of items</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @report.result[:products].each do |product| %>
+            <tr>
+              <td><%= product.name %></td>
+              <td><%= product.item_code %></td>
+              <td><%= product.items_count %></td>
+              <td><%= format_money product.total_amount %></td>
+            </tr>
+            <% end %>
+            <% if @report.result[:products].present? %>
+              <tr class="total">
+                <td>Total</td>
+                <td></td>
+                <td><%= @report.result[:products].sum(&:items_count) %></td>
+                <td><%= format_money @report.result[:products].sum(&:total_amount) %></td>
+              </tr>
+            <% else %>
+            <tr>
+              <td colspan="4" class="text-muted">Not found any items</td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Invoices</strong></div>
+
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Number</th>
+              <th style="width: 110px;">Issue date</th>
+              <th>Client</th>
+              <th>Service date</th>
+              <th>Practitioner</th>
+              <th>Items</th>
+              <th>Amount<br/>ex. tax</th>
+              <th>Amount</th>
+              <th>Outstanding</th>
+              <th class="hidden-print"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @report.result[:paginated_invoices].each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= invoice_path(invoice) %>" target="_blank">
+                    <%= invoice.invoice_number %>
+                  </a>
+                </td>
+                <td>
+                  <%= invoice.issue_date.strftime(t('date.common')) %>
+                </td>
+                <td>
+                  <% if invoice.patient %>
+                    <a href="<%= patient_path(invoice.patient) %>">
+                      <%= invoice.patient&.full_name %>
+                    </a>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.service_date %>
+                    <%= invoice.service_date.strftime t('date.common') %>
+                  <% end %>
+                </td>
+
+                <td>
+                  <% if invoice.practitioner %>
+                    <%= truncate(invoice.practitioner.full_name, length: 25) %>
+                    <span class="help-text">
+                      <%= "#{invoice.provider_number.presence || invoice.practitioner.medicare }" %>
+                    </span>
+                  <% end %>
+                </td>
+                <td style="vertical-align: top;">
+                  <ul class="list-unstyled">
+                  <% invoice.items.each do |item| %>
+                    <li>
+                      <span class="text-smaller" title="<%= item.unit_name %>">
+                        [<%= item.item_number %>] <%= truncate(item.unit_name, length: 40) %>
+                      </span>
+                    </li>
+                  <% end %>
+                  </ul>
+                </td>
+                <td>
+                  <%= format_money invoice.amount_ex_tax %>
+                </td>
+                <td style="vertical-align: top;">
+                  <%= format_money invoice.amount %>
+                </td>
+                <td>
+                  <% if invoice.outstanding > 0 %>
+                    <div>
+                      <%= format_money invoice.outstanding %>
+                    </div>
+                  <% else %>
+                    <span class="label label-success hidden-print">Paid</span>
+                    <span class="visible-print">Paid</span>
+                  <% end %>
+                </td>
+
+                <td class="hidden-print text-right">
+                  <div class="btn-group" style="min-width: 110px">
+                    <a href="<%= invoice_path(invoice) %>" class="btn btn-white">Details</a>
+                    <button type="button" class="btn btn-white btn-flat dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                      <span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                      <% unless invoice.paid? %>
+                      <li>
+                        <a href="<%= new_payment_path(invoice_id: invoice.id) %>"  target="_blank" title="Add payment">
+                          <i class="fa fa-credit-card"></i> Add payment
+                        </a>
+                      </li>
+                      <% end %>
+
+                      <li>
+                        <a href="<%= invoice_path(invoice, format: "pdf") %>" target="_blank">
+                          <i class="fa fa-print" aria-hidden="true"></i> Print
+                        </a>
+                      </li>
+
+                      <li>
+                        <a href="<%= edit_invoice_path(invoice) %>">
+                          <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                        </a>
+                      </li>
+
+                      <li>
+                        <a href="<%= deliver_invoice_path(invoice)%>"
+                          <%
+                            send_invoice_confirm = ""
+                            if !invoice.patient.reminder_enable?
+                              send_invoice_confirm << "Warning: #{invoice.patient.full_name} has disabled reminders on their profile.\n\n"
+                            end
+
+                            if invoice.last_send_patient_at.present?
+                              send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                            else
+                              send_invoice_confirm << "Are you sure want to send invoice?"
+                            end
+                          %>
+                          data-confirm="<%= send_invoice_confirm %>"
+                          data-method="POST"
+                          ><i class="fa fa-envelope-o <% if invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
+                      </li>
+
+                      <% if invoice.invoice_to_contact_id? %>
+                        <li>
+                          <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoices_path, contact_ids: [invoice.invoice_to_contact_id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
+                            <i class="fa fa-envelope-o <% if invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
+                          </a>
+                        </li>
+                      <% end %>
+
+                      <li>
+                        <a data-href="<%= modal_email_others_invoice_path(invoice) %>" class="btn-send-invoice-others"
+                          href="javascript:void(0)">
+                          <i class="fa fa-send-o"></i> Email others
+                        </a>
+                      </li>
+
+                    </ul>
+                  </div>
+
+                </td>
+              </tr>
+            <% end %>
+            <% if @report.result[:invoices_count] == 0 %>
+              <tr>
+                <td colspan="10" class="text-muted">Not found any invoices</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <% if @report.result[:invoices_count] > 0 %>
+      <div class="panel-footer">
+        <div class="row hidden-print">
+          <div class="col-md-6 text-left">
+            <%= page_entries_info @report.result[:paginated_invoices] %>
+          </div>
+          <div class="col-md-6 text-right">
+            <%= paginate @report.result[:paginated_invoices], theme: 'app' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+</section>
+
+<%= render 'invoices/modal_email_others_js' %>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-btn-date-range]').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+    $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+  });
+</script>
+<% end %>

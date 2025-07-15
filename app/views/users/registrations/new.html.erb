@@ -1,0 +1,195 @@
+<% content_for :title, 'Register' %>
+
+<% content_for :body_class, 'register-page' %>
+
+<div class="register-box">
+  <div class="row">
+
+    <div class="col-sm-6 col-xs-12">
+      <img src="<%= asset_pack_path 'static/images/tracksy-logo.jpeg' %>" alt="Tracksy" height="55px">
+    </div>
+    <div class="col-sm-6 text-right hidden-xs">
+      <span style="font-size: 21px">REGISTER</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h3 class="visible-xs">
+    REGISTER
+  </h3>
+
+  <div class="register-box-body">
+    <%= simple_form_for @form, as: :registration, url: user_registration_path, wrapper: :vertical_form, html: { novalidate: false, id: 'form-register' } do |f| %>
+      <div class="row">
+        <div class="col-md-12">
+          <%= f.input :business_name, required: true, autofocus: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <%= f.input :first_name, required: true %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :last_name, required: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <%= f.input :email, required: true, input_html: { id: 'js-input-email'} %>
+        </div>
+      </div>
+
+      <div class="row mb-15">
+        <div class="col-md-6">
+          <div class="form-group <% if @form.errors.key?(:email_verification_code) %> has-error <% end %>">
+            <label class="required"><abbr title="required">*</abbr> Email verification code:</label>
+            <div class="input-group">
+              <input type="text" class="form-control" name="registration[email_verification_code]" required>
+              <span class="input-group-btn">
+                <button class="btn btn-white" type="button" id="js-btn-get-verificaiton-code">Get code</button>
+              </span>
+            </div>
+            <% if @form.errors.key?(:email_verification_code) %>
+              <div class="help-block"><%= @form.errors.full_messages_for(:email_verification_code).first %></div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%=
+            f.input :password,
+              required: true,
+              input_html: {
+                autocomplete: "off",
+                pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}',
+                title: 'Password must contain at least one number and one uppercase and lowercase letter, and at least 8 characters.'
+              }
+          %>
+        </div>
+        <div class="col-md-6">
+          <%=
+            f.input :password_confirmation,
+              required: true,
+              input_html: {
+                autocomplete: "off",
+                pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}',
+                title: 'Password must contain at least one number and one uppercase and lowercase letter, and at least 8 characters.'
+              }
+          %>
+        </div>
+        <div class="col-md-12">
+          <span class="text-smaller">Password must contain at least one number and one uppercase and lowercase letter, and at least 8 characters.</span>
+        </div>
+      </div>
+      <div class="row mt-20">
+        <div class="col-md-6">
+          <%= f.input :country, priority: [ "AU", "GB", "NZ", "US" ] %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :timezone, collection: timezone_options %>
+        </div>
+      </div>
+      <hr>
+
+      <% if App::RECAPTCHA_ENABLE %>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <label class="control-label"><span class="text-smaller">Please complete the Captcha:</span></label>
+          <div id="recaptcha-container"></div>
+        </div>
+      </div>
+      <% end %>
+
+      <div class="mt-20">
+        By clicking <b>Sign Up</b>, you agree to our <a href="/documents/Software.Licence.Terms.of.Service.pdf" target="_blank">Terms of service</a> and <a href="/documents/Privacy.Policy.pdf" target="_blank">Privacy Policy</a>
+      </div>
+
+      <div class="row mt-20">
+        <div class="col-md-6 col-xs-12">
+          <button type="submit" class="btn sitebtn lg btn-block" id="btn-submit">Sign Up</button>
+        </div>
+      </div>
+
+      <div class="row mt-30">
+        <div class="col-md-6 col-xs-12">
+          Have account already? <a href="<%= new_user_session_path %>">LOGIN</a>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+  <hr>
+  <div class="text-right">
+    <a href="<%= frontend_home_path %>" class="normal-link"><i class="fa fa-home"></i> Homepage</a>
+  </div>
+</div>
+
+<% content_for :page_js do %>
+<script>
+  var isRecaptchaEnabled = <%= App::RECAPTCHA_ENABLE ? 'true' : 'false' %>
+  var $btnGetVerificationCode = $('#js-btn-get-verificaiton-code');
+  var $inputEmail = $('#js-input-email');
+
+  $inputEmail.on('input', function(e) {
+    $btnGetVerificationCode.attr('disabled', !this.checkValidity());
+  });
+
+  $btnGetVerificationCode.on('click', function(e) {
+    if ($inputEmail.get(0).checkValidity() === false) {
+      Flash.warning('Please enter your email address');
+      return;
+    }
+
+    $btnGetVerificationCode.attr('disabled', true);
+
+    $.ajax({
+      method: 'POST',
+      url: '<%= user_email_verification_code_path %>',
+      data: {
+        email: $('#js-input-email').val()
+      },
+      success: function(res) {
+        Flash.success(res.message || 'Verification code sent to your email.');
+        $btnGetVerificationCode.removeAttr('disabled');
+      },
+      error: function(xhr) {
+        $btnGetVerificationCode.removeAttr('disabled');
+        Flash.error(xhr.responseJSON.message || 'Failed to send verification code');
+      }
+    });
+  });
+
+  if (isRecaptchaEnabled) {
+    var $form = $('#form-register');
+    var $btnSubmit = $('#btn-submit');
+    var isCaptchaPass = false;
+
+    $form.on('submit', function(e) {
+      if (!isCaptchaPass) {
+        Flash.warning('Please complete the Captcha to continue!');
+        e.preventDefault();
+        return false;
+      }
+
+      $btnSubmit.attr('disabled');
+    });
+
+    var recaptchaLoad = function() {
+      grecaptcha.render('recaptcha-container', {
+        'sitekey' : '<%= ENV['RECAPTCHA_SITE_KEY'] %>',
+        'theme' : 'light',
+        callback: function() {
+          isCaptchaPass = true;
+        }
+      });
+    }
+  }
+
+</script>
+<% if App::RECAPTCHA_ENABLE %>
+<script src="https://www.google.com/recaptcha/api.js?onload=recaptchaLoad&render=explicit" async defer></script>
+<% end %>
+<% end %>

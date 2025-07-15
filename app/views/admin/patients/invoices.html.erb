@@ -1,0 +1,56 @@
+<section class="box-header">
+  <h1>
+    <%= @patient.full_name %>'s invoices
+  </h1>
+</section>
+
+<div class="patient-page">
+  <div class="clearfix patient-content">
+    <div class="col-lg-2 col-md-3 col-sm-3 content-sidenav">
+      <%= render 'patient_sidebar' %>
+    </div>
+    <div class="col-lg-10 col-md-9 col-sm-9 col-xs-15 bdr-lft box-primary">
+      <div class="box-table">
+        <table class="table-flat">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Amount</th>
+              <th>Issue date</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @invoices.each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= admin_invoice_path(invoice) %>">#<%= invoice.invoice_number %></a>
+                </td>
+                <td>
+                  $<%= invoice.amount || 0 %>
+                </td>
+                <td>
+                  <%= invoice.issue_date.try(:strftime, '%B %d, %Y') %>
+                </td>
+                <td>
+                  <a href="<%= admin_invoice_path(invoice) %>" class="btn btn-link">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col-md-6 text-left">
+            <%= page_entries_info @invoices %>
+          </div>
+          <div class="col-md-6 text-right">
+            <%= paginate @invoices %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

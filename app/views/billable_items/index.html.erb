@@ -1,0 +1,97 @@
+<% content_for :title, 'Billable items' %>
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Billable items</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a class="btn btn-primary" href="<%= new_billable_item_path %>">+ Add billable item</a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Billable items</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= search_form_for @search_query, url: billable_items_path, enforce_utf8: false do |f| %>
+      <div class="row">
+        <div class="col-md-9 col-xs-7">
+          <%= f.search_field :name_or_item_number_cont, class: 'form-control', placeholder: 'Search by name, item number' %>
+        </div>
+
+        <div class="col-md-3 col-xs-5">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </div>
+    <% end %>
+    <hr>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th style="width: 450px">Name</th>
+            <th style="width: 150px">Item number</th>
+            <th style="width: 130px">Price</th>
+            <th style="width: 130px">Rebate?</th>
+            <th style="width: 130px">Variable pricing?</th>
+            <th style="width: 130px">Tax</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @billable_items.each do |billable_item| %>
+            <tr>
+              <td>
+                <a href="<%= billable_item_path(billable_item) %>"><%= billable_item.name %></a>
+              </td>
+              <td><%= billable_item.item_number %></td>
+              <td><%= format_money billable_item.price %></td>
+              <td>
+                <div class="check-box check-box-readonly">
+                  <input type="checkbox" <%= billable_item.health_insurance_rebate? ? "checked" : "" %>>
+                  <label>&nbsp;</label>
+                </div>
+              </td>
+
+              <td>
+                <div class="check-box check-box-readonly">
+                  <input type="checkbox" <%= billable_item.pricing_for_contact? ? "checked" : "" %>>
+                  <label>&nbsp;</label>
+                </div>
+              </td>
+
+              <td>
+                <% if billable_item.tax %>
+                  <%= billable_item.tax.name %>
+                <% end %>
+              </td>
+
+              <td class="text-right">
+                <a href="<%= billable_item_path(billable_item) %>" class="btn btn-link" title="Show"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                <a href="<%= edit_billable_item_path(billable_item) %>" class="btn btn-link" title="Edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                <a href="<%= billable_item_path(billable_item) %>" title="Archive" rel="nofollow" data-confirm="Are you sure you want to archive this item?" data-method="delete" class="btn btn-link"><i class="fa fa-trash" aria-hidden="true"></i></a>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @billable_items %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @billable_items, theme: 'app' %>
+      </div>
+    </div>
+  </div>
+</section>

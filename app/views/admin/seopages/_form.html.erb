@@ -1,0 +1,33 @@
+<%= simple_form_for(@seopage, url: @seopage.new_record? ? admin_seopages_path : admin_seopage_path(seopage)) do |f| %>
+
+  <h3>Practitioner tags</h3>
+  <div class="box">
+    <%= f.input :professtion_id, as: :select, collection: Tag.where(classification: :profession) %>
+    <%= f.input :service_id, as: :select, collection: Tag.where(classification: :service) %>
+    <%= f.input :city_id, as: :select, collection: Tag.where(classification: :city) %>
+  </div>
+
+  <h3>SEO content</h3>
+  <div class="box">
+    <%= f.input :page_title %>
+    <%= f.input :meta_tags %>
+    <%= f.input :page_description %>
+  </div>
+
+  <h3>On page content</h3>
+  <div class="box">
+    <%= f.input :h1 %>
+    <%= f.input :breadcrumb %>
+    <%= f.input :h3_one %>
+    <%= f.input :h3_two %>
+    <%= f.input :content, input_html: { rows: 10 } %>
+  </div>
+
+  <div class="text-center">
+    <div class="switch-button">
+      <a href="<%= admin_seopages_path %>">Back</a>
+      <button><%= @seopage.new_record? ? "Create" : "Update" %></button>
+    </div>
+  </div>
+
+<% end %>

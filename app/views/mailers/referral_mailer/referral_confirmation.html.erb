@@ -1,0 +1,23 @@
+Dear <%= @referral.referrer_name %>,
+<br>
+<br>
+We've received your referral. These are the details we received:
+<br>
+<br>
+<strong>Service:</strong>
+<br>
+Professions: <%= @referral.professions.join(', ') %> <br>
+Availability type: <%= @referral.availability_type.try(:name) %>
+<br>
+<br>
+<strong>Client details:</strong>
+<br>
+Name: <%= @referral.patient_name %> <br>
+Address: <%= @referral.patient_address %> <br>
+Phone: <%= @referral.patient_attrs[:phone] %> <br>
+Email: <%= @referral.patient_attrs[:email] %>
+<br>
+<br>
+Thanks for your referral.
+<br>
+<br>

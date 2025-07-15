@@ -1,0 +1,32 @@
+Hi <%= @practitioner.full_name %>,
+<br><br>
+
+We've had an emergency service request in your area.
+<br><br>
+
+Would you please contact this patient ASAP if you're available to help.
+<br><br>
+
+This emergency request has been sent to <%= @count %> <%= @emergency.profession %> within <%= @emergency.distance %> kilometres of the patient's suburb.
+<br><br>
+
+<strong>Details</strong>
+<br>
+<%= @emergency.profession %>
+<br>
+<%= @emergency.suburb %>, <%= @emergency.postcode %>
+<br>
+<%= @emergency.detail %>
+<br><br>
+
+<strong>Patient contact information</strong>
+<br>
+<%= @emergency.name %>
+<br>
+<%= @emergency.phone %>
+<br>
+<%= @emergency.mobile %>
+<br>
+<%= @emergency.email %>
+<br>
+<br>

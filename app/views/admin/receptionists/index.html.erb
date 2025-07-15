@@ -1,0 +1,88 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Manage receptionists</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_admin_receptionist_path %>" class="btn sitebtn">
+        <i class="fa fa-plus"></i> New receptionist
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>Receptionists</li>
+  </ul>
+</section>
+
+<section class="search_box">
+  <%= search_form_for @search_query, url: admin_receptionists_path, enforce_utf8: false, class: 'form-filter form-filter-patients' do |f| %>
+    <div class="row">
+      <div class="col-sm-5">
+        <%= f.search_field :full_name_or_email_cont, class: 'form-control', placeholder: 'Enter name or email' %>
+      </div>
+      <div class="col-sm-4">
+        <div class="check-box mt-10">
+          <input type="checkbox" name="include_inactive" id="cb-show-hidden" value="1" <%= 'checked' if params[:include_inactive].to_s == '1' %> >
+          <label for="cb-show-hidden">Show inactive</label>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <br class="visible-xs">
+        <button type="submit" class="btn btn-primary sitebtn"><i class="fa fa-search"></i>Search</button>
+        <a href="<%= admin_receptionists_path %>" class="btn linebtn">Clear</a>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Email</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @receptionists.each do |receptionist| %>
+          <tr>
+            <td><%= receptionist.first_name %></td>
+            <td><%= receptionist.last_name %></td>
+            <td><%= receptionist.email %></td>
+            <td>
+              <a href="<%= admin_receptionist_path(receptionist) %>" class="btn btn-link" title="Show">
+                <i class="fa fa-eye"></i>
+              </a>
+              <a href="<%= edit_admin_receptionist_path(receptionist) %>" class="btn btn-link" title="Edit">
+                <i class="fa fa-pencil-square-o"></i>
+              </a>
+              <a href="<%= admin_receptionist_path(receptionist) %>" class="btn btn-link" title="Show"
+                data-method="DELETE" data-confirm="Are you sure?">
+                <i class="fa fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @receptionists %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @receptionists %>
+      </div>
+    </div>
+  </div>
+</section>

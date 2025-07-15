@@ -1,0 +1,46 @@
+<% content_for :title, 'Reports' %>
+
+<section class="box-header">
+  <h1>Reports</h1>
+</section>
+
+<section class="content">
+
+    <div class="box-body">
+        <div class="col-md-3">
+          <div class="box report_blocks">
+            <div class="box-header">Appointments</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= admin_reports_appointments_summary_path %>">Appointments summary</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="box report_blocks">
+            <div class="box-header">Misc</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= admin_reports_revenue_summary_path %>">Revenue summary </a>
+                </li>
+                <li>
+                  <a href="<%= admin_reports_lifetime_value_summary_path %>">Lifetime value </a>
+                </li>
+                <li>
+                  <a href="<%= admin_reports_business_leads_path %>">Business leads stats</a>
+                </li>
+                <li>
+                  <a href="<%= admin_reports_analytics_events_path %>">Analytics</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+    </div>
+</section>

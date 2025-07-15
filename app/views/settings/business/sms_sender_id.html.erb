@@ -1,0 +1,35 @@
+<% content_for :title, 'Setting - SMS sender ID' %>
+<section class="box-header">
+  <h1>SMS sender ID</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">SMS sender ID</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <h4 class="text-warning">Alphanumeric Sender ID is no longer supported!</h4>
+
+          <p>
+            The government has restricted the use of Alphanumeric SenderID SMS; therefore, we must cease this feature in our app and return it to a regular mobile number. This will commence on Monday, 17th April 2023.
+          </p>
+
+        </div>
+
+        <div class="panel-footer">
+          <a href="<%= settings_path %>" class="btn btn-white">Back to Settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

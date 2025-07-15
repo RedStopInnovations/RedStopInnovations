@@ -1,0 +1,86 @@
+<%= simple_form_for(@practitioner.user, url: admin_practitioner_path(@practitioner), html: { method: :put, multipart: true }) do |f| %>
+  <h3>Details</h3>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :first_name %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :last_name %>
+      </div>
+    </div>
+      <%= f.simple_fields_for :practitioner do |f_p| %>
+      <div class="row">
+        <div class="col-md-6">
+          <%= f_p.input :phone %>
+        </div>
+        <div class="col-md-6">
+          <%= f_p.input :mobile %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <%= f_p.input :address1 %>
+        </div>
+        <div class="col-md-6">
+          <%= f_p.input :address2 %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <%= f_p.input :city %>
+        </div>
+        <div class="col-md-6">
+          <%= f_p.input :postcode %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <%= f_p.input :state %>
+        </div>
+        <div class="col-md-6">
+          <%= f_p.input :country, priority: [ "Australia" ] %>
+        </div>
+      </div>
+    </div>
+
+    <h3>Professional profile</h3>
+    <div class="box">
+      <div class="row">
+        <div class="col-md-6">
+          <%= f_p.input :profession, as: :select, collection: Practitioner::PROFESSIONS %>
+        </div>
+        <div class="col-md-6">
+          <%= f_p.input :education %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <%= f_p.input :medicare, hint: 'Medicare provider number' %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <%= f_p.input :summary, label: 'Profession information', input_html: { rows: 5 }, hint: 'Describe skills, experience, and personality' %>
+        </div>
+      </div>
+    </div>
+
+    <h3>Admin Settings</h3>
+    <div class="box">
+      <%= f_p.input :tag_ids, as: :select, label: 'Tags', collection: Tag.all, label_method: :name, input_html: { multiple: true, class: 'selectize' } %>
+
+      <%= f_p.input :approved, label: 'Profile approved?' %>
+      <%= f_p.input :public_profile %>
+      <%= f_p.input :allow_online_bookings %>
+      <%= f_p.input :sms_reminder_enabled, as: :boolean, label: 'SMS reminder enable?' %>
+    </div>
+  <% end %>
+
+  <div class="text-center">
+    <div class="switch-button">
+      <a href="<%= admin_practitioner_path(@practitioner) %>" >Cancel</a>
+      <button>Update profile</button>
+    </div>
+  </div>
+<% end %>

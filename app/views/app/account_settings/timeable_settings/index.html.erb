@@ -1,0 +1,174 @@
+<% content_for :title, 'Timeable settings' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Timeable settings</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= render 'app/account_settings/tabs', { active_tab: 'timeable_settings' } %>
+
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <div id="js-business-hours-settings-app">
+          <div class="bordered pa-10 mb-10" v-for="dowSetting in dowSettings" :key="dowSetting.day_of_week"
+            :class="{'bg-gray-light': !dowSetting.active}">
+            <div class="row" style="display: flex; align-items: center;">
+              <div class="col-sm-4">
+                <label><input type="checkbox" v-model="dowSetting.active"> {{ dayOfWeekLabel(dowSetting.day_of_week) }}</label>
+              </div>
+              <div class="col-sm-6">
+                <template v-if="dowSetting.availability.length === 0 && dowSetting.active">
+                  <span class="text-small">All day</span>
+                </template>
+                <div class="input-group mb-5" style="width: 250px;" v-for="(time, index) in dowSetting.availability" v-show="dowSetting.active">
+                  <v-flatpickr
+                    v-model="time.start"
+                    class="form-control text-center"
+                    :config="timepickerConfig"
+                    >
+                  </v-flatpickr>
+                  <span class="input-group-addon">to</span>
+                  <v-flatpickr
+                    v-model="time.end"
+                    class="form-control text-center"
+                    :config="timepickerConfig"
+                    >
+                  </v-flatpickr>
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" @click.prevent="removeAvailability(dowSetting, index)"><i class="fa fa-trash"></i></button>
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <a href="#" class="normal-link small"
+                  @click.prevent="addAvailability(dowSetting)"
+                  v-show="dowSetting.availability.length < 3"
+                  v-if="dowSetting.active"
+                  >Split</a>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary" type="button" :disabled="loading" @click.prevent="onClickSubmit">Save settings</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  (function() {
+    var currentSettings = <%= @business_hours.to_json.html_safe %>;
+
+    //=== Prepare the data
+    var dowSettings = [];
+
+    [1, 2, 3, 4, 5, 6, 0].forEach(function(dow) {
+      var currentDowSetting = currentSettings.find(function(dowSetting) {
+        return dowSetting.day_of_week == dow;
+      });
+
+      if (currentDowSetting) {
+        dowSettings.push({
+          day_of_week: currentDowSetting.day_of_week,
+          active: currentDowSetting.active,
+          availability: currentDowSetting.availability
+        });
+      } else {
+        dowSettings.push({
+          day_of_week: dow,
+          active: true,
+          availability: []
+        });
+      }
+    });
+
+    new Vue({
+      el: '#js-business-hours-settings-app',
+
+      data: function() {
+        return {
+          loading: false,
+          dowSettings: dowSettings,
+          timepickerConfig: {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            allowInput: true,
+            minuteIncrement: 30,
+            defaultHour: null,
+            defaultMinute: null,
+            time_24hr: true
+          }
+        }
+      },
+
+      methods: {
+        dayOfWeekLabel: function(dow) {
+          return {
+            0: 'Sunday',
+            1: 'Monday',
+            2: 'Tuesday',
+            3: 'Wednesday',
+            4: 'Thursday',
+            5: 'Friday',
+            6: 'Saturday'
+          }[dow];
+        },
+
+        buildUpdateData: function() {
+          return {
+            business_hours: this.dowSettings
+          };
+        },
+
+        addAvailability: function(dowSetting) {
+          dowSetting.availability.push({
+            start: '08:00',
+            end: '17:00'
+          });
+        },
+
+        removeAvailability: function(dowSetting, timeIndex) {
+          dowSetting.availability.splice(timeIndex, 1);
+        },
+
+        onClickSubmit: function() {
+          var vm = this;
+          vm.loading = true;
+          $('#js-business-hours-settings-app').loadingOn();
+
+          $.ajax({
+            url: '/app/account_settings/timeable_settings/business_hours',
+            method: 'POST',
+            data: JSON.stringify(vm.buildUpdateData()),
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function(res) {
+              Flash.success('The business hours settings has been updated.')
+            },
+            error: function(xhr) {
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                Flash.error(xhr.responseJSON.message);
+              } else {
+                Flash.error('Failed to update business hours settings.');
+              }
+            },
+            complete: function() {
+              $('#js-business-hours-settings-app').loadingOff();
+              vm.loading = false;
+            }
+          });
+        }
+      }
+    });
+
+  })();
+</script>
+<% end %>

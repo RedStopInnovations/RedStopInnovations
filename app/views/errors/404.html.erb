@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+
+    <title>Page not found</title>
+
+    <%= stylesheet_pack_tag 'frontend' %>
+  </head>
+
+  <body>
+    <div class="page page-h">
+      <div class="page-content z-index-10">
+        <div class="container text-center">
+          <div class="display-1 mb-5">404</div>
+          <h3 class="mb-3 text-muted">Page Not Found</h3>
+
+          <a class="btn btn-light" href="/">
+            Back To Home
+          </a>
+
+          <% if user_signed_in? %>
+            <a href="<%= dashboard_path %>" class="btn btn-primary">Go to Dashboard</a>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+Hi <%= @contact.full_name.present? ? @contact.full_name : @contact.business_name %>,
+<br>
+<br>
+The invoice #<%= @invoice.invoice_number %> has been paid. Please find attached a copy of the invoice / receipt.
+<br>
+<br>
+Kind regards,
+<br>
+<br>
+<%= @business.name %>
+<br>
+<%= @business.phone %>

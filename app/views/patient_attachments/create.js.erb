@@ -1,0 +1,17 @@
+(function() {
+  $('#new_patient_attachment .btn-submit').prop('disabled', false);
+  $('#new_patient_attachment .btn-submit').text("Create");
+
+  <% if @errors.present? %>
+    var errors = <%= @errors.to_json.html_safe %>;
+    for(var i = 0; i <= errors.length; i++) {
+      $tdElement = $('.box-attachments tbody tr[data-index="' + errors[i].index +  '"] td:eq(0)');
+      $tdElement.addClass('has-error');
+      $tdElement.append('<span class="help-block">' + errors[i].message + '</span>');
+    }
+  <% else %>
+    window.location = "<%= patient_attachments_path(patient_id: @patient) %>";
+  <% end%>
+})()
+
+

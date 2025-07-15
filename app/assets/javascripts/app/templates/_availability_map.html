@@ -1,0 +1,203 @@
+<script id="availability-map-tmpl" type="text/template">
+  <div class="row" v-if="business">
+      <div class="col-md-3 col-sm-3 col-xs-12">
+        <div class="filter-group">
+          <span class="filter-title">Date</span>
+          <v-flatpickr
+            ref="dateRangePicker"
+            v-model="filters.dateRange"
+            :config="datepickerConfig"
+            @on-change="onDateRangeChange"
+            @on-close="onDateRangePickerClose"
+            >
+          </v-flatpickr>
+
+        </div>
+
+        <div class="filter-group filter-practitioners">
+          <span class="filter-title">Practitioners: <span>{{ selectedPractitionersCount }}/{{ practitionersCount }}</span></span>
+<!--
+          <span class="filter-tools">
+            <a href="#" v-on:click.prevent="selectAllPractitioners">Select all</a>
+            <a href="#" v-on:click.prevent="deselectAllPractitioners">Deselect all</a>
+          </span> -->
+
+          <div class="search-wrap">
+            <v-multiselect
+              :options="practitionerFilterOptions"
+              :multiple="true"
+              :close-on-select="true"
+              :reset-after="true"
+              :hide-selected="true"
+              :options-limit="50"
+              select-label=""
+              deselect-label=""
+              placeholder="Search"
+              @select="onSelectPractitionerOption"
+              label="label"
+              track-by="id">
+              <template slot="option" scope="props">
+                <div class="option-preview"
+                  v-bind:class="{'practitioner-option': props.option.type == 'Practitioner', 'group-option': props.option.type == 'Group'}"
+                  >
+                  <img :src="props.option.value.profile_picture.thumb"
+                    width="20"
+                    height="20"
+                    v-if="props.option.type == 'Practitioner'">
+                  <span class="desc" v-if="props.option.type == 'Practitioner'">
+                    <span v-html="$options.filters.highlight(props.option.label, props.search)"></span>
+                  </span>
+                  <span class="desc" v-if="props.option.type == 'Group'">
+                    <span v-html="$options.filters.highlight(props.option.label, props.search)" class="group-name"></span>
+                    <span>({{ props.option.value.practitioner_ids.length }})</span>
+                  </span>
+                </div>
+              </template>
+              <template slot="noResult">
+                <span>No results</span>
+              </template>
+            </v-multiselect>
+          </div>
+
+          <div class="list-practitioners-wrap">
+            <ul class="list-unstyled list-practitioners">
+              <div v-for="pract in orderBy(selectedPractitioners, 'id')" :key="pract.id">
+                <img v-bind:src="pract.profile_picture.thumb">
+                <span class="name" :style="{color: generatePractitionerColor(pract.id)}">{{ pract.full_name }}</span>
+                <span class="btn-remove" @click="removePractitioner(pract)"><i class="fa fa-remove"></i></span>
+              </div>
+            </ul>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-title">Options:</span>
+          <div class="check-box">
+            <input type="checkbox"
+              v-model="options.showAvailabilityArea"
+              id="cb-show-availability-area"
+              @change="onShowAvailabilityAreaChange"
+              >
+            <label for="cb-show-availability-area">
+              Availability area
+            </label>
+          </div>
+
+          <div class="check-box">
+            <input type="checkbox"
+              v-model="options.showCompletedAppoinments"
+              id="cb-show-completed-appointments"
+              @change="onshowCompletedAppoinmentsChange"
+              >
+            <label for="cb-show-completed-appointments">
+              Completed appointments
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9 col-sm-9 col-xs-12">
+        <div v-bind:class="{ loading: loading }">
+          <div class="loading-backdrop" v-if="loading"></div>
+          <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+          <gmap-map
+            style="width: 100%; height: 500px"
+            :center="mapCenter"
+            :zoom="mapZoom"
+            :options="mapOptions"
+            ref="map"
+            >
+            <gmap-info-window
+              v-if="selectedApptMarker"
+              :options="{ maxWidth: 350 }"
+              :position="selectedApptMarker.position"
+              @closeclick="showApptMarkerWindow = false"
+              :opened="showApptMarkerWindow"
+              ><div class="info-window appt-info-window">
+                <div class="patient-info">
+                  <span><strong>{{ selectedApptMarker.appointment.patient.full_name }}</strong></span>
+                  <span><a :href="'/app/patients/' + selectedApptMarker.appointment.patient.id" target="_blank" title="View details"><i class="fa-external-link"></i></a> </span>
+                  <br>
+                  {{ selectedApptMarker.appointment.patient.short_address }}
+                  <br>
+                  <span v-if="selectedApptMarker.appointment.patient.phone">
+                    Ph: <a :href="'tel:' + selectedApptMarker.appointment.patient.phone">{{ selectedApptMarker.appointment.patient.phone }}</a>
+                  </span>
+                  <span v-if="selectedApptMarker.appointment.patient.mobile">
+                    Mob: <a :href="'tel:' + selectedApptMarker.appointment.patient.mobile">{{ selectedApptMarker.appointment.patient.mobile }}</a>
+                  </span>
+                </div>
+                <div class="appt-info">
+                  <span><span class="title">Type:</span> {{ selectedApptMarker.appointment.appointment_type.name }}</span>
+                  <br>
+                  <span>
+                    <span class="title">Availability:</span> {{ selectedApptMarker.appointment.start_time | availabilityDate }} / <span>{{ selectedApptMarker.appointment.start_time | hour }}</span> - <span>{{ selectedApptMarker.appointment.end_time | hour }}</span> <span>({{ selectedApptMarker.appointment.start_time | tz }})</span>
+                  </span>
+                  <span v-if="selectedApptMarker.appointment.arrival && selectedApptMarker.appointment.arrival.arrival_at">
+                    <br>
+                    <span class="title">Arrival:</span>
+                    {{ selectedApptMarker.appointment.arrival.arrival_at | hour }}
+                  </span>
+                  <br>
+                </div>
+
+              </div></gmap-info-window>
+
+            <gmap-info-window
+              v-if="selectedAvailMarker"
+              :options="{ maxWidth: 300 }"
+              :position="selectedAvailMarker.position"
+              @closeclick="showAvailMarkerWindow = false"
+              :opened="showAvailMarkerWindow"
+              ><div class="info-window avail-info-window">
+                <div class="pract-info">
+                  <div class="profile-picture" v-bind:style="{ 'background-image': 'url(' + selectedAvailMarker.availability.practitioner.profile_picture.thumb + ')'}"></div>
+                  <div class="info">
+                    <span><strong>{{ selectedAvailMarker.availability.practitioner.full_name }}</strong></span>
+                    <br>
+                    <span>{{ selectedAvailMarker.availability.practitioner.profession }}</span>, {{ selectedAvailMarker.availability.practitioner.city }}
+                  </div>
+                </div>
+                <div class="avail-info">
+                  <span><i class="fa fa-clock-o"></i> {{ selectedAvailMarker.availability.start_time | availabilityDate }}</span> / <span>{{ selectedAvailMarker.availability.start_time | hour }}</span> - <span>{{ selectedAvailMarker.availability.end_time | hour }}</span>  <span>({{ selectedAvailMarker.availability.start_time | tz }})</span>
+                  <br>
+                  <span><i class="fa fa-map-marker"></i> {{ selectedAvailMarker.availability.short_address }}</span>
+                  <br>
+                  <span><i class="fa fa-car"></i> {{ selectedAvailMarker.availability.service_radius }} km</span>
+                </div>
+
+              </div></gmap-info-window>
+
+            <gmap-marker
+              v-for="marker in availabilityMarkers"
+              :key="marker.availability_id"
+              :position="marker.position"
+              :clickable="true"
+              :draggable="false"
+              :icon="marker.icon"
+              @click="onAvailMarkerClick(marker)"
+              @mouseover="onAvailMarkerMouseOver(marker)"
+              @mouseout="onAvailMarkerMouseOut(marker)"
+              ></gmap-marker>
+
+            <gmap-marker
+              v-for="marker in appointmentMarkers"
+              :key="marker.appointment_id"
+              :position="marker.position"
+              :clickable="true"
+              :draggable="false"
+              :icon="marker.icon"
+              @click="onApptMarkerClick(marker)"
+              @mouseover="onApptMarkerMouseOver(marker)"
+              @mouseout="onApptMarkerMouseOut(marker)"
+              ></gmap-marker>
+            <gmap-circle
+              v-for="circle in availabilityCircles"
+              :key="circle.availability_id"
+              :center="circle.center"
+              :radius="circle.radius"
+              :options="circle.options"
+              ></gmap-circle>
+          </gmap-map>
+        </div>
+      </div>
+  </div>
+</script>

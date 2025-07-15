@@ -1,0 +1,104 @@
+@media print {
+  body {
+    font-family: "Lucida Grande","Lucida Sans Unicode",helvetica,arial,sans-serif;
+    background: white;
+    font-size: 12pt;
+
+    * {
+      overflow: hidden !important;
+    }
+  }
+
+  .main-sidebar,
+  .content-sidenav,
+  .main-header {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+  section.breadcrumb {
+    display: none !important;
+  }
+  .content-wrapper {
+    display: block !important;
+    width: auto;
+    margin: 0 5%;
+    padding: 0;
+    border: 0;
+    float: none !important;
+    color: black;
+    background: transparent none;
+    border: none !important;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  .table-responsive {
+    overflow-x: hidden !important;
+  }
+
+  .box {
+    border: none !important;
+  }
+
+  a, a:visited {
+    color: #000 !important;
+  }
+
+  a:link:after,
+  a:visited:after {
+    content: "" !important;
+  }
+
+  .page-title {
+    font-size: 28pt !important;
+  }
+
+  .chart-container > iframe {
+    overflow: hidden !important;
+    overflow: hidden !important;
+  }
+
+  .bdr-lft {
+    border: none !important;
+  }
+
+  .box-header {
+    display: none;
+  }
+
+  .chart-container {
+    padding: 0;
+  }
+
+  .search_box {
+    display: none;
+  }
+  .chart-container {
+    width: 100% !important;
+    canvas {
+      width: 100% !important;
+    }
+    &.pie {
+      canvas {
+        height: 170px !important;
+      }
+    }
+  }
+
+  .print-head {
+    display: block !important;
+  }
+
+  .banner {
+    display: none !important;
+  }
+
+  .block-info.inline p {
+    vertical-align: bottom;
+  }
+}

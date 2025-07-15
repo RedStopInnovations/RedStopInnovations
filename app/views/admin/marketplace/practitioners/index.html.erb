@@ -1,0 +1,83 @@
+<section class="box-header">
+  <h1>Practitioners</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Settings</a>
+    </li>
+    <li class="active">Practitioners</li>
+  </ul>
+</section>
+
+<section class="search_box">
+  <%= search_form_for @search_query, url: admin_marketplace_practitioners_path, enforce_utf8: false, class: 'form-filter form-filter-patients' do |f| %>
+    <div class="row">
+      <div class="col-sm-8">
+        <%= f.search_field :full_name_or_email_cont, class: 'form-control', placeholder: 'Enter name or email' %>
+      </div>
+      <div class="col-sm-4">
+        <br class="visible-xs">
+        <button type="submit" class="btn btn-primary sitebtn"><i class="fa fa-search"></i>Search</button>
+        <a href="<%= admin_marketplace_practitioners_path %>" class="btn linebtn">Clear</a>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th style="width: 200px">Name</th>
+          <th style="width: 200px">Email</th>
+          <th style="width: 170px">Profession</th>
+          <th style="width: 170px">Business</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @practitioners.each do |practitioner| %>
+          <tr>
+            <td>
+              <a href="<%= admin_marketplace_practitioner_path(practitioner) %>">
+                <img src="<%= practitioner.profile_picture_url(:thumb) %>" style="width: 50px">
+                <%= practitioner.full_name %>
+              </a>
+            </td>
+            <td><%= practitioner.email %></td>
+            <td><%= practitioner.profession %></td>
+            <td>
+              <a href="<%= admin_marketplace_business_path(practitioner.business) %>"><%= practitioner.business.name %></a>
+            </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-success btn-sm btn-flat dropdown-toggle" data-toggle="dropdown">
+                  Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a href="<%= admin_marketplace_practitioner_path(practitioner) %>">
+                      <i class="fa fa-eye"></i> Show
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @practitioners %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @practitioners %>
+      </div>
+    </div>
+  </div>
+</section>

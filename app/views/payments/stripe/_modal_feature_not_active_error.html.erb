@@ -1,0 +1,19 @@
+<div class="modal fade" id="modal-stripe-payment-error">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Stripe payment</h4>
+      </div>
+      <div class="modal-body">
+        <% if can?(:manage, :stripe_integration) %>
+          <p>
+          This feature is not available for your company account. Please check the <a href="<%= settings_stripe_integration_path %>">Stripe integration settings</a>.
+          </p>
+        <% else %>
+          <p>This feature is not available for your company account. Please contact your account manager if you have any questions.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

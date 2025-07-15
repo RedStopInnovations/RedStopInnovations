@@ -1,0 +1,53 @@
+<table class="table table-bordered js-table-travel-details" data-practitioner-id="<%= @report.options.practitioner_id %>">
+    <thead class="bg-gray-light">
+    <tr>
+        <tr>
+        <th rowspan="2">Date</th>
+        <th rowspan="2">Total distance</th>
+        <th rowspan="2">Total duration</th>
+        <th colspan="5">Travels</th>
+        </tr>
+
+        <tr>
+        <th>Client</th>
+        <th>Arrival</th>
+        <th>From/To</th>
+        <th>Travel distance</th>
+        <th>Travel duration</th>
+        </tr>
+    </tr>
+    </thead>
+
+    <tbody>
+        <% @report.results[:daily_appointments].each do |date, date_data| %>
+        <% appts_count = date_data[:appointments].count %>
+        <tr>
+            <td rowspan="<%= appts_count + 1 %>"><%= date.strftime t('date.common') %></td>
+            <td rowspan="<%= appts_count + 1 %>"><%= format_travel_distance_report date_data[:total_travel_distance] %></td>
+            <td rowspan="<%= appts_count + 1 %>"><%= format_travel_duration_report date_data[:total_travel_duration] %></td>
+        </tr>
+
+        <% date_data[:appointments].each do |appt| %>
+            <% arrival = appt.arrival %>
+            <tr>
+                <td>
+                    <%= appt.patient.full_name %> <br>
+                    <a href="<%= appointment_path(appt.id) %>">View appointment</a>
+                </td>
+                <td>
+                    <%= arrival.arrival_at.strftime t('time.common') %>
+                </td>
+                <td>
+                    <%= arrival.travel_start_address %> <br>
+                    <span class="text-muted"> to </span>
+                    <%= arrival.travel_dest_address %>
+                </td>
+                <td><%= format_travel_distance_report arrival.travel_distance %></td>
+                <td><%= format_travel_duration_report arrival.travel_duration %></td>
+            </tr>
+        <% end %>
+
+        <% end %>
+    </tbody>
+
+</table>

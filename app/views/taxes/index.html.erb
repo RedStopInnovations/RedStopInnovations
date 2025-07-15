@@ -1,0 +1,46 @@
+<% content_for :title, 'Taxes' %>
+
+<section class="box-header">
+  <div class="col-md-6 col-xs-6">
+    <h1>Taxes</h1>
+  </div>
+  <div class="col-md-6 text-right col-xs-6">
+    <a href="<%= new_tax_path %>" class="btn btn-primary">Add tax</a>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a></li>
+    <li class="active">Taxes</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Rate</th>
+          <th>Created at</th>
+          <th></th>
+        </tr>
+      </thead>
+        <tbody>
+          <% @taxes.each do |tax| %>
+          <tr>
+            <td><%= tax.name %></td>
+            <td><%= tax.rate %>%</td>
+            <td><%= tax.created_at.strftime(t('datetime.common')) %></td>
+            <td class="text-center" width="20%">
+              <a href="<%= tax_path(tax) %>" class="btn-link"><i class="fa fa-pencil"></i></a>
+              <a href="<%= tax_path(tax) %>" class="btn-link" data-confirm="Are you sure?" data-method="delete"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

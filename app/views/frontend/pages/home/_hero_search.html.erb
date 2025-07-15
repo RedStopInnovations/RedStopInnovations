@@ -1,0 +1,74 @@
+<section id="js-section-hero-search">
+    <div class="banner-2 cover-image sptb-hero-search bg-background-color banner-section" data-image-src="<%= asset_pack_path 'static/images/hero-search-bg.jpg' %>">
+        <div class="header-text mb-0">
+            <div class="container">
+                <div class="text-center text-white">
+                    <h1 class="mb-3">Home-Visit Healthcare Services</h1>
+                </div>
+                <form action="#" id="js-form-hero-search">
+                    <div class="row d-none">
+                        <div class="col-xl-10 col-lg-12 col-md-12 d-block mx-auto">
+                            <div class="item-search-tabs">
+                                <div class="item-search-menu">
+                                    <ul class="nav">
+                                        <li>
+                                            <a href="#" class="js-button-select-profession" data-profession="Podiatrist">Podiatrist</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="tab-content index-search-select">
+                                    <div class="tab-pane active">
+                                        <div class="search-background">
+                                            <div class="form row no-gutters">
+                                                <div class="form-group col-xl-6 col-lg-6 col-md-12 mb-0 location">
+                                                    <input class="form-control" placeholder="Search your home address" type="text" name="location" id="js-input-location">
+                                                    <span id="js-btn-get-user-location"><i class="fa fa-crosshairs location-gps mr-1"></i></span>
+                                                </div>
+
+                                                <div class="form-group col-xl-4 col-lg-4 col-md-12 mb-0">
+                                                    <select class="form-control border-left border-0 w-100" id="js-input-profession" name="profession">
+                                                        <option value="" disabled selected>-- Profession --</option>
+                                                        <% Practitioner::PROFESSIONS.each do |pro| %>
+                                                        <option value="<%= pro %>"
+                                                            >
+                                                            <%= pro %>
+                                                        </option>
+                                                        <% end %>
+                                                    </select>
+                                                </div>
+                                                <!-- <div class="form-group col-xl-2 col-lg-2 col-md-12 mb-0">
+                                                    <select class="form-control border-left border-0 w-100" data-placeholder="Distance" name="distance">
+                                                        <option value="">
+                                                            Distance
+                                                        </option>
+                                                        <option value="5">
+                                                            5kms
+                                                        </option>
+                                                        <option value="10">
+                                                            10kms
+                                                        </option>
+                                                        <option value="20">
+                                                            20kms
+                                                        </option>
+                                                        <option value="30">
+                                                            30kms
+                                                        </option>
+                                                    </select>
+                                                </div> -->
+
+                                                <div class="form-group col-xl-2 col-lg-2 col-md-12 mb-0">
+                                                    <button class="btn btn-block btn-warning btn-submit-search fs-14" type="submit"><i class="fa fa-search"></i> Search</buttonn>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

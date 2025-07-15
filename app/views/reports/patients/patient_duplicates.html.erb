@@ -1,0 +1,87 @@
+<% content_for :title, 'Duplicate clients report' %>
+
+<section class="box-header">
+  <h1>Duplicate clients</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Clients</a>
+    </li>
+    <li class="active">Duplicate clients</li>
+  </ul>
+</section>
+<style>
+  td {
+    word-break: break-word;
+  }
+</style>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th style="width: 150px">Name</th>
+            <th>
+              Possible duplicates
+              <table class="table" style="margin-bottom: 0">
+              <tr>
+                <td style="width: 70px">CRN</td>
+                <td style="width: 100px">DOB</td>
+                <td style="width: 200px">Email</td>
+                <td style="width: 120px">Phone</td>
+                <td style="width: 120px">Mobile</td>
+                <td style="width: 70px" title="Number of appointments">Appts</td>
+                <td style="width: 70px" title="Number of treatment notes">Treatments</td>
+                <td></td>
+              </tr>
+            </table>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @report.result[:duplicates].each_with_index do |dup, index| %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td style="width: 150px">
+                <%= dup[:full_name].titleize %>
+              </td>
+              <td>
+                <table class="table table-bordered">
+                  <tbody>
+                    <% dup[:patients].each do |p| %>
+                      <tr>
+                        <td style="width: 70px"><a href="<%= patient_path(p.id) %>"><%= p.id%></a> </td>
+                        <td style="width: 100px"><%= p.dob.try(:strftime, '%d/%m/%Y') %></td>
+                        <td style="width: 200px"><%= p.email %></td>
+                        <td style="width: 120px">
+                          <%= p.phone.presence || '-' %>
+                        </td>
+                        <td style="width: 120px">
+                          <%= p.mobile.presence || '-' %>
+                        </td>
+                        <td style="width: 70px"><%= p.appointments_count %></td>
+                        <td style="width: 70px"><%= p.treatment_notes_count %></td>
+                        <td>
+                          <a href="<%= patient_path(p.id, merge: 1) %>" class="btn btn-white">View</a>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

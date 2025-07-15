@@ -1,0 +1,21 @@
+<% content_for :title, 'New invoice' %>
+
+<section class="box-header">
+  <h1>New invoice</h1>
+</section>
+
+<section class="content" id="js-create-invoice-app">
+    <create-invoice></create-invoice>
+</section>
+
+<% content_for :page_js do %>
+    <%= render 'invoices/form/create_invoice_template' %>
+    <%= render 'invoices/form/create_invoice_component' %>
+    <script>
+    (function() {
+        new Vue({
+            el: '#js-create-invoice-app'
+        });
+    })();
+    </script>
+<% end %>

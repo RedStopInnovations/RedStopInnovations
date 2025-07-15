@@ -1,0 +1,16 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+@page {
+  size: A4;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+  }
+}
+
+.page-title {
+  font-size: 28pt !important;
+}

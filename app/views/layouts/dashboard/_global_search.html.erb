@@ -1,0 +1,143 @@
+<!-- TODO: move to app/assets/javascripts/templates -->
+<div class="global-search-container" v-cloak :class="{open: isOpen}" id="js-global-search-container" v-click-outside="onFocusOut">
+  <div class="backdrop"></div>
+  <div class="main-container">
+
+    <div class="section-header">
+      <div class="section-title">SEARCHING FOR: </div>
+
+      <div class="btn-group search-target-toggle">
+        <button type="button" class="btn"
+          :class="{'btn-primary': searchTarget == 'patient', 'btn-white': searchTarget != 'patient'}"
+          @click="setSearchTarget('patient')">Clients</button>
+
+        <button type="button" class="btn"
+          :class="{'btn-primary': searchTarget == 'contact', 'btn-white': searchTarget != 'contact'}"
+          @click="setSearchTarget('contact')">Contacts</button>
+
+        <button type="button" class="btn"
+          :class="{'btn-primary': searchTarget == 'invoice', 'btn-white': searchTarget != 'invoice'}"
+          @click="setSearchTarget('invoice')">Invoices</button>
+
+        <button type="button" class="btn"
+          :class="{'btn-primary': searchTarget == 'practitioner', 'btn-white': searchTarget != 'practitioner'}"
+          @click="setSearchTarget('practitioner')">Practitioners</button>
+      </div>
+    </div>
+
+    <div class="input-search-wrap">
+      <span class="search-icon"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control input-search" :placeholder="searchQueryPlaceholder"
+        @click="onClickInputSearch"
+        ref="inputSearchElement"
+        v-model="searchQuery"
+        @input="onChangeInputSearch">
+
+      <span class="btn-clear" v-show="!isEmptySearchQuery" @click.prevent="onClickClearInputSearch">×</span>
+    </div>
+
+    <div class="section-body" v-show="!isEmptySearchQuery">
+      <div class="section-title">RESULTS:</div>
+      <div class="results-list">
+        <span v-if="isSearching"><i class="fa fa-spinner fa-spin"></i></span>
+
+        <!-- Clients list -->
+        <div v-if="searchTarget == 'patient'">
+          <div class="result-item" v-for="patient in patientResults" :key="patient.id">
+            <a :href="'/app/patients/' + patient.id" class="pull-right text-smaller normal-link">View</a>
+            <a :href="'/app/patients/' + patient.id">
+              <span v-html="$options.filters.highlight(patient.full_name, searchQuery)"></span>
+            </a><span class="text-smaller ml-5">{{ patient.dob | dob }}</span>
+
+            <div class="text-smaller">
+              <span>{{ patient | formattedLocalAddress }}</span>
+              <div class="separated-info">
+                <span v-if="patient.mobile">
+                  <a :href="'tel:' + patient.mobile_formated" class="normal-link">{{ patient.mobile }}</a>
+                </span>
+                <span v-if="patient.phone">
+                  <a  :href="'tel:' + patient.phone_formated" class="normal-link">{{ patient.phone }}</a>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <span v-if="!isSearching && patientResults.length === 0" class="text-muted">No clients found!</span>
+        </div>
+
+        <!-- Contacts list -->
+        <div v-if="searchTarget == 'contact'">
+          <div class="result-item" v-for="contact in contactResults" :key="contact.id">
+            <a :href="'/app/contacts/' + contact.id" class="pull-right text-smaller normal-link">View</a>
+            <a :href="'/app/contacts/' + contact.id">
+              <span v-html="$options.filters.highlight(contact.business_name, searchQuery)"></span>
+            </a>
+
+            <div class="text-smaller">
+              <div class="text-smaller" v-if="contact.full_name" v-html="$options.filters.highlight(contact.full_name, searchQuery)"></div>
+              <div v-if="contact.short_address">{{ contact | formattedLocalAddress }}</div>
+              <div class="separated-info">
+                <span v-if="contact.mobile"><a href="#" class="normal-link">{{ contact.mobile }}</a></span>
+                <span v-if="contact.phone"><a href="#" class="normal-link">{{ contact.phone }}</a></span>
+              </div>
+            </div>
+          </div>
+
+          <span v-if="!isSearching && contactResults.length === 0" class="text-muted">No contact found!</span>
+        </div>
+
+        <!-- Invoice list -->
+        <div v-if="searchTarget == 'invoice'">
+          <div class="result-item" v-for="invoice in invoiceResults" :key="invoice.id">
+            <a :href="'/app/invoices/' + invoice.id" class="pull-right text-smaller normal-link">View</a>
+            <a :href="'/app/invoices/' + invoice.id">
+              <span v-html="$options.filters.highlight(invoice.invoice_number, searchQuery)"></span>
+            </a>
+            <span class="ml-5" v-html="$options.filters.highlight(invoice.patient.full_name, searchQuery)">{{ invoice.patient.full_name }}</span>
+
+            <div class="text-smaller">
+              <div class="separated-info">
+                <span>{{ invoice.issue_date | shortDate }}</span>
+                <span>Amount ${{ invoice.amount }}</span>
+                <span v-if="invoice.outstanding == 0"><span class="label label-success">Paid</span></span>
+              </div>
+            </div>
+          </div>
+
+          <span v-if="!isSearching && invoiceResults.length === 0" class="text-muted">No invoices found!</span>
+        </div>
+
+        <!-- Practitioner list -->
+        <!-- @TODO: allow these role only: administrator, supervisor, restricted_supervisor -->
+        <div v-if="searchTarget == 'practitioner'">
+          <div class="result-item" v-for="pract in practitionerResults" :key="pract.id">
+            <img :src="pract.profile_picture.thumb" loading="lazy" class="bordered pull-left" height="40px" style="border-radius: 50%; margin-right: 10px;">
+
+            <span class="text-bolder" v-html="$options.filters.highlight(pract.full_name, searchQuery)"></span><span class="text-smaller ml-5">{{ pract.profession }}</span>
+
+            <div class="text-smaller">
+              <span>{{ pract | formattedLocalAddress }}</span>
+              <div class="separated-info">
+                <span v-if="pract.mobile">
+                  <a :href="'tel:' + pract.mobile" class="normal-link">{{ pract.mobile }}</a>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <span v-if="!isSearching && practitionerResults.length === 0" class="text-muted">No practitioners found!</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="section-footer">
+      <div class="section-title">Quick actions: </div>
+      <a class="btn btn-white" href="/app/patients/new"><i class="bi bi-plus-lg"></i> Client</a>
+      <a class="btn btn-white" href="/app/calendar"><i class="bi bi-plus-lg"></i> Appointment</a>
+      <a class="btn btn-white" href="/app/invoices/new"><i class="bi bi-plus-lg"></i> Invoice</a>
+      <a class="btn btn-white" href="/app/payments/new"><i class="bi bi-plus-lg"></i> Payment</a>
+    </div>
+  </div>
+</div>

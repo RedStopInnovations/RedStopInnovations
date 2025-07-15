@@ -1,0 +1,144 @@
+<% content_for :title, 'Tasks' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Tasks</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <% if can?(:create, Task) %>
+      <a class="btn btn-primary" href="<%= new_task_path %>" data-remote="true">+ Add task</a>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: tasks_path, enforce_utf8: false do |f| %>
+        <div class="row">
+
+          <div class="col-xs-12 col-md-3">
+            <div class="form-group">
+              <%= f.search_field :name_or_patient_full_name_cont, placeholder: 'Search', class: 'form-control' %>
+            </div>
+          </div>
+
+          <% if can?(:manage, Task) %>
+          <div class="col-md-3 col-xs-12">
+            <div class="form-group">
+              <%= f.select :task_users_user_id_eq, user_option_for_task(current_business), {}, {class: 'form-control selectize'} %>
+            </div>
+          </div>
+          <% end %>
+
+          <div class="col-md-2 col-xs-12">
+            <div class="form-group">
+              <%= f.select :task_users_status_eq, [["All statuses", ""], ["Status open", TaskUser::STATUS_OPEN], ["Status complete", TaskUser::STATUS_COMPLETE]], {}, { class: 'form-control'} %>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <% if can?(:manage, Task) %>
+            <button type="submit" class="btn btn-white" name="format" value="csv"><i class="fa fa-download"></i> CSV</button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <hr class="mt-5 mb-5">
+
+      <div class="table-responsive">
+        <table class="table table-borderless table-striped">
+          <thead>
+            <tr>
+              <th style="width: 450px;">Task</th>
+              <% if can?(:manage, Task) %>
+                <th>Assignees</th>
+              <% end %>
+              <th>Due</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @tasks.each do |task| %>
+            <tr>
+              <td>
+                <strong><%= task.name %></strong>
+                <p class="text-smaller mt-5"><%= truncate task.description, length: 80 %></p>
+                <div class="text-smaller">
+                  <span class="label <%= get_priority_class(task.priority) %>">
+                    <%= task.priority %>
+                  </span>
+
+                </div>
+              </td>
+
+              <% if can?(:manage, Task) %>
+                <td>
+                  <% task.task_users.each do |task_user| %>
+                    <% if task_user.status == TaskUser::STATUS_COMPLETE %>
+                    <span class="badge badge-task-user bg-green" title="Completed">
+                      <span class="text-smaller"><i class="fa fa-check"></i> <%= task_user.user&.full_name %></span>
+                    </span>
+                    <% else %>
+                      <span class="badge badge-task-user" title="Open">
+                        <span class="text-smaller"><%= task_user.user&.full_name %></span>
+                      </span>
+                    <% end %>
+                  <% end %>
+                </td>
+              <% end %>
+
+              <td>
+                <%= task.due_on&.strftime(t('date.common')) %>
+              </td>
+
+              <td>
+                <%= task.created_at.strftime(t('date.common')) %>
+              </td>
+
+              <td>
+                <a href="<%= task_path(task) %>" data-remote="true" class="btn btn-link"><i class="fa fa-eye" aria-hidden="true"></i></a>
+
+                <% if can?(:edit, task) %>
+                  <a href="<%= edit_task_path(task) %>" class="btn btn-link" title="Edit" data-remote="true">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                  </a>
+                <% end %>
+
+                <%
+                  is_open_and_assigned_to_current_user =
+                    task.task_users.any? do |task_user|
+                      task_user.user_id == current_user.id && task_user.status != TaskUser::STATUS_COMPLETE
+                    end
+                %>
+
+                <% if is_open_and_assigned_to_current_user %>
+                  <a href="<%= modal_update_completion_task_path(task) %>" class="btn btn-link" title="Mark complete" data-remote="true">
+                    <i class="fa fa-check"></i>
+                  </a>
+                <% end %>
+
+              </td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row mt-15">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @tasks %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @tasks, theme: 'app' %>
+        </div>
+      </div>
+  </div>
+</section>

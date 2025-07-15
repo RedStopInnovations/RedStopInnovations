@@ -1,0 +1,48 @@
+<section class="box-header">
+  <h1>Appointments summary</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= admin_reports_path %>">Appointments</a>
+    </li>
+    <li class="active">Summary</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="text-right hidden-print">
+    <a href="<%= admin_reports_appointments_summary_path(format: :csv) %>"
+        class="btn btn-default">
+      <i class="fa fa-download"></i> CSV
+    </a>
+    <button type="button" class="btn btn-default" onclick="print()"><i class="fa fa-print"></i> Print</button>
+  </div>
+
+  <div class="panel panel-default mt-20">
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 200px">Month</th>
+            <th>Appointments count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @report.results.each do |month_data| %>
+            <tr>
+              <td><%= month_data[:date].strftime('%B %Y') %></td>
+              <td>
+                <%= month_data[:appointments_count] %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

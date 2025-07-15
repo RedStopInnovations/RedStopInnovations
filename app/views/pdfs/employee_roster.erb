@@ -1,0 +1,90 @@
+<%
+  business_p = BusinessPresenter.new(business)
+%>
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Employee roster availability</title>
+    <%= wicked_pdf_stylesheet_link_tag "pdf/account-statement" %>
+  </head>
+
+  <body>
+    <div class="header">
+        <div class="row">
+            <div class="col-xs-7">
+                <div class="box-info">
+                    <span class="business-name"><%= business.name %></span>
+                    <br>
+                    <%= business.short_address %><br>
+                    <%= business.phone %>
+                </div>
+            </div>
+            <div class="col-xs-5">
+                <div class="box-logo">
+                    <% if business.avatar.exists? %>
+                        <img src="<%= business_p.logo_url %>" class="logo">
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% report.result[:practitioners].each do |practitioner| %>
+      <div class="text-center" style="background: #f4f4f4; padding: 10px 0;">
+        <h3><b><%= practitioner.full_name %></b> roster availability</h3>
+        <h5>
+          <%= report.options[:start_date].strftime(t('date.common')) %>
+          -
+          <%= report.options[:end_date].strftime(t('date.common')) %>
+        </h5>
+      </div>
+
+      <table class="table table-bordered mt-15">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Type</th>
+            <th>Service area</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% practitioner.availabilities.each do |availability| %>
+            <%
+              start_time = availability.start_time_in_practitioner_timezone
+              end_time = availability.end_time_in_practitioner_timezone
+            %>
+            <tr>
+              <td><%= start_time.strftime(t('date.common')) %></td>
+              <td>
+                <%= start_time.strftime(t('time.common')) %> - <%= end_time.strftime(t('time.common')) %>
+              </td>
+              <td>
+                <% if availability.home_visit? %>
+                  Home visit
+                <% elsif availability.facility? %>
+                  Facility
+                <% elsif availability.non_billable? %>
+                  Non-billable
+                <% end %>
+              </td>
+              <td>
+                <% if availability.home_visit? %>
+                  <%= availability.city %>, <%= availability.state %> (<%= availability.service_radius %> kms)
+                <% elsif availability.facility? %>
+                  <%= availability.city %>, <%= availability.state %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <p class="text-small">
+        <i>* Times are in <%= practitioner.user_timezone %></i>
+      </p>
+    <% end %>
+  </body>
+</html>

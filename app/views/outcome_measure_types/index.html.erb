@@ -1,0 +1,62 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Outcome measure types</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a class="btn sitebtn" href="<%= new_outcome_measure_type_path %>">+ Add Outcome measure type</a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Outcome measure types</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Unit</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @outcome_measure_types.each do |omt| %>
+          <tr>
+            <td>
+              <a href="<%= outcome_measure_type_path(omt) %>"><%= omt.name %></a>
+            </td>
+            <td><%= truncate omt.description.to_s, length: 50 %></td>
+            <td><%= omt.outcome_type %></td>
+            <td><%= omt.unit %></td>
+            <td>
+              <a href="<%= outcome_measure_type_path(omt) %>" class="btn btn-link" title="Show"><i class="fa fa-eye" aria-hidden="true"></i></a>
+              <a href="<%= edit_outcome_measure_type_path(omt) %>" class="btn btn-link" title="Edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @outcome_measure_types %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @outcome_measure_types %>
+      </div>
+    </div>
+  </div>
+</section>

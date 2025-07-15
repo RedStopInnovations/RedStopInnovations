@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    Hi,
+    <br>
+    <% if @message.present? %>
+      <%= simple_format @message %>
+    <% else %>
+      <p>Please find attached Account Statement</p>
+    <% end %>
+    Kind regards,
+    <br>
+    <br>
+    <%= @business.name %>
+    <br>
+    <%= @business.phone %>
+  </body>
+</html>

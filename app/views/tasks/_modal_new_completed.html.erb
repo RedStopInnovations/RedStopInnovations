@@ -1,0 +1,63 @@
+<div class="modal fade" id="js-modal-new-completed-task">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add a completed task</h4>
+      </div>
+
+      <%= simple_nested_form_for @task, url: create_completed_tasks_path, html: { class: 'js-form-new-completed-task', novalidate: false } do |f| %>
+        <div class="modal-body">
+          <div class="callout callout-default">
+            <p class="text-smaller">Add a task that you have complete</p>
+          </div>
+
+          <%= f.input :name, required: true %>
+
+          <div class="form-group">
+            <label>Client:</label>
+            <select class="form-control selectize-patients-ajax" name="task[patient_id]" placeholder="-- Select client --">
+            </select>
+          </div>
+
+          <div class="form-group" js-invoice-require-inpput-wrap style="display: none;">
+            <label>Invoice required?:</label>
+            <div class="form-control">
+              <div class="checkbox-inline npl">
+                <input type="radio" checked name="task[is_invoice_required]" value="0" id="cb_invoice_required_no">
+                <label for="cb_invoice_required_no">No</label>
+              </div>
+              <div class="checkbox-inline">
+                <input type="radio" name="task[is_invoice_required]" value="1" id="cb_invoice_required_yes">
+                <label for="cb_invoice_required_yes">Yes</label>
+              </div>
+            </div>
+          </div>
+
+          <%= f.input :description, required: false, input_html: { rows: 3 } %>
+
+          <div class="form-group">
+            <label><abbr title="required">*</abbr> Date completed:</label>
+            <input type="date" class="form-control bg-white js-input-date-completed"
+              name="task[complete_at]"
+              value="<%= Date.current.strftime('%Y-%m-%d') %>"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d">
+          </div>
+
+          <div class="form-group">
+            <label>Duration (minutes):</label>
+            <input type="number" min="0" class="form-control" name="task[completion_duration]">
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create completed task</button>
+          <button class="btn btn-white" type="button" data-dismiss="modal">Cancel</button>
+        </div>
+        <% end %>
+    </div>
+  </div>
+</div>

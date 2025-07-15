@@ -1,0 +1,97 @@
+<%= simple_form_for letter_template, url: letter_template.new_record? ? letter_templates_path : letter_template_path(letter_template), html: { class: 'pt-20' } do |f| %>
+  <div class="box">
+    <%= f.input :name, label: 'Template name' %>
+    <div class="clearfix">
+      <%= f.input :email_subject %>
+    </div>
+    <div class="form-inputs">
+      <div class="form-group">
+        <label class="control-label">Letter variables</label>
+        <div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="General">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::General::VARIABLES %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Patient info">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::Patient::VARIABLES %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Practitioner info">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::Practitioner::VARIABLES %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Business info">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::Business::VARIABLES %>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="row mt-10">
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Doctor contact">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::DoctorContact::VARIABLES %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Specialist contact">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::SpecialistContact::VARIABLES %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Invoice to contact">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::InvoiceToContact::VARIABLES %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Referrer contact">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::ReferrerContact::VARIABLES %>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mt-10">
+            <div class="col-md-3">
+              <select class="form-control select-variables" placeholder="Other contact">
+                <option selected disabled></option>
+                <%= options_for_select Letter::Embeddable::OtherContact::VARIABLES %>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="clearfix big_content">
+        <%= f.input :content, input_html: { rows: 10, id: 'input-template-content'} %>
+      </div>
+
+    </div>
+
+    <hr>
+      <button type="submit" class="btn btn-primary"><%= letter_template.new_record? ? "Create" : "Update" %> template</button>
+      <a href="<%= letter_templates_path %>" class="btn btn-white">Cancel</a>
+  </div>
+<% end %>
+
+<% content_for :page_js do %>
+  <%= render 'form_js' %>
+<% end %>

@@ -1,0 +1,6 @@
+<h4>Quote information:</h4>
+<ul>
+  <li>EFTPOS: <strong><%= format_money quote.amount_gap %></strong></li>
+  <li>HICAPS: <strong><%= format_money quote.amount_benefit %></strong></li>
+  <li>Created at: <strong><%= quote.created_at.strftime('%d %b %Y, %l:%m%P') %></strong></li>
+</ul>

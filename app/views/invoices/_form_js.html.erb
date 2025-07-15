@@ -1,0 +1,153 @@
+<script type="text/javascript">
+    $(function() {
+        var $form = $('#form-invoice');
+        var $invoiceTotal = $('#invoice-total');
+        var $invoiceItemsWrap = $('#invoice-items');
+        var products = <%= current_business.products.not_deleted.order(name: :asc).to_json.html_safe %>;
+        var billableItems = <%= current_business.billable_items.not_deleted.order(name: :asc).to_json.html_safe %>;
+
+        var buildNestedItemHtml = function(itemType) {
+            var fieldID = new Date().getTime();
+            var selectHtml = '';
+
+            switch(itemType) {
+                case 'Product':
+                    selectHtml += '<select class="input-item-id form-control" name="invoice[items_attributes][' + fieldID + '][invoiceable_id]"><option value="">-- Select product --</option>';
+                    for (var i = 0; i < products.length; i++) {
+                        selectHtml += '<option value="' + products[i].id +'">' + products[i].name + '</option>';
+                    }
+                    selectHtml += '</select>';
+                    break;
+
+                case 'BillableItem':
+                    selectHtml += '<select class="input-item-id form-control" name="invoice[items_attributes][' + fieldID + '][invoiceable_id]"><option value="">-- Select billable item --</option>';
+                    for (var i = 0; i < billableItems.length; i++) {
+                      selectHtml += '<option value="' + billableItems[i].id +'">' + billableItems[i].name + '</option>';
+                    }
+                    selectHtml += '</select>';
+                    break;
+            }
+
+            return '<div class="invoice-item-wrap clearfix row mt-20">'+
+              '<div class="col-md-5">'
+                + '<label>Item:</label>'
+                + '<input type="hidden" value="' + itemType +'" name="invoice[items_attributes][' + fieldID +'][invoiceable_type]">'
+                + selectHtml +
+              '</div>' +
+              '<div class="col-xs-6 col-md-3">' +
+                '<label>Quantity:</label>' +
+                '<input class="input-quantity form-control" min="0" step="1" type="number" name="invoice[items_attributes][' + fieldID + '][quantity]">' +
+              '</div>' +
+              '<div class="col-xs-6 col-md-2">' +
+                '<label>Price:</label>' +
+                '<input class="input-unit-price form-control" min="0" step="1" type="number" name="invoice[items_attributes][' + fieldID +'][unit_price]">' +
+              '</div>' +
+              '<div class="col-md-2 col-xs-12">' +
+                '<input type="hidden" value="false" name="invoice[items_attributes][' + fieldID +'][_destroy]"><a class="btn btn-danger btn-remove-item" data-association="items" href="javascript:void(0)"><i class="fa fa-trash"></i></a>' +
+              '</div>' +
+            '</div>';
+        };
+
+        /* Calculate and update items and invoice totals */
+        var updateTotals = function() {
+            var items = $form.find('.invoice-item-wrap');
+            var invoiceTotal = 0;
+            for (var i = items.length - 1; i >= 0; i--) {
+                var $itemWrap = $(items[i]);
+                var $inputQty = $itemWrap.find('.input-quantity');
+                var $inputUnitPrice = $itemWrap.find('.input-unit-price');
+                var $itemTotal = $itemWrap.find('.item-total');
+                var quantity = 0;
+                var unitPrice = 0;
+
+                if ($inputQty.val().length > 0) {
+                    quantity = parseInt($inputQty.val());
+                }
+
+                if ($inputUnitPrice.val().length > 0) {
+                    unitPrice = $inputUnitPrice.val();
+                }
+                var itemTotal = quantity * unitPrice;
+                $itemTotal.html('' + itemTotal);
+                invoiceTotal += itemTotal;
+            }
+
+            $invoiceTotal.html('' + invoiceTotal);
+        };
+
+        /* Handle quantity and price changes to update totals */
+        $form.on('change', '.input-quantity, .input-unit-price', function() {
+            updateTotals();
+        });
+        $('#select-invoice-contact').change(function(event) {
+          $('.invoice-item-wrap .input-item-id').change();
+        });
+        /* Handle product/billable item change to populate unit price */
+        $invoiceItemsWrap.on('change', '.input-item-id', function() {
+            var $inputItem = $(this);
+            var $itemWrap = $inputItem.closest('.invoice-item-wrap');
+            var itemType = $itemWrap.find("[name$='[invoiceable_type]']").val();
+            var $inputQty = $itemWrap.find('.input-quantity');
+            var $inputUnitPrice = $itemWrap.find('.input-unit-price');
+            var invoiceToContactId = $("#select-invoice-contact").val();
+
+            var selectedItemId = $inputItem.val();
+            var invoiceableItems = [];
+            var isUseDefaultPrice = true;
+
+            switch(itemType) {
+                case 'Product':
+                    invoiceableItems = products;
+                break;
+                case 'BillableItem':
+                    invoiceableItems = billableItems;
+                break;
+            }
+            if(invoiceToContactId && selectedItemId && itemType == 'BillableItem') {
+              for(var i = 0; i < pricing_contacts.length; i++) {
+                if(pricing_contacts[i].id == invoiceToContactId &&
+                  pricing_contacts[i].billable_items[selectedItemId]) {
+                    $inputUnitPrice.val(pricing_contacts[i].billable_items[selectedItemId].price);
+                    isUseDefaultPrice = false;
+
+                    if ($inputQty.val().length === 0) {
+                      $inputQty.val(1);
+                    }
+                    break;
+                }
+              }
+            }
+
+            if (selectedItemId && isUseDefaultPrice) {
+              for (var i = invoiceableItems.length - 1; i >= 0; i--) {
+                var invoiceableItem = invoiceableItems[i];
+                if (invoiceableItem.id == selectedItemId) {
+                  if ($inputQty.val().length === 0) {
+                    $inputQty.val(1);
+                  }
+                  $inputUnitPrice.val(invoiceableItem.price);
+                  break;
+                }
+              }
+            }
+            updateTotals();
+        });
+
+        $('.btn-add-item').on('click', function() {
+            var itemTypeToAdd = $(this).data('item-type');
+            $(buildNestedItemHtml(itemTypeToAdd)).appendTo($invoiceItemsWrap);
+        });
+
+        $form.on('click', '.btn-remove-item', function() {
+            var $this = $(this);
+            $this.prev('input[type=hidden]').val('1');
+            $this.closest('.invoice-item-wrap').hide();
+        });
+
+        $form.on('submit', function() {
+          $form.find('[type="submit"]').attr('disabled', true);
+        });
+
+        updateTotals();
+    });
+</script>

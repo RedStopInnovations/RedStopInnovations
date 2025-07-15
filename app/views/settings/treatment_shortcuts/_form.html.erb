@@ -1,0 +1,11 @@
+<div class="row">
+  <div class="col-md-6">
+    <div class="box">
+      <%= simple_form_for [:settings, @shortcut] do |f| %>
+        <%= f.input :content %>
+        <button class="btn btn-primary"><%= @shortcut.new_record? ? "Create" : "Update" %></button>
+        <a href="<%= settings_treatment_shortcuts_path %>" class="btn btn-white">Cancel</a>
+      <% end %>
+    </div>
+  </div>
+</div>

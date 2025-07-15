@@ -1,0 +1,97 @@
+.table-business-hours {
+  display: table;
+  width: auto;
+  border: 1px solid #f4f4f4;
+  border-spacing: 0;
+  width: 100%;
+  padding: 10px;
+
+  .table-row {
+    display: table-row;
+    width: auto;
+    clear: both;
+
+    .table-col {
+      float: left;
+      display: table-column;
+      min-height: 50px;
+    }
+
+    .table-col:first-child {
+      width: 150px;
+    }
+
+    .table-col:nth-child(2) {
+      width: 200px;
+    }
+
+    .table-col:nth-child(3) {
+      width: 300px;
+    }
+
+    input.business-hour-timepicker {
+      text-align: center;
+      width: 70px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+      &.has-error {
+        .help-block.text-danger {
+          max-width: 70px;
+        }
+      }
+    }
+  }
+
+  .table-row.head {
+    .table-col {
+      font-weight: 600;
+      display: table-column;
+      border-color: #f4f4f4;
+      min-height: 30px;
+    }
+  }
+
+}
+
+.table-business-hours {
+
+  thead {
+    th:first-child {
+      width: 150px;
+    }
+
+    th:nth-child(2) {
+      max-width: 200px;
+    }
+  }
+
+  tr {
+    [class^="col"] {
+      padding-left: 0;
+    }
+
+    td:nth-child(2) {
+      width: 90px;
+    }
+
+    td:nth-child(3) {
+      width: 90px;
+    }
+
+    input.business-hour-timepicker {
+      text-align: center;
+      width: 70px;
+    }
+  }
+
+  tr.breaks {
+    td:first-child, td:nth-child(2) {
+      width: 90px;
+    }
+    td .form-group {
+      margin-bottom: 0;
+    }
+  }
+}

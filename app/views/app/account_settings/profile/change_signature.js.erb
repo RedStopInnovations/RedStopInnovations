@@ -1,0 +1,9 @@
+<% if @success %>
+  Flash.success('The signature was successfully updated.');
+  $("#modal-practitioner-signature").modal('hide');
+  $(".box-signature img").attr("src", '<%= @practitioner.signature(:medium) %>').removeClass('hide');
+<% elsif @error_msg %>
+  Flash.error('<%= @error_msg %>');
+<% else %>
+  Flash.error('Failed to update signature. An error has occurred.');
+<% end %>

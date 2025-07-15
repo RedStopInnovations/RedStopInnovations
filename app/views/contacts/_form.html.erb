@@ -1,0 +1,116 @@
+<div class="row">
+  <div class="col-lg-8 col-md-12 col-xs-12">
+
+
+<%= simple_form_for contact, url: contact.new_record? ? contacts_path : contact_path(contact) do |f| %>
+  <% if contact.new_record? && params[:referral_id] %>
+    <input type="hidden" value="<%= params[:referral_id] %>" name="referral_id">
+  <% end %>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-8">
+          <%= f.input :business_name, label: 'Contact name', autofocus: true %>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-4"><%= f.input :title %> </div>
+        <div class="col-md-4"><%= f.input :first_name %> </div>
+        <div class="col-md-4"><%= f.input :last_name %> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4"><%= f.input :phone %> </div>
+        <div class="col-md-4"><%= f.input :mobile %> </div>
+        <div class="col-md-4"><%= f.input :fax %> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-xs-12"><%= f.input :email %> </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-6"><%= f.input :address1 %> </div>
+        <div class="col-md-6"><%= f.input :address2 %> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><%= f.input :city %> </div>
+        <div class="col-md-6"><%= f.input :state %> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><%= f.input :postcode %> </div>
+        <div class="col-md-6"><%= f.input :country, priority: [ current_business.country ] %> </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-12">
+          <%= f.input :notes, as: :text, input_html: { rows: 5 } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary">
+        <% if contact.persisted? %>
+          Update details
+        <% else %>
+          Create contact
+        <% end %>
+      </button>
+      <a href="<%= contacts_path %>" class="btn btn-white">Cancel</a>
+    </div>
+  </div>
+<% end %>
+
+  </div>
+</div>
+<% content_for :page_js do %>
+<script>
+  (function() {
+    var autocomplete;
+
+    function locationSelected() {
+      var place = autocomplete.getPlace();
+
+      var componentForm = {
+        street_number: 'contact_address1',
+        subpremise: 'contact_address1',
+        locality: 'contact_city',
+        administrative_area_level_1: 'contact_state',
+        postal_code: 'contact_postcode',
+        country: 'contact_country',
+        postal_town: 'contact_city'
+      };
+
+      if(place.address_components) {
+        $.each(componentForm, function(index, element) {
+          $('#' + element).val('');
+        });
+        $.each(place.address_components, function(index, item) {
+          if(componentForm[item.types[0]]) {
+            $inputElement = $('#' + componentForm[item.types[0]]);
+            if(item.types[0] == 'subpremise') {
+              $($inputElement).val(item.short_name + '/')
+            }else {
+              $($inputElement).val($inputElement.val() + item.short_name)
+            }
+          }
+
+          if(item.types[0] == 'country') {
+            $('#contact_country').val(item.short_name);
+          }
+
+          if(item.types[0] == 'route') {
+            $('#contact_address1').val($('#contact_address1').val() + ' ' + item.short_name);
+          }
+        });
+      }
+    };
+    autocomplete = new google.maps.places.Autocomplete($('#contact_address1')[0], autocompleteDefaultOptions);
+
+    autocomplete.addListener('place_changed', locationSelected);
+  })();
+</script>
+<% end %>

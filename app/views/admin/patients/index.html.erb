@@ -1,0 +1,67 @@
+<section class="box-header">
+  <h1>Manage clients</h1>
+</section>
+
+<section class="search_box">
+  <%= search_form_for @search_query, url: admin_patients_path, enforce_utf8: false, class: 'form-filter form-filter-patients' do |f| %>
+  <div class="row">
+    <div class="col-md-8 col-xs-7">
+      <%= f.search_field :first_name_or_last_name_or_full_name_or_email_cont, class: 'form-control', placeholder: 'Enter name or email' %>
+    </div>
+    <div class="col-md-4 col-xs-5">
+      <button type="submit" class="btn sitebtn"><i class="fa fa-search"></i>  Search</button>
+    </div>
+  </div>
+  <% end %>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Date of birth</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @patients.each do |patient| %>
+          <tr>
+            <td>
+              <%= link_to patient.full_name, admin_patient_path(patient) %></td>
+            <td><%= patient.email %></td>
+            <td><%= patient.phone %></td>
+            <td><%= patient.dob %></td>
+            <td>
+              <a href="<%= admin_patient_path(patient) %>" class="btn btn-link" title="Show">
+                <i class="fa fa-eye"></i>
+              </a>
+              <% if current_admin_user.is_super_admin? %>
+              <a href="<%= edit_admin_patient_path(patient) %>" class="btn btn-link" title="Edit">
+                <i class="fa fa-pencil-square-o"></i>
+              </a>
+              <% end %>
+            </td>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @patients %>
+        <% if @patients.total_count > 0 %>
+          <a href="<%= admin_patients_path(format: "csv") %>" class="btn btn-default btn-sm">
+            <i class="fa fa-download"></i> Download CSV
+          </a>
+        <% end %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @patients %>
+      </div>
+    </div>
+  </div>
+</section>

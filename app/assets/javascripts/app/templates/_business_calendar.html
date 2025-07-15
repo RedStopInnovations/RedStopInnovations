@@ -1,0 +1,368 @@
+<script id="business-calendar-tmpl" type="text/template">
+  <div class="business-calendar-wrap">
+    <div class="panel panel-default" v-if="business">
+      <div class="panel-body">
+        <div class="row">
+          <div class="calendar-sidebar sidebar-col">
+            <div>
+              <div class="filter-group">
+                <div class="calendar-settings-wrap">
+                  <div class="setting-row timezone-option-wrap">
+                    <span>Time zone: </span>
+                    <select class="form-control"
+                      v-model="settings.timezone"
+                      @change="onTimezoneChange"
+                      v-timezones-select>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <div class="calendar-datepicker">
+                  <v-flatpickr
+                    ref="calendarDatepicker"
+                    v-model="settings.startDate"
+                    :config="calendarDatepickerConfig"
+                    >
+                  </v-flatpickr>
+                </div>
+              </div>
+
+              <div class="filter-group filter-practitioners" :class="{hide: !canViewOtherCalendar}">
+                <span class="filter-title">Practitioners: <span>{{ selectedPractitionersCount }}/{{ practitionersCount }}</span></span>
+
+                <span class="filter-tools">
+                  <a href="#" class="text-smaller normal-link" v-on:click.prevent="selectOnlyMe" v-if="isCurrentUserAPractitioner">Me</a>
+                  <a href="#" class="text-smaller normal-link" v-on:click.prevent="selectAllPractitioners" v-if="business.practitioners.length > 1 && business.practitioners.length <= 15">Select all</a>
+                  <a href="#" class="text-smaller normal-link" v-on:click.prevent="deselectAllPractitioners" v-if="this.selectedPractitioners.length > 0">Deselect all</a>
+                </span>
+
+                <div class="search-wrap">
+                  <v-multiselect
+                    :options="practitionerFilterOptions"
+                    :multiple="true"
+                    :close-on-select="true"
+                    :reset-after="true"
+                    :hide-selected="true"
+                    :options-limit="50"
+                    select-label=""
+                    deselect-label=""
+                    placeholder="Search"
+                    @select="onSelectPractitionerOption"
+                    label="label"
+                    track-by="id">
+                    <template slot="option" scope="props">
+                      <div class="option-preview"
+                        v-bind:class="{'practitioner-option': props.option.type == 'Practitioner', 'group-option': props.option.type == 'Group'}"
+                        >
+                        <img :src="props.option.value.profile_picture.thumb"
+                          width="20"
+                          height="20"
+                          v-if="props.option.type == 'Practitioner'">
+                        <span class="desc" v-if="props.option.type == 'Practitioner'">
+                          <span v-html="$options.filters.highlight(props.option.label, props.search)"></span>
+                        </span>
+                        <span class="desc" v-if="props.option.type == 'Group'">
+                          <span v-html="$options.filters.highlight(props.option.label, props.search)" class="group-name"></span>
+                          <span>({{ props.option.value.practitioner_ids.length }})</span>
+                        </span>
+                      </div>
+                    </template>
+                    <template slot="noResult">
+                      <span>No results</span>
+                    </template>
+                  </v-multiselect>
+                </div>
+
+                <div class="list-practitioners-wrap">
+                  <ul class="list-unstyled list-practitioners">
+                    <div v-for="pract in orderBy(selectedPractitioners, 'id')" :key="pract.id">
+                      <img v-bind:src="pract.profile_picture.thumb">
+                      <span class="name">{{ pract.full_name }}</span>
+                      <span class="btn-remove" @click="removePractitioner(pract)"><i class="fa fa-remove"></i></span>
+                    </div>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="calendar-col">
+            <a href="#modal-calendar-filters" data-toggle="modal" id="calendar-filter-toggle"><i class="fa fa-cogs"></i></a>
+            <a href="#"
+              id="calendar-actions-toggle"
+              @click.prevent="toggleMobileCalendarActionsMenu"
+              ><i class="fa fa-plus"></i></a>
+            <!-- Calendar view -->
+            <div class="calendar-wrap" v-bind:class="{ loading: loading }">
+              <div class="loading-backdrop" v-if="loading"></div>
+              <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+              <calendar-mobile-header
+                :dateTitle="settings.calendarCurrentDateTitle"
+                :view="settings.calendarView"
+                @view-changed="changeCalendarView"
+                @next="goNextCalendar"
+                @prev="goPrevCalendar"
+                @today="goTodayCalendar"
+                @appointment-add="showCreateAppointmentModal"
+                @waiting-list-show="showWaitListModal"
+                ></calendar-mobile-header>
+              <fullcalendar
+                ref="fullcalendar"
+                :event-sources="eventSources"
+                :resources="resources"
+                :default-view="settings.calendarView"
+                :timezone="settings.timezone"
+                @event-selected="onCalendarEventSelected"
+                @event-drop="onCalendarEventDrop"
+                @event-resize="onCalendarEventResized"
+                @event-created="onCalendarEventCreated"
+                @event-render="onCalendarEventRender"
+                @view-rendered="onCalendarViewRender"
+                ></fullcalendar>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div v-if="business">
+      <div id="mobile-calendar-actions-dropdown" class="hide">
+        <ul>
+          <li>
+            <a href="#" @click="addAppointment">New appointment</a>
+          </li>
+          <li>
+            <a href="#" @click="showWaitListModal">Waiting list</a>
+          </li>
+          <li v-if="!isRestrictedPractitionerRole">
+            <a href="/app/calendar/map">Map view</a>
+          </li>
+          <li v-if="canEditAppearanceSettings">
+            <a href="#" @click="showCalendarAppearanceSettings">Appearance settings</a>
+          </li>
+        </ul>
+      </div>
+      <div class="modal fade" id="modal-calendar-filters">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-gray-light">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title">Calendar filters</h4>
+            </div>
+            <div class="modal-body">
+              <div class="calendar-filters-popup">
+
+                <div class="filter-group">
+                  <div class="calendar-settings-wrap">
+                    <div class="setting-row timezone-option-wrap">
+                      <span>Time zone: </span>
+                      <select class="form-control"
+                        v-model="settings.timezone"
+                        @change="onTimezoneChange"
+                        v-timezones-select>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="filter-group">
+                  <div class="calendar-datepicker">
+                    <v-flatpickr
+                      ref="mobilecalendarDatepicker"
+                      v-model="settings.startDate"
+                      :config="calendarDatepickerConfig"
+                      >
+                    </v-flatpickr>
+                  </div>
+                </div>
+
+                <div class="filter-group filter-practitioners" :class="{hide: !canViewOtherCalendar}">
+                  <span class="filter-title">Practitioners: <span>{{ selectedPractitionersCount }}/{{ practitionersCount }}</span></span>
+
+                  <span class="filter-tools">
+                    <a href="#" v-on:click.prevent="selectAllPractitioners" v-if="practitionerFilterOptions.length <= 10">Select all</a>
+                    <a href="#" v-on:click.prevent="deselectAllPractitioners">Deselect all</a>
+                    <a href="#" v-on:click.prevent="selectOnlyMe" v-if="isCurrentUserAPractitioner">Me</a>
+                  </span>
+
+                  <div class="search-wrap">
+                    <v-multiselect
+                      :options="practitionerFilterOptions"
+                      :multiple="true"
+                      :close-on-select="true"
+                      :reset-after="true"
+                      :hide-selected="true"
+                      :options-limit="50"
+                      select-label=""
+                      deselect-label=""
+                      placeholder="Search"
+                      @select="onSelectPractitionerOption"
+                      label="label"
+                      track-by="id">
+                      <template slot="option" scope="props">
+                        <div class="option-preview"
+                          v-bind:class="{'practitioner-option': props.option.type == 'Practitioner', 'group-option': props.option.type == 'Group'}"
+                          >
+                          <img :src="props.option.value.profile_picture.thumb"
+                            width="20"
+                            height="20"
+                            v-if="props.option.type == 'Practitioner'">
+                          <span class="desc" v-if="props.option.type == 'Practitioner'">
+                            <span v-html="$options.filters.highlight(props.option.label, props.search)"></span>
+                          </span>
+                          <span class="desc" v-if="props.option.type == 'Group'">
+                            <span v-html="$options.filters.highlight(props.option.label, props.search)" class="group-name"></span>
+                            <span>({{ props.option.value.practitioner_ids.length }})</span>
+                          </span>
+                        </div>
+                      </template>
+                      <template slot="noResult">
+                        <span>No results</span>
+                      </template>
+                    </v-multiselect>
+                  </div>
+
+                  <div class="list-practitioners-wrap">
+                    <ul class="list-unstyled list-practitioners">
+                      <div v-for="pract in orderBy(selectedPractitioners, 'id')" :key="pract.id">
+                        <img v-bind:src="pract.profile_picture.thumb">
+                        <span class="name">{{ pract.full_name }}</span>
+                        <span class="btn-remove" @click="removePractitioner(pract)"><i class="fa fa-remove"></i></span>
+                      </div>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="modal-footer bg-gray-light">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <modal-confirm-change-availability
+        ref="modalConfirmChangeAvailability"
+        @availability-time-change-updated="onAvailabilityTimeUpdated"
+        @availability-time-change-cancelled="onAvailabilityTimeChangeCancelled"
+        ></modal-confirm-change-availability>
+
+      <modal-create-availability
+        ref="modalCreateAvailability"
+        :business="business"
+        :practitioners="business.practitioners"
+        @availability-created="onAvailabilityCreated"
+        @patient-add="onPatientAdd"
+        ></modal-create-availability>
+
+      <modal-show-availability
+        ref="modalShowAvailability"
+        :business="business"
+        @appointment-deleted="onAppointmentDeleted"
+        @appointment-add-to-availability="onAppointmentAddToAvailability"
+        @appointment-edit="onAppointmentEdit"
+        @availability-edit="onAvailabilityEdit"
+        @availability-delete="onAvailabilityDelete"
+        @appointment-cancelled="onAppointmentCancelled"
+        @availability-change-practitioner="onAvailabilityChangePractitioner"
+        ></modal-show-availability>
+
+      <modal-create-appointment
+        ref="modalCreateAppointment"
+        :business="business"
+        :appointment_types="business.appointment_types"
+        :practitioners="business.practitioners"
+        @patient-add="onPatientAdd"
+        @appointment-created="onAppointmentCreated"
+        >
+      </modal-create-appointment>
+
+      <modal-edit-appointment
+        ref="modalEditAppointment"
+        :business="business"
+        :appointment_types="business.appointment_types"
+        :practitioners="business.practitioners"
+        @appointment-updated="onAppointmentUpdated"
+        >
+      </modal-edit-appointment>
+
+      <modal-create-patient
+        ref="modalCreatePatient"
+        :business="business"
+        @patient-created="onPatientCreated"
+        ></modal-create-patient>
+
+      <modal-edit-availability
+        ref="modalEditAvailability"
+        :business="business"
+        :appointment_types="business.appointment_types"
+        @availability-updated="onAvailabilityUpdated"
+        @availability-change-practitioner="onAvailabilityChangePractitioner"
+        ></modal-edit-availability>
+
+      <modal-change-availability-practitioner
+        ref="modalChangeAvailabilityPractitioner"
+        :business="business"
+        @availability-updated-practitioner="onAvailabilityUpdatedPractitioner"
+        ></modal-change-availability-practitioner>
+
+      <modal-delete-availability
+        ref="modalDeleteAvailability"
+        @availability-deleted="onAvailabilityDeleted">
+      </modal-delete-availability>
+
+      <modal-wait-list
+        ref="modalWaitList"
+        :business="business"
+        @wait-list-add="onWaitListAdd"
+        @wait-list-edit="onWaitListEdit"
+        ></modal-wait-list>
+
+      <modal-create-wait-list
+        ref="modalCreateWaitList"
+        :business="business"
+        @wait-list-created="onWaitListCreated"
+        ></modal-create-wait-list>
+
+      <modal-edit-wait-list
+        ref="modalEditWaitList"
+        :business="business"
+        @wait-list-updated="onWaitListUpdated"
+        ></modal-edit-wait-list>
+
+      <modal-delete-wait-list
+        :business="business"
+        ></modal-delete-wait-list>
+
+      <modal-schedule-appointments
+        :business="business"
+        ></modal-schedule-appointments>
+      <modal-show-patient
+        :business="business"></modal-show-patient>
+
+      <modal-send-practitioner-on-route-sms
+        :business="business"></modal-send-practitioner-on-route-sms>
+
+      <modal-attendance-proof
+        :business="business"></modal-attendance-proof>
+
+      <modal-calendar-appearance-settings
+        :business="business"></modal-calendar-appearance-settings>
+
+      <modal-send-availability-arrival-time/>
+      <modal-send-appointment-arrival-time/>
+
+      <modal-appointment-note />
+      <modal-appointment-bookings-answers/>
+      <modal-appointments-map/>
+      <modal-show-appointment/>
+      <modal-show-task/>
+      <modal-availability-bulk-sms/>
+
+    </div>
+  </div>
+</script>

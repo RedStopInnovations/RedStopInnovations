@@ -1,0 +1,20 @@
+<section class="sptb mt-5">
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mt-0">Tracksy</h2>
+      </div>
+
+      <div class="card-body">
+        <% if @appointment.present? %>
+          <div class="mb-3">
+            <h3 class="text-muted">Your appointment #<%= @appointment.id %> has been successfully cancelled.</h3>
+          </div>
+          <a href="<%= frontend_home_path %>" class="btn btn-outline-primary">Back to home</a>
+        <% else %>
+          <h3 class="text-muted">Appointment does not exist.</h3>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

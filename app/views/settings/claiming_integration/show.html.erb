@@ -1,0 +1,75 @@
+<% content_for :title, 'Medicare & DVA integration'.html_safe %>
+<section class="box-header">
+  <h1>Medicare & DVA integration</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Medicare & DVA integration</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <% if @claiming_auth_group.nil? %>
+      <p class="text-muted">The integration is not setup yet.</p>
+      <br>
+      <a href="<%= settings_claiming_integration_setup_path %>" class="btn sitebtn">Setup Now</a>
+    <% else %>
+
+      <div class="row">
+        <div class="col-sm-5 col-xs-12">
+          <h4>Information</h4>
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td style="width: 200px">MinorID</td>
+                <td><%= @claiming_auth_group.claiming_minor_id %></td>
+              </tr>
+              <tr>
+                <td>Status</td>
+                <td>Active</td>
+              </tr>
+
+              <tr>
+                <td>
+                  Providers
+                </td>
+                <td>
+                  <%= @claiming_auth_group.providers.count %>
+                  (<a href="<%= settings_claiming_integration_registered_providers_path %>">Details</a>)
+                </td>
+              </tr>
+
+              <tr>
+                <td>Registered at</td>
+                <td><%= @claiming_auth_group.created_at.strftime('%d %b, %Y %l:%M%P') %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col-md-7 col-xs-12">
+          <h4>Important notes</h4>
+          Before providers can submit electronic claims, each will need to complete some paperwork and forward it to Medicare Australia.
+          <br>
+          <br>
+          <ul>
+            <li>
+              <strong>Online Provider Agreement:</strong> All providers submitting electronic claims must use their own Medicare-issued Provider number appropriate to the place of service. The forms are available <a href="https://www.humanservices.gov.au/organisations/health-professionals/forms/hw027" target="_blank">here</a>.
+            </li>
+
+            <li><strong>Online Banking Details</strong>: to link Provider Numbers with a bank account and a Minor ID, provider will need to fill out this <a href="https://www.humanservices.gov.au/organisations/health-professionals/forms/hw052" target="_blank">form</a> with the allocated Minor ID.
+            </li>
+
+            <li>Medicare's requirements for paperwork depend on each individual's case, so you should always check with the Medicare Help Desk on <strong>1800 700 199</strong></li>
+          </ul>
+        </div>
+      </div>
+
+    <% end %>
+  </div>
+</section>

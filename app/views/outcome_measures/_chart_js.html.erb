@@ -1,0 +1,65 @@
+<script type="text/javascript">
+  var renderOutcomeMeasureChart = function(container, title, data, measureUnit) {
+    var $chartContainer = $(container);
+    var canvas = $('<canvas>').appendTo($chartContainer);
+
+    var chart = new Chart(
+      canvas,
+      {
+        type: 'line',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          title: {
+            display: true,
+            text: title
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false,
+            displayColors: false
+          },
+          hover: {
+            mode: 'nearest',
+            intersect: true
+          },
+          legend: {
+            display: false
+          },
+          scales: {
+            xAxes: [
+              {
+                gridLines: {
+                  display: true
+                }
+              }
+            ],
+            yAxes: [
+              {
+                scaleLabel: {
+                  display: true,
+                  labelString: measureUnit
+                },
+                display: true,
+                gridLines: {
+                  display: true
+                },
+                ticks: {
+                  beginAtZero: true,
+                  callback: function(value) { if (value % 1 === 0) { return value; } }
+                }
+              }
+            ]
+          }
+        },
+        data: data
+      }
+    );
+
+    if (window.matchMedia) {
+      window.matchMedia('print').addListener(function() {
+        chart.resize();
+      });
+    }
+  };
+</script>

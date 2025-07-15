@@ -1,0 +1,17 @@
+
+<% content_for :title, 'Add client case' %>
+
+<%= render 'patients/show_layout' do %>
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>Add new case</h4>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-body">
+    <%= render 'form', object: @patient_case %>
+    </div>
+  </div>
+
+<% end %>

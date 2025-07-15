@@ -1,0 +1,53 @@
+@import "../../medz/scss/variables";
+
+@media (max-width: 992px) {
+    .text-center-sm {
+        text-align: center;
+    }
+}
+
+/* Google address autocomplete dropdown */
+.pac-container {
+  .pac-item {
+    font-size: 14px;
+    line-height: 35px;
+
+    &:hover, &.pac-item-selected {
+      background-color: #48A679 !important;
+    }
+  }
+}
+
+.location-gps {
+    cursor: pointer;
+    height: 20px;
+    line-height: 33px;
+    position: absolute;
+    right: 12px;
+    text-align: right;
+    top: 15px;
+    background: $white;
+    width: 15px;
+    color: #6e82a9;
+}
+
+.relative {
+    position: relative !important;
+}
+
+.z-index-10 {
+    z-index: 10;
+}
+
+/* Style popover showing real contact info */
+.popover-reveal-contact-info {
+    border-radius: 2px;
+
+    .popover-header {
+        font-weight: 600;
+    }
+
+    .popover-body * {
+        color: $primary7;
+    }
+}

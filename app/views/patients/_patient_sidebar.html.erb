@@ -1,0 +1,77 @@
+
+<div class="panel panel-default">
+  <div class="panel-heading visible-xs" data-toggle="collapse" data-target="#js-patient-page-nav-wrap">
+    <h4 class="panel-title">
+      <i class="fa fa-bars"></i>
+      <span class="pull-right"><f class="fa fa-caret-down"></f></span>
+    </h4>
+  </div>
+
+  <div id="js-patient-page-nav-wrap" class="panel-collapse collapse in" role="tabpanel">
+    <div class="panel-body p-0">
+      <ul class="nav nav-pills nav-stacked patient-page-nav">
+        <li class=<%= ((controller_name == 'patients') && ['show', 'edit'].include?(action_name)) ? 'active' : '' %> >
+          <a href="<%= patient_path(@patient) %>">Client details</a>
+        </li>
+        <li class=<%= (controller_name == 'patient_id_numbers' && ['index', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
+          <a href="<%= app_patient_id_numbers_path(@patient) %>">Client ID's</a>
+        </li>
+        <% if can?(:read, Invoice) %>
+        <li class=<%= (controller_name == 'patients' && action_name == 'invoices') ? 'active' : '' %> >
+          <a href="<%= invoices_patient_path(@patient) %>">Invoices</a>
+        </li>
+        <% end %>
+        <li class=<%= (controller_name == 'patients' && action_name == 'appointments') ? 'active' : '' %>>
+          <a href="<%= appointments_patient_path(@patient) %>">Appointments</a>
+        </li>
+        <li class=<%= (controller_name == 'patient_attachments' && ['index', 'show', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
+          <a href="<%= patient_attachments_path(patient_id: @patient) %>">Attachments</a>
+        </li>
+        <% if can?(:read, Treatment) %>
+        <li class=<%= (controller_name == 'treatments' && action_name == 'index') ? 'active' : '' %>>
+          <a href="<%= patient_treatments_path(@patient) %>">Treatment notes</a>
+        </li>
+        <% end %>
+        <% if can?(:read, PatientLetter) %>
+          <li class=<%= (controller_name == 'patient_letters' && ['index', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
+            <a href="<%= patient_letters_path(@patient) %>">Letters</a>
+          </li>
+        <% end %>
+        <% if can?(:read, PatientCase) %>
+        <li class=<%= (controller_name == 'patients' && action_name == 'cases') ? 'active' : '' %>>
+          <a href="<%= patient_cases_path(patient_id: @patient.id) %>">Cases</a>
+        </li>
+        <% end %>
+        <% if can?(:read, Communication) %>
+        <li class=<%= (controller_name == 'patient_communications' && [action_name == 'index' || action_name == 'show']) ? 'active' : '' %>>
+          <a href="<%= patient_communications_path(@patient) %>">Messages</a>
+        </li>
+        <% end %>
+        <% if can?(:read, Invoice) %>
+        <li class=<%= (controller_name == 'patient_account_statements' && action_name == 'index') ? 'active' : '' %>>
+          <a href="<%= patient_account_statements_path(@patient) %>">Account statements</a>
+        </li>
+        <% end %>
+        <% if can?(:read, Invoice) %>
+        <li class=<%= (controller_name == 'patient_account_statements' && action_name == 'published') ? 'active' : '' %>>
+          <a href="<%= published_patient_account_statements_path(@patient) %>">Published statements</a>
+        </li>
+        <% end %>
+
+        <% if current_business.physitrack_integration_enabled? %>
+          <li>
+            <a href="<%= open_in_physitrack_patient_path(@patient) %>" target="_blank">Create exercise program</a>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<% content_for :page_js do  %>
+<script type="text/javascript">
+  if ($(window).width() <= 767) {
+    $('#js-patient-page-nav-wrap').removeClass('in');
+  }
+</script>
+<% end %>

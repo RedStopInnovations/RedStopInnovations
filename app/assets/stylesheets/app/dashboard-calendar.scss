@@ -1,0 +1,90 @@
+.dashboard-calendar-wrap {
+
+  .appointments-list-wrap {
+    height: 250px;
+    overflow-y: auto;
+  }
+
+  .dashboard-calendar-wrap-body {
+    display: flex;
+
+    .datepicker-wrap {
+      width: 310px;
+    }
+
+    .appointments-list-wrap {
+      flex: 1;
+      padding-left: 15px;
+    }
+  }
+
+  .flatpickr-calendar {
+    box-shadow: none;
+    max-width: 100%;
+
+    .prevMonthDay, .nextMonthDay {
+      visibility: hidden;
+    }
+
+    .flatpickr-current-month {
+      font-size: 120%;
+    }
+
+    .flatpickr-weekday {
+      font-weight: 400;
+    }
+
+    .flatpickr-day {
+      height: 32px;
+      line-height: 32px;
+
+      &.today {
+        &:hover, &.selected {
+          color: #fff;
+        }
+      }
+
+      &:not(.has-availability-day):not(.selected) {
+        color: #b9b9b9;
+      }
+
+      &.has-availability-day {
+        position: relative;
+
+        &.selected {
+          .appointments-count {
+            color: #fff;
+          }
+        }
+
+        .appointments-count {
+          position: absolute;
+          top: -6px;
+          right: 4px;
+          font-size: 10px;
+          color: #44b653;
+          font-weight: 600;
+        }
+      }
+
+    }
+  }
+
+  @media (max-width: 450px) {
+    .dashboard-calendar-wrap-body {
+      flex-direction: column;
+
+      .datepicker-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .appointments-list-wrap {
+        padding-left: 0;
+        padding-top: 15px;
+      }
+    }
+
+  }
+}

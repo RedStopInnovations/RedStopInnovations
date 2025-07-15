@@ -1,0 +1,139 @@
+<div class="modal fade" id="modal-send-patient">
+ <div class="modal-dialog">
+   <div class="modal-content">
+     <div class="modal-header bg-gray-light">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h4 class="modal-title">Email client</h4>
+     </div>
+     <%= form_tag send_patient_patient_letter_path(@patient_letter.patient, @patient_letter), method: 'POST' do %>
+     <div class="modal-body">
+       <div class="alert alert-danger hide alert-dismissable form-errors-wrap">
+         <a href="#" class="close" aria-label="close">&times;</a>
+         <ul>
+         </ul>
+       </div>
+       <div class="form-group">
+         <label class="control-label">Subject<abbr title="required">*</abbr>:</label>
+         <input name="email_subject" class="form-control" value="<%= @patient_letter.letter_template.try(:email_subject) %>" />
+       </div>
+       <div class="form-group">
+         <label class="control-label">Format:</label>
+         <div>
+
+           <label class="radio-inline">
+            <input type="radio" name="send_format" value="attachment" checked>
+            <span>Send the letter as a PDF attachment of the email</span>
+           </label>
+           <br>
+
+           <label class="radio-inline">
+            <input type="radio" name="send_format" value="email">
+            <span>Send the letter as content of the email</span>
+           </label>
+
+         </div>
+       </div>
+       <div class="form-group email-content-wrap" style="display: none;">
+         <label class="control-label">Email content:</label>
+         <textarea name="email_content" rows="5" class="form-control"></textarea>
+       </div>
+     </div>
+     <div class="modal-footer">
+       <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+       <button type="submit" class="btn btn-primary">Send letter</button>
+     </div>
+     <% end %>
+   </div>
+ </div>
+</div>
+
+<% content_for :page_js do %>
+<script type="text/javascript">
+
+  (function() {
+    var $modal = $('#modal-send-patient');
+    var $form = $modal.find('form');
+    var $errorsWrap = $modal.find('.form-errors-wrap');
+    var $emailContentWrap = $modal.find('.email-content-wrap');
+    var $inputSendFormat = $modal.find('[name="send_format"]');
+
+    /* Handle change send format to toggle email content field group */
+    $modal.find('[name="send_format"]').on('change', function() {
+      var val = $(this).val();
+
+      if (val === 'attachment') {
+        $emailContentWrap.slideDown(100);
+      } else {
+        $emailContentWrap.slideUp(100);
+      }
+    });
+
+    function showFormErrors(errors) {
+      var $errorsList = $errorsWrap.find('ul');
+      $errorsWrap.removeClass('hide');
+      for (var i = errors.length - 1; i >= 0; i--) {
+        $('<li>', { text: errors[i] }).appendTo($errorsList);
+      }
+    }
+
+    function toggleEmailContent() {
+      if ($modal.find('[name="send_format"]:checked').val() === 'attachment') {
+        $emailContentWrap.slideDown(100);
+      } else {
+        $emailContentWrap.slideUp(100);
+      }
+    }
+
+    /* Handle change send format to toggle email content field group */
+    $inputSendFormat.on('change', function() {
+      toggleEmailContent();
+    });
+
+    /* Handle form submit */
+    $form.on('submit', function(evt) {
+      evt.preventDefault();
+      if (confirm('Are you sure you want to send this letter?')) {
+        if (!$form.hasClass('busy')) {
+          $.ajax({
+            url: $form.attr('action'),
+            method: $form.attr('method'),
+            data: $form.serialize(),
+            beforeSend: function() {
+              $errorsWrap.find('ul li').remove();
+              $form.addClass('busy');
+              $form.find('button[type="submit"]').attr('disabled', true);
+            },
+            success: function(res) {
+              Flash.success('The letter has been sent successfully.');
+              $modal.modal('hide');
+              $form.get(0).reset();
+              $emailContentWrap.hide();
+              $errorsWrap.addClass('hide').find('ul li').remove();
+            },
+            error: function(xhr) {
+              var errMsg = 'An error has occurred. Sorry for the inconvenience.';
+              if (xhr.responseJSON) {
+                if (xhr.responseJSON.errors) {
+                  showFormErrors(xhr.responseJSON.errors);
+                }
+                if (xhr.responseJSON.message) {
+                  errMsg = xhr.responseJSON.message;
+                }
+              }
+              Flash.error(errMsg);
+            },
+            complete: function() {
+              $form.removeClass('busy');
+              $form.find('button[type="submit"]').removeAttr('disabled');
+            }
+          });
+        }
+      } else {
+        return false;
+      }
+    });
+
+    toggleEmailContent();
+  })();
+</script>
+<% end %>

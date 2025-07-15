@@ -1,0 +1,341 @@
+<% content_for :page_id, 'js-page-referrals' %>
+<% content_for :canonical_path, '/referrals' %>
+<% content_for :title, 'Refer Patients to our physiotherapists and podiatrists' %>
+<% content_for :meta_description, 'If your known needs physiotherapy, podiatry or massage therapy services, you may fill up their information here to refer them and our practitioner will visit them to provide the necessary treatment.' %>
+
+<% content_for :breadcrumbs do %>
+  <section class="breadcrumbs">
+    <div class="bannerimg cover-image bg-background-color" data-image-src="<%= asset_pack_path 'static/images/banners/banner1.jpg' %>">
+      <div class="header-text mb-0">
+        <div class="container">
+          <div class="text-center text-white">
+            <h1>Referral</h1>
+            <ol class="breadcrumb text-center">
+              <li class="breadcrumb-item"><a href="<%= frontend_home_path %>">Home</a></li>
+              <li class="breadcrumb-item active text-white" aria-current="page">Send a referral</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<section class="sptb">
+    <div class="container">
+      <div class="card">
+        <div class="card-body">
+          <% if !@referral_form.errors.full_messages.empty? %>
+            <div class="alert alert-warning alert-dismissible fade show">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="alert-heading">Sorry. Please check for form errors:</h4>
+              <ul class="mb-0">
+                <% @referral_form.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%= simple_form_for @referral_form, as: :referral, url: frontend_referrals_path, method: 'POST', html: { novalidate: false, enctype: 'multipart/form-data', id: 'js-form-referral' } do |f| %>
+            <h3>Service</h3>
+            <p class="text-muted">What service is required?</p>
+            <div class="box">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <%= f.label :profession, class: 'required' %>
+                    <%= f.select :profession, Practitioner::PROFESSIONS, { include_blank: '-- Select profession --' }, { class: 'form-control', required: true } %>
+                    <% if @referral_form.errors.key? :profession %>
+                      <div class="text-danger">
+                        <%= @referral_form.errors[:profession].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <%= f.label :availability_type_id, 'Availability type:', class: 'required' %>
+                    <%= f.select :availability_type_id, [['Home visit', AvailabilityType::TYPE_HOME_VISIT_ID], ['Facility', AvailabilityType::TYPE_FACILITY_ID]], {include_blank: '-- Select one --'}, { class: 'form-control', placeholder: '-- Select availability type --' } %>
+                    <% if @referral_form.errors.key? :availability_type_id %>
+                      <div class="text-danger">
+                        <%= @referral_form.errors[:availability_type_id].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+
+              <% if @practitioner %>
+                <div class="row">
+                  <div class="col-md-6">
+                    <%= f.input_field :practitioner_id, as: :hidden %>
+                    <div class="form-group">
+                      <label>Practitioner</label>
+                      <div class="form-control">
+                        <strong><%= @practitioner.full_name %></strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <h3>Client</h3>
+            <p class="text-muted">Who is being referred?</p>
+            <div class="box">
+              <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <%= ff.label :first_name, class: 'required' %>
+                      <%= ff.text_field :first_name, class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :first_name %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:first_name].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <%= ff.label :last_name, class: 'required' %>
+                      <%= ff.text_field :last_name, class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :last_name %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:last_name].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <%= ff.label :dob, 'Date of birth', class: 'required' %>
+                      <%= ff.text_field :dob, placeholder: 'dd/mm/yyyy', class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :dob %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:dob].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <%= ff.label :phone %>
+                      <%= ff.text_field :phone, class: 'form-control' %>
+                      <% if @referral_form.patient.errors.key? :phone %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:phone].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <%= ff.label :email %>
+                      <%= ff.text_field :email, class: 'form-control' %>
+                      <% if @referral_form.patient.errors.key? :email %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:email].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <%= ff.label :address1, 'Address', class: 'required' %>
+                      <%= ff.text_field :address1, placeholder: 'Enter a location', class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :address1 %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:address1].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <%= ff.label :city, class: 'required' %>
+                      <%= ff.text_field :city, class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :city %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:city].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <%= ff.label :state, class: 'required' %>
+                      <%= ff.text_field :state, class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :state %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:state].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <%= ff.label :postcode, class: 'required' %>
+                      <%= ff.text_field :postcode, class: 'form-control', required: true %>
+                      <% if @referral_form.patient.errors.key? :postcode %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:postcode].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <%= ff.label :country, class: 'required' %>
+                      <%= ff.select :country, [['Australia', 'AU'], ['New Zealand', 'NZ'], ['United Kingdom', 'GB'], ['United States', 'US']], {include_blank: '-- Select country --'} , { class: 'form-control', required: true } %>
+                      <% if @referral_form.patient.errors.key? :country %>
+                        <div class="text-danger">
+                          <%= @referral_form.patient.errors[:country].first %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <%= f.label :medical_note, 'Medical history' %>
+                      <%= f.text_area :medical_note, rows: 5, class: 'form-control' %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Attachments:</label>
+                      <div class="small text-muted mb-1">PDF and images only. Up to 3 files. Maximum is 5MB.</div>
+                      <input type="file" name="referral[attachments][]" class="form-control" multiple accept="image/jpeg,image/png,application/pdf">
+                    </div>
+                  </div>
+                </div>
+
+              <% end %>
+            </div>
+
+            <h3>Referrer</h3>
+            <p class="text-muted">Who is sending the referral?</p>
+            <div class="box">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <%= f.label :referrer_business_name, 'Business name', class: 'required' %>
+                    <%= f.text_field :referrer_business_name, class: 'form-control', required: true %>
+                    <% if @referral_form.errors.key? :referrer_business_name %>
+                      <div class="text-danger">
+                        <%= @referral_form.errors[:referrer_business_name].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <%= f.label :name, 'Referrer name', class: 'required' %>
+                    <%= f.text_field :referrer_name, class: 'form-control', required: true %>
+                    <% if @referral_form.errors.key? :referrer_name %>
+                      <div class="text-danger">
+                        <%= @referral_form.errors[:referrer_name].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <%= f.label :phone, class: 'required' %>
+                    <%= f.text_field :referrer_phone, class: 'form-control', required: true %>
+                    <% if @referral_form.errors.key? :referrer_phone %>
+                      <div class="text-danger">
+                        <%= @referral_form.errors[:referrer_phone].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <%= f.label :email, class: 'required' %>
+                    <%= f.text_field :referrer_email, class: 'form-control', required: true %>
+                    <% if @referral_form.errors.key? :referrer_email %>
+                      <div class="text-danger">
+                        <%= @referral_form.errors[:referrer_email].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <% if App::RECAPTCHA_ENABLE %>
+            <hr>
+            <div class="row">
+              <div class="col-md-6 col-xs-12">
+                <label class="control-label"><span class="text-smaller">Please complete the Captcha:</span></label>
+                <div id="js-recaptcha-container"></div>
+              </div>
+            </div>
+            <% end %>
+
+            <div>
+              <hr>
+              <p class="text-muted">(*) Mandatory fields</p>
+              <button type="submit" class="btn btn-lg btn-primary">Submit referral</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+</section>
+
+<% content_for :page_js do %>
+  <% if App::RECAPTCHA_ENABLE %>
+    <script>
+      let isCaptchaPass = false;
+
+      var onRecaptchaLoad = function() {
+        grecaptcha.render('js-recaptcha-container', {
+          'sitekey' : '<%= ENV['RECAPTCHA_SITE_KEY'] %>',
+          'theme' : 'light',
+          callback: function() {
+            isCaptchaPass = true;
+          }
+        });
+      }
+
+      document.getElementById('js-form-referral').addEventListener('submit', function(e) {
+        if (!isCaptchaPass) {
+          e.preventDefault();
+          alert('Please complete the Captcha to continue!');
+          return false;
+        }
+      });
+
+    </script>
+
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
+  <% end %>
+<% end %>

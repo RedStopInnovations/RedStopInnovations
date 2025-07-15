@@ -1,0 +1,111 @@
+<% content_for :title, 'Dashboard' %>
+
+<%
+  is_current_user_registered_more_than_1_month = current_user.created_at < 30.days.ago
+%>
+
+<section class="content">
+  <div class="row">
+
+    <div class="col-md-6 col-sm-6 col-xs-12 col-md-push-6">
+      <% if (current_user.role_administrator? || current_user.role_supervisor?) || current_user.is_practitioner? %>
+        <div class="dashboard-box" id="js-overview-report-box-placeholder">
+          <div class="box-heading"><span class="title">Overview report</span></div>
+          <div class="box-body">
+            <span class="text-muted">Loading ...</span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="col-md-6 col-sm-6 col-xs-12 col-md-pull-6">
+      <% if current_user.is_practitioner? && is_current_user_registered_more_than_1_month %>
+        <%= render 'calendar' %>
+      <% end %>
+
+      <%= render 'tasks' %>
+
+      <% if (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) || current_user.is_practitioner? %>
+        <%= render 'pending_referrals' %>
+      <% end %>
+
+      <% if (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) && current_business.practitioners.count > 1 %>
+        <%= render 'practitioners_contact' %>
+      <% end %>
+
+      <%= render 'uninvoiced_appointments' %>
+
+      <%
+        # Show clients without upcoming appointments to non-admin practitioners
+      %>
+      <% if current_user.is_practitioner? && !(current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
+        <%= render 'patients_without_upcoming_appointments' %>
+      <% end %>
+
+    </div>
+  </div>
+
+</section>
+
+<% content_for :page_js do %>
+  <script type="text/javascript">
+
+    $(function() {
+      //=== Practitioners contact search
+      var $practitionersSearchList = $('#js-practitioners-contact-search-list');
+      var $practitionersSearchInput = $('#js-practitioners-contact-search-input');
+      var $practitionersSearchEmpty = $('#js-practitioners-contact-search-empty');
+
+      var processSearchPractitioners = function(keyword) {
+        if (keyword && keyword.length > 0) {
+          var matchCount = 0;
+          $practitionersSearchList.find('.js-practitioner-row').each(function(idx, row) {
+            var $row = $(row);
+            var practName = $row.data('practitioner-name');
+            var $practitionerNameEl = $(row).find('.js-practitioner-name');
+
+            var isMatch = practName.toLowerCase().
+              indexOf(keyword.toLowerCase()) !== -1;
+            if (isMatch) {
+              $row.show();
+              matchCount++;
+            } else {
+              $row.hide();
+            }
+
+          });
+
+          if (matchCount === 0) {
+            $practitionersSearchEmpty.show();
+          } else {
+            $practitionersSearchEmpty.hide();
+          }
+        } else {
+          // Reset
+          $practitionersSearchList.find('.js-practitioner-row').show();
+          $practitionersSearchEmpty.hide();
+        }
+      };
+
+      $practitionersSearchInput.on('keyup', function() {
+        var value = $practitionersSearchInput.val().trim();
+        processSearchPractitioners(value);
+      });
+
+      //== End practitioners contact search
+
+      //=== Load overview report
+      if ($('#js-overview-report-box-placeholder').length) {
+        $('#js-overview-report-box-placeholder').loadingOn();
+
+        $.ajax({
+          method: 'GET',
+          url: '/app/dashboard/overview_report_content',
+          success: function(res) {
+            $('#js-overview-report-box-placeholder').replaceWith(res);
+          }
+        })
+      }
+    });
+  </script>
+<% end %>

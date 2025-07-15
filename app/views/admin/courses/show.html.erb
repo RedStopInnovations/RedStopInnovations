@@ -1,0 +1,83 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Course Details</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= edit_admin_course_path(@course) %>" class="btn sitebtn">
+        <i class="fa fa-pencil"></i> Edit details
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_courses_path %>">Courses</a>
+    </li>
+    <li><%= @course.title %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="block-info">
+      <strong>Title:</strong>
+      <p><%= @course.title %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Video url:</strong>
+      <p><%= @course.video_url %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Presenter full name:</strong>
+      <p><%= @course.presenter_full_name %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Course duration:</strong>
+      <p><%= @course.course_duration %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>CPD points:</strong>
+      <p><%= @course.cpd_points %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Description:</strong>
+      <p><%= @course.description %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Reflection answer:</strong>
+      <p><%= @course.reflection_answer %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Profession tags:</strong>
+      <p><%= @course.profession_tags.join(', ') %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Seo page title:</strong>
+      <p><%= @course.seo_page_title %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Seo description:</strong>
+      <p><%= @course.seo_description %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Seo metatags:</strong>
+      <p><%= @course.seo_metatags %></p>
+    </div>
+  </div>
+</section>

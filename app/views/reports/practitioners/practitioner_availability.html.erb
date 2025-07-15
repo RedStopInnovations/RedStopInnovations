@@ -1,0 +1,273 @@
+<% content_for :title, 'Practitioner availability' %>
+
+<section class="box-header">
+  <h1>Practitioner availability</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Practitioner</a>
+    </li>
+    <li class="active">Availability</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+      <form action="<%= reports_practitioner_availability_path %>">
+
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Date:</label>
+              <div class="input-group">
+                <input type="text"
+                    class="form-control flatpickr-datepicker"
+                    name="start_date"
+                    value="<%= @options.start_date.try(:strftime, '%Y-%m-%d') %>"
+                    data-alt-format="d M Y"
+                    data-date-format="Y-m-d"
+                    data-allow-input="true"
+                    />
+                <span class="input-group-addon input-group-addon-middle">to</span>
+
+                <input type="text"
+                    class="form-control flatpickr-datepicker"
+                    name="end_date"
+                    value="<%= @options.end_date.try(:strftime, '%Y-%m-%d') %>"
+                    data-alt-format="d M Y"
+                    data-date-format="Y-m-d"
+                    data-allow-input="true"
+                    >
+
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <% today = Date.current %>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_week %>" data-end-date="<%= today.end_of_week %>">This week</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_week.beginning_of_week %>" data-end-date="<%= today.last_week.end_of_week %>">Last week</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Availability type: </label>
+              <select class="form-control selectize" name="availability_type_ids[]" multiple="true">
+                <option value="">All</option>
+                <%=
+                  options_for_select(
+                    [
+                      ['Home visit', AvailabilityType::TYPE_HOME_VISIT_ID],
+                      ['Facility', AvailabilityType::TYPE_FACILITY_ID],
+                      ['Group', AvailabilityType::TYPE_GROUP_APPOINTMENT_ID],
+                      ['Non-billable', AvailabilityType::TYPE_NON_BILLABLE_ID],
+                    ],
+                    @options.availability_type_ids
+                  )
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Practitioners: </label>
+              <select class="form-control selectize" name="practitioner_ids[]" multiple="true">
+                <option value="">All</option>
+                <%=
+                  options_for_select(
+                    business_pracititioner_options_for_select(current_business, include_inactive: true),
+                    @options.practitioner_ids
+                  )
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+                <label>Practitioner groups:</label>
+                <select class="form-control selectize" name="practitioner_group_ids[]" multiple>
+                <option value="">All</option>
+                <%=
+                    options_for_select(
+                    practitioner_group_options_for_select(current_business),
+                    @options.practitioner_group_ids
+                    )
+                %>
+                </select>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <div class="check-box">
+                <input type="checkbox" name="include_inactive_practitioner" value="1" id="js-cb-include-inactive-practs"
+                  <% if @options.include_inactive_practitioner %> checked <% end %>
+                  >
+                <label for="js-cb-include-inactive-practs">Show inactive</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary btn-block">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="text-right mb-10">
+    <a href="<%= reports_practitioner_availability_path(@options.to_params.merge(format: :csv)) %>"
+    class="btn btn-white">
+      <i class="fa fa-download"></i> CSV
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Summary</strong></div>
+        <div class="panel-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Duration (hours)</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @report.results[:total_availability_hours_per_type].each do |avail_type, total_hours| %>
+              <tr>
+                <td>
+                  <%= AvailabilityType[avail_type].name %>
+                </td>
+                <td>
+                  <%= total_hours %>
+                </td>
+
+              </tr>
+              <% end %>
+
+              <tr class="bg-gray-light">
+                <td><strong>Total:</strong></td>
+                <td>
+                  <strong><%= @report.results[:total_availability_hours] %></strong>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Practitioner</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Location</th>
+              <th>Name/Description</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @report.results[:paginated_availability].each do |avail| %>
+              <%
+                start_time = avail.start_time_in_practitioner_timezone
+                end_time = avail.end_time_in_practitioner_timezone
+              %>
+            <tr>
+              <td>
+                <%= avail.practitioner.full_name %>
+              </td>
+              <td>
+                <%= avail.start_time.strftime(t('date.common')) %>
+              </td>
+              <td>
+                <%= start_time.strftime(t('time.common')) %> - <%= end_time.strftime(t('time.common')) %> (<%= start_time.strftime('%Z') %>)
+              </td>
+              <td>
+                <% if avail.home_visit? %>
+                  Home visit
+                <% elsif avail.facility? %>
+                  Facility
+                <% elsif avail.non_billable? %>
+                  <% if avail.availability_subtype.present? %>
+                    <%= avail.availability_subtype.name %> (Non-billable)
+                  <% else %>
+                    Non-billable
+                  <% end %>
+                <% end %>
+              </td>
+              <td>
+                <%= [avail.city, avail.state].compact.join(', ') %>
+              </td>
+              <td>
+                <% if avail.name.present? %>
+                  <span class="text-smaller"><%= avail.name %></span>
+                <% end %>
+
+                <% if avail.description.present? %>
+                <% if avail.name.present? %>
+                  <br>
+                <% end %>
+                <span class="text-smaller"><%= avail.description %></span>
+                <% end %>
+              </td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="row hidden-print">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @report.results[:paginated_availability], entry_name: 'items' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @report.results[:paginated_availability], theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-btn-date-range]').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+    $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+  });
+</script>
+<% end %>

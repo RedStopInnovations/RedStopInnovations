@@ -1,0 +1,15 @@
+New subscription invoice issued.
+<br>
+<br>
+Subscription: <%= @business.name %>
+<br>
+Invoice number: <%= @invoice.invoice_number %>
+<br>
+Invoice amount: $<%= @invoice.amount %>
+<br>
+Issue date: <%= @invoice.issue_date.strftime('%d/%b/%Y') %>
+<br>
+Period: <%= @invoice.billing_start_date.strftime('%d/%b/%Y') %> - <%= @invoice.billing_end_date.strftime('%d/%b/%Y') %>
+<br>
+<br>
+<a href="<%= admin_business_invoice_url(@invoice) %>">View details</a>

@@ -1,0 +1,13 @@
+Dear <%= @business.name %>
+<br>
+<br>
+You have received a new message from patient:
+<div style="font-style: italic"><%= simple_format @incoming_message.message %></div>
+Patient: <%= @patient.full_name %>
+<br>
+DOB: <%= @patient.dob.presence || 'N/A' %>
+<br>
+Sent from: <%= @incoming_message.sender %>
+<br>
+<br>
+

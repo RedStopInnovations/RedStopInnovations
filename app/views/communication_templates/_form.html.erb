@@ -1,0 +1,193 @@
+<%
+  communication_templates_explains = get_communication_templates_explains
+  template_explain = communication_templates_explains[communication_template.template_id]
+%>
+
+<%= simple_nested_form_for communication_template, class: "pt-20" do |f| %>
+  <div class="box">
+    <% if template_explain %>
+    <div class="callout callout-default">
+      <i class="fa fa-info-circle"></i> <%= template_explain['purpose'] %>
+    </div>
+    <% end %>
+
+    <%= f.error_notification %>
+
+    <div>
+      <div class="clearfix mt-20">
+        <%= f.input :enabled %>
+      </div>
+
+      <% if communication_template.is_email_template? %>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Email template</strong>
+        </div>
+
+        <div class="panel-body">
+          <%= f.input :email_subject, label: 'Subject:', as: :string, required: true %>
+
+          <div class="form-group">
+
+            <div class="row">
+              <div class="col-md-9 col-xs-12">
+                <label class="control-label mt-10"><abbr title="required">*</abbr> Content:</label>
+              </div>
+
+              <div class="col-md-3 col-xs-12">
+                <select class="form-control js-select-variables" placeholder="Select variable to insert">
+                  <option selected disabled></option>
+
+                  <optgroup label="General info">
+                      <%= options_for_select Letter::Embeddable::General::VARIABLES %>
+                  </optgroup>
+                  <optgroup label="Business info">
+                      <%= options_for_select Letter::Embeddable::Business::VARIABLES %>
+                  </optgroup>
+                  <optgroup label="Patient info">
+                      <%= options_for_select Letter::Embeddable::Patient::VARIABLES %>
+                  </optgroup>
+                  <optgroup label="Practitioner info">
+                      <%= options_for_select Letter::Embeddable::Practitioner::VARIABLES %>
+                  </optgroup>
+
+                  <% if communication_template.is_invoice_template? %>
+                    <optgroup label="Invoice to contact">
+                        <%= options_for_select Letter::Embeddable::InvoiceToContact::VARIABLES %>
+                    </optgroup>
+                  <% end %>
+
+                  <% if communication_template.is_invoice_template? %>
+                  <optgroup label="Invoice info">
+                      <%= options_for_select Letter::Embeddable::Invoice::VARIABLES %>
+                  </optgroup>
+                  <% end %>
+
+                  <% if communication_template.is_appointment_template? %>
+                  <optgroup label="Appointment info">
+                      <%= options_for_select Letter::Embeddable::Appointment::VARIABLES %>
+                  </optgroup>
+                  <% end %>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <%= f.input :content, label: false, input_html: { rows: 10, id: 'input-template-content' } %>
+            </div>
+          </div>
+
+          <div class="clearfix mt-20">
+            <label>Attachments: </label>
+            <br>
+            <div class="text-smaller text-muted mt-5 mb-5">Allowed file types: PDF, images, document, excel and texts. Maximum is 3MB.</div>
+            <%= f.fields_for :attachments do |f_atm| %>
+              <div class="row mt-5">
+                <div class="col-sm-3 col-xs-10">
+                  <% if f_atm.object.attachment.exists? %>
+                    <% atm = f_atm.object %>
+                    <a href="<%= atm.attachment.url %>" target="_blank" title="<%= atm.attachment_file_name %>">
+                      <i class="fa <%= icon_class_for_attachment_content_type(atm.attachment_content_type) %>"></i>
+                      <span><%= truncate atm.attachment_file_name, length: 50 %></span>
+                    </a>
+                    <span>(<%= number_to_human_size(atm.attachment_file_size) %>)</span>
+                  <% else %>
+                    <%= f_atm.input :attachment, as: :file, label: false, input_html: { class: 'bs-file-input'} %>
+                  <% end %>
+                </div>
+                <div class="col-sm-1 col-xs-2">
+                  <%= f_atm.link_to_remove do %>
+                    <button class="btn btn-white btn-sm" type="button" title="Delete"><i class="fa fa-trash text-danger"></i></button>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <p><%= f.link_to_add "Add attachment", :attachments, class: 'btn btn-white' %></p>
+          </div>
+
+        </div>
+      </div>
+      <% end %>
+
+      <% if communication_template.is_sms_template? %>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>SMS template</strong>
+        </div>
+
+        <div class="panel-body">
+
+          <div class="form-group">
+            <div class="row">
+
+              <div class="col-md-9 col-xs-12">
+
+                <label class="control-label mt-10"><abbr title="required">*</abbr> Content:</label>
+              </div>
+
+              <div class="col-md-3 col-xs-12">
+                <select class="form-control js-select-variables" placeholder="Select variable to insert">
+                  <option selected disabled></option>
+
+                  <optgroup label="General info">
+                    <%= options_for_select Letter::Embeddable::General::VARIABLES %>
+                  </optgroup>
+                  <optgroup label="Business info">
+                    <%= options_for_select Letter::Embeddable::Business::VARIABLES %>
+                  </optgroup>
+                  <optgroup label="Patient info">
+                    <%= options_for_select Letter::Embeddable::Patient::VARIABLES %>
+                  </optgroup>
+                  <optgroup label="Practitioner info">
+                    <%= options_for_select Letter::Embeddable::Practitioner::VARIABLES %>
+                  </optgroup>
+
+                  <% if communication_template.is_appointment_template? %>
+                  <optgroup label="Appointment info">
+                      <%= options_for_select Letter::Embeddable::Appointment::VARIABLES %>
+                  </optgroup>
+                  <% end %>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <%= f.input :content, label: false, input_html: { rows: 10, id: 'input-template-content' } %>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+      <% end %>
+
+      <!-- Custom config per template -->
+      <% if lookup_context.template_exists?(communication_template.template_id, "communication_templates/template_settings", true) %>
+        <%= render "communication_templates/template_settings/#{communication_template.template_id}", f_template: f, template: communication_template %>
+      <% end %>
+
+    </div>
+    <hr>
+    <button type="submit" class="btn btn-primary">Update settings</button>
+    <a href="<%= communication_templates_path %>" class="btn btn-white">Cancel</a>
+  </div>
+<% end %>
+
+<% content_for :page_js do %>
+  <% if communication_template.is_sms_template? %>
+    <%= render 'form_js_sms_template' %>
+  <% else %>
+    <%= render 'form_js_email_template' %>
+  <% end %>
+
+  <% if communication_template.is_email_template? %>
+  <script>
+    // Auto open file dialog when clicking add attachment
+    $(document).on('nested:fieldAdded:attachments', function(event) {
+      var field = event.field;
+      field.find('input[type=file]:first-child').click();
+    });
+
+  </script>
+  <% end %>
+<% end %>

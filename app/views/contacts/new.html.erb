@@ -1,0 +1,15 @@
+<% content_for :title, 'New contact' %>
+<section class="box-header">
+  <h1>New Contact</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li><a href="<%= contacts_path %>">Contacts</a></li>
+    <li class="active">New contact</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', contact: @contact %>
+</section>

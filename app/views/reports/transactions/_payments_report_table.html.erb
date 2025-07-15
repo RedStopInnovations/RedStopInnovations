@@ -1,0 +1,179 @@
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Author</th>
+        <th>Payment date</th>
+        <th>Client</th>
+        <th>Source(s)</th>
+        <th>Total</th>
+        <th>Tax</th>
+        <th style="width: 450px;">Invoice(s)</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% if payments.present? %>
+        <% payments.each do |payment| %>
+          <tr>
+            <td><a href="<%= payment_path(payment) %>"><%= payment.id %></a></td>
+            <td>
+              <% if payment.created_version && payment.created_version.author %>
+                <%= payment.created_version.author.full_name %>
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </td>
+            <td><%= payment.payment_date.strftime(t('date.common')) %></td>
+            <td>
+              <a href="<%= patient_path(payment.patient) %>"><%= payment.patient.full_name %></a>
+            </td>
+            <td>
+              <% if payment.hicaps.to_f > 0 %>
+              <div class="block-info inline">
+              <strong>Hicaps:</strong> <%= format_money payment.hicaps %>
+              </div>
+              <% end %>
+              <% if payment.cash.to_f > 0 %>
+              <div class="block-info inline">
+                <strong>Cash:</strong>
+                <p><%= format_money payment.cash %></p>
+              </div>
+              <% end %>
+              <% if payment.eftpos.to_f > 0 %>
+              <div class="block-info inline">
+                <strong>Eftpos:</strong>
+                <p><%= format_money payment.eftpos %></p>
+              </div>
+              <% end %>
+              <% if payment.medicare.to_f > 0 %>
+              <div class="block-info inline">
+                <strong>Medicare:</strong>
+                <p><%= format_money payment.medicare %></p>
+              </div>
+              <% end %>
+              <% if payment.workcover.to_f > 0 %>
+              <div class="block-info inline">
+                <strong>Workcover:</strong>
+                <p><%= format_money payment.workcover %></p>
+              </div>
+              <% end %>
+              <% if payment.dva.to_f > 0 %>
+              <div class="block-info inline">
+                <strong>DVA:</strong>
+                <p><%= format_money payment.dva %></p>
+              </div>
+              <% end %>
+              <% if payment.stripe_charge_id? %>
+              <div class="block-info inline">
+                <strong>Stripe:</strong>
+                <p><%= format_money payment.stripe_charge_amount %></p>
+              </div>
+              <% end %>
+              <% if payment.direct_deposit? && payment.direct_deposit > 0 %>
+                <div class="block-info inline">
+                  <strong>Direct deposit:</strong>
+                  <p><%= format_money payment.direct_deposit %></p>
+                </div>
+              <% end %>
+              <% if payment.cheque? && payment.cheque > 0 %>
+                <div class="block-info inline">
+                  <strong>Cheque:</strong>
+                  <p><%= format_money payment.cheque %></p>
+                </div>
+              <% end %>
+              <% if payment.other.to_f > 0 %>
+              <div class="block-info inline">
+                <strong>Other:</strong>
+                <p><%= format_money payment.other %></p>
+              </div>
+              <% end %>
+            </td>
+            <td><%= format_money payment.amount %></td>
+            <td>
+              <% tax_amount_paid = calculate_tax_amount_on_payment(payment) %>
+              <% if tax_amount_paid > 0 %>
+                <%= format_money tax_amount_paid.round(2) %>
+              <% end %>
+            </td>
+
+            <td>
+
+              <table style="width: 100%;">
+                <tbody>
+                  <% payment.payment_allocations.each_with_index do |pa, idx| %>
+                    <% invoice = pa.invoice %>
+                    <% if invoice %>
+                      <% patient = invoice.patient %>
+                      <tr>
+                        <td style="width: 250px; padding: 5px;">
+                          Allocated <strong><%= format_money pa.amount %></strong> for <a href="<%= invoice_path(invoice) %>">#<%= invoice.invoice_number %></a>
+                        </td>
+
+                        <td style="min-width: 50px; padding: 5px;">
+                        <div class="dropdown" style="display: inline-block;">
+                          <button class="btn btn-white dropdown-toggle text-smaller" type="button" data-toggle="dropdown" style="padding: 5px 10px;">
+                            Send <span class="caret"></span>
+                          </button>
+
+                          <ul class="dropdown-menu custom-dropdown">
+                            <% if patient %>
+                            <li>
+                              <a href="<%= deliver_invoice_path(invoice)%>"
+                                <%
+                                  send_invoice_confirm = ""
+                                  if !invoice.patient.reminder_enable?
+                                    send_invoice_confirm << "Warning: #{invoice.patient.full_name} has disabled reminders on their profile.\n\n"
+                                  end
+
+                                  if invoice.last_send_patient_at.present?
+                                  send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                                  else
+                                    send_invoice_confirm << "Are you sure want to send invoice?"
+                                  end
+                                %>
+                                data-confirm="<%= send_invoice_confirm %>"
+                                data-method="POST"
+                                ><i class="fa fa-envelope-o <% if invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
+                            </li>
+                            <% end %>
+
+                            <% if invoice.invoice_to_contact_id? %>
+                              <li>
+                                <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: request.url, contact_ids: [invoice.invoice_to_contact_id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
+                                  <i class="fa fa-envelope-o <% if invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
+                                </a>
+                              </li>
+                            <% end %>
+
+                            <li>
+                              <a data-href="<%= modal_email_others_invoice_path(invoice) %>" class="btn-send-invoice-others"
+                                href="javascript:void(0)">
+                                <i class="fa fa-send-o"></i> Email others
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </td>
+
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="7" class="text-muted">No payments found!</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% content_for :page_js do %>
+  <%= render 'invoices/modal_email_others_js' %>
+<% end %>

@@ -1,0 +1,43 @@
+<script id="modal-delete-availability-tmpl" type="text/template">
+  <div v-if="availability">
+    <modal :value="show" v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-warning">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cancel"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Delete availability confirmation</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body">
+        <form action="">
+          <div v-if="availability.recurring_id">
+            <div class="callout callout-warning">
+                <p>You are about delete a recurring availability.</p>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-inline">
+                  <input type="checkbox"
+                     v-model="deletion.delete_future_repeats">
+                  <span>Delete future repeats?</span>
+                </label>
+            </div>
+            <div class="form-group"
+              v-if="availability.availability_type_id == 1 || availability.availability_type_id == 4">
+              <label class="checkbox-inline" title="">
+                <input type="checkbox"
+                  v-model="deletion.notify_cancel_appointment">
+                <span>Notify appointment canceling to clients if there is any appointments scheduled on this availability and future repeats?</span>
+              </label>
+            </div>
+          </div>
+
+          <div v-if="!availability.recurring_id">
+            Are you sure you want to delete this availability?
+          </div>
+        </form>
+      </div>
+      <div slot="modal-footer" class="modal-footer bg-gray-light">
+        <button class="btn btn-primary" type="button" @click.prevent="confirm">Confirm</button>
+        <button class="btn btn-white" type="button" @click="cancel">Cancel</button>
+      </div>
+    </modal>
+  </div>
+</script>

@@ -1,0 +1,159 @@
+<%= content_for :title , 'Users & Practitioners'.html_safe %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-md-6 col-xs-6">
+      <h1>Users & Practitioners</h1>
+    </div>
+    <div class="text-right col-xs-6">
+      <a class="btn btn-primary" href="<%= new_settings_user_path %>">+ New User</a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Users & Practitioners</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: settings_users_path, enforce_utf8: false, class: 'form-filter form-filter-patients' do |f| %>
+        <div class="row">
+          <div class="col-sm-3">
+            <%= f.search_field :full_name_or_email_cont, class: 'form-control', placeholder: 'Search by name or email ...' %>
+          </div>
+          <div class="col-sm-2">
+            <%
+              role_options = [["All roles", ""]]
+              User::ROLES.map do |role|
+                role_options << [role.titleize, role]
+              end
+            %>
+            <%= f.select :role_eq, role_options, {}, { class: 'form-control' } %>
+          </div>
+
+          <div class="col-sm-2">
+            <div class="check-box mt-10">
+              <input type="checkbox" name="practitioner_only" id="cb-practitioner-only" value="1" <%= 'checked' if params[:practitioner_only].to_s == '1' %> >
+              <label for="cb-practitioner-only">Is practitioner</label>
+            </div>
+          </div>
+
+          <div class="col-sm-2">
+            <div class="check-box mt-10">
+              <input type="checkbox" name="include_inactive" id="cb-show-hidden" value="1" <%= 'checked' if params[:include_inactive].to_s == '1' %> >
+              <label for="cb-show-hidden">Show inactive users</label>
+            </div>
+          </div>
+          <div class="col-sm-3 col-xs-12 text-right">
+            <br class="visible-xs">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="<%= settings_users_path %>" class="btn btn-white">Clear</a>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="table-responsive mt-15">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th style="width: 200px">Name</th>
+              <th style="width: 100px">Photo</th>
+              <th style="width: 220px">Address</th>
+              <th style="width: 100px">2FA</th>
+              <th style="width: 200px">Role</th>
+              <th style="width: 130px">Join date</th>
+              <th style="width: 130px">Last login</th>
+              <th>Online bookings</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @users.each do |user| %>
+              <tr class="<%= 'text-muted' if user.inactive? %>">
+                <td>
+                  <% if user.inactive? %>
+                    <%= user.full_name %>
+                    <span class="label label-sm label-default">Inactive</span>
+                  <% else %>
+                    <a href="<%= settings_user_path(user) %>"><%= user.full_name %></a>
+                  <% end %>
+
+                  <br>
+
+                  <small><%= user.email %></small>
+
+                  <% if user.is_practitioner? && user.practitioner %>
+                    <br/>
+                    <small><%= user.practitioner.profession %></small>
+
+                    <% if user.practitioner.medicare? %>
+                      <br>
+                      <span class="small"><%= user.practitioner.medicare %></span>
+                    <% end %>
+
+                    <% if user.practitioner.mobile? %>
+                      <br/>
+                      <span class="small normal-link"><%= user.practitioner.mobile %></span>
+                    <% end %>
+
+                  <% end %>
+
+                </td>
+                <td>
+                  <% if user.avatar.exists? %>
+                    <img src="<%= user.avatar.url(:thumb) %>" width="50px">
+                  <% end %>
+                </td>
+                <td>
+                  <% if user.is_practitioner? && user.practitioner %>
+                    <%= user.practitioner.short_address %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if user.enable_google_authenticator %>
+                    <i class="fa fa-check"></i>
+                  <% end %>
+                </td>
+                <td><%= user.role.titleize %></td>
+                <td>
+                  <%= user.created_at.strftime(t('date.common')) %>
+                </td>
+                <td>
+                  <% if user.current_sign_in_at? %>
+                    <%= user.current_sign_in_at.in_time_zone(current_user.timezone).strftime(t('date.common')) %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if user.is_practitioner? && user.practitioner.allow_online_bookings? %>
+                    <i class="fa fa-check"></i>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <a href="<%= settings_user_path(user) %>" class="btn btn-link" title="show"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                  <a href="<%= edit_settings_user_path(user) %>" class="btn btn-link" title="edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @users %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @users, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

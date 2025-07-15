@@ -1,0 +1,62 @@
+<% content_for :title, 'Your booking was successful' %>
+
+<%
+if @appointment
+  practitioner = @appointment.practitioner
+end
+%>
+<section class="sptb mt-5">
+  <div class="container">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="text-primary">Congratulations! Your booking was successful.</h3>
+        <% if @appointment %>
+        <div class="box mt-5">
+
+          <div>
+            <strong>Practitioner:</strong><br>
+            <%= practitioner.full_name %>
+            <br>
+            <span><%= practitioner.profession %></span> -  <%= [practitioner.city, practitioner.state].compact.join(', ') %><br>
+            <% if practitioner.business.phone.present? %>
+              <% phone = practitioner.business.phone %>
+              <span class="text-primary"><%= phone %></span>
+            <% end %>
+          </div>
+
+          <div class="mt-1">
+            <strong>Service:</strong>
+            <p><%= @appointment.appointment_type.name %> / <%= @appointment.appointment_type.duration %> mins</p>
+          </div>
+
+          <% if @appointment.home_visit? %>
+            <div>
+              <strong>Location:</strong>
+              <p><%= @appointment.patient.short_address %></p>
+            </div>
+          <% end %>
+
+          <div>
+            <strong>Time:</strong>
+            <p>
+              <%= @appointment.start_time_in_practitioner_timezone.strftime('%a, %d %b at %l:%M%P (%Z)') %>
+            </p>
+          </div>
+        </div>
+        <% end %>
+
+      </div>
+
+      <div class="card-footer">
+
+        <a class="btn btn-light" href="<%= frontend_home_path %>">
+          Back to homepage
+        </a>
+        <a class="btn btn-outline-primary" href="#">
+          Book another
+        </a>
+
+      </div>
+    </div>
+  </div>
+</section>

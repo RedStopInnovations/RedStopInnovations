@@ -1,0 +1,67 @@
+<div class="modal fade modal-find-practitioners" id="js-modal-find-practitioners">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Find practitioners</h4>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-borderred">
+          <thead>
+              <tr>
+                <th>Practitioner</th>
+                <th>Distance to client</th>
+                <th>Action</th>
+              </tr>
+          </thead>
+          <tbody>
+             <% practitioners.each do |pract| %>
+                <tr>
+                  <td>
+                    <strong><%= pract.full_name %></strong>
+                    <br>
+                    <div class="text-smaller">
+                      <%= pract.profession %> <br>
+                      <%= pract.short_address %>
+                    </div>
+                    <% if pract.mobile? %>
+                        <a href="tel:<%= pract.mobile %>" tel=""><%= pract.mobile %></a>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if pract.respond_to?(:distance) %>
+                      <%= pract.distance.round(1) %>km
+                    <% end %>
+                  </td>
+                  <td>
+                    <button class="btn btn-white js-btn-assign-practitioner"
+                      data-practitioner-id="<%= pract.id %>"
+                      data-url="<%= assign_practitioner_app_referral_path(@referral.id) %>"
+                      <% if @referral.practitioner_id == pract.id %>
+                        disabled
+                      <% end %>
+
+                      >
+                      <% if @referral.practitioner_id == pract.id %>
+                        Assigned
+                      <% else %>
+                        Assign
+                      <% end %>
+                      </button>
+                  </td>
+                </tr>
+             <% end %>
+             <% if practitioners.empty? %>
+              <tr>
+                <td colspan="2"><span class="text-muted">No practitioners match!</span></td>
+              </tr>
+             <% end %>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

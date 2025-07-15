@@ -1,0 +1,7 @@
+(function() {
+  if ($('#modal-edit-patient-access').length > 0) {
+    $('#modal-edit-patient-access').remove();
+  }
+  $('body').append('<%= j render('modal_edit_patient_access', patient: @patient) %>');
+  $('#modal-edit-patient-access').modal('show');
+})();

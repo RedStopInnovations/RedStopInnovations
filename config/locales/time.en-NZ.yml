@@ -1,0 +1,14 @@
+en-NZ:
+  datetime:
+    common: '%e/%m/%Y %l:%M%P'    # 15/01/2017 02:00pm
+    short_12h: '%e/%m/%Y %l:%M%P' # 15/01/2017 02:00pm
+    short_12h_z: '%e/%m/%Y %l:%M%P' # 15/01/2017 02:00pm EST
+    short_24h: '%e/%m/%Y %H:%M'   # 15/01/2017 14:00
+  date:
+    common: '%e/%m/%Y'            # 15/01/2017
+    short: '%e/%-m/%y'             # 15/1/17
+    short_dow: '%a, %e/%-m/%y'     # Mon, 15/1/17
+    dob: '%e/%m/%Y'                # 15/01/2017
+  time:
+    12h: '%l:%M%P'                 # 02:00pm
+    24h: '%M:%M'                   # 14:00

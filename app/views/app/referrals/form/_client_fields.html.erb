@@ -1,0 +1,80 @@
+<%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :first_name, required: true, input_html: { autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :last_name, required: true, input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%
+        dob_string = @referral_form.patient.dob.present? ? @referral_form.patient.dob.to_date.strftime('%d/%m/%Y') : nil
+      %>
+      <%= ff.input :dob, as: :string, label: 'Date of birth', required: true, placeholder: 'dd/mm/yyyy', input_html: { autocomplete: 'nope', value: dob_string  } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :email, required: false, input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :mobile, required: false, input_html: { autocomplete: 'nope' } %>
+    </div>
+
+    <div class="col-md-6">
+      <%= ff.input :phone, required: false, input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-6 col-sm-12 col-xs-12">
+      <%= ff.input :address1, required: false, label: 'Address', input_html: { id: 'js-input-patient-address', autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <%= ff.input :city, required: false, input_html: { id: 'js-input-patient-city', autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <%= ff.input :state, required: false, input_html: { id: 'js-input-patient-state', autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :postcode, required: false, input_html: { id: 'js-input-patient-postcode', autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :country, required: false, priority: [ current_business.country ], input_html: { id: 'js-input-patient-country', autocomplete: 'nope' }%>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :next_of_kin, required: false, label: 'Next of kin details', as: :text, input_html: { rows: 3 } %>
+    </div>
+
+    <div class="col-md-6">
+      <%= ff.input :aboriginal_status, required: false, as: :select, label: 'Aboriginal status', collection: ['No', 'Aboriginal', 'Torres Strait Islander', 'Both'], default: 'No', input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :general_info, required: false, as: :text, label: 'Additional info', input_html: { rows: 3 } %>
+    </div>
+  </div>
+
+<% end %>
+
+<div class="row">
+  <div class="col-md-6">
+    <%= f.input :medical_note, label: 'Relevant medical history note', as: :text, input_html: { rows: 3 } %>
+  </div>
+</div>

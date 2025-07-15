@@ -1,0 +1,325 @@
+<section class="box-header">
+  <h1>Practitioners</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Settings</a>
+    </li>
+    <li class="active">Practitioners</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: admin_practitioners_path, enforce_utf8: false do |f| %>
+      <div class="row">
+        <div class="col-sm-2">
+          <label>Search:</label>
+          <%= f.search_field :full_name_or_email_or_business_name_cont, class: 'form-control', placeholder: 'Name, email, business' %>
+        </div>
+
+        <div class="col-sm-2">
+          <label>Has photo?</label>
+          <select class="form-control" name="has_photo">
+            <option value="">--</option>
+            <option value="1" <%= 'selected' if params[:has_photo].to_s == '1' %>>Yes</option>
+            <option value="0" <%= 'selected' if params[:has_photo].to_s == '0' %>>No</option>
+          </select>
+        </div>
+
+        <div class="col-sm-2">
+          <label>Approved?</label>
+          <select class="form-control" name="is_approved">
+            <option value="">--</option>
+            <option value="1" <%= 'selected' if params[:is_approved].to_s == '1' %>>Yes</option>
+            <option value="0" <%= 'selected' if params[:is_approved].to_s == '0' %>>No</option>
+          </select>
+        </div>
+
+        <div class="col-sm-2">
+          <label>Public profile?</label>
+          <select class="form-control" name="is_public_profile">
+            <option value="">--</option>
+            <option value="1" <%= 'selected' if params[:is_public_profile].to_s == '1' %>>Yes</option>
+            <option value="0" <%= 'selected' if params[:is_public_profile].to_s == '0' %>>No</option>
+          </select>
+        </div>
+
+        <div class="col-sm-2">
+          <label for="cb-include-inactive">Display inactive:</label>
+          <div class="check-box mt-5">
+            <input type="checkbox" name="include_inactive" id="cb-include-inactive" value="1" <%= 'checked' if params[:include_inactive].to_s == '1' %>>
+            <label for="cb-include-inactive"></label>
+          </div>
+        </div>
+
+        <div class="col-sm-2 text-right">
+          <br>
+          <button type="submit" class="btn btn-primary">Search</button>
+          <a href="<%= admin_practitioners_path %>" class="btn btn-white">Clear</a>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-6">
+      <div class="dropdown">
+        <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" disabled js-btn-toggle-dropdown-bulk-actions>
+        Bulk actions <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu custom-dropdown">
+          <li><a href="#" js-btn-bulk-approve-profile>Approve profile</a></li>
+          <li><a href="#" js-btn-bulk-reject-profile>Reject profile</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <a href="<%= admin_practitioners_path(params.to_unsafe_h.slice(:q, :include_inactive, :has_photo, :is_approved, :is_public_profile).merge(format: :csv)) %>" class="btn btn-white" download="practitioner_export.csv"><i class="fa fa-download"></i> CSV</a>
+    </div>
+  </div>
+
+
+  <div class="panel panel-default mt-20">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" js-cb-toggle-select-all-practitioners
+                  <% if @practitioners.total_count == 0 %>
+                    disabled
+                  <% end %>
+                  >
+              </th>
+              <th colspan="2">Practitioner</th>
+              <th>Business</th>
+              <th>Join date</th>
+              <th>Profile
+                <br>approved</th>
+              <th>Profile
+                <br>public</th>
+              <th>Profile
+                <br>complete</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @practitioners.each do |practitioner| %>
+              <tr>
+                <td>
+                  <input type="checkbox" js-cb-select-practitioner
+                    data-practitioner-id="<%= practitioner.id %>"
+                    >
+                </td>
+                <td>
+                  <img src="<%= practitioner.profile_picture_url(:thumb) %>" style="width: 50px">
+                </td>
+                <td>
+                  <a href="<%= admin_practitioner_path(practitioner) %>">
+                    <b><%= practitioner.full_name %></b>
+                  </a>
+                  <div class="text-smaller">
+                    <%= practitioner.profession %> <span class="text-muted"> | </span> <%= practitioner.city %>
+                    <br>
+                    <a href="mailto:<%= practitioner.user.email %>" class="normal-link"><%= practitioner.user.email %></a>
+                  </div>
+                </td>
+
+                <td>
+                  <a href="<%= admin_business_path(practitioner.business) %>"><%= practitioner.business.name %></a> [#<%= practitioner.business.id %>]
+                </td>
+                <td>
+                  <%= practitioner.created_at.strftime('%d/%b/%Y') %>
+                </td>
+                <td>
+                  <% if practitioner.approved? %>
+                    Yes
+                  <% else %>
+                    <span class="text-muted">No</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if practitioner.public_profile? %>
+                    Yes
+                  <% else %>
+                    <span class="text-muted">No</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if practitioner.profile_completed? %>
+                    Yes
+                  <% else %>
+                    <span class="text-muted">No</span>
+                  <% end %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <a href="<%= admin_practitioner_path(practitioner) %>" class="btn btn-white">Details</a>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li>
+                        <a href="<%= approval_admin_practitioner_path(practitioner) %>" data-method="PUT" data-confirm="Are you sure?">
+                          <% if practitioner.approved? %>
+                            Unapprove
+                          <% else %>
+                            Approve
+                          <% end %>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="<%= edit_admin_practitioner_path(practitioner) %>">
+                          Edit
+                        </a>
+                      </li>
+                      <% if practitioner.user.avatar_file_name? %>
+                      <li>
+                        <a href="<%= delete_avatar_admin_practitioner_path(practitioner) %>" data-method="POST" data-confirm="Are you sure you want to delete the profile photo?">Delete profile photo</a>
+                      </li>
+                      <% end %>
+
+                      </li>
+                      <% if practitioner.active? %>
+                        <li>
+                          <a href="<%= login_as_admin_user_path(practitioner.user_id) %>" target="_blank">
+                            Login as this user
+                          </a>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @practitioners %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @practitioners, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+</div>
+
+</section>
+
+<% content_for :page_js do %>
+<script>
+ //=== Handle bulk actions
+  const $cbToggleAllPractitioners = $('[js-cb-toggle-select-all-practitioners]');
+  const $btnToggleBulkActions = $('[js-btn-toggle-dropdown-bulk-actions]');
+  const $btnBulkApprovePractitioner = $('[js-btn-bulk-approve-profile]');
+  const $btnBulkRejectPractitioner = $('[js-btn-bulk-reject-profile]');
+
+  const updateBtnBulkActionsClickable = function() {
+    if ($('[js-cb-select-practitioner]:checked').length > 0) {
+      $btnToggleBulkActions.removeAttr('disabled');
+    } else {
+      $btnToggleBulkActions.attr('disabled', 'disabled');
+    }
+  };
+
+  const isAllPractitionersSelected = function() {
+    return $('[js-cb-select-practitioner]:checked').length === $('[js-cb-select-practitioner]').length;
+  };
+
+  const getSelectedPractitionerIds = function() {
+    return $('[js-cb-select-practitioner]:checked').map(function() {
+      return $(this).data('practitioner-id');
+    }).toArray();
+  };
+
+  $cbToggleAllPractitioners.on('change', function() {
+    $('[js-cb-select-practitioner]').prop('checked', $(this).prop('checked'));
+    updateBtnBulkActionsClickable();
+  });
+
+  $('[js-cb-select-practitioner]').on('change', function() {
+    const $input = $(this);
+
+    $cbToggleAllPractitioners.prop('checked', isAllPractitionersSelected());
+    updateBtnBulkActionsClickable();
+  });
+
+  $btnBulkApprovePractitioner.on('click', function(e) {
+    e.preventDefault();
+    const selectedPractIds = getSelectedPractitionerIds();
+
+    if (confirm('Are you sure you want to APPROVE the selected practitioners?')) {
+      const $form = $('<form>', {
+        method: 'POST',
+        action: '<%= bulk_approve_profile_admin_practitioners_path %>'
+      });
+
+      var csrfInput = $('<input>', {
+        type: 'hidden',
+        name: 'authenticity_token',
+        value: $('meta[name="csrf-token"]').attr('content')
+      });
+
+      selectedPractIds.forEach(function(practId) {
+        $form.append(
+          $('<input>', {
+            name: 'practitioner_ids[]',
+            type: 'checkbox',
+            checked: true,
+            value: practId,
+            class: 'hide'
+          })
+        );
+      });
+
+      $form.append(csrfInput).appendTo('body');
+      $form.submit();
+    }
+  });
+
+  $btnBulkRejectPractitioner.on('click', function(e) {
+    e.preventDefault();
+    const selectedPractIds = getSelectedPractitionerIds();
+
+    if (confirm('Are you sure you want to REJECT the selected practitioners?')) {
+      const $form = $('<form>', {
+        method: 'POST',
+        action: '<%= bulk_reject_profile_admin_practitioners_path %>'
+      });
+
+      var csrfInput = $('<input>', {
+        type: 'hidden',
+        name: 'authenticity_token',
+        value: $('meta[name="csrf-token"]').attr('content')
+      });
+
+      selectedPractIds.forEach(function(practId) {
+        $form.append(
+          $('<input>', {
+            name: 'practitioner_ids[]',
+            type: 'checkbox',
+            checked: true,
+            value: practId,
+            class: 'hide'
+          })
+        );
+      });
+
+      $form.append(csrfInput).appendTo('body');
+      $form.submit();
+    }
+  });
+
+</script>
+<% end %>

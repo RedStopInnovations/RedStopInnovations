@@ -1,0 +1,23 @@
+<section class="box-header">
+  <h1>Edit invoice #<%= @business_invoice.invoice_number %></h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Admin</a>
+    </li>
+    <li>
+      <a href="<%= admin_business_invoices_path %>">Subscription invoices</a>
+    </li>
+    <li><%= @business_invoice.invoice_number %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+        <%= render 'form', business_invoice: @business_invoice %>
+    </div>
+  </div>
+</section>

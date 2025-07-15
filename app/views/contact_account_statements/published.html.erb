@@ -1,0 +1,94 @@
+<% content_for :title, 'Published statements' %>
+
+<%= render 'contacts/show_layout' do %>
+  <h4>Published statements</h4>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Statement date</th>
+              <th>Client</th>
+              <th>Invoice status</th>
+              <th>Created</th>
+              <th style="width: 120px;"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @account_statements.each do |as| %>
+              <tr>
+                <td>
+                  <a href="<%= contact_account_statement_path(@contact, as) %>">
+                    <%= as.number %>
+                  </a>
+                </td>
+                <td><%= as.start_date.strftime(t('date.common')) %> - <%= as.end_date.strftime(t('date.common')) %></td>
+                <td>
+                  <% if as.options['patient_id'] %>
+                    <% patient = current_business.patients.with_deleted.find(as.options['patient_id']) %>
+                    <% if patient %>
+                      <%= patient.full_name %>
+                    <% else %>
+                      All
+                    <% end %>
+                  <% else %>
+                    All
+                  <% end %>
+                </td>
+                <td>
+                  <%= as.options['invoice_status'] || "All" %>
+                </td>
+                <td>
+                  <%= as.created_at.strftime t('datetime.common') %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <a href="<%= contact_account_statement_path(@contact, as) %>" class="btn btn-white">
+                      Details
+                    </a>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                      <li>
+                        <a href="<%= contact_account_statement_path(@contact, as, format: :pdf) %>" target="_blank">
+                          Print
+                        </a>
+                      </li>
+                      <li>
+                        <a href="<%= send_to_contact_contact_account_statement_path(@contact, as) %>"
+                          data-method="POST"
+                          data-confirm="Are you sure?">
+                          Email to contact
+                        </a>
+                      </li>
+                      <li>
+                        <a href="<%= contact_account_statement_path(@contact, as) %>"
+                          data-method="DELETE" data-confirm="Are you sure?">
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @account_statements, entry_name: 'items' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @account_statements, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

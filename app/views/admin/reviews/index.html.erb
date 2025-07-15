@@ -1,0 +1,94 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Manage reviews</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_admin_review_path %>" class="btn sitebtn">
+        <i class="fa fa-plus"></i> Add Review
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>Reviews</li>
+  </ul>
+</section>
+
+<section class="content">
+    <div class="box-table">
+        <table class="table-flat">
+          <thead>
+            <tr>
+              <th>Practitioner</th>
+              <th>Patient</th>
+              <th>Rating</th>
+              <th>Approved</th>
+              <th>Show Comment</th>
+              <th style="width: 40%;">Comment</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% unless @reviews.blank? %>
+            <% @reviews.each do |review| %>
+              <tr>
+                <td>
+                  <a href="<%= admin_review_path(review) %>">
+                    <%= review.practitioner.full_name %>
+                  </a>
+                </td>
+                <td><%= review.patient_name %></td>
+                <td><%= review.rating %></td>
+                <td><%= review.approved? ? 'Yes' : 'No' %></td>
+                <td><%= review.publish_comment? ? 'Yes' : 'No' %></td>
+                <td>
+                  <%= truncate review.comment, length: 50 %>
+                </td>
+                <td>
+                  <%= review.created_at.strftime t('date.common') %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-success btn-sm btn-flat dropdown-toggle" data-toggle="dropdown">
+                      Action <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li>
+                        <a href="<%= edit_admin_review_path(review) %>">
+                          Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a href="<%= admin_review_path(review) %>"
+                          data-confirm="Are your sure?"
+                          data-method="DELETE">
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+            <%end%>
+          </tbody>
+        </table>
+      <!-- Pagination -->
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @reviews unless @reviews.blank? %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @reviews unless @reviews.blank? %>
+        </div>
+      </div>
+    </div>
+</section>

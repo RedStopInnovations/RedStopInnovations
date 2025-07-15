@@ -1,0 +1,80 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Admin / Subscription Discounts</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_admin_subscription_discount_path %>" class="btn sitebtn">
+        <i class="fa fa-plus"></i> New Subscription Discount
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Discount Type</th>
+          <th>Business</th>
+          <th>Amount</th>
+          <th>From</th>
+          <th>End</th>
+          <th>Expired</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @subscription_discounts.each do |subscription_discount| %>
+          <tr>
+            <td>
+              <a href="<%= admin_subscription_discount_path(subscription_discount) %>"><%= subscription_discount.name %></a>
+            </td>
+            <td><%= subscription_discount.discount_type %></td>
+            <td><%= subscription_discount.business.name %></td>
+            <td><%= subscription_discount.amount %></td>
+            <td><%= subscription_discount.from_date.strftime('%b %d, %Y') %></td>
+            <td><%= subscription_discount.end_date.strftime('%b %d, %Y') %></td>
+            <td><%= subscription_discount.expired %></td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-success btn-sm btn-flat dropdown-toggle" data-toggle="dropdown">
+                  Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a href="<%= admin_subscription_discount_path(subscription_discount) %>">
+                      <i class="fa fa-eye"></i> Show
+                    </a>
+                  </li>
+                  <li>
+                    <a href="<%= edit_admin_subscription_discount_path(subscription_discount) %>">
+                      <i class="fa fa-pencil-square-o"></i> Edit
+                    </a>
+                  </li>
+                  <li>
+                    <a href="<%= admin_subscription_discount_path(subscription_discount) %>" data-method="DELETE"
+                      data-confirm="Are you sure?">
+                      <i class="fa fa-trash"></i> Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @subscription_discounts %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @subscription_discounts %>
+      </div>
+    </div>
+  </div>
+</section>

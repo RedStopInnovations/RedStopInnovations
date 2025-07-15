@@ -1,0 +1,27 @@
+<% content_for :title, 'Edit billable item' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Edit billable item</h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= billable_items_path %>">
+        Billable items
+      </a>
+    </li>
+    <li class="active">Edit</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', billable_item: @billable_item %>
+</section>

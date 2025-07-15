@@ -1,0 +1,138 @@
+<% invoice_id = payment.invoice_id || params[:invoice_id] %>
+<% @invoice = current_business.invoices.find(invoice_id) if invoice_id %>
+
+<%= simple_form_for payment, url: payment.new_record? ? payments_path : payment_path(payment) do |f| %>
+
+<div class="clearfix main-form">
+  <div class="box">
+    <div class="row">
+      <div class="col-md-12">
+        <%= f.input :invoice_id, collection: invoices_options_for_select(current_business.invoices), input_html: { class: 'selectize', id: 'select-invoice' } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :patient_id, collection: current_business.patients.select(:id, :first_name, :last_name), label_method: :full_name, input_html: { class: 'selectize' } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :payment_date, as: :string, input_html: { class: 'datepicker', value: (payment.payment_date? ? payment.payment_date.strftime('%B %d %Y') : nil) } %>
+      </div>
+  </div>
+</div>
+
+
+  <h3>Payment types</h3>
+  <div class="box">
+    <% if payment.stripe_charge_id? %>
+      <div class="panel panel-default">
+        <div class="panel-heading">Stripe payment</div>
+        <div class="panel-body">
+          Amount: <%= format_money payment.stripe_charge_amount %>
+        </div>
+      </div>
+    <% elsif @invoice %>
+      <a href="<%= preview_stripe_payment_invoice_path(@invoice, payment_id: payment.id) %>" class="btn btn-primary mr-5" data-remote="true">+ Stripe payment</a>
+    <% end %>
+
+    <% if @payment.hicaps_transaction.nil? %>
+      <% if @invoice %>
+        <button class="btn btn-primary" type="button" data-target="#modal-preview-medipass-payment-request" data-toggle="modal" >+ Medipass payment</button>
+      <% end %>
+    <% else %>
+      <h3>Medipass payment</h3>
+      <div class="box mt-20">
+        <% hicaps_txn = @payment.hicaps_transaction %>
+        <p>
+          <strong>Transaction ID:</strong>
+          <%= hicaps_txn.transaction_id %>
+        </p>
+        <p>
+          <strong>Requested at:</strong>
+          <%= hicaps_txn.requested_at.strftime('%B %d, %Y at %l:%M%P') %>
+        </p>
+        <p>
+          <strong>Status:</strong>
+          <%= hicaps_txn.status.titleize %>
+        </p>
+        <p>
+          <strong>EFTPOS:</strong>
+          <%= format_money hicaps_txn.amount_gap %>
+        </p>
+        <p>
+          <strong>HICAPS:</strong>
+          <%= format_money hicaps_txn.amount_benefit %>
+        </p>
+        <% if hicaps_txn.completed? %>
+          <p>
+            <strong>Approved at:</strong>
+            <%= hicaps_txn.approved_at.strftime('%B %d, %Y at %l:%M%P') %>
+          </p>
+        <% elsif hicaps_txn.pending? %>
+          <button type="button" class="btn btn-primary btn-form" data-form-url="<%= resend_medipass_request_payment_path(payment) %>" data-form-method="POST" data-form-confirmation="Are you sure want to send payment request to the client?">Resend payment request</button>
+        <% end %>
+      </div>
+    <% end %>
+    <br>
+    <br>
+    <br>
+    <div class="row">
+      <div class="col-md-3 mb-20 clearfix">  <%= f.input :hicaps, readonly: true %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :eftpos, readonly: true %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :cash %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :medicare %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :workcover %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :dva %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :direct_deposit %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :cheque %> </div>
+      <div class="col-md-3 mb-20 clearfix"><%= f.input :other %> </div>
+    </div>
+  </div>
+    <%= f.submit class: "btn sitebtn"%>
+    <% if @payment.new_record? %>
+      <% if @invoice %>
+        <a class="btn linebtn" href="<%= invoice_path(@invoice) %>">Skip payment</a>
+      <% else %>
+        <a class="btn linebtn" href="<%= payments_path %>">Cancel</a>
+      <% end %>
+    <% else %>
+      <a class="btn linebtn" href="<%= payment_path(payment) %>">Cancel</a>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @invoice %>
+  <% content_for :page_additional_html do %>
+    <div class="modal fade" id="modal-preview-medipass-payment-request">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-gray-light">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Medipass payment</h4>
+          </div>
+          <%= form_tag preview_medipass_payment_request_invoice_path(@invoice, payment_id: payment.id), method: 'GET', remote: true do %>
+            <div class="modal-body" style="min-height: 100px"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for :page_js do %>
+  <script src="https://checkout.stripe.com/checkout.js"></script>
+  <script type="text/javascript">
+    /* Trigger load preview Medipass payment by using remote form */
+    (function() {
+      var $modal = $('#modal-preview-medipass-payment-request');
+      $modal.on('show.bs.modal', function() {
+        $modal.find('.modal-body').empty().loadingOn();
+        $modal.find('form').submit();
+      });
+
+      $modal.on('click', '.btn-send-payment-request', function() {
+        $modal.find('.modal-body').loadingOn();
+      });
+    })();
+  </script>
+<% end %>

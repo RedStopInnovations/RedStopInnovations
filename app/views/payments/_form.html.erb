@@ -1,0 +1,355 @@
+<%
+  invoice_id = params[:invoice_id].presence
+  if invoice_id
+    @target_invoice = current_business.invoices.find_by(id: invoice_id)
+  end
+%>
+
+<div v-cloak v-bind:class="{ loading: busy }" class="form-payment-wrap">
+  <div class="loading-backdrop" v-if="busy"></div>
+  <div class="loading-indicator" v-if="busy"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+  <div class="clearfix main-form">
+
+    <div class="row">
+      <div class="col-md-8 col-sm-7 col-xs-12">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label">Client <abbr title="required">*</abbr></label>
+                  <v-multiselect
+                    v-model="selectedPatient"
+                    :options="patientOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :clear-on-select="true"
+                    :options-limit="100"
+                    :searchable="true"
+                    :hide-selected="true"
+                    :loading="isSearchingPatients"
+                    :disabled="paymentId != null"
+                    select-label=""
+                    placeholder="Type to search patient"
+                    label="full_name"
+                    open-direction="bottom"
+                    track-by="id"
+                    @search-change="onSearchPatientChanged"
+                    @input="onPatientChanged">
+                    <template slot="noResult" v-hide="isSearchingPatients">
+                      <span>No clients found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                    <div class="desc">
+                        <span v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label class="control-label">Paid date <abbr title="required">*</abbr></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="input-payment-date"
+                    v-model="payment.payment_date">
+                </div>
+              </div>
+            </div>
+            <hr>
+            <% if payment.new_record? %>
+              <%
+                init_payment_params = {}
+                if @target_invoice
+                  init_payment_params[:invoice_id] = @target_invoice.id
+                  init_payment_params[:patient_id] = @target_invoice.patient_id
+                elsif params[:patient_id].present?
+                  init_payment_params[:patient_id] = params[:patient_id]
+                end
+              %>
+              <a href="<%= pre_stripe_payment_payments_path(init_payment_params) %>"
+                class="btn btn-default mr-5"
+                data-remote="true"
+                >Stripe payment</a>
+              <% if current_business.country == App::COUNTRY_AUSTRALIA && @target_invoice %>
+                <button
+                class="btn btn-default mr-5"
+                type="button"
+                data-target="#modal-preview-medipass-payment-request"
+                data-toggle="modal"
+                >Medipass</button>
+              <% end %>
+            <% end %>
+            <hr>
+            <div class="row International-Payment-Fields">
+              <div class="col-sm-3 col-xs-6">
+                <div class="form-group">
+                  <label class="control-label">CASH</label>
+                  <input type="number"
+                    name="payment_cash"
+                    class="form-control"
+                    min="0"
+                    @change="onPaidAmountChanged"
+                    v-model.number="payment.cash">
+                </div>
+              </div>
+
+              <div class="col-sm-3 col-xs-6">
+                <div class="form-group">
+                  <label class="control-label">Deposit</label>
+                  <input type="number"
+                    name="payment_direct_deposit"
+                    class="form-control"
+                    min="0"
+                    @change="onPaidAmountChanged"
+                    v-model.number="payment.direct_deposit">
+                </div>
+              </div>
+
+              <div class="col-sm-3 col-xs-6">
+                <div class="form-group">
+                  <label class="control-label">Cheque</label>
+                  <input type="number"
+                    name="payment_cheque"
+                    class="form-control"
+                    min="0"
+                    @change="onPaidAmountChanged"
+                    v-model.number="payment.cheque">
+                </div>
+              </div>
+
+              <div class="col-sm-3 col-xs-6">
+                <div class="form-group">
+                  <label class="control-label">Other</label>
+                  <input type="number"
+                    name="payment_other"
+                    class="form-control"
+                    min="0"
+                    @change="onPaidAmountChanged"
+                    v-model.number="payment.other">
+                </div>
+              </div>
+              </div>
+              <div class="row Australian-Payment-Fields">
+              <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="form-group">
+                    <label class="control-label">Medicare</label>
+                    <input type="number"
+                      name="payment_medicare"
+                      class="form-control"
+                      min="0"
+                      @change="onPaidAmountChanged"
+                      v-model.number="payment.medicare">
+                  </div>
+                </div>
+
+
+                <div class="col-sm-3 col-xs-6">
+                  <div class="form-group">
+                    <label class="control-label">Workcover</label>
+                    <input type="number"
+                      name="payment_workcover"
+                      class="form-control"
+                      min="0"
+                      @change="onPaidAmountChanged"
+                      v-model.number="payment.workcover">
+                  </div>
+                </div>
+
+                <div class="col-sm-3 col-xs-6">
+                  <div class="form-group">
+                    <label class="control-label">DVA</label>
+                    <input type="number"
+                      name="payment_dva"
+                      class="form-control"
+                      min="0"
+                      @change="onPaidAmountChanged"
+                      v-model.number="payment.dva">
+                  </div>
+                </div>
+              <% end %>
+
+            </div>
+
+            <hr>
+            <div class="row">
+              <div class="col-sm-6 col-xs-12">
+              <strong>Total payments: {{ paymentTotal }}</strong>
+              </div>
+            </div>
+            <hr>
+            <div class="table-responsive">
+              <table class="table table-allocations">
+                <thead>
+                  <tr>
+                    <th style="width: 120px">Invoice</th>
+                    <th style="width: 120px">Issue date</th>
+                    <th style="width: 120px">Invoice total</th>
+                    <th style="width: 120px">Outstanding</th>
+                    <th style="width: 170px">Allocate amount</th>
+                    <th>Remaining</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if true %>
+                  <tr v-for="allocation in payment_allocations"
+                    v-bind:class="{ 'selected': allocation.selected }">
+                    <td>
+                      <input type="checkbox" v-model="allocation.selected" @change="refreshSummary">
+                      <a
+                        :href="'/app/invoices/' + allocation.invoice.id"
+                        target="_blank"
+                        >#{{ allocation.invoice.invoice_number }}</a>
+                    </td>
+                    <td>
+                      {{ allocation.invoice.issue_date | shortDate }}
+                    </td>
+                    <td>
+                      {{ allocation.invoice.amount }}
+                    </td>
+                    <td>
+                      {{ allocation.invoice.outstanding }}
+                    </td>
+                    <td>
+                      <input type="number"
+                        class="form-control input-allocate-amount"
+                        v-model.number="allocation.amount"
+                        @change="refreshSummary"
+                        v-show="allocation.selected">
+                    </td>
+                    <td>
+                      <span v-if="allocation.amount">{{ Math.max(allocation.invoice.outstanding - allocation.amount, 0) }}</span>
+                    </td>
+                  </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+
+            <hr>
+            <button class="btn btn-primary" type="button" @click.prevent="submitForm" :disabled="busy">Save payment</button>
+            <% if @target_invoice %>
+              <a class="btn btn-white" href="<%= invoice_path(@target_invoice) %>">Skip payment</a>
+            <% else %>
+              <% if payment.new_record? %>
+                <a class="btn white" href="javascript:history.back()">Cancel</a>
+              <% else %>
+                <a class="btn white" href="<%= payment_path(payment) %>">Cancel</a>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-5 col-xs-12">
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <% # TODO: format_money %>
+            <h1 class="text-center">${{ totalRemaining }}</h1>
+            <p class="text-center">
+              <span>remaining</span>
+            </p>
+            <hr>
+            Outstanding: <strong>${{ totalOutstanding }}</strong>
+            <hr>
+            Allocated: <strong>${{ totalApplied }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+</div>
+
+<% if @target_invoice && payment.new_record? %>
+  <% content_for :page_additional_html do %>
+    <div class="modal fade" id="modal-preview-medipass-payment-request">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-gray-light">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Medipass payment</h4>
+          </div>
+          <%= form_tag preview_medipass_payment_request_invoice_path(@target_invoice), method: 'GET', remote: true do %>
+            <div class="modal-body" style="min-height: 100px"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal-preview-dva-payment">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-gray-light">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">DVA claim</h4>
+          </div>
+          <%= form_tag preview_dva_payment_invoice_path(@target_invoice), method: 'GET', remote: true do %>
+            <div class="modal-body" style="min-height: 100px"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal fade" id="modal-preview-bulk-bill-payment">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-gray-light">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Bulk Bill claim</h4>
+          </div>
+          <%= form_tag preview_bulk_bill_payment_invoice_path(@target_invoice), method: 'GET', remote: true do %>
+            <div class="modal-body" style="min-height: 100px"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+<% end %>
+
+<% content_for :page_js do %>
+  <!-- <script src="https://checkout.stripe.com/checkout.js"></script> -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script type="text/javascript">
+    /* Trigger load preview Medipass payment by using remote form */
+    (function() {
+      var $modalMedipassPayment = $('#modal-preview-medipass-payment-request');
+      $modalMedipassPayment.on('show.bs.modal', function() {
+        $modalMedipassPayment.find('.modal-body').empty().loadingOn();
+        $modalMedipassPayment.find('form').submit();
+      });
+
+      $modalMedipassPayment.on('click', '.btn-send-payment-request', function() {
+        $modalMedipassPayment.find('.modal-body').loadingOn();
+      });
+
+      var $modalDvaPayment = $('#modal-preview-dva-payment');
+      $modalDvaPayment.on('show.bs.modal', function() {
+        $modalDvaPayment.find('.modal-body').empty().loadingOn();
+        $modalDvaPayment.find('form').submit();
+      });
+
+      var $modalBulkBillPayment = $('#modal-preview-bulk-bill-payment');
+      $modalBulkBillPayment.on('show.bs.modal', function() {
+        $modalBulkBillPayment.find('.modal-body').empty().loadingOn();
+        $modalBulkBillPayment.find('form').submit();
+      });
+    })();
+
+  </script>
+  <%= render 'payments/stripe/modal_stripe_payment' %>
+<% end %>

@@ -1,0 +1,22 @@
+(function() {
+  $('#modal-treament-note-send-all-to-others').remove();
+  $('body').append('<%= j render('modal_send_all_to_others', patient: @patient) %>');
+  $('#modal-treament-note-send-all-to-others').modal('show');
+
+  $('#modal-treament-note-send-all-to-others #input-contact-ids').selectize({
+    plugins: ['remove_button', 'no_results']
+  });
+  $('#modal-treament-note-send-all-to-others #input-extra-emails').selectize({
+    plugins: ['remove_button'],
+    createFilter: function(input) {
+      return Utils.isValidEmail(input);
+    },
+    create: true,
+    onEnterKeypress: function() {
+      return false;
+    },
+    onEnter: function() {
+      return false;
+    }
+  });
+})();

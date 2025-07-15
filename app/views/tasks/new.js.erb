@@ -1,0 +1,117 @@
+(function() {
+  if ($('#js-modal-new-task').length > 0) {
+    $('#js-modal-new-task').remove();
+  }
+
+  $('body').append('<%= j render('modal_new') %>');
+  const $modal = $('#js-modal-new-task');
+  $modal.modal('show');
+
+  $modal.find('.js-selectize').selectize({
+    plugins: ['remove_button']
+  });
+
+  $modal.find('.js-flatpickr-datepicker').bindFlatpickr();
+
+  $modal.on('hidden.bs.modal', function() {
+    $(this).remove();
+  });
+
+  $modal.find('.selectize-patients-ajax').each(function () {
+    var $this = $(this);
+    var plcHolder = 'Type to search client';
+    var plugins = ['no_results'];
+    if ($this.attr('placeholder')) {
+      plcHolder = $this.attr('placeholder');
+    }
+    if ($this.attr('multiple')) {
+      plugins.push('remove_button');
+    }
+    $this.selectize({
+      plugins: plugins,
+      valueField: 'id',
+      labelField: 'full_name',
+      searchField: 'full_name',
+      create: false,
+      placeholder: plcHolder,
+      render: {
+        option: function (item, escape) {
+          return '<div>' + escape(item.full_name) + '</div>';
+        }
+      },
+      load: function (query, callback) {
+        if (!query.length) return callback();
+        var self = this;
+
+        $.get(
+          '/api/patients/search?s=' + query,
+          function (res) {
+            if (res.patients.length > 0) {
+              callback(res.patients);
+            } else {
+              self.$empty_results_container.show();
+            }
+          }
+        );
+      },
+      onChange: function(value) {
+        if (value) {
+          $('[js-invoice-require-inpput-wrap]').show();
+        } else {
+          $('[js-invoice-require-inpput-wrap]').hide();
+        }
+      }
+    });
+
+  });
+
+  $modal.find('.js-form-new-task').on('submit', function(e) {
+    e.preventDefault();
+
+    const $form = $(this);
+    const $btnSubmit = $form.find('[type="submit"]');
+    $btnSubmit.attr('disabled', true);
+    $form.find('.js-form-errors-wrap').remove();
+
+    $.ajax({
+      method: $form.attr('method'),
+      url: $form.attr('action'),
+      data: $form.serialize(),
+      dataType: 'json',
+      success: function(res) {
+        Flash.success(res.message || 'The task was successfully created.');
+        $modal.modal('hide');
+      },
+      error: function(xhr) {
+        $btnSubmit.removeAttr('disabled');
+        let formErrorsHtml = $('<div/>', {
+          class: 'js-form-errors-wrap text-danger'
+        });
+
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          formErrorsHtml.append($('<p />', {
+            text: xhr.responseJSON.message
+          }));
+        } else {
+          Flash.error('Failed to create task. Please check for form errors.');
+        }
+
+        if (xhr.status === 422 && xhr.responseJSON.errors && xhr.responseJSON.errors.length > 0) {
+          let errorList = $('<ul />');
+
+          xhr.responseJSON.errors.forEach(function(error) {
+            errorList.append($('<li />', {
+              text: error
+            }));
+          });
+
+          formErrorsHtml.append(errorList);
+        }
+
+        $modal.find('.modal-body').prepend(formErrorsHtml);
+      }
+    });
+
+  });
+
+})();

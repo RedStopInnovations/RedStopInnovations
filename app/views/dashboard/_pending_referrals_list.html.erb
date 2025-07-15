@@ -1,0 +1,19 @@
+<ul>
+<% referrals.each_with_index do |ref, idx| %>
+    <li class="mt-5 pa-5 <%= 'bg-gray-light' if idx.odd? %>">
+        <div class="pull-right text-smaller">
+        <a href="<%= app_referral_path(ref) %>" class="normal-link">Details</a>
+        </div>
+        <span class="text-bolder"><%= ref.patient_name %></span>
+        <% if ref.priority == Referral::PRIORITY_URGENT %>
+        <span class="label label-danger">Urgent</span>
+        <% end %>
+        <div class="text-smaller mt-5">
+        <span><%= ref.patient_address %></span>
+        <br>
+        <span><%= ref.professions.join(', ') %></span> <br>
+        <span><%= ref.created_at.strftime(t('datetime.common'))%></span>
+        </div>
+    </li>
+<% end %>
+</ul>

@@ -1,0 +1,15 @@
+(function() {
+  if ($('#js-modal-update-task-completion').length > 0) {
+    $('#js-modal-update-task-completion').remove();
+  }
+
+  $('body').append('<%= j render('modal_update_completion', task_user: @task_user) %>');
+  const $modal = $('#js-modal-update-task-completion');
+  $modal.modal('show');
+
+  $modal.find('.js-input-date-completed').bindFlatpickr();
+
+  $modal.on('hidden.bs.modal', function() {
+    $(this).remove();
+  });
+})();

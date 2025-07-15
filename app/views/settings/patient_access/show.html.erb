@@ -1,0 +1,36 @@
+<% content_for :title, 'Restrict client access' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Restrict client access</h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Restrict client access</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <p>
+          Restrict access to clients for practitioners.
+        </p>
+        <%= simple_form_for @patient_access_settings, url: settings_patient_access_save_settings_path, method: 'PUT' do |f| %>
+          <%= f.input :enable %>
+          <button class="btn sitebtn">Save</button>
+          <a href="<%= settings_patient_access_path %>" class="btn linebtn">Back</a>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</section>

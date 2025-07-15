@@ -1,0 +1,132 @@
+<% predefined_ranges =  ['next2days', 'next7days', 'next14days', 'next30days'] %>
+<section class="search-form">
+  <form action="<%= frontend_bookings_path %>" method="GET" id="form-search">
+    <% if params[:_iframe] && (params[:business_id] || params[:practitioner_id] || params[:group_id]) %>
+      <input type="hidden" name="_iframe" value="1">
+    <% end %>
+
+    <% if @search_filters.business_id %>
+      <input type="hidden" name="business_id" value="<%= @search_filters.business_id %>">
+    <% end %>
+
+    <% if @search_filters.practitioner_id %>
+      <input type="hidden" name="practitioner_id" value="<%= @search_filters.practitioner_id %>">
+    <% end %>
+
+    <% if @search_filters.group_id %>
+      <input type="hidden" name="group_id" value="<%= @search_filters.group_id %>">
+    <% end %>
+
+    <div class="row">
+      <div class="col-xs-12 col-sm-4">
+        <div class="form-group">
+          <label class="text">Profession:</label>
+          <select name="profession" class="form-control fw-600" id="select-profession">
+            <option value="">-- Select profession --</option>
+            <%= options_for_select(@available_professions, params[:profession]) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-xs-12 col-sm-8" id="input-location-wrap">
+        <div class="form-group">
+          <label class="text">Location:</label>
+          <input type="text"
+            class="form-control fw-600"
+            id="input-location"
+            <% if @search_filters.business_id || @search_filters.practitioner_id %>
+              placeholder="Enter home address"
+            <% else %>
+              placeholder="Enter home address to find nearby practitioners"
+            <% end %>
+            name="location"
+            value="<%= @search_filters.location.to_s %>" />
+            <span class="btn-set-current-location" title="Set to my current location">
+              <i class="fa fa-crosshairs"></i>
+            </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-3 list-days">
+      <div class="col-md-8 col-sm-12 col-xs-12">
+        <span
+          class="date-option <%= 'active' if @search_filters.date == 'today' %>">
+          <label for="radio-today">
+            <input type="radio" class="hide" value="today"
+            name="date"
+              id="radio-today"
+              <%= 'checked' if @search_filters.date == 'today' %> /> Today</label>
+        </span>
+
+        <span class="date-option <%= 'active' if @search_filters.date == 'tomorrow' %>">
+          <label for="radio-tomorrow">
+            <input type="radio" class="hide" value="tomorrow"
+              name="date"
+              id="radio-tomorrow"
+              <%= 'checked' if @search_filters.date == 'tomorrow' %>/ > Tomorrow
+          </label>
+        </span>
+        <span class="date-option">
+          <select name="date"
+            class="form-control <%= 'active' if predefined_ranges.include?(@search_filters.date) %>"
+            id="select-date-range"
+            >
+            <option disabled <%= 'selected' unless predefined_ranges.include?(@search_filters.date) %>> Select date range</option>
+            <option value="next2days" <%= 'selected' if @search_filters.date == 'next2days' %>>Next 2 days</option>
+            <option value="next7days" <%= 'selected' if @search_filters.date == 'next7days' %>>Next 7 days</option>
+            <option value="next14days" <%= 'selected' if @search_filters.date == 'next14days' %>>Next 14 days</option>
+            <option value="next30days" <%= 'selected' if @search_filters.date == 'next30days' %>>Next 30 days</option>
+          </select>
+        </span>
+
+        <span class="date-option mt-1">
+          <label for="input-custom-date">Or specific date:</label>
+          <%
+            specific_date = nil
+            unless (predefined_ranges + ['today', 'tomorrow']).include?(@search_filters.date) || @search_filters.date.blank?
+              begin
+                specific_date = @search_filters.date.to_date
+              rescue ArgumentError
+              end
+            end
+          %>
+          <div class="form-group datepicker-wrap">
+            <input type="date" class="form-control input-custom-date <%= 'active' if specific_date %>"
+              id="input-custom-date"
+              placeholder="Select date"
+              <% if specific_date %>
+                name="date"
+                value="<%= specific_date.strftime('%Y-%m-%d') %>"
+              <% end %>
+              />
+          </div>
+        </span>
+      </div>
+
+      <div class="col-md-4 col-sm-12 col-xs-12 text-right">
+        <% if !@business %>
+        <div class="custom-control custom-checkbox d-inline-block">
+          <input type="checkbox" name="online_bookings_enable" value="1" class="custom-control-input"
+            <% if @search_filters.online_bookings_enable %>
+              checked
+            <% end %>
+            id="cb-online-bookings-enable">
+          <label class="custom-control-label" for="cb-online-bookings-enable">
+            Online booking enabled
+            <span
+              class="text-muted"
+              data-toggle="popover"
+              data-content="Online booking have been disabled for some practitioner by their business admin. Check this to show online bookings enabled availability only."
+              data-trigger="hover"
+              data-placement="top"
+            >(?) </span>
+            </label>
+        </div>
+        <% end %>
+
+        <button class="btn btn-warning btn-lg btn-search ml-5" type="submit">Search</button>
+      </div>
+    </div>
+  </form>
+</section>

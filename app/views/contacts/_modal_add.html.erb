@@ -1,0 +1,76 @@
+<div class="modal fade" id="modal-add-contact">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add Contact</h4>
+      </div>
+        <%= simple_form_for object, url: contacts_path, html: {remote: true}, authenticity_token: true do |f| %>
+          <input type="hidden" name="invoice_to_patient_id" value="">
+        <div class="modal-body">
+          <h3>Contact name</h3>
+          <%= f.input :business_name, label: false, autofocus: true %>
+
+          <h3>Contact Details</h3>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :title %> </div>
+            <div class="col-md-6"><%= f.input :first_name %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :last_name %> </div>
+            <div class="col-md-6"><%= f.input :phone %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :mobile %> </div>
+            <div class="col-md-6"><%= f.input :fax %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :email %> </div>
+            <div class="col-md-6"><%= f.input :address1 %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :address2 %> </div>
+            <div class="col-md-6"><%= f.input :city %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :state %> </div>
+            <div class="col-md-6"><%= f.input :postcode %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6"><%= f.input :country, priority: [ current_business.country ] %> </div>
+            <div class="col-md-12">
+              <%= f.input :notes %>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary btn-create">Create Contact</button>
+          <button type="button" data-dismiss="modal" class="btn btn-sm btn-white">Cancel</button>
+        </div>
+        <% end %>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('#modal-add-contact').on('show.bs.modal', function(event) {
+    if($('#select-patient-id').val() == "") {
+      Flash['error']('Please select a client');
+      event.preventDefault();
+    }else {
+      $('#modal-add-contact input[name="invoice_to_patient_id"]').val($('#select-patient-id').val());
+    }
+  });
+
+  $("#modal-add-contact").on('click', '.btn-create', function(event) {
+    var formElement = $("#modal-add-contact form");
+    $.ajax({
+      url: formElement.attr('action'),
+      type: "POST",
+      data: formElement.serialize(),
+      success: function(res) {
+      }
+    });
+    event.preventDefault();
+  });
+</script>

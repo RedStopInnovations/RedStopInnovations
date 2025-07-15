@@ -1,0 +1,26 @@
+<% content_for :title, 'Communication settings' %>
+
+
+<section class="box-header">
+  <h1><%= @communication_template.name %></h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= communication_templates_path %>">Communication settings</a>
+    </li>
+    <li>
+      <%= @communication_template.name %>
+    </li>
+  </ul>
+</section>
+
+
+<section class="content">
+    <%= render partial: 'form', locals: { communication_template: @communication_template } %>
+</section>
+

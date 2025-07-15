@@ -1,0 +1,101 @@
+<section class="list-results">
+  <% search_result[:results].each do |result| %>
+    <%
+      practitioner = result.practitioner
+      business = practitioner.business
+      contact_details = {
+        business_name: business.name,
+        phone: business.phone,
+        email: business.email,
+      }
+    %>
+
+    <div class="card card-practitioner">
+      <div class="card-header">
+        <div class="box-head">
+          <div class="user-info">
+            <div class="profile-picture border rouned" style="background-image: url(<%= practitioner.profile_picture_url(:medium) %>)"></div>
+            <div>
+              <a
+                <% if !practitioner.public_profile? || !practitioner.approved? %>
+                  class="js-btn-modal-practitioner-profile"
+                  href="#"
+                  data-url="<%= frontend_team_modal_profile_path(slug: practitioner.slug) %>"
+                <% else %>
+                  class=""
+                  href="<%= frontend_team_profile_path(slug: practitioner.slug) %>"
+                <% end %>
+                ><span class="practitioner-name"><%= practitioner.full_name %></span></a>
+              <br>
+              <%= practitioner.profession %>
+              <br>
+              <small><%= [practitioner.city, practitioner.state].compact.join(', ') %></small>
+            </div>
+          </div>
+
+          <div class="user-rating">
+            <% if business.phone.present? %>
+              <span class="btn-call">
+                <i class="fe fe-phone"></i> <%= link_to_reveal_contact_info(practitioner, business.phone, :phone, class: 'text-primary') %>
+              </span>
+            <% end %>
+            <% if business.email.present? %>
+              <span class="btn-call">
+                <i class="fe fe-mail"></i> <%= link_to_reveal_contact_info(practitioner, business.email, :email, class: 'text-primary') %>
+              </span>
+            <% end %>
+            <span class="btn-call">
+              <i class="fe fe-send"></i> <a href="<%= frontend_referrals_path(practitioner_id: practitioner.id) %>" class="text-primary">Send referral</a>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <% if @search_filters.availability_type == 'Home visit' %>
+          <div class="list-appointments">
+            <div class="fs-16 fw-600"><%= result[:date].strftime('%A, %d %b %Y') %></div>
+
+            <%
+              avail_grouped_by_location = result[:availabilities].group_by do |avail|
+                {
+                  radius: avail.service_radius,
+                  short_address: [avail.city, avail.state, avail.postcode].join(' ')
+                }
+              end
+            %>
+
+            <% avail_grouped_by_location.each do |location, avails| %>
+              <div class="mt-1 mb-3">
+                Home visit available within <span class="font-weight-bold"><%= location[:radius] %> km</span> of <span class="font-weight-bold"><%= location[:short_address] %></span>:
+              </div>
+
+              <% avails.each do |avail| %>
+                <span class="btn mb-1 btn-outline-primary btn-time home-visit <%= 'not-allowed-book-online' if (!practitioner.allow_online_bookings? || !avail.allow_online_bookings?) %>" data-availability-id="<%= avail.id %>" data-booking-url="<%= frontend_bookings_book_path %>"
+                  data-rci="<%= Base64.encode64 contact_details.to_json %>"
+                  >
+                  <span class="avail-time"><%= avail.start_time_in_practitioner_timezone.strftime('%l:%M%P') %></span>
+                  -
+                  <span class="avail-time"><%= avail.end_time_in_practitioner_timezone.strftime('%l:%M%P') %></span>
+                  <span class="timezone">(<%= Time.current.in_time_zone(practitioner.user_timezone).strftime('%Z') %>)</span>
+                </span>
+              <% end %>
+            <% end %>
+
+            <div class="small booking-hint <% if result[:availabilities].count == 1 %> d-lg-inline <% end %> d-sm-block ml-1">The practitioner will arrive at your home between the start and end times.</div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+
+  <% end %>
+</section>
+
+<% if search_result[:paginated].total_pages > 1 %>
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <%= paginate search_result[:paginated], theme: 'frontend' %>
+    </div>
+  </div>
+<% end %>

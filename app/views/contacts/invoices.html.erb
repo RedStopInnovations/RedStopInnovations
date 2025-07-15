@@ -1,0 +1,59 @@
+<%= render 'contacts/show_layout' do %>
+<h4>Invoices</h4>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+            <tr>
+            <th>Number</th>
+            <th>Client</th>
+            <th>Amount</th>
+            <th>Issue date</th>
+            <th>Outstanding</th>
+            <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% @invoices.each do |invoice| %>
+            <tr>
+                <td>
+                <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a>
+                </td>
+                <td>
+                  <a href="<%= patient_path(invoice.patient.id) %>"><%= invoice.patient.full_name %></a>
+                </td>
+                <td>
+                  <%= format_money invoice.amount %>
+                </td>
+                <td>
+                <%= invoice.issue_date.try(:strftime, t('date.common')) %>
+                </td>
+                <td>
+                <%= format_money invoice.outstanding %>
+                </td>
+                <td>
+                <a href="<%= invoice_path(invoice) %>" class="btn btn-link" title="show"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                <a href="<%= edit_invoice_path(invoice) %>" class="btn btn-link" title="edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                <a href="<%= invoice_path(invoice) %>" title="delete" rel="nofollow" data-confirm="Are you sure you want to VOID this invoice?" data-method="delete" class="btn btn-link"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                </td>
+            </tr>
+            <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @invoices %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @invoices, theme: 'app' %>
+      </div>
+    </div>
+  </div>
+
+</div>
+<% end %>

@@ -1,0 +1,25 @@
+Hi <%= @practitioner.full_name %>,
+<br>
+<br>
+We have received a new appointment booked online. Here are the details:
+<br>
+<br>
+<strong>Client:</strong>
+<% patient = @appointment.patient %>
+<br>
+Name: <%= patient.full_name %> <br>
+DOB: <%= patient.dob&.strftime(t('date.dob')) %> <br>
+Address: <%= patient.short_address %> <br>
+Phone: <% if patient.phone.present? %> <%= patient.phone %> <% else %> N/A <% end %> <br>
+Mobile: <% if patient.mobile.present? %> <%= patient.mobile %> <% else %> N/A <% end %> <br>
+Email: <% if patient.email.present? %> <%= patient.email %> <% else %> N/A <% end %> <br>
+<br>
+
+<strong>Appointment:</strong>
+<br>
+Date: <%= @appointment.start_time.strftime(t('date.common')) %> <br>
+Type: <%= @appointment.appointment_type.name %> <br>
+<br>
+<a href="<%= appointment_url(@appointment) %>">View appointment details</a>
+<br>
+<br>

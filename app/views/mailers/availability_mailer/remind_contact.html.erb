@@ -1,0 +1,25 @@
+Dear <%= @contact.first_name %>,
+<br>
+<br>
+Please find a list of patients scheduled for an appointment on <b><%= @availability.start_time.strftime('%B %d, %Y at %l:%M%P') %></b>:
+<br>
+<ul>
+  <% @availability.appointments.each do |appt| %>
+    <% patient = appt.patient %>
+    <li>Name: <b><%= patient.full_name %></b>. Date of birth: <%= patient.dob %></li>
+  <% end %>
+</ul>
+<br>
+Kind regards,
+<br>
+<br>
+<b><%= @practitioner.full_name %></b>
+<br>
+<%= @business.name %>
+<br>
+<%= @business.phone %>
+<% if @business.website? %>
+  <br>
+  <a href="<%= @business.website %>"><%= @business.website %></a>
+<% end %>
+

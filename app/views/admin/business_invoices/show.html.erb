@@ -1,0 +1,279 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Invoice #<%= @business_invoice.invoice_number %></h1>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <div class="btn-group">
+        <a href="<%= edit_admin_business_invoice_path(@business_invoice) %>" class="btn btn-white"><i class="fa fa-pencil"></i> Edit</a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <% if !@business_invoice.paid? %>
+            <% if @business_invoice.business.subscription_credit_card_added? %>
+              <li>
+                <a href="<%= charge_admin_business_invoice_path(@business_invoice) %>" class=" text-warning" data-method="POST" data-confirm="Are you sure want to charge this invoice?"><i class="fa fa-bolt"></i> Charge</a>
+              </li>
+            <% else %>
+              <li class="disabled">
+                <a href="javascript:;" class="text-muted" disabled><i class="fa fa-bolt"></i> Charge(Card not added)</a>
+              </li>
+            <% end %>
+            <li>
+              <a href="<%= new_admin_subscription_payment_path(invoice_id: @business_invoice.id) %>"><i class="fa fa-plus"></i> Add payment</a>
+            </li>
+          <% end %>
+          <li>
+            <a href="<%= admin_business_invoice_path(@business_invoice, format: 'pdf') %>"
+              target="_blank"
+              ><i class="fa fa-print"></i> Print</a>
+          </li>
+          <li>
+            <a href="<%= deliver_admin_business_invoice_path(@business_invoice) %>" data-method="POST" data-confirm="Are you sure want to send this invoice?" class="btn btn-link"
+            ><i class="fa fa-send"></i> Send to business</a>
+          </li>
+          <li class="divider"></li>
+          <li>
+            <a
+              href="<%= reset_items_admin_business_invoice_path(@business_invoice) %>"
+              data-method="PUT"
+              data-confirm="Are you sure?"><i class="fa fa-bolt text-warning"></i><span class="text-warning"> Reset invoice items</span></a>
+          </li>
+          <li>
+            <a href="<%= admin_business_invoice_path(@business_invoice) %>" data-method="DELETE" data-confirm="Are you sure want to DELETE this invoice?"
+              ><i class="fa fa-trash text-danger"></i> <span class="text-danger">Delete</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Admin</a>
+    </li>
+    <li>
+      <a href="<%= admin_business_invoices_path %>">Subscription invoices</a>
+    </li>
+    <li><%= @business_invoice.invoice_number %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Info</strong>
+        </div>
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Subscription:</strong>
+            <p>
+              <a href="<%= admin_subscription_path(@business_invoice.business.subscription) %>">
+                <%= @business_invoice.business.name %>
+              </a>
+              <span>(<%= @business_invoice.business.subscription.subscription_plan.name.titleize %>)</span>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Issue date:</strong>
+            <p><%= @business_invoice.issue_date.try(:strftime, '%d %b, %Y') %></p>
+          </div>
+          <div class="block-info">
+            <strong>Billing period:</strong>
+            <p>
+              <%= @business_invoice.billing_start_date.try(:strftime, '%d %b, %Y') %> -
+              <%= @business_invoice.billing_end_date.try(:strftime, '%d %b, %Y') %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Payment status:</strong>
+            <p>
+              <% if @business_invoice.paid? %>
+                <span class="text-success">Paid</span>
+              <% else %>
+                <span class="text-warning"><%= @business_invoice.payment_status.titleize %></span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Sent at:</strong>
+            <p>
+              <% if @business_invoice.last_sent_at? %>
+                <%= @business_invoice.last_sent_at.strftime('%d %b %Y, %l:%M%P') %>
+              <% else %>
+                <span class="text-muted">Never</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Notes:</strong>
+            <p><%= @business_invoice.notes %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Invoiced items</strong>
+          <a href="<%= billed_items_admin_business_invoice_path(@business_invoice) %>" class="pull-right">
+            Details of billed items
+          </a>
+        </div>
+        <div class="panel-body">
+        <table class="table-flat" style="min-width: 100%;">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Unit price</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @business_invoice.items.each do |item| %>
+              <tr>
+                <td>
+                  <%= item.unit_name %>
+                </td>
+                <td>
+                  <%= item.quantity %>
+                </td>
+                <td>
+                  <%= format_money item.unit_price %>
+                </td>
+                <td>
+                  <%= format_money item.amount %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <div class="row">
+          <div class="col-xs-6 col-xs-offset-6">
+            <table class="table">
+              <tr>
+                <td style="text-align: right; width: 60%;">
+                  <strong class="pull-right">Subtotal:</strong>
+                </td>
+                <td style="text-align: left">
+                  <%= format_money @business_invoice.subtotal %>
+                </td>
+              </tr>
+              <tr>
+                <td style="text-align: right; width: 60%;">
+                  <strong class="pull-right">GST(10%):</strong>
+                </td>
+                <td style="text-align: left">
+                  <%= format_money (@business_invoice.subtotal * 0.1) %>
+                </td>
+              </tr>
+              <% if @business_invoice.discount > 0 %>
+                <tr>
+                  <td style="text-align: right; width: 60%;">
+                    <strong class="pull-right">Discount:</strong>
+                  </td>
+                  <td style="text-align: left">
+                    <%= format_money @business_invoice.discount %>
+                  </td>
+                </tr>
+              <% end %>
+              <tr>
+                <td style="text-align: right; width: 60%;">
+                  <strong class="pull-right">Total:</strong>
+                </td>
+                <td style="text-align: left">
+                  <%= format_money @business_invoice.amount %>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+
+    <div class="col-sm-6">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Usage
+        </div>
+
+        <div class="panel-body">
+          <p class="small">The usage during the billing period</p>
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td style="width: 120px;">
+                  Appointments:
+                </td>
+                <td>
+                  <%= @business_invoice.subscription_billings.where(billing_type: 'APPOINTMENT').count %>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="width: 100px;">
+                  SMS Messages:
+                </td>
+                <td>
+                  <%= @business_invoice.subscription_billings.where(billing_type: 'SMS').count %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+            Payments
+        </div>
+        <div class="panel-body">
+          <table class="table-flat">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Payment type</th>
+                <th>Amount</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if @payments.size > 0 %>
+                <% @payments.each do |payment| %>
+                  <tr>
+                    <td><%= payment.payment_date.strftime('%d %b %Y') %></td>
+                    <td><%= payment.payment_type %></td>
+                    <td><%= format_money payment.amount %></td>
+                    <td>
+                      <a href="<%= admin_subscription_payment_path(payment) %>">Details</a>
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

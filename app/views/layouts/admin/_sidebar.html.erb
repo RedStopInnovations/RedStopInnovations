@@ -1,0 +1,49 @@
+<aside class="main-sidebar">
+  <section class="sidebar">
+    <ul class="sidebar-menu">
+      <li>
+        <a href="<%= admin_dashboard_path %>"><span>Dashboard</span></a>
+      </li>
+
+      <li>
+        <a href="<%= admin_referrals_path %>"><span>Referrals</span></a>
+      </li>
+
+      <% if current_admin_user.is_super_admin? %>
+
+      <li>
+        <a href="<%= admin_posts_path %>"><span>Posts</span></a>
+      </li>
+
+      <li>
+        <a href="<%= admin_users_path %>"><span>Users</span></a>
+      </li>
+
+      <li>
+        <a href="<%= admin_practitioners_path %>"><span>Practitioners</span></a>
+      </li>
+      <li>
+        <a href="<%= admin_businesses_path %>"><span>Businesses</span></a>
+      </li>
+      <li>
+        <a href="<%= admin_business_invoices_path %>"><span>Subscription invoices</span></a>
+      </li>
+
+      <li>
+        <a href="<%= admin_reviews_path %>"><span>Reviews</span></a>
+      </li>
+
+      <li>
+        <a href="<%= admin_reports_path %>"><span>Reports</span></a>
+      </li>
+      <li>
+        <a href="<%= admin_settings_path %>"><span>Settings</span></a>
+      </li>
+
+      <li>
+        <a href="<%= admin_tools_path %>"><span>Tools</span></a>
+      </li>
+      <% end %>
+    </ul>
+  </section>
+</aside>

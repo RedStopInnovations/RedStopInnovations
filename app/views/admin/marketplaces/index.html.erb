@@ -1,0 +1,57 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Marketplaces</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_admin_marketplace_path %>" class="btn sitebtn">
+        <i class="fa fa-plus"></i> New Marketplace
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Created date</th>
+          <th># businesses</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @marketplaces.each do |marketplace| %>
+          <tr>
+            <td>
+              <a href="<%= admin_marketplace_path(marketplace) %>"><%= marketplace.name %></a>
+            </td>
+            <td><%= marketplace.created_at.strftime('%b %d, %Y') %></td>
+            <td></td>
+            <td>
+              <a href="<%= admin_marketplace_path(marketplace) %>" class="btn btn-link">
+                Show
+              </a>
+              <a href="<%= edit_admin_marketplace_path(marketplace) %>" class="btn btn-link">
+                Edit
+              </a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @marketplaces, entry_name: 'marketplace' %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @marketplaces %>
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,69 @@
+<%
+  display_time_zone = practitioner.user_timezone
+%>
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Daily Appointments Schedule</title>
+    <%= wicked_pdf_stylesheet_link_tag "daily-appointments-schedule-pdf" %>
+  </head>
+  <body style="width: 100%; margin: 0; padding: 0;">
+    <div style="margin-bottom: 10px;text-align: center;">
+      <% if business.avatar.exists? %>
+        <%= wicked_pdf_image_tag business.avatar.url(:medium), class: "business-logo" %>
+      <% end %>
+    </div>
+
+    <div>
+      <h4>Appointment schedule for <b><%= date.strftime('%a %d %B') %></b></h4>
+    </div>
+    <div class="box-table" style="border: 1px solid #eee;">
+      <table class="table table-bordered" style="width: 100%">
+        <thead>
+          <tr>
+            <th>Availability</th>
+            <th>Arrival time</th>
+            <th>Client</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% appointments.each do |appt| %>
+            <% patient = appt.patient %>
+            <%
+              start_time = appt.start_time.in_time_zone(display_time_zone)
+              end_time = appt.end_time.in_time_zone(display_time_zone)
+            %>
+            <tr>
+              <td>
+                <%= start_time.strftime('%l:%M%P') %> - <%= end_time.strftime('%l:%M%P') %>
+              </td>
+              <td>
+                <% if appt.arrival && appt.arrival.arrival_at %>
+                  <%= appt.arrival.arrival_at.in_time_zone(display_time_zone).strftime('%l:%M%P') %>
+                <% end %>
+              </td>
+              <td>
+                <%= patient.full_name %> <br>
+                Address: <a href="https://www.google.com/maps/place/<%= u patient.full_address %>"><%= patient.short_address %></a> <br>
+                <% if patient.phone? %>
+                Phone: <a href="tel:<%= patient.phone %>"><%= patient.phone %></a> |
+                <% end %>
+                <% if patient.mobile? %>
+                Mobile: <a href="tel:<%= patient.mobile %>"><%= patient.mobile %></a>
+                <% end %>
+              </td>
+              <td><%= appt.appointment_type.name %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <span><i>* Times are in <%= display_time_zone %></i></span>
+    </div>
+  </body>
+</html>

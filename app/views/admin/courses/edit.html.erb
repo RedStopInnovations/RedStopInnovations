@@ -1,0 +1,20 @@
+<section class="box-header">
+  <h1><%= @course.title %></h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_courses_path %>">Courses</a>
+    </li>
+    <li><%= @course.title %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', course: @course %>
+</section>
+

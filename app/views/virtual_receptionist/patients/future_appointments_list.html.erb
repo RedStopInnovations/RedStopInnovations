@@ -1,0 +1,40 @@
+<div class="mb-10">
+    Mobile: <% if @patient.mobile.present? %> <a href="tel:<%= @patient.mobile_formated %>"><%= @patient.mobile %></a> <% else %> <span class="text-muted">N/A</span> <% end %><br>
+    Email: <% if @patient.email.present? %><a href="mailto:<%= @patient.email %>"><%= @patient.email %></a><% else %> <span class="text-muted">N/A</span> <% end %>
+</div>
+
+<% if @appointments.size > 0 %>
+    <%= @appointments.count %> appointments found
+    <div class="mt-15 bordered pa-5">
+        <% @appointments.each_with_index do |appt, index| %>
+        <% practitioner = appt.practitioner %>
+        <div class="pa-5 mb-5 <% if index.odd? %> bg-gray-light <% end %>">
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <b><%= appt.start_time.strftime(t('date.short_dow')) %></b> <br>
+                    <%= appt.appointment_type.name %> (<%= appt.appointment_type.duration %> mins)
+                </div>
+
+                <div class="col-md-7 col-xs-5">
+                    <span class="text-bolder"><%= practitioner.full_name %></span> <br>
+                    <span class="text-smaller"><%= practitioner.profession %></span><br>
+                    <% if practitioner.mobile? %>
+                        <span class="text-smaller"><a href="tel:<%= practitioner.mobile %>" class="normal-link"><%= practitioner.mobile %></a></span>
+                        <span class="text-muted"> | </span>
+                    <% end %>
+                    <span class="text-smaller"><a href="mailto:<%= practitioner.user_email %>" class="normal-link"><%= practitioner.user_email %></a></span>
+                </div>
+
+                <div class="col-md-1 col-xs-6">
+                    <a href="#" class="btn btn-white btn-xs btn-form"
+                        data-form-url="<%= virtual_receptionist_cancel_appointment_path(@patient.id, appt.id) %>"
+                        data-form-method="POST"
+                        data-form-confirmation="This CANNOT be undo! Are you sure you want to CANCEL this appointment?"><span class="text-danger">Cancel</span></a>
+                </div>
+            </div>
+        </div>
+        <% end %>
+    </div>
+<% else %>
+  <span class="text-muted">No appointments found!</span>
+<% end %>

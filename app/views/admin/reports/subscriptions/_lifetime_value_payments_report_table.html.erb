@@ -1,0 +1,38 @@
+<table class="table table-success table-bordered table-striped">
+  <thead>
+    <tr>
+      <th><%=@report.lifetime_value_for%></th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% if payments.present? %>
+      <% total = 0.0 %>
+      <% payments.each do |payment| %>
+        <tr>
+          <td>
+            <%= "#{payment.f_name} #{payment.l_name}" %>
+          </td>
+          <td>
+            <%= format_money payment.total_amount %>
+          </td>
+          
+        </tr>
+        <% total = total + payment.total_amount %>
+      <% end %>
+      <tr class="warning">
+        <td class="text-right">
+          <b>Total</b>
+        </td>
+        <td>
+          <b><%= format_money total %></b>
+        </td>
+      </tr>
+    <% else %>
+      <tr>
+        <td colspan="9" class="text-center">No payments found!</td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

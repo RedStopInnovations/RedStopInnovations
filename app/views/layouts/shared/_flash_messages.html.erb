@@ -1,0 +1,21 @@
+<% # Display all flash messages %>
+<% unless flash.empty? %>
+  <script type="text/javascript">
+    $(function() {
+      <% flash.each do |type, message| %>
+        <%
+          js_flash_type = {
+            'alert'   => 'error',
+            'error'   => 'error',
+            'notice'  => 'success',
+            'success' => 'success',
+            'warning' => 'warning'
+          }[type]
+        %>
+        <% if js_flash_type %>
+        Flash['<%= js_flash_type %>']('<%= message %>');
+        <% end %>
+      <% end %>
+    });
+  </script>
+<% end %>

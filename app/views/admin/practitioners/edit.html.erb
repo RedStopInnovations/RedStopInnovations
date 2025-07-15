@@ -1,0 +1,20 @@
+<section class="box-header">
+  <h1>Editing Practitioner</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_practitioners_path %>">Practitioners</a>
+    </li>
+    <li><%= @practitioner.full_name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', practitioner: @practitioner %>
+</section>
+

@@ -1,0 +1,247 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @patient.full_name %>'s details</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <% if current_admin_user.is_super_admin? %>
+      <a href="<%= edit_admin_patient_path(@patient) %>" class="btn sitebtn">
+        <i class="fa fa-pencil-square-o"></i> Edit details
+      </a>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<div class="patient-page">
+  <div class="clearfix patient-content">
+    <div class="col-lg-2 col-md-3 col-sm-3 content-sidenav">
+      <%= render 'patient_sidebar' %>
+    </div>
+    <div class="col-lg-10 col-md-9 col-sm-9 col-xs-15 bdr-lft box-primary">
+      <h3>General info</h3>
+      <div class="box">
+        <div class="block-info">
+          <strong>First name:</strong>
+          <p><%= @patient.first_name %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Last name:</strong>
+          <p><%= @patient.last_name %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Dob:</strong>
+          <p><%= @patient.dob %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Gender:</strong>
+          <p><%= @patient.gender %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Phone:</strong>
+          <p><%= @patient.phone %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Mobile:</strong>
+          <p><%= @patient.mobile %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Email:</strong>
+          <p><%= @patient.email %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Reminder enable:</strong>
+          <p><%= @patient.reminder_enable %></p>
+        </div>
+      </div>
+      <h3>Address & location</h3>
+      <div class="box">
+        <div class="block-info">
+          <strong>Address line 1:</strong>
+          <p><%= @patient.address1 %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Address line 2:</strong>
+          <p><%= @patient.address2 %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>City:</strong>
+          <p><%= @patient.city %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>State:</strong>
+          <p><%= @patient.state %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Postcode:</strong>
+          <p><%= @patient.postcode %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Country:</strong>
+          <p><%= @patient.country %></p>
+        </div>
+      </div>
+      <h3>Contacts</h3>
+      <div class="box">
+        <div class="block-info">
+          <strong>Doctors:</strong>
+          <p>
+          <ul class="list-unstyled list-inline">
+            <% @patient.doctor_contacts.each do |contact| %>
+              <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+            <% end %>
+          </ul>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Specialists:</strong>
+          <p>
+          <% @patient.specialist_contacts.each do |contact| %>
+            <a href="<%= contact_path(contact) %>"><%= contact.business_name %></a> ,
+          <% end %>
+
+          <ul class="list-unstyled list-inline">
+            <% @patient.doctor_contacts.each do |contact| %>
+              <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+            <% end %>
+          </ul>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Referrers:</strong>
+          <p>
+            <ul class="list-unstyled list-inline">
+              <% @patient.referrer_contacts.each do |contact| %>
+                <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+              <% end %>
+            </ul>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Invoice to:</strong>
+          <p>
+            <ul class="list-unstyled list-inline">
+              <% @patient.invoice_to_contacts.each do |contact| %>
+                <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+              <% end %>
+            </ul>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Other:</strong>
+          <p>
+            <ul class="list-unstyled list-inline">
+              <% @patient.other_contacts.each do |contact| %>
+                <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+              <% end %>
+            </ul>
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-6">
+          <h3>Medicare details</h3>
+          <div class="box">
+            <div class="block-info">
+              <strong>Card number:</strong>
+              <p>
+                <%= @patient.medicare_card_number.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Card IRN:</strong>
+              <p>
+                <%= @patient.medicare_card_irn.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Referrer name:</strong>
+              <p>
+                <%= @patient.medicare_referrer_name.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Referrer provider number:</strong>
+              <p>
+                <%= @patient.medicare_referrer_provider_number.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Referral date:</strong>
+              <p>
+                <%= @patient.medicare_referral_date.presence || 'N/A' %>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-6">
+          <h3>DVA details</h3>
+          <div class="box">
+            <div class="block-info">
+              <strong>File number:</strong>
+              <p>
+                <%= @patient.dva_file_number.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Hospital:</strong>
+              <p>
+                <%= @patient.dva_hospital.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Card type:</strong>
+              <p>
+                <%= @patient.dva_card_type.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Referrer name:</strong>
+              <p>
+                <%= @patient.dva_referrer_name.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Referrer provider number:</strong>
+              <p>
+                <%= @patient.dva_referrer_provider_number.presence || 'N/A' %>
+              </p>
+            </div>
+            <div class="block-info">
+              <strong>Referral date:</strong>
+              <p>
+                <%= @patient.dva_referral_date.presence || 'N/A' %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Other info</h3>
+      <div class="box">
+        <div class="block-info">
+          <strong>Extra:</strong>
+          <p>
+            <%= simple_format @patient.general_info %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

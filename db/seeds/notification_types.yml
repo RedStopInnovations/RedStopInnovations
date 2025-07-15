@@ -1,0 +1,195 @@
+-
+  id: appointment.booked_online
+  name: Appointment booked online
+  description: Send to practitioner when a new appointment booked online
+  available_delivery_methods:
+    - SMS
+    - EMAIL
+  default_template:
+    email_subject: 'Appointment booked online confirmation'
+    email_body:
+      "Dear {{Practitioner.FullName}},\
+      <br>\
+      <br>\
+      An appointment has been booked online.\
+      <br>\
+      <br>\
+      <b>Client details:</b>\
+      <br>\
+      Name: {{Patient.FullName}}\
+      <br>\
+      DOB: {{Patient.DateOfBirth}}\
+      <br>\
+      Mobile: {{Patient.Mobile}}\
+      <br>\
+      Address: {{Patient.City}}, {{Patient.State}}\
+      <br>\
+      <br>\
+      <b>Appointment details:</b>\
+      <br>\
+      ID: {{Appointment.ID}}\
+      <br>\
+      Date: {{Appointment.Date}}\
+      <br>\
+      Type: {{Appointment.AppointmentType}}\
+      <br>\
+      <br>\
+      <a href=\"{{Appointment.ViewInCalendarURL}}\">View in calendar</a>
+      <br>\
+      <br>\
+      Thank you,\
+      <br>\
+      <br>\
+      {{Business.Name}}"
+    sms_content:
+      "Appointment booked online confirmation:\n\
+      ID: {{Appointment.ID}}\n\
+      Date: {{Appointment.Date}}\n\
+      Client: {{Patient.FullName}}\n\
+      View in calendar: {{Appointment.ViewInCalendarURL}}"
+
+-
+  id: appointment.created
+  name: Appointment created
+  description: Send to practitioner when a new appointment created
+  default_template:
+    email_subject: 'Appointment created confirmation'
+    email_body:
+      "Dear {{Practitioner.FullName}},\
+      <br>\
+      <br>\
+      An appointment has been created.\
+      <br>\
+      <br>\
+      <b>Client details:</b>\
+      <br>\
+      Name: {{Patient.FullName}}\
+      <br>\
+      DOB: {{Patient.DateOfBirth}}\
+      <br>\
+      Mobile: {{Patient.Mobile}}\
+      <br>\
+      Address: {{Patient.City}}, {{Patient.State}}\
+      <br>\
+      <br>\
+      <b>Appointment details:</b>\
+      <br>\
+      ID: {{Appointment.ID}}\
+      <br>\
+      Date: {{Appointment.Date}}\
+      <br>\
+      Type: {{Appointment.AppointmentType}}\
+      <br>\
+      <br>\
+      <a href=\"{{Appointment.ViewInCalendarURL}}\">View in calendar</a>
+      <br>\
+      <br>\
+      Thank you,\
+      <br>\
+      <br>\
+      {{Business.Name}}"
+    sms_content:
+      "Appointment created confirmation:\n\
+      ID: {{Appointment.ID}}\n\
+      Date: {{Appointment.Date}}\n\
+      Client: {{Patient.FullName}}\n\
+      View in calendar: {{Appointment.ViewInCalendarURL}}"
+  available_delivery_methods:
+    - SMS
+    - EMAIL
+
+-
+  id: appointment.updated
+  name: Appointment updated
+  description: "Send to practitioner when appointment has been rescheduled"
+  default_template:
+    email_subject: 'Appointment updated confirmation'
+    email_body:
+      "Dear {{Practitioner.FullName}},\
+      <br>\
+      <br>\
+      An appointment has been updated.\
+      <br>\
+      <br>\
+      <b>Client details:</b>\
+      <br>\
+      Name: {{Patient.FullName}}\
+      <br>\
+      DOB: {{Patient.DateOfBirth}}\
+      <br>\
+      Mobile: {{Patient.Mobile}}\
+      <br>\
+      Address: {{Patient.City}}, {{Patient.State}}\
+      <br>\
+      <br>\
+      <b>Appointment details:</b>\
+      <br>\
+      ID: {{Appointment.ID}}\
+      <br>\
+      Date: {{Appointment.Date}}\
+      <br>\
+      Type: {{Appointment.AppointmentType}}\
+      <br>\
+      <br>\
+      <a href=\"{{Appointment.ViewInCalendarURL}}\">View in calendar</a>
+      <br>\
+      <br>\
+      Thank you,\
+      <br>\
+      <br>\
+      {{Business.Name}}"
+    sms_content:
+      "Appointment updated confirmation:\n\
+      ID: {{Appointment.ID}}\n\
+      Date: {{Appointment.Date}}\n\
+      Client: {{Patient.FullName}}\n\
+      View in calendar: {{Appointment.ViewInCalendarURL}}"
+  available_delivery_methods:
+    - SMS
+    - EMAIL
+
+-
+  id: appointment.cancelled
+  name: Appointment cancelled
+  description: Send to practitioner when an appointment has been cancelled
+  default_template:
+    email_subject: 'Appointment cancelled confirmation'
+    email_body:
+      "Dear {{Practitioner.FullName}},\
+      <br>\
+      <br>\
+      An appointment has been cancelled.\
+      <br>\
+      <br>\
+      <b>Client details:</b>\
+      <br>\
+      Name: {{Patient.FullName}}\
+      <br>\
+      DOB: {{Patient.DateOfBirth}}\
+      <br>\
+      Mobile: {{Patient.Mobile}}\
+      <br>\
+      Address: {{Patient.City}}, {{Patient.State}}\
+      <br>\
+      <br>\
+      <b>Appointment details:</b>\
+      <br>\
+      ID: {{Appointment.ID}}\
+      <br>\
+      Date: {{Appointment.Date}}\
+      <br>\
+      Type: {{Appointment.AppointmentType}}\
+      <br>\
+      <br>\
+      Thank you,\
+      <br>\
+      <br>\
+      {{Business.Name}}"
+    sms_content:
+      "Appointment cancelled confirmation:\n\
+      ID: {{Appointment.ID}}\n\
+      Date: {{Appointment.Date}}\n\
+      Client: {{Patient.FullName}}"
+  available_delivery_methods:
+    - SMS
+    - EMAIL

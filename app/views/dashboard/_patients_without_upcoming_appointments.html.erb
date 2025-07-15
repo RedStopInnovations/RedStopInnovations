@@ -1,0 +1,26 @@
+<div class="dashboard-box">
+    <div class="box-heading"><span class="title">Clients without upcoming appointments</span>
+        <!-- <a href="#" class="pull-right">View all</a> -->
+    </div>
+    <div class="box-body">
+        <% if @dashboard.patients_without_upcoming_appointments.present? %>
+        <ul>
+            <% @dashboard.patients_without_upcoming_appointments.each_with_index do |patient, idx| %>
+            <% last_appt = patient['last_appointment'] %>
+            <li class="mt-5 pa-5 <%= 'bg-gray-light' if idx.odd? %>">
+
+                <a href="<%= patient_path(patient['id']) %>"><%= patient['full_name'] %></a> <br>
+                <% if patient['city'] %>
+                  <%= [patient['city'], patient['state']].compact.join(', ') %>
+                  <br>
+                <% end %>
+                Last appt.: <span><%= last_appt&.start_time&.strftime(t('date.common')) %></span>
+                <span class="text-muted"> | </span> <span><%= last_appt&.appointment_type&.name %></span>
+            </li>
+            <% end %>
+        </ul>
+        <% else %>
+            <p class="text-muted text-smaller">No clients found</p>
+        <% end %>
+    </div>
+</div>

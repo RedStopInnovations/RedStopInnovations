@@ -1,0 +1,207 @@
+# Item number, Description, Abbreviated Description, Category
+
+# == Chiropractic ==============================================================
+1001,Initial Consultation, INITIAL CONSULT
+1002,Initial Consultation & Treatment, CONSULT/TREATMT, Chiropractic
+1003,Initial Consultation - After Hours, INITIAL CON A/H, Chiropractic
+1004,Consultation Re-Examination & Treatment, CONSULT RE-EXAM, Chiropractic
+1005,Standard Consultation Up to 15 mins, STD CONSULT 15M, Chiropractic
+1006,Long Consultation 15-30 mins, LONG CONS 15-30M, Chiropractic
+1007,Standard Consultation After Hours, STD CONSUL A/H, Chiropractic
+1008,Long Consultation After Hours, LONG CONS A/H, Chiropractic
+1009,Home Visit Consultation and/or Treatment, HOME VISIT, Chiropractic
+1010,Home Visit Consultation and/or Treatment, A/H HOME VISIT A/H, Chiropractic
+1011,Excess Travelling - Metropolitan, TRAVEL METROPOL, Chiropractic
+1012,Excess Travelling - Country, TRAVEL COUNTRY, Chiropractic
+1301,Initial Consultation - History/Examination, INITIAL CONS CS, Chiropractic
+1302,"Initial Consultation - History, Examination & Treatment", CONSUL/TREAT CS, Chiropractic
+1303,Standard Consultation & Treatment, STD CONSULT CS, Chiropractic
+1304,Long Consultation & Treatment, LONG CONSUL CS, Chiropractic
+1501,Chiropractic Care Up to 15 mins, CHIROCARE 15MIN, Chiropractic
+1502,Chiropractic Care 16-30 mins, CHIROCARE 30MIN, Chiropractic
+1503,Chiropractic Care In excess of 30 mins, CHIROCARE 30+MIN, Chiropractic
+1504,Chiropractic Care A/H Up to 15 mins, CHROCAREA/H 15M, Chiropractic
+1505,Chiropractic Care A/H 16-30 mins, CHROCAREA/H 30M, Chiropractic
+1506,Chiropractic Care A/H In excess of 30 mins, CHROCAREA/H 30+M, Chiropractic
+1100,One extra view, 1 EXTRA VIEW, Chiropractic
+1101,Two extra views, 2 EXTRA VIEWS, Chiropractic
+1102,Three extra views, 3 EXTRA VIEWS, Chiropractic
+1103,Four extra views, 4 EXTRA VIEWS, Chiropractic
+1104,Cervical Spine - Apical & Lateral 2 views, CERVSP 2VIEWS, Chiropractic
+1105,Cervical Spine - 3-4 views, CERVSP3-4VIEWS, Chiropractic
+1106,Cervical Spine - 5-6 views, CERVSP5-6VIEWS, Chiropractic
+1107,Thoracic Spine - Apical & Lateral views, THORACIC SPINE, Chiropractic
+1108,Thoracic Spine - Apical & 2 Lateral views, THORAC AP2LATS, Chiropractic
+1109,Lumbar Spine - Apical & Lateral 2 views, LUMBAR APLAT2VW, Chiropractic
+1110,Lumbo-Sacral Spine 3-4 views, LUMBOSACRAL3-4V, Chiropractic
+1111,Lumbo-Sacral Spine 5-6 views, LUMBOSACRAL5-6V, Chiropractic
+1112,Full Spine (Postural), FULL SPINE POST, Chiropractic
+1113,Full Spine (Multiple views), SPINE X VIEWS, Chiropractic
+1114,Pelvis - Postural, PELVIS POSTURAL, Chiropractic
+1115,Pelvis & Sacro-Iliac joints 3 views, PELVSACRO-ILIAC, Chiropractic
+1116,Sacrum & Sacro-Iliac joints 3-4 views, SACRUMSACRO ILC, Chiropractic
+1117,Sacrum & Coccyx 2 views, SACRUM/COCCYX2V, Chiropractic
+1118,Clavicle 2 views, CLAVICLE 2VIEWS, Chiropractic
+1119,Scapula 2 views, SCAPULA 2VIEWS, Chiropractic
+1120,Shoulder 2 views, SHOULDER 2VIEWS, Chiropractic
+1121,Shoulder 4 views, SHOULDER 4VIEWS, Chiropractic
+1122,Acromioclavicular Joints 2 views, ACROMIOCLAVICUL, Chiropractic
+1123,Humerus 2 views, HUMERUS 2 VIEWS, Chiropractic
+1124,Humerus 2 views of one joint, HUMERUS 2VW1JNT, Chiropractic
+1125,Elbow 2 views, ELBOW 2 VIEWS, Chiropractic
+1126,Elbow 4 views, ELBOW 4 VIEWS, Chiropractic
+1127,Radius and Ulna 2 views, RADIUS/ULNA 2VW, Chiropractic
+1128,Radius & Ulna 2 views + 2 view 1 joint, RADIUS/ULNA2V1J, Chiropractic
+1129,Wrist 2 views, WRIST 2 VIEWS, Chiropractic
+1130,Wrist 4 views, WRIST 4 VIEWS, Chiropractic
+1131,Hand and fingers 2 views, HAND/FINGERS2VW, Chiropractic
+1132,Fingers 2 views, FINGERS 2VIEWS, Chiropractic
+1133,Hip 2 views, HIP 2 VIEWS, Chiropractic
+1134,Hip 3 views including pelvis, HIP3VINCLPELVIS, Chiropractic
+1135,Femur 2 views, FEMUR 2 VIEWS, Chiropractic
+1136,Femur 2 views + 2 views 1 joint, FEMUR2VIEWS1JNT, Chiropractic
+1137,Knee-2 views, KNEE 2 VIEWS, Chiropractic
+1138,Knee-4 views, KNEE 4 VIEWS, Chiropractic
+1139,Tibia and Fibula 2 views, TIBIA/FIBULA2VW, Chiropractic
+1140,Tibia and Fibula 2 view + 2 view 1 joint, TIBIA/FIBLA2V1J, Chiropractic
+1141,Ankle 2 views, ANKLE 2 VIEWS, Chiropractic
+1142,Ankle 4 views, ANKLE 4 VIEWS, Chiropractic
+1143,Foot and Toes 2 views, FOOT/TOES 2VIEW, Chiropractic
+1144,Toes 2 views, TOES 2 VIEWS, Chiropractic
+1145,Chest 2 views, CHEST 2 VIEWS, Chiropractic
+1146,Skull 3 views, SKULL 3 VIEWS, Chiropractic
+1147,Interpretation of X-rays, INTERPRET XRAYS, Chiropractic
+1148,Laboratory Procedures - Urine, LAB PROC URINE, Chiropractic
+1149,Special services, SPECIAL SERVICE, Chiropractic
+1150,Reports and narrative, MEDICAL REPORT, Chiropractic
+1151,X-ray, XRAY, Chiropractic
+1152,Functional views of one area, VIEWS 1AREA, Chiropractic
+1201,Full Interpretation, FULL INTERPRET, Chiropractic
+1601,Re-Assessment up to 15 mins, RE-ASSESS 15MIN, Chiropractic
+1602,Re-Assessment 16-30 mins, RE-ASSESS 30MIN, Chiropractic
+1603,Re-Assessment In excess of 30 mins, RE-ASSESS 30+MIN, Chiropractic
+1604,Re-Assessment A/H Up to 15 mins, RE-ASSESSA/H 15M, Chiropractic
+1605,Re-Assessment A/H Up to 30 mins, RE-ASSESSA/H 30M, Chiropractic
+1606,Re-Assessment A/H In excess of 30 mins, REASSESSA/H 30+M, Chiropractic
+1401,Examination Up to 30 min duration, EXAMTN 30MIN, Chiropractic
+1402,Examination 30-45 mins, EXAMTN 30-45MIN, Chiropractic
+1403,Examination 45-60 mins, EXAMTN 45-60MIN, Chiropractic
+1404,Medico/Legal Reports (Telephone/Oral), MEDREPORTORAL, Chiropractic
+1405,Medico/Legal Reports (Comprehensive), MEDREP COMPREH, Chiropractic
+1406,Medico/Legal Reports - Transcript, MEDREP TRANSCRP, Chiropractic
+1407,Consultative Work, CONSULTATV WORK, Chiropractic
+1408,Worksite Assessment, WORKSITE ASSESS, Chiropractic
+1701,Brief Report - Summary Note, MEDREPT BRIEF, Chiropractic
+1702,Substantive Report, MEDREPT COMPREH, Chiropractic
+1901,Up to 30 min Therapeutic Massage, SHORT MASSAGE, Chiropractic
+1902,Up to 60 min Therapeutic Massage, LONG MASSAGE, Chiropractic
+1903,Nutritional Support, NUTRIT SUPPORT, Chiropractic
+1904,Orthotic Appliances, ORTHOTIC APPL, Chiropractic
+
+# == Physiotherapy =============================================================
+500,Assessment Consultation, ASSMENT CONSULT, Physiotherapy
+505,Subsequent Consultation, SUB CONSULT, Physiotherapy
+506,Long Subsequent Consult (2 Areas), LONG CONS 2A, Physiotherapy
+520,Assessment Consultation, ASSMENT CONS HOS, Physiotherapy
+525,Subsequent Consultation, SUB CONS HOS, Physiotherapy
+526,Long Subsequent Consult (2 Areas), LONG CONS 2A, Physiotherapy
+530,Assessment Consultation, ASSMENT CONS HOM, Physiotherapy
+535,Subsequent Consultation, SUB CONSULT HOM, Physiotherapy
+536,Long Subsequent Consult (2 Areas), LONG HOM CONS 2A, Physiotherapy
+560,Group Consultation, GROUP CONS, Physiotherapy
+561,Class Consultation, CLASS CONS, Physiotherapy
+570,Lymphoedema, LYMPHOEDEMA, Physiotherapy
+582,Neurological Rehabilitation, NEURO REHAB, Physiotherapy
+591,Custom made orthosis (upper limb) Consultation, CUSTOM ORTHO/UL, Physiotherapy
+592,Custom made orthosis (lower limb) Consultation, CUSTOM ORTHO/LL, Physiotherapy
+593,Pelvic Floor Physiotherapy, PELVIC FLR PHYS, Physiotherapy
+595,Antenatal Exercise Class Consultation, ANTENATAL CLASS, Physiotherapy
+596,Postnatal Exercise Class Consultation, POSTNATAL CLASS, Physiotherapy
+
+# == Podiatry ==================================================================
+002,Intermediate Service, INTERMEDIATE, Podiatry
+004,Comprehensive Service, COMPREHENSIVE, Podiatry
+005,Comprehensive Service - Diabetes, COMP DIABETES, Podiatry
+011,Brief Service, BRIEF SERVICE, Podiatry
+012,Intermediate Service, INTERMEDIATE, Podiatry
+014,Comprehensive Service, COMPREHENSIVE, Podiatry
+015,Established patient - Acute Service - Diabetes, ACUTE SERVICE, Podiatry
+016,Established patient - management service - diabetes, MANAGEMENT SERV, Podiatry
+101,"Plethysmography, regional - arterial", PLETHYSMOGRAPHY, Podiatry
+104,Peripheral Flow Study (including Doppler), PERIPHERAL FLOW, Podiatry
+111,Muscle Testing (manual). Anomalies to be recorded, MUSCLE TEST, Podiatry
+114,Range of motion study. Anomalies to be recorded, MOTION STUDY, Podiatry
+115,"Computerised gait analysis with detailed report (e.g. EDG, Foot Track)", COMP GAIT ANLYS, Podiatry
+116,Treadmill and Video gait analysis. Anomalies to be recorded, GAIT ANALYSIS, Podiatry
+117,Visual gait appraisal. Anomalies to be recorded, GAIT APPRAISE, Podiatry
+118,"Biomechanical Assessment (includes F111, F114 and either F115, F116 or F117)", BIOMECH ASSESS, Podiatry
+121,"Hot/Cold Therapy (e.g. paraffin bath, hot or cold packs)", HOT/COLD THERPY, Podiatry
+142,Neuromuscular re-education, NEUROMSCLR EDUC, Podiatry
+145,"Electrophysical therapy (e.g. ultrasound, T.E.N.S., Laser Therapy)", ELECTRO THERAPY, Podiatry
+147,Manipulation/Mobilisation, MANIP/MOBLISTN, Podiatry
+148,Massage, MASSAGE, Podiatry
+361,"Padding, Strapping or Taping", PAD/STRAP/TAPE, Podiatry
+301,Negative model of the foot (or part thereof), NEGIMPRS ORTHIC, Podiatry
+302,"Positive model fabrication of the foot or part thereof (eg: plastercast, wax)", POSIMPRS ORTHIC, Podiatry
+303,"Negative impression of the foot and up to lower 1/3 of the lower leg - weight bearing", NEGIMPRSLWR1/3, Podiatry
+304,"Negative impression of the foot and up to lower 1/3 of lower leg - non weight bearing", NEGIMPRSLWR1/3, Podiatry
+305,"Positive model fabrication of the foot", POSIMPRS LWR1/3, Podiatry
+201,Ankle-Foot Orthosis (AFO), ANKL/FT ORTHIC, Podiatry
+211,Orthodigital traction device, ORTHIC TRACTN, Podiatry
+221,Custom Kinetic Orthosis (Functional foot orthosis), CUSTOM ORTHIC, Podiatry
+223,Custom orthotic made in the same day using new technology, CUSTOM NEW TECH, Podiatry
+227,"Heel stabiliser, made to plaster model of heel",HEEL STABILSER, Podiatry
+261,Cushioning Orthosis - Simple (single),CUSHION ORTHIC, Podiatry
+263,Pressure Relief Orthosis - Complex (single),PRESSURE ORTHIC, Podiatry
+265,Moulded Cast Orthosis (single),MOULDCST ORTHIC, Podiatry
+267,Moulded Non-Cast Orthosis (single),THRMPLSTORTHIC, Podiatry
+269,Heel lift made of thermoplastic or similar material,HEEL LIFT, Podiatry
+271,"Interior shoe padding (e.g. tri-planar wedge, toe-filler, met bars,met domes, felt heel lifts, valgus pacts)",SHOE PADDING, Podiatry
+341,"Protective device (e.g. Otoform toe splint, latex bunion shield, interdigital wedge)", PROTECT DEVICE, Podiatry
+344,"Nail, brace, customised", NAILBRACE CUST, Podiatry
+229,Heel stabiliser,PREFABHEEL STBL, Podiatry
+240,"Pre-Moulded or Pre-Formed (off the shelf) Orthosis", PREMOULD ORTHIC, Podiatry
+381,Orthosis cover - plain (single), ORTHICCOVER PLN, Podiatry
+383,Orthosis cover - with soft tissue supplement (single) ORTHICCOVER SUP, Podiatry
+385,Orthosis Post, extrinsic - forefoot or rearfoot (single) ORTHIC POST, Podiatry
+351,Digital or partial foot prosthesis, PROSTHESIS, Podiatry
+281,Dennis Browne splint, BRWNE SPLNT, Podiatry
+282,Ganley splint, GANLEY SPLNT, Podiatry
+283,Counter Rotation system, CNTRROTATE SYS, Podiatry
+284,Infant foot deformity - correction shoe, CRRCT SHOE INF, Podiatry
+311,"Immobilisation splint, thermoplastic, plaster, or other; below knee", SPLNT BLOW KNEE, Podiatry
+312,"Immobilisation splint, thermoplastic, plaster, or other; ankle/foot", SPLNT ANKLE/FT, Podiatry
+315,"Immobilisation splint, thermoplastic, plaster, or other; above knee", SPLNT ABVE KNEE, Podiatry
+331,Traction and Training devices, TRACTION DEVICE, Podiatry
+
+119,Surgical assessment, SURGERY ASSESS, Podiatry
+421,Incision and drainage of infected or non-infected lesion, INCISN/DRAINAGE, Podiatry
+429,Foreign body removal (subcutaneous), F/O RMVL SUBC, Podiatry
+438,Debridement of post-operative wound, DEBRIDE, Podiatry
+440,Avulsion of toenail, TOENAIL AVULSN, Podiatry
+445,"Excision, benign lesion", LESION EXCISN, Podiatry
+541,"Electrocautery, chemocautery or cryocautery of benign or quiescent lesion or verrucae, with or without curettage", LESION CAUTERY, Podiatry
+546,Nail root and matrix resection with matrix sterilisation (single edge), NAIL RESECT EDG, Podiatry
+547,Nail root and matrix resection with matrix sterilisation (total nail), NAIL RESECT TTL, Podiatry
+548,Nail root and matrix resection with matrix sterilisation (each addition edge), NAIL RESECT TTL, Podiatry
+561,Incision of soft tissue abscess (superficial), INCISN ABCESS, Podiatry
+
+401,Collection and handling of specimen for transfer to a laboratory, HANDLE SPECIMEN, Podiatry
+404,Extended telephone consultation, EXT TELE CNSLT, Podiatry
+405,"Consultation outside normal practice hours", AFTER HRS CNSLT, Podiatry
+411,"Medical/Surgical supplies (e.g. dressings, list drugs)", SUPPLIES, Podiatry
+412,Written podiatric report WRITTEN REPORT, Podiatry
+413,Theatre Fee, THEATRE FEE, Podiatry
+414,"Post-operative equipment (e.g. post-op. shoe, crutches, walker, etc.)", POSTOP EQUIP, Podiatry
+985, Unlisted podiatry service or procedure UNLISTED SRVCE, Podiatry
+
+# == Occupational Therapy ==================================================
+100,Initial Individual Assessment/Treatment,INITIAL CONSULT, Occupational Therapy
+200,Individual Assessment/Treatment- Subsequent to Initial,CONSULTATION, Occupational Therapy
+250,Individual Assessment/Treatment - Long Consultation,>30M SUBSQ INDV, Occupational Therapy
+300,Group Assessment/Treatment,GROUP ASSESSMENT, Occupational Therapy
+
+# == Massage Therapy =======================================================
+105,Initial consultation, INITIAL CONS, Massage Therapy
+205,Standard consultation, STANDARD CONS, Massage Therapy
+

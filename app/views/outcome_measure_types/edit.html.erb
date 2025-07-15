@@ -1,0 +1,21 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Outcome measure type editing</h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= outcome_measure_types_path %>">Outcome measure types</a></li>
+    <li class="active">Edit</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', outcome_measure_type: @outcome_measure_type %>
+</section>

@@ -1,0 +1,481 @@
+<% content_for :title, 'Uninvoiced appointments' %>
+
+<section class="box-header">
+  <h1>Uninvoiced appointments</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Appointments</a>
+    </li>
+    <li class="active">Uninvoiced appointments</li>
+  </ul>
+</section>
+
+<section class="print-head">
+  <h3 class="text-center">Uninvoiced appointments</h3>
+  <div class="date-range text-center">
+    <%= @options.start_date.strftime(t('date.common')) %> -
+    <%= @options.end_date.strftime(t('date.common')) %>
+  </div>
+</section>
+
+<section class="content">
+
+  <ul class="nav nav-tabs mb-15">
+      <li role="presentation" class="active"><a href="#tab-appointments">Appointments</a></li>
+      <li role="presentation"><a href="<%= reports_uninvoiced_tasks_path %>">Tasks</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div id="tab-appointments" class="tab-pane fade in active">
+      <div class="panel panel-default hidden-print">
+        <div class="panel-body">
+          <form action="<%= reports_uninvoiced_appointments_path %>">
+            <div class="row">
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Appointment date:</label>
+                  <div class="input-group">
+                    <input type="text"
+                      class="form-control flatpickr-datepicker"
+                      name="start_date"
+                      value="<%= @options.start_date.try(:strftime, "%Y-%m-%d") %>"
+                      data-alt-format="d M Y"
+                      data-date-format="Y-m-d"
+                      >
+                    <span class="input-group-addon input-group-addon-middle">to</span>
+                    <input type="text"
+                      class="form-control flatpickr-datepicker"
+                      value="<%= @options.end_date.try(:strftime, "%Y-%m-%d") %>"
+                      name="end_date"
+                      data-alt-format="d M Y"
+                      data-date-format="Y-m-d"
+                      >
+                    <div class="input-group-btn">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <% today = Date.current %>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today.last_week.beginning_of_week %>" data-end-date="<%= today.last_week.end_of_week %>">Last week</a></li>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                        <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label>Practitioners:</label>
+                  <select class="form-control selectize" name="practitioner_ids[]" multiple="true">
+                    <option value="">All</option>
+                    <%=
+                      options_for_select(
+                        business_pracititioner_options_for_select(current_business, include_inactive: true),
+                        params[:practitioner_ids]
+                      )
+                    %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label>Appointment types:</label>
+                  <select class="form-control selectize" name="appointment_type_ids[]" multiple="true">
+                    <option value="">All</option>
+                    <%=
+                      options_for_select(
+                        appointment_type_options_for_select,
+                        @options.appointment_type_ids
+                      )
+                    %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label>Clients:</label>
+                  <select class="form-control selectize-patients-ajax" name="patient_ids[]"
+                    multiple="true"
+                    placeholder="All">
+                    <% if @options.patient_ids.present? %>
+                    <%=
+                      options_from_collection_for_select(
+                        current_business.patients.where(id: @options.patient_ids),
+                        :id,
+                        :full_name,
+                        @options.patient_ids
+                      )
+                    %>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-1">
+                <div class="check-box mt-30">
+                  <input type="checkbox" name="is_complete" id="input-filter-completed" value="1" <%= 'checked' if @options.is_complete %> >
+                  <label for="input-filter-completed">Completed</label>
+                </div>
+              </div>
+
+              <div class="col-md-1">
+                <div class="form-group">
+                  <label>&nbsp;</label><br>
+                  <button type="submit" class="btn btn-primary" style="min-width: inherit;">Report</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row hidden-print">
+        <div class="col-xs-6">
+
+          <div class="dropdown">
+            <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" disabled js-btn-toggle-dropdown-bulk-actions>
+            Bulk actions <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu custom-dropdown">
+              <li><a href="#" js-btn-bulk-create-invoices>Create invoices</a></li>
+              <li><a href="#" js-btn-bulk-mark-invoice-not-required>Invoice not required</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-xs-6 text-right">
+          <a href="<%= reports_uninvoiced_appointments_path(@options.to_params.merge(format: :csv)) %>"
+              class="btn btn-white">
+            <i class="fa fa-download"></i> CSV
+          </a>
+          <button type="button" class="btn btn-white" onclick="print()"><i class="fa fa-print"></i> Print</button>
+        </div>
+      </div>
+
+      <div class="panel panel-default mt-20">
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>
+                    <input type="checkbox" js-cb-toggle-select-all-appointments
+                      <% if @report.results[:paginated_appointments].total_count == 0 %>
+                        disabled
+                      <% end %>
+                      >
+                  </th>
+                  <th>Date</th>
+                  <th>Client</th>
+                  <th>Practitioner</th>
+                  <th>Type</th>
+                  <th class="hidden-print">Status</th>
+                  <th class="hidden-print" style="width: 150px;"></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @report.results[:paginated_appointments].each do |appointment| %>
+                <tr>
+                  <td>
+                    <input type="checkbox" js-cb-select-appointment
+                      data-appointment-id="<%= appointment.id %>"
+                      <% if appointment.appointment_type.billable_items.size > 0 %>
+                        data-has-default-billable-items="true"
+                      <% end %>
+                      >
+                  </td>
+
+                  <td>
+                    <%= appointment.start_time.strftime(t('date.common')) %> <br>
+                    <span class="text-smaller">
+                      <%= appointment.start_time.strftime(t('time.common')) %> - <%= appointment.end_time.strftime(t('time.common')) %>
+                    </span>
+                  </td>
+
+                  <td>
+                    <a href="<%= patient_path(appointment.patient) %>">
+                      <%= appointment.patient.try(:full_name) %>
+                    </a>
+                  </td>
+                  <td>
+                    <%= appointment.practitioner.try(:full_name) %>
+                    <br>
+                    <span class="text-smaller"><%= appointment.practitioner.profession %></span>
+                  </td>
+                  <td><%= appointment.appointment_type.try(:name) %></td>
+                  <td>
+                    <% if appointment.status == Appointment::STATUS_COMPLETED %>
+                      <span title="This appointment is marked as completed" class="appt-status-fa-icon"><i class="fa fa-check-square-o"></i></span>
+                    <% end %>
+
+                    <% if appointment.status? && appointment.status != Appointment::STATUS_COMPLETED %>
+                      <br>
+                      <span class="label label-default hidden-print"><%= appointment.status.humanize %></span>
+                      <span class="visible-print"><%= appointment.status.humanize %></span>
+                    <% end %>
+                  </td>
+                  <td class="hidden-print text-right" style="width: 140px;">
+                    <div class="btn-group" style="min-width: 90px">
+                      <a href="<%= new_invoice_path(appointment_id: appointment.id) %>" target="_blank" class="btn btn-white">Add invoice</a>
+                      <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                        <li>
+                          <a href="<%= appointment_path(appointment) %>">Details</a>
+                        </li>
+
+                        <li>
+                          <a href="<%= calendar_path(availability_id: appointment.availability_id, practitioner_ids: appointment.practitioner_id) %>">
+                            View in calendar
+                          </a>
+                        </li>
+
+                        <li>
+                          <a
+                            class="btn-form"
+                            data-form-url="<%= mark_invoice_not_required_appointment_path(appointment) %>"
+                            data-form-method="POST"
+                            data-form-confirmation="Are you sure you want to mark this appointment NOT require an invoice?"
+                          >Invoice not required</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel-footer hidden-print">
+          <div class="row">
+            <div class="col-md-6 text-left">
+              <%= page_entries_info @report.results[:paginated_appointments] %>
+            </div>
+            <div class="col-md-6 text-right hidden-print">
+              <%= paginate @report.results[:paginated_appointments], theme: 'app' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-btn-date-range]').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+    $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+  });
+
+ //=== Handle bulk actions
+  const $cbToggleAllAppointments = $('[js-cb-toggle-select-all-appointments]');
+  const $btnToggleBulkActions = $('[js-btn-toggle-dropdown-bulk-actions]');
+  const $btnBulkMarkInvoiceNotRequired = $('[js-btn-bulk-mark-invoice-not-required]');
+  const $btnBulkCreateInvoices = $('[js-btn-bulk-create-invoices]');
+  const MAX_APPOINTMENTS = parseInt('<%= App::MAX_BULK_CREATE_INVOICES %>');
+
+  const updateBtnBulkActionsClickable = function() {
+    if ($('[js-cb-select-appointment]:checked').length > 0) {
+      $btnToggleBulkActions.removeAttr('disabled');
+    } else {
+      $btnToggleBulkActions.attr('disabled', 'disabled');
+    }
+  };
+
+  const isAllAppointmentsChecked = function() {
+    return $('[js-cb-select-appointment]:checked').length === $('[js-cb-select-appointment]').length;
+  };
+
+  const getSelectedAppointmentIds = function() {
+    return $('[js-cb-select-appointment]:checked').map(function() {
+      return $(this).data('appointment-id');
+    }).toArray();
+  };
+
+  const initModalBulkCreateComponent = function(html) {
+    const $modal = $(html);
+    const $btnSubmit = $modal.find('.js-btn-submit-bulk-create-invoices');
+
+    $modal.on('hidden.bs.modal', function() {
+      setTimeout(function() {
+        $modal.remove();
+      });
+    });
+
+    const displayCreatedInvoices = function(invoices) {
+      invoices.forEach(function(invoice) {
+        const apptId = invoice.appointment_id;
+        const $link = $('[js-link-created-invoice][data-appointment-id="' + apptId + '"]');
+        if ($link.length > 0) {
+          $link.text(invoice.invoice_number);
+          $link.attr('href', '/app/invoices/' + invoice.id);
+        }
+      });
+    };
+
+    const buildSubmitData = function() {
+      const invoices = [];
+
+      $modal.find('[js-input-appointment-id]:checked').each(function(i, el) {
+        const $checkbox = $(el);
+        const apptID = parseInt($checkbox.val());
+        const invoice = {
+          appointment_id: apptID
+        };
+
+        invoice.send_after_create = $modal.find('#cb-send-after-create-appointment-' + apptID).is(':checked');
+
+        const selectedCaseId = $('#js-input-patient-case-appointment-' + apptID).val();
+
+        if (selectedCaseId) {
+          invoice.patient_case_id = parseInt(selectedCaseId);
+        }
+
+        invoices.push(invoice);
+      });
+
+      return {
+        invoices: invoices
+      }
+    };
+
+    // Handle modal bulk-create functions
+    $btnSubmit.on('click', function(e) {
+      e.preventDefault();
+
+      $.ajax({
+        method: 'POST',
+        url: '<%= bulk_create_from_uninvoiced_appointments_invoices_path %>',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify(buildSubmitData()),
+        beforeSend: function() {
+          $btnSubmit.attr('disabled', true).text('Processing ...');
+        },
+        success: function(res) {
+          $btnSubmit.attr('disabled', true).text('Completed');
+          Flash.success('The invoices has been successfully created.');
+          if (res.invoices) {
+            displayCreatedInvoices(res.invoices);
+            $modal.find('[js-input-send-after-create]').attr('disabled', true);
+          }
+          $modal.on('hidden.bs.modal', function() {
+            location.reload();
+          });
+        },
+        error: function(xhr) {
+          $btnSubmit.removeAttr('disabled').text('Create invoices');
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            Flash.error(xhr.responseJSON.message);
+          } else {
+            Flash.error('An error has occurred. Sorry for the inconvenience.');
+          }
+
+          if (xhr.status === 422) {
+            Flash.error('Validation errors: ' + xhr.responseJSON.errors.join('; '));
+          }
+        },
+        complete: function() {
+
+        }
+      });
+    });
+
+    $modal.modal('show');
+
+    $modal.find('[data-toggle="popover"]').popover();
+  };
+
+  $cbToggleAllAppointments.on('change', function() {
+    $('[js-cb-select-appointment]').prop('checked', $(this).prop('checked'));
+    updateBtnBulkActionsClickable();
+  });
+
+  $('[js-cb-select-appointment]').on('change', function() {
+    const $input = $(this);
+
+    // if ($input.is(':checked') && !$input.data('has-default-billable-items')) {
+    //   Flash.warning('The appointment type has no default billable items.');
+    //   $input.prop('checked', false);
+    // }
+
+    if ($input.is(':checked') && getSelectedAppointmentIds().length > MAX_APPOINTMENTS) {
+      Flash.warning('Bulk create invoices allow up to ' + MAX_APPOINTMENTS + ' appointments');
+      $input.prop('checked', false);
+    }
+
+    $cbToggleAllAppointments.prop('checked', isAllAppointmentsChecked());
+    updateBtnBulkActionsClickable();
+  });
+
+  $btnBulkMarkInvoiceNotRequired.on('click', function() {
+    const selectedApptIds = getSelectedAppointmentIds();
+    if (confirm('Are you sure you want to mark the selected appointments as not require invoice?')) {
+      const $form = $('<form>', {
+        method: 'POST',
+        action: '<%= bulk_mark_invoice_not_required_appointments_path %>'
+      });
+
+      var csrfInput = $('<input>', {
+        type: 'hidden',
+        name: 'authenticity_token',
+        value: $('meta[name="csrf-token"]').attr('content')
+      });
+
+      selectedApptIds.forEach(function(apptId) {
+        $form.append(
+          $('<input>', {
+            name: 'appointment_ids[]',
+            type: 'checkbox',
+            checked: true,
+            value: apptId,
+            class: 'hide'
+          })
+        );
+      });
+
+      $form.append(csrfInput).appendTo('body');
+      $form.submit();
+    }
+  });
+
+  $btnBulkCreateInvoices.on('click', function() {
+    if (getSelectedAppointmentIds().length === 0) {
+      Flash.warning('Please select at least one appointment!');
+    } else {
+      $.ajax({
+        method: 'GET',
+        url: '<%= modal_bulk_create_from_uninvoiced_appointments_invoices_path %>',
+        data: {
+          appointment_ids: getSelectedAppointmentIds()
+        },
+        success: function(res) {
+          initModalBulkCreateComponent(res);
+        },
+        error: function(xhr) {
+          Flash.error('Could not load appointment for bulk invoices. Sorry for the inconvenience.')
+        },
+        complete: function() {
+
+        }
+      });
+    }
+  });
+</script>
+<% end %>

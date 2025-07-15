@@ -1,0 +1,19 @@
+# "Create business invoice":
+#   cron: "5 0 * * *" # daily at 12.05 am
+#   class: "CreateBusinessInvoiceWorker"
+
+# "Check past appointments for charge subscription":
+#   cron: "*/30 * * * *" # Every 30 mins
+#   class: "BillPastAppointmentsJob"
+
+# "Update Medicare & DVA claims status":
+#   cron: "*/5 * * * *" # Every 5 mins
+#   class: "Claiming::Jobs::ClaimStatusUpdater"
+
+# "Send scheduled appointments list for tomorrow":
+#   cron: "*/30 * * * *" # Every 30 mins
+#   class: "DailyAppointmentsReminder::Worker"
+
+"Refresh Google Account authorization for calendar sync":
+  cron: "*/5 * * * *" # Every 5 mins
+  class: "RefreshGoogleCalendarAuthorizationWorker"

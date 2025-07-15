@@ -1,0 +1,219 @@
+<script id="modal-create-wait-list-tmpl" type="text/template">
+  <div>
+    <modal :value="show" v-cloak @closed="onModalClosed">
+
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close">
+            <span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Add to waiting list</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+        <div class="loading-backdrop" v-if="loading"></div>
+        <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+
+        <form @submit="submitForm">
+          <div class="alert alert-danger" v-show="formErrors.length > 0">
+            <a href="#" class="close" v-on:click.prevent="formErrors = []" aria-label="close">&times;</a>
+            <ul class="list-unstyled">
+              <li v-for="error in formErrors">{{ error }}</li>
+            </ul>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Client <abbr title="required">*</abbr>
+                <a href="#" v-on:click.prevent="addPatient" class="visible-xs pull-right">New client?</a>
+              </label>
+              <div class="col-md-9 col-xs-12">
+                <v-multiselect
+                  v-model="selectedPatient"
+                  :options="patientOptions"
+                  :multiple="false"
+                  :close-on-select="true"
+                  :options-limit="100"
+                  :searchable="true"
+                  :hide-selected="true"
+                  :loading="isSearchingPatients"
+                  select-label=""
+                  placeholder="Type to search client"
+                  label="full_name"
+                  open-direction="bottom"
+                  track-by="id"
+                  @search-change="onSearchPatientChanged"
+                  @input="onPatientChanged">
+                  <template slot="noResult" v-hide="isSearchingPatients">
+                    <span>No clients found!</span>
+                  </template>
+                  <template slot="option" scope="props">
+                   <div class="desc">
+                      <span class="text-bolder" v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                      <small v-if="props.option.dob">{{ props.option.dob | dob }}</small>
+                      <br>
+                      <small> {{ props.option.short_address }}</small>
+                    </div>
+                  </template>
+                </v-multiselect>
+                <a href="#" v-on:click.prevent="addPatient" class="hidden-xs pull-right">New client?</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Start date <abbr title="required">*</abbr></label>
+              <div class="col-md-9 col-xs-12">
+                <v-flatpickr
+                  v-model="waitListData.date"
+                  :config="waitListEntryDatePickerConfig"
+                  placeholder="-- Select date --"
+                  >
+                </v-flatpickr>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Profession <abbr title="required">*</abbr></label>
+              <div class="col-md-9 col-xs-12">
+                <select
+                  name="profession"
+                  class="form-control"
+                  v-model="waitListData.profession"
+                  v-profession-select="business.professions"
+                  >
+                <option value="" selected>-- Select one --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Practitioner</label>
+              <div class="col-md-9 col-xs-12">
+                <select
+                  class="form-control"
+                  name="practitioner_id"
+                  v-model.number="waitListData.practitioner_id"
+                  >
+                  <option value="" selected>Any</option>
+                  <option v-for="pract in practitioners" :value="pract.id">{{ pract.full_name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Appointment</label>
+              <div class="col-md-9 col-xs-12">
+                <v-multiselect
+                  v-model="selectedAppointmentType"
+                  :options="appointmentTypeOptions"
+                  :multiple="false"
+                  :close-on-select="true"
+                  :options-limit="50"
+                  :searchable="appointmentTypeOptions.length > 5"
+                  :hide-selected="true"
+                  :allow-empty="true"
+                  select-label=""
+                  placeholder="Any"
+                  label="name"
+                  track-by="id"
+                  @input="onAppointmentTypeChanged">
+                  <template slot="noResult">
+                    <span>No appointment types found!</span>
+                  </template>
+                  <template slot="option" scope="props">
+                    <div class="desc">
+                      <div>
+                        <span v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+                        <span v-if="props.option.duration">
+                          <br>
+                          <span class="text-smaller">{{ props.option.duration }} mins</span>
+                        </span>
+                      </div>
+                    </div>
+                  </template>
+                </v-multiselect>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Repeat</label>
+              <div class="col-md-9 col-xs-12">
+                <div class="row"></div>
+                <select
+                  class="form-control"
+                  name="repeat_type"
+                  v-model="waitListData.repeat_type"
+                  >
+                  <option value="" selected>None</option>
+                  <option value="Daily">Daily</option>
+                  <option value="Weekly">Weekly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" v-show="!!waitListData.repeat_type">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Repeat every<abbr title="required">*</abbr></label>
+              <div class="col-md-9 col-xs-12">
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control"
+                    max="20"
+                    v-model.number="waitListData.repeat_frequency">
+                  <span class="input-group-addon">
+                    <span v-if="waitListData.repeat_type == 'Weekly'">week(s)</span>
+                    <span v-if="waitListData.repeat_type == 'Daily'">day(s)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" v-show="!!waitListData.repeat_type">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Ends after<abbr title="required">*</abbr></label>
+              <div class="col-md-9 col-xs-12">
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control"
+                    max="20"
+                    v-model.number="waitListData.repeats_total">
+                  <span class="input-group-addon">
+                    occurrences
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+              <label class="col-md-3 col-xs-12">Notes</label>
+              <div class="col-md-9 col-xs-12">
+                <textarea name="notes" class="form-control" rows="4" v-model.trim="waitListData.notes"></textarea>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer bg-gray-light">
+        <button class="btn btn-primary" type="button" v-on:click.prevent="submitForm" :disabled="loading">Save</button>
+        <button class="btn btn-white" type="button" @click="cancel">Cancel</button>
+      </div>
+    </modal>
+  </div>
+</script>

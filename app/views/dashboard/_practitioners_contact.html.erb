@@ -1,0 +1,53 @@
+<%
+  practitioners = current_business.active_practitioners.where(users: {is_practitioner: true}).includes(:user).order('practitioners.first_name ASC')
+%>
+<div class="dashboard-box" style="min-height: 300px;">
+    <div class="box-heading">
+        <span class="title">Practitioners contact</span>
+        <a href="<%= settings_users_path(practitioner_only: 1) %>" class="pull-right">View all</a>
+    </div>
+
+    <div class="box-body">
+        <input type="text" class="form-control" placeholder="Enter name to search" id="js-practitioners-contact-search-input">
+        <div style="max-height: 230px; overflow: scroll;" class="mt-10">
+
+        <div id="js-practitioners-contact-search-list">
+            <% practitioners.each_with_index do |p, index| %>
+            <div data-practitioner-name="<%= p.full_name %>" class="js-practitioner-row mb-5 pa-5 <% if index.odd? %> bg-gray-light <% end %>">
+                <div class="row">
+                    <div class="col-md-1 col-xs-2">
+                        <img src="<%= p.user.avatar.url(:thumb) %>" loading="lazy" class="bordered pull-left" height="40px" style="border-radius: 50%;">
+                    </div>
+
+                    <div class="col-md-5 col-xs-10">
+                        <span class="text-bolder js-practitioner-name"><%= p.full_name %></span> <br>
+                        <span class="small"><%= p.profession %></span><br>
+                        <span class="text-smaller"><%= p.city %></span>
+                    </div>
+
+                    <div class="col-md-6 col-xs-offset-2 col-md-offset-0">
+                        <% if p.mobile? %>
+                            <span class="text-smaller"><a href="tel:<%= p.mobile %>" class="normal-link"><%= p.mobile %></a></span>
+
+                            <span title="FaceTime call" class="ml-5">
+                                <a href="facetime:<%= u p.mobile %>"><i class="bi bi-camera-video"></i></a>
+                            </span>
+
+                            <span class="text-muted"> | </span>
+
+                            <span title="Chat on Whatsapp">
+                                <a href="<%= chat_on_whatsapp_url(p.mobile, p.country.presence || current_business.country) %>" target="_blank"><i class="bi bi-whatsapp"></i></a>
+                            </span>
+                            <br>
+                        <% end %>
+                        <span class="text-smaller"><a href="mailto:<%= p.user_email %>" class="normal-link"><%= p.user_email %></a></span>
+                    </div>
+                </div>
+            </div>
+            <% end %>
+        </div>
+
+        <div id="js-practitioners-contact-search-empty" class="text-muted text-smaller" style="display: none;">No practitioners match</div>
+        </div>
+    </div>
+</div>

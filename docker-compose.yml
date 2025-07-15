@@ -1,0 +1,65 @@
+networks:
+  development:
+
+volumes:
+  db_data:
+  gem_cache_data:
+  shared_data:
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+      - redis
+    ports:
+      - "${DOCKER_WEB_HOST_PORT:-3000}:3000"
+    stdin_open: true
+    tty: true
+    command: ['rails', 'server', '-p', '3000', '-b', '0.0.0.0']
+    volumes:
+      - .:/var/app
+      - gem_cache_data:/usr/local/bundle/gems
+      - shared_data:/var/shared
+
+    environment:
+      RAILS_ENV: development
+    entrypoint: ./docker/app-entrypoint.sh
+    networks:
+      - development
+
+  database:
+    image: postgres:15-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - shared_data:/var/shared
+    ports:
+      - "${DOCKER_DATABASE_HOST_PORT:-5432}:5432"
+    environment:
+      POSTGRES_PASSWORD: 'secret'
+    networks:
+      - development
+
+  redis:
+    image: redis:6.2-alpine
+    volumes:
+      - shared_data:/var/shared/redis
+    networks:
+      - development
+
+  # sidekiq:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - redis
+  #     - database
+  #     - app
+  #   volumes:
+  #     - .:/app
+  #     - gem_cache_data:/usr/local/bundle/gems
+  #   environment:
+  #     RAILS_ENV: development
+  #   entrypoint: ./docker/sidekiq-entrypoint.sh

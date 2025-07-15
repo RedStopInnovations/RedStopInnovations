@@ -1,0 +1,500 @@
+.modal-availability {
+  &:not([availability-type="non-billable"]) {
+    @media (min-width: 993px) {
+      .modal-dialog {
+        width: 980px;
+      }
+    }
+  }
+
+  &[availability-type="non-billable"] {
+    @media (min-width: 992px) {
+      .modal-dialog {
+        width: 650px;
+      }
+    }
+  }
+
+  @media (min-width: 768px) {
+    .modal-dialog {
+      width: 90%;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .modal-dialog {
+      margin: 5px;
+    }
+
+    /* Make modal header stick at top */
+    .modal-body {
+      max-height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .modal-dialog {
+      width: 990px;
+    }
+  }
+
+  .modal-header {
+    .modal-title {
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+  }
+
+  .dropdown-menu li > a[disabled] {
+    pointer-events: none;
+    opacity: 0.65;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .content-placeholder-wrap {
+    .stencil-avatar {
+      width: 100%;
+      height: 100px;
+      display: block;
+      background-color: rgba(42, 44, 47, 0.14);;
+      border-radius: 5px;
+    }
+
+    .stencil-line {
+      margin: 0 !important;
+      background-color: rgba(42, 44, 47, 0.14);;
+      color: transparent;
+      border-radius: 5px;
+      line-height: 25px;
+    }
+  }
+}
+
+.availability-box {
+  .availability-head-info {
+    .practitioner-details {
+      display: flex;
+
+      .profile-picture {
+        height: 70px;
+        width: 70px;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 50%;
+      }
+
+      .practitioner-info {
+        margin-left: 10px;
+        .line {
+          display: block;
+        }
+        .subinfo {
+          font-size: 90%;
+        }
+      }
+
+      .business-name {
+        display: block;
+      }
+
+      .practitioner-name {
+        font-weight: 600;
+      }
+    }
+
+    .availability-details {
+      .availability-date {
+        font-size: 16px;
+      }
+
+      .line {
+        display: block;
+      }
+    }
+  }
+
+  .availability-stats {
+    font-size: 95%;
+
+    table {
+      margin-bottom: 0;
+
+      tr {
+        td:first-child {
+          padding-right: 5px;
+        }
+
+        td:last-child {
+          font-weight: 600;
+          text-align: left;
+        }
+      }
+    }
+
+    @media (min-width: 768px) {
+      border: 1px solid #dadada;
+      border-radius: 3px;
+      padding: 5px;
+
+      table {
+        table-layout: fixed;
+
+        tr {
+          td:first-child {
+            width: 140px;
+          }
+        }
+      }
+    }
+
+    @media (max-width: 767px) {
+      table {
+        tr {
+          td:first-child {
+            width: 180px;
+          }
+        }
+      }
+    }
+  }
+
+  .table-appointments {
+    .appointment-row {
+
+      .appointment-content {
+        border-radius: 3px;
+        margin-bottom: 10px;
+        min-height: 80px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        position: relative;
+
+        &:hover {
+          background-color: #f6f8fa;
+          border-color: #d0d0d0;
+        }
+
+        .appointment-content-inner {
+          display: flex;
+        }
+      }
+
+      &.sortable-ghost {
+        .appointment-content {
+          opacity: 0.3;
+          border: 1px dashed #949494;
+        }
+        .before-appt, .after-appt {
+          visibility: hidden;
+        }
+      }
+
+      &.sortable-chosen {
+        .appointment-content {
+          background-color: #f8fff4;
+        }
+
+        .before-appt, .after-appt {
+          visibility: hidden;
+        }
+      }
+
+      &:last-child {
+        margin-bottom: 10px;
+      }
+
+      .before-appt, .after-appt {
+        font-size: 90%;
+        i.fa {
+          width: 15px;
+          color: #666;
+        }
+      }
+
+      .before-appt {
+        margin-bottom: 10px;
+      }
+
+      .after-appt {
+        margin-top: 5px;
+      }
+
+      .btn-drag-handle, .btn-toggle-menu-move-appt {
+        position: absolute;
+        top: 0;
+        padding: 0 3px;
+        right: 0;
+        border: 1px solid #ddd;
+        border-right: none;
+        border-top: none;
+        color: #999;
+
+        -webkit-touch-callout: none;
+          -webkit-user-select: none;
+           -khtml-user-select: none;
+             -moz-user-select: none;
+              -ms-user-select: none;
+                  user-select: none;
+
+
+        &:hover, &:focus, &:active {
+          color: #333;
+        }
+
+        .fa {
+          font-size: 11px;
+        }
+      }
+
+      .time {
+        font-size: 13px;
+      }
+    }
+
+    .col-patient {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 21px;
+      border-right: 1px dashed #dadada;
+      padding-left: 0;
+      padding-right: 15px;
+
+      // .link-patient {
+      //   color: #333;
+      // }
+
+      .patient-address {
+        display: flex;
+
+        .address-text {
+          padding-right: 5px;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .map-actions-dropdown {
+          display: inline-block;
+
+          .dropdown-toggle {
+            padding: 1px 5px;
+          }
+        }
+      }
+
+      .icon-patient-important-notif {
+        font-size: 13px;
+
+        .fa {
+          color: #f39c12;
+        }
+
+        .popover {
+          width: 250px;
+          color: #555;
+        }
+      }
+
+      .link-to-map {
+        padding-left: 5px;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      .patient-phone {
+        font-size: 90%;
+
+        > span + span {
+          margin-left: 5px;
+          padding-left: 10px;
+          border-left: 1px solid #e5e5e5;
+        }
+        a {
+          color: #555;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .appointment-status {
+        margin-left: 10px;
+
+        > span {
+          &:first-child {
+            margin-left: 10px;
+            border-left: 1px dotted #dadada;
+            padding-left: 10px;
+          }
+        }
+
+        > span + span {
+          margin-left: 5px;
+        }
+
+        .icon-note {
+          cursor: pointer;
+        }
+
+        .popover-content {
+          white-space: pre-wrap;
+        }
+      }
+    }
+
+    .col-appointment-type {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 21px;
+      font-size: 95%;
+
+      .appointment-type-name {
+        font-weight: 600;
+
+        .color-label {
+          border-radius: 3px;
+          width: 13px;
+          height: 13px;
+          margin-right: 3px;
+          float: left;
+          margin-top: 4px;
+        }
+      }
+
+      .appointment-status {
+        color: #555;
+
+        > span + span {
+          margin-left: 7px;
+        }
+
+        .popover-content {
+          white-space: pre-wrap;
+        }
+      }
+    }
+
+    .col-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: end;
+      align-items: center;
+      padding: 0;
+      gap: 5px;
+
+      .btn {
+        padding: 7px 9px;
+        height: auto;
+      }
+    }
+
+    &.dragging {
+      .before-appt, .after-appt {
+        visibility: hidden;
+      }
+    }
+
+  }
+
+  @media (min-width: 768px) {
+    .col-practitioner-details {
+      padding-right: 0;
+    }
+
+    .col-availability-stats {
+      padding-left: 0;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .table-appointments {
+      .appointment-row {
+        .appointment-content {
+          > .appointment-content-inner {
+            display: flex;
+            flex-direction: column;
+          }
+
+          .col-actions {
+            justify-content: end;
+            align-items: center;
+            padding-top: 10px;
+
+            .btn.dropdown-toggle {
+              padding: 6px 10px;
+            }
+          }
+        }
+
+        .col-patient {
+          padding-left: 0;
+          border-right: none;
+          padding-bottom: 10px;
+          border-bottom: 1px dashed #dadada;
+        }
+
+        .col-appointment-type {
+          border-bottom: 1px dashed #dadada;
+          padding-left: 0;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+      }
+    }
+
+    .availability-actions {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #ddd;
+    }
+
+    .modal-dialog {
+      width: auto;
+    }
+
+    .availability-head-info {
+      .practitioner-details {
+        margin-top: 0;
+      }
+
+      .availability-details {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #ddd;
+      }
+
+      .availability-stats {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #ddd;
+        line-height: 21px;
+        font-size: inherit;
+
+        table {
+          td:first-child {
+            text-align: left;
+          }
+        }
+      }
+    }
+  }
+}
+
+.form-availability {
+  .flatpickr-input[readonly] {
+    background-color: #fff;
+  }
+}
+
+.appointment-status-dropdown {
+  > li > a.selected {
+    color: #44b653;
+  }
+}

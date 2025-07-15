@@ -1,0 +1,350 @@
+<%
+  contact_options = []
+  selected_contact = nil
+
+  if @invoice.invoice_to_contact_id
+    selected_contact = current_business.contacts.find_by(id: @invoice.invoice_to_contact_id)
+    if selected_contact
+      contact_options << selected_contact
+    end
+  end
+
+  if @invoice.patient
+    @invoice.patient.invoice_to_contacts.each do |contact|
+      if selected_contact.nil? || (selected_contact.id != contact.id)
+        contact_options << contact
+      end
+    end
+  end
+
+%>
+
+<%= simple_form_for invoice, url: invoice.new_record? ? create_old_invoices_path : update_old_invoice_path(invoice), html: { id: 'form-invoice' } do |f| %>
+<div class="clearfix main-form">
+<div class="box">
+  <div class="text-center">
+    <% if current_business.avatar.exists? %>
+    <img src="<%= current_business.avatar.url %>" class="business-logo">
+    <% end %>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-sm-6">
+        <%=
+          f.input(
+            :issue_date,
+            as: :string,
+            required: false,
+            disabled: true,
+            input_html: {
+              readonly: true,
+              value: (invoice.issue_date? ? invoice.issue_date.strftime('%d %b %Y') : nil)
+            }
+          )
+        %>
+    </div>
+
+    <div class="col-sm-6">
+      <%= f.association :patient, as: :select, collection: invoice.patient ? [invoice.patient] : [], label_method: :full_name, input_html: { class: 'selectize-patients-ajax', id: 'select-patient-id' }, label: "Client" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+        <%=
+          f.association :appointment,
+                        as: :select,
+                        collection: [],
+                        include_blank: ' -- Select one --',
+                        input_html: {
+                          id: 'select-appointment-id',
+                          data: {
+                            'current-value' => f.object.appointment_id
+                          }
+                        }
+        %>
+      </div>
+      <div class="col-sm-6">
+          <%= f.association :patient_case, as: :select,
+            label: "Invoice case", collection: patient_case_options_for_invoice(invoice), include_blank: false, input_html: { id: 'select-case-id' } %>
+      </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+        <%=
+          f.input :invoice_to_contact_id,
+            as: :select,
+            label: "Invoice to <a href='#' data-toggle='modal' data-target='#modal-add-contact'>| New contact</a>".html_safe,
+            collection: [],
+            include_blank: false,
+            input_html: {
+              id: 'select-invoice-contact'
+            }
+        %>
+    </div>
+    <% if current_business.invoice_setting&.enable_diagnosis %>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label>Diagnosis: </label>
+        <select class="form-control selectize" name="invoice[diagnose_ids][]" multiple="true">
+          <option value="">-- Select diagnosis --</option>
+          <%=
+            options_for_select(
+              current_business.invoice_shortcuts.diagnoses.pluck(:content, :id),
+              invoice.diagnose_ids
+            )
+          %>
+        </select>
+      </div>
+    </div>
+    <% end %>
+  </div>
+
+  <div class="row">
+    <% if current_business.invoice_setting&.enable_services %>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label>Services: </label>
+        <select class="form-control selectize" name="invoice[service_ids][]" multiple="true">
+          <option value="">-- Select Services --</option>
+          <%=
+            options_for_select(
+              current_business.invoice_shortcuts.services.pluck(:content, :id),
+              invoice.service_ids
+            )
+          %>
+        </select>
+      </div>
+    </div>
+    <% end %>
+  </div>
+  <hr>
+  <div class="clearfix">
+    <div id="invoice-items">
+      <div class="row box-title">
+        <div class="col-md-5">Item</div>
+        <div class="col-md-3">Quantity</div>
+        <div class="col-md-2">Unit price</div>
+        <div class="col-md-2"></div>
+      </div>
+      <%= f.fields_for :items, wrapper: false do |f_item| %>
+        <div class="invoice-item-wrap mt-20 clearfix row">
+            <div class="col-md-5">
+              <label>Item:</label>
+              <% if f_item.object.invoiceable_type == Product.name %>
+                <%= f_item.hidden_field :invoiceable_type, value: Product.name %>
+                <% if f_item.object.persisted? %>
+                  <%= f_item.hidden_field :invoiceable_id %>
+                <% end %>
+                <%=
+                  f_item.collection_select(
+                    :invoiceable_id,
+                    current_business.products.not_deleted.order(name: :asc),
+                    :id,
+                    :name,
+                    { prompt: '-- Select product --' },
+                    {
+                      class: 'input-item-id form-control',
+                      disabled: f_item.object.persisted?
+                    }
+                  ) %>
+              <% else %>
+                <%= f_item.hidden_field :invoiceable_type, value: BillableItem.name %>
+                <% if f_item.object.persisted? %>
+                  <%= f_item.hidden_field :invoiceable_id %>
+                <% end %>
+                <%= f_item.collection_select(
+                    :invoiceable_id,
+                    current_business.billable_items.not_deleted.order(name: :asc), :id, :name,
+                    { prompt: '-- Select billable item --' },
+                    {
+                      class: 'input-item-id form-control',
+                      disabled: f_item.object.persisted?
+                    }
+                  )
+                %>
+              <% end %>
+              <% if f_item.object.errors[:invoiceable_id].empty? %>
+                <span class="text-danger"><%= f_item.object.errors[:invoiceable].first %></span>
+              <% end %>
+            </div>
+            <div class="col-xs-6 col-md-3">
+              <label>Quantity:</label>
+              <%= f_item.number_field :quantity, class: 'input-quantity form-control', min: 0, step: 1 %>
+              <% unless f_item.object.errors[:quantity].empty? %>
+              <span class="text-danger"><%= f_item.object.errors[:quantity].first %></span>
+              <% end %>
+            </div>
+            <div class="col-xs-6 col-md-2">
+              <label>Price:</label>
+              <%= f_item.number_field :unit_price, class: 'input-unit-price form-control', value: f_item.object.unit_price, min: 0 %>
+              <% unless f_item.object.errors[:unit_price].empty? %>
+                <span class="text-danger"><%= f_item.object.errors[:unit_price].first %></span>
+              <% end %>
+            </div>
+
+            <div class="col-md-2 col-xs-12 text-left">
+              <%= f_item.hidden_field :_destroy %>
+              <button class="btn btn-danger btn-remove-item" type="button"><i class="fa fa-trash"></i></button>
+            </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="row mt-20">
+      <div class="col-md-6 ">
+        <button class="btn btn-add-item btn-primary btn-sm" type="button" data-item-type="<%= BillableItem.name %>">+ Add billable item</button>
+        <button class="btn btn-add-item btn-primary btn-sm" type="button" data-item-type="<%= Product.name %>">+ Add product</button>
+      </div>
+    </div>
+    <br>
+    <hr>
+    <div class="clearfix"> </div>
+    <div class="row mt-20">
+        <div class="col-md-12 text-center">
+          <div class="col-md-12" style="padding: 20px; background-color: #f4f4f4; font-size: 21px;">
+            <strong>Total: $<span id="invoice-total">0</span></strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-20">
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary">
+        <% if @invoice.persisted? %>
+          Update invoice
+        <% else %>
+          Create invoice
+        <% end %>
+      </button>
+      <a href="<%= @invoice.persisted? ? invoice_path(@invoice) : invoices_path %>" class="btn btn-white">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<% end %>
+
+<%= render 'contacts/modal_add', object: Contact.new %>
+
+<% content_for :page_js do %>
+  <script>
+    <% if invoice.patient %>
+      var pricing_contacts = <%= PatientPresenter.new(invoice.patient).pricing_contacts.to_json.html_safe %> ;
+    <% else %>
+      var pricing_contacts = []
+    <% end %>
+  </script>
+  <%= render 'form_js' %>
+<% end %>
+
+<% content_for :page_js do %>
+  <script type="text/javascript">
+    (function() {
+      var currentContactOptions = <%= contact_options.to_json.html_safe %>;
+      var selectedContact = <%= selected_contact.to_json.html_safe %>;
+      var $selectAppt = $('#select-appointment-id');
+      var $selectPatient = $('#select-patient-id');
+
+      /* Filter appointment options by the selected patient */
+      function updateOptions() {
+        var patientId = $('#select-patient-id').val();
+        var $caseSelectElement = $('#select-case-id');
+
+        if (patientId.length) {
+          $.ajax({
+            url: '/app/patients/' + patientId + '/invoice_info',
+            success: function(res) {
+              pricing_contacts = res.pricing_contacts;
+
+              $caseSelectElement.find('option[value != ""]').remove();
+
+              $.each(res.cases, function(index, object) {
+                $caseSelectElement.append(new Option(object.name, object.id));
+              });
+
+              if (res.appointments) {
+                $selectAppt.find('option').not('[value=""]').remove();
+                for (var i = 0, l = res.appointments.length; i < l ; i++) {
+                  var appt = res.appointments[i];
+                  var pract = appt.practitioner;
+
+                  var apptLabel = moment.parseZone(appt.start_time).tz(pract.timezone).format('DD MMM YYYY / hh:mma');
+                  apptLabel += ' - ' + moment.parseZone(appt.end_time).tz(pract.timezone).format('hh:mma \(z\)');
+                  apptLabel += ' | ' + pract.full_name;
+
+                  var $option = $('<option>', {
+                    text: apptLabel,
+                    value: appt.id
+                  })
+
+                  $option.appendTo($selectAppt);
+                }
+
+                var initApptId = $selectAppt.data('current-value');
+                if (initApptId) {
+                  $selectAppt.val(initApptId);
+                } else {
+                  $selectAppt.find('option:first').prop('selected', true);
+                }
+              }
+            }
+          });
+        }
+      }
+
+      $selectPatient.on('change', function() {
+        updateOptions();
+      });
+
+      $('#select-invoice-contact').selectize({
+        plugins: ['no_results'],
+        valueField: 'id',
+        labelField: 'business_name',
+        searchField: ['business_name', 'full_name'],
+        create: false,
+        placeholder: "Type to search contact",
+        options: currentContactOptions,
+        render: {
+          option: function(item, escape) {
+            var text = item.business_name;
+            if (item.full_name) {
+              text += ' | ' + item.full_name;
+            }
+            return '<div>' + escape(text) + '</div>';
+          }
+        },
+        load: function(query, callback) {
+          if(!query.length) return callback();
+          var self = this;
+
+          $.get(
+            '/api/contacts/search?business_id=' + window.session.user.business_id + '&s=' + query,
+            function(res) {
+              self.clearOptions();
+              if (res.contacts.length > 0) {
+                callback(res.contacts);
+              } else {
+                self.$empty_results_container.show();
+              }
+            }
+          );
+        }
+      });
+
+      if (selectedContact) {
+        setTimeout(function() {
+          $('#select-invoice-contact')[0].selectize.setValue(selectedContact.id, true);
+        }, 200);
+      }
+
+      if ($selectPatient.val()) {
+        updateOptions();
+      }
+
+      <% if params[:patient_id] %>
+        updateOptions();
+      <% end %>
+    })();
+  </script>
+<% end %>
+</div>

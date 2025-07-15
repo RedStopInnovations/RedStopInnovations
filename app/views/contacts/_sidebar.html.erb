@@ -1,0 +1,23 @@
+<div class="bg-white">
+  <ul class="nav nav-pills nav-stacked">
+    <li class=<%= (controller_name == 'contacts' && action_name == 'show') ? 'active' : '' %> >
+      <a href="<%= contact_path(@contact) %>">Contact details</a>
+    </li>
+    <li class=<%= (controller_name == 'contacts' && action_name == 'invoices') ? 'active' : '' %> >
+      <a href="<%= invoices_contact_path(@contact) %>">Invoices <span class="label label-default pull-right"><%= @contact.invoices.count %></span> </a>
+    </li>
+    <li class=<%= (controller_name == 'contacts' && action_name == 'patients') ? 'active' : '' %> >
+      <a href="<%= patients_contact_path(@contact) %>">Clients <span class="label label-default pull-right"><%= @contact.patients.where(archived_at: nil).count(Arel.sql('DISTINCT patients.id')) %></span></a>
+    </li>
+    <li class=<%= (controller_name == 'contact_communications' && (action_name == 'index' || action_name == 'show')) ? 'active' : '' %> >
+      <a href="<%= contact_communications_path(@contact) %>">Messages <span class="label label-default pull-right"><%= Communication.where(recipient: @contact).count %></span></a>
+    </li>
+    <li class=<%= (controller_name == 'contact_account_statements' && action_name == 'index') ? 'active' : '' %> >
+      <a href="<%= contact_account_statements_path(@contact) %>">Account statements</a>
+    </li>
+    <li class=<%= (controller_name == 'contact_account_statements' && action_name == 'published') ? 'active' : '' %> >
+      <a href="<%= published_contact_account_statements_path(@contact) %>">Published statements <span class="label label-default pull-right"><%= @contact.account_statements.not_deleted.count %></span></a>
+    </li>
+  </ul>
+
+</div>

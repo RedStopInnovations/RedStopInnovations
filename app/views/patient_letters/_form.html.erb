@@ -1,0 +1,17 @@
+<div class="panel panel-default">
+  <div class="panel-body">
+    <%= simple_form_for patient_letter, url: (patient_letter.new_record? ? patient_letters_path(@patient): patient_letter_path(@patient, patient_letter)) do |f| %>
+      <%= f.input :letter_template_id, label: 'Template', collection: current_business.letter_templates.order(name: :asc).select(:id, :name), label_method: :name, input_html: { id: 'select-letter-template-id', class: 'selectize' } %>
+      <%= f.input :description, hint: 'For internal reference only. Max length is 100 characters.' %>
+
+      <%= f.input :content, input_html: { id: 'input-letter-content' }, wrapper_html: { id: 'input-letter-wrap'} %>
+
+      <button class="btn btn-primary" type="submit">Save letter</button>
+      <a href="<%= patient_letter.new_record? ? patient_letters_path(@patient): patient_letter_path(@patient, patient_letter) %>" class="btn btn-white">Cancel</a>
+    <% end %>
+  </div>
+</div>
+
+<% content_for :page_js do %>
+  <%= render 'form_js' %>
+<% end %>

@@ -1,0 +1,18 @@
+<div class="row">
+  <div class="col-md-6 col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+      <%= simple_nested_form_for @group, url: @group.new_record? ? settings_practitioner_groups_path : settings_practitioner_group_path(@group) do |f| %>
+
+        <%= f.input :name, hint: 'Minimum 3 characters. Maximum 50 characters.' %>
+        <%= f.input :description, input_html: { rows: 3 } %>
+        <%= f.input :practitioner_ids, label: 'Practitioners', as: :select, collection: current_business.practitioners.active.select(:id, :full_name), include_hidden: false,
+          label_method: :full_name, input_html: { multiple: true, class: 'selectize' } %>
+
+        <button type="submit" class="btn btn-primary"><%= @group.new_record? ? "Create group" : "Update group" %></button>
+        <a href="<%= settings_practitioner_groups_path %>" class="btn btn-white">Cancel</a>
+      <% end %>
+      </div>
+    </div>
+  </div>
+</div>

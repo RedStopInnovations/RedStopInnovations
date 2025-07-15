@@ -1,0 +1,10 @@
+en-GB:
+  simple_form:
+    labels:
+      defaults:
+        address1: "Address line 1"
+        address2: "Address line 2"
+        city: "City"
+        state: "State"
+        postcode: "Postcode"
+        country: "Country"

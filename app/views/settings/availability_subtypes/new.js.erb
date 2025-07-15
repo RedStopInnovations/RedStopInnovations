@@ -1,0 +1,66 @@
+(function() {
+  if ($('#js-modal-new-subtype').length > 0) {
+    $('#js-modal-new-subtype').remove();
+  }
+
+  $('body').append('<%= j render('modal_new') %>');
+  const $modal = $('#js-modal-new-subtype');
+  $modal.modal('show');
+
+  $modal.on('hidden.bs.modal', function() {
+    $(this).remove();
+  });
+
+  $modal.find('.js-form-new-subtype').on('submit', function(e) {
+    e.preventDefault();
+
+    const $form = $(this);
+    const $btnSubmit = $form.find('[type="submit"]');
+    $btnSubmit.attr('disabled', true);
+    $form.find('.js-form-errors-wrap').remove();
+
+    $.ajax({
+      method: $form.attr('method'),
+      url: $form.attr('action'),
+      data: $form.serialize(),
+      dataType: 'json',
+      success: function(res) {
+        Flash.success(res.message || 'The item was successfully created.');
+        $modal.modal('hide');
+        setTimeout(function() {
+          location.reload();
+        }, 2000);
+      },
+      error: function(xhr) {
+        $btnSubmit.removeAttr('disabled');
+        let formErrorsHtml = $('<div/>', {
+          class: 'js-form-errors-wrap text-danger'
+        });
+
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          formErrorsHtml.append($('<p />', {
+            text: xhr.responseJSON.message
+          }));
+        } else {
+          Flash.error('Failed to create. Please check for form errors.');
+        }
+
+        if (xhr.status === 422 && xhr.responseJSON.errors && xhr.responseJSON.errors.length > 0) {
+          let errorList = $('<ul />');
+
+          xhr.responseJSON.errors.forEach(function(error) {
+            errorList.append($('<li />', {
+              text: error
+            }));
+          });
+
+          formErrorsHtml.append(errorList);
+        }
+
+        $modal.find('.modal-body').prepend(formErrorsHtml);
+      }
+    });
+
+  });
+
+})();

@@ -1,0 +1,10 @@
+<div class="col-md-6">
+  <%= simple_form_for [:settings, @shortcut], url: @shortcut.new_record? ? settings_invoice_services_path  : settings_invoice_service_path(@shortcut) do |f| %>
+    <div class="box">
+      <%= f.input :content %>
+    </div>
+    <div class="text-center">
+      <button class="btn sitebtn"><%= @shortcut.new_record? ? "Create" : "Update" %></button>
+    </div>
+  <% end %>
+</div>

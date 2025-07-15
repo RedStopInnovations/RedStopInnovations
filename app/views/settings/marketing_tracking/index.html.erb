@@ -1,0 +1,42 @@
+<% content_for :title, 'Marketing & tracking' %>
+
+<section class="box-header">
+  <h1>Marketing & tracking</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Marketing & tracking</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Google Tag Manager</strong> integration</div>
+            <div class="panel-body">
+                <div class="callout callout-default">
+                    <p>Integrate Google Tag Manager with Tracksy online booking and referral pages.</p>
+                </div>
+
+                <%= simple_form_for :google_tag_manager, url: settings_update_google_tag_manager_path, method: 'PUT' do |f| %>
+
+                <div class="row">
+                    <div class="col-md-6">
+                    <%= f.input :container_id, label: 'GTM container ID', placeholder: 'GTM-XXX', input_html: {value: @google_tag_manager_settings['container_id'] } %>
+                    </div>
+                </div>
+
+                    <hr>
+                    <%= f.submit 'Save settings', class: 'btn btn-primary' %>
+                    <a href="<%= settings_path %>" class="btn btn-white">Cancel</a>
+                <% end %>
+            </div>
+        </div>
+    </div>
+  </div>
+</section>

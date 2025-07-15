@@ -1,0 +1,78 @@
+<section class="box-header">
+  <h1><%= @subscription.business.name %>'s subscription payment history</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_subscriptions_path %>">Subscriptions</a>
+    </li>
+    <li><%= @subscription.business.name %> - Payments</li>
+  </ul>
+</section>
+
+<section class="content pb-none">
+  <div class="box">
+    <div role="tabpanel">
+      <ul class="nav nav-tabs">
+        <li>
+          <a href="<%= admin_subscription_path(@subscription) %>">Subscription info</a>
+        </li>
+        <li>
+          <a href="<%= invoices_admin_subscription_path(@subscription) %>">Issued invoices</a>
+        </li>
+        <li class="active">
+          <a href="#payments">Payment history</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="invoices">
+          <div class="box-table">
+            <table class="table-flat">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Invoice</th>
+                  <th>Payment type</th>
+                  <th>Amount</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @subscription_payments.each do |subscription_payment| %>
+                  <tr>
+                    <td><%= subscription_payment.payment_date.strftime('%b %d %Y') %></td>
+                    <td>
+                      <a href="<%= admin_business_invoice_path(subscription_payment.business_invoice.id) %>">#<%= subscription_payment.business_invoice.invoice_number %></a>
+                    </td>
+                    <td>
+                      <%= subscription_payment.payment_type %>
+                    </td>
+                    <td><%= format_money subscription_payment.amount %></td>
+                    <td>
+                      <a href="<%= admin_subscription_payment_path(subscription_payment) %>">Details</a>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+            <div class="row">
+              <div class="col-md-6 text-left">
+                <%= page_entries_info @subscription_payments, entry_name: 'Payment' %>
+              </div>
+              <div class="col-md-6 text-right">
+                <%= paginate @subscription_payments %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

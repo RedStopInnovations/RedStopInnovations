@@ -1,0 +1,101 @@
+
+<% content_for :title, 'Client attachments export' %>
+
+<section class="box-header">
+  <h1>Client attachments export</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>">Data export</a>
+    </li>
+    <li>
+        <a href="<%= app_data_export_patient_attachments_exports_path %>">Client attachments export</a>
+    </li>
+    <li class="active">Details</li>
+  </ul>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-md-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="block-info">
+                        <strong>Created at:</strong>
+                        <p><%= @export.created_at.strftime(t('datetime.common')) %></p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Export status:</strong>
+                        <p <% if @export.status_completed? %> class="text-success" <% end %> ><%= @export.status.titleize %></p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Description:</strong>
+                        <p><%= @export.description %></p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Created by:</strong>
+                        <p><%= @export.author.full_name %></p>
+                    </div>
+                    <% if @export.status_completed? && @export.zip_file.attached? %>
+                    <div class="block-info">
+                        <strong>Download:</strong>
+                        <p>
+                            <a href="<%= download_app_data_export_patient_attachments_export_path(@export.id) %>"><i class="fa fa-download"></i> Download</a>
+                            (<%= number_to_human_size(@export.zip_file.blob.byte_size) %>)
+                        </p>
+                    </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="block-info">
+                        <strong>Date range:</strong>
+                        <p>
+                            <span>
+                            <% if @export.options['start_date'].present? %>
+                                <%= @export.options['start_date'].to_date.strftime(t('date.common')) %>
+                            <% else %>
+                                <span class="text-muted">Not specified</span>
+                            <% end %>
+                            </span>
+                            <span class="text-muted"> - </span>
+                            <span>
+                            <% if @export.options['end_date'].present? %>
+                                <%= @export.options['end_date'].to_date.strftime(t('date.common')) %>
+                            <% else %>
+                                <span class="text-muted">Not specified</span>
+                            <% end %>
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="block-info">
+                        <strong>Clients:</strong>
+                        <%
+                            patients = []
+                            if (@export.options['patient_ids'])
+                                patients = current_business.patients.with_deleted.where(id: @export.options['patient_ids']).select(:id, :first_name, :last_name, :full_name).to_a
+                            end
+                        %>
+                        <p>
+
+                            <% if patients.count > 0 %>
+                                <%= patients.map(&:full_name).join(', ') %>
+                            <% else %>
+                                <span class="text-muted">Not specified</span>
+                            <% end %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>

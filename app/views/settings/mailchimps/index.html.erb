@@ -1,0 +1,52 @@
+<% content_for :title, 'Mailchimp integration' %>
+
+<section class="box-header">
+  <h1>Mailchimp integration</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Mailchimp integration</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-body">
+        <%= simple_form_for @mailchimp_setting, url: settings_mailchimps_path, method: :POST do |f| %>
+            <%= f.input :api_key, class: "form-control", placeholder: "Mailchimp API key" %>
+            <%= f.input :list_name, class: "form-control", placeholder: "Mailchimp list name" %>
+
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="<%= settings_path %>" class="btn btn-white">Cancel</a>
+
+            <hr>
+            <ul class="list-unstyled">
+              <li>
+                <strong>When add client:</strong>
+                <ol>
+                  <li>Add new client to Mailchimp</li>
+                </ol>
+              </li>
+
+              <li>
+                <strong>When update a client (if email changed):</strong>
+                <ol>
+                  <li>Delete member by old email from Mailchimp list</li>
+                  <li>Add new client to Mailchimp</li>
+                </ol>
+              </li>
+
+            </ul>
+        <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

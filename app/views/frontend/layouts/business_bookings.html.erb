@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Online Bookings - <%= @business.name %></title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=5">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="robots" content="noindex, nofollow"/>
+
+        <%= render 'frontend/layouts/shared/dns_prefetch' %>
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Lato:400italic,400,500,700&display=swap">
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap">
+
+        <%= csrf_meta_tags %>
+        <%= stylesheet_pack_tag 'frontend' %>
+    </head>
+
+    <body class="<%= yield(:body_class) %>" id="<%= yield(:page_id) %>" data-country="<%= params[:country] || App::DEFAULT_COUNTRY %>">
+        <% unless params[:_iframe] %>
+        <div class="header-main header-style3">
+            <div class="top-bar p-3">
+                <div class="container text-center">
+                    <% if @business.avatar.exists? %>
+                        <img src="<%= @business.avatar.url(:medium) %>" alt="Logo" style="max-height: 70px;">
+                    <% else %>
+                        <img src="<%= asset_pack_path('static/images/logo.png') %>" alt="Logo" style="max-width: 250px;">
+                    <% end %>
+                </div>
+            </div>
+        </div>
+
+        <% end %>
+
+        <%= render 'frontend/layouts/bookings/flash_messages' %>
+
+        <%= yield %>
+
+        <a href="#top" id="back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+        <%= javascript_pack_tag 'frontend' %>
+
+        <%= yield :page_additional_html %>
+
+        <%= yield :page_js %>
+    </body>
+</html>

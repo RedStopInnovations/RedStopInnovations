@@ -1,0 +1,401 @@
+<script id="js-edit-invoice-tmpl" type="text/template">
+
+  <div class="row" v-if="invoice">
+    <div class="col-xs-12 col-md-12">
+      <div class="panel panel-default">
+
+        <div class="panel-body">
+          <div class="text-smaller text-warning mb-20" v-if="isPaid">
+            <i class="fa fa-info-circle"></i> This invoice has already been paid, there is only a few fields are editable.
+          </div>
+          <div class="row">
+
+            <div class="col-md-6">
+              <label>Client: </label>
+              <div class="form-group">
+                <div v-if="selectedPatient" class="form-control form-control-static bg-gray-light cursor-not-allowed height-auto-sm">
+                  <span>{{ selectedPatient.full_name }} ({{ selectedPatient.dob | dob }})</span>
+                  <a :href="'/app/patients/' + selectedPatient.id" target="_blank" title="View details"><i class="fa fa-external-link"></i></a>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Appointment: </label>
+
+                <template v-if="isPaid">
+                  <div class="form-control form-control-static height-auto-sm cursor-not-allowed bg-gray-light">
+                    <span v-if="selectedAppointment">
+                      <span>{{ selectedAppointment.start_time | shortDate }}</span> - <span>{{ selectedAppointment.appointment_type.name }}</span>
+                      <a :href="'/app/appointments/' + selectedAppointment.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                    </span>
+                    <span v-if="!selectedAppointment" class="text-muted">-- Not selected --</span>
+                  </div>
+                </template>
+
+                <template v-if="!isPaid">
+                  <!-- Allow edit appointment if unpaid -->
+                  <div v-if="selectedAppointment" class="form-control form-control-static height-auto-sm">
+                    <span class="pull-right"><a href="#" @click.prevent="onClickDeselectAppointment" class="text-muted pa-5 npr">×</a></span>
+                    <span>{{ selectedAppointment.start_time | shortDate }}</span> - <span>{{ selectedAppointment.appointment_type.name }}</span>
+                    <a :href="'/app/appointments/' + selectedAppointment.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                  </div>
+
+                  <v-multiselect
+                    v-show="!selectedAppointment"
+                    v-model="selectedAppointment"
+                    :options="allPatientAppointments"
+                    :multiple="false"
+                    :disabled="!selectedPatient"
+                    :close-on-select="true"
+                    :options-limit="100"
+                    :searchable="false"
+                    :clear-on-select="true"
+                    placeholder="-- Select one --"
+                    open-direction="bottom"
+                    track-by="id"
+                    select-label=""
+                    deselect-label="Deselect"
+                    :custom-label="customSelectedAppointmentLabel"
+                    @input="onAppointmentChanged"
+                    >
+
+                  <template slot="beforeList" v-if="allPatientAppointments.length == 0">
+                    <div class="pa-5 text-muted">There is no appointment to select</div>
+                  </template>
+
+                    <template slot="option" scope="props">
+                      <div class="desc">
+                        <span class="text-bolder">{{ props.option.start_time | shortDate }}</span>
+                        <a :href="'/app/appointments/' + props.option.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                        <div class="pl-5 small">
+                          <span>ID: {{ props.option.id }}</span>
+                          <br>
+                          <span>Type: {{ props.option.appointment_type.name }} ({{ props.option.appointment_type.duration }}m)</span>
+                          <br>
+                          <span>Time: {{ props.option.start_time | hour }} - {{ props.option.end_time | hourz }}</span>
+                          <br>
+                          <span>Practitioner: {{ props.option.practitioner.full_name }}</span>
+                        </div>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </template>
+              </div>
+
+              <div class="form-group">
+                <label>Case: </label>
+
+                <div v-if="selectedCase" class="form-control form-control-static height-auto-sm">
+                  <span class="pull-right"><a href="#" @click.prevent="onClickDeselectCase" class="text-muted pa-5 npr">×</a></span>
+                  <span>{{ selectedCase.case_type.title }} - {{ selectedCase.status }}</span>
+                  <a :href="'/app/patient-cases/' + selectedCase.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                </div>
+
+                <v-multiselect
+                  v-show="!selectedCase"
+                  v-model="selectedCase"
+                  :options="allPatientCases"
+                  :multiple="false"
+                  :disabled="!selectedPatient"
+                  :close-on-select="true"
+                  :options-limit="100"
+                  :searchable="false"
+                  :clear-on-select="true"
+                  placeholder="-- Select one --"
+                  open-direction="bottom"
+                  track-by="id"
+                  select-label=""
+                  deselect-label="Deselect"
+                  :custom-label="customSelectedCaseLabel"
+                  >
+                  <template slot="beforeList" v-if="allPatientCases.length == 0">
+                    <div class="pa-5 text-muted">There is no cases to select</div>
+                  </template>
+
+                  <template slot="option" scope="props">
+                    <div class="desc">
+                      <span class="text-bolder">{{ props.option.case_type.title }}</span> <span v-if="props.option.archived_at" class="label label-default">ARCHIVED</span>
+                      <a :href="'/app/patient-cases/' + props.option.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                      <div class="small pl-5">
+                        <span style="width: 60px; display: inline-block;">Status:</span> {{ props.option.status }}
+                        <br>
+                        <span style="width: 60px; display: inline-block;">Budget: </span> Used: ${{ props.option.issued_invoices_amount }} / Max:
+                        <span v-if="props.option.invoice_total">${{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        / Remaining: <span v-if="props.option.invoice_total">${{ props.option.invoice_total - props.option.issued_invoices_amount }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        <br>
+                        <span style="width: 60px; display: inline-block;">Invoices:</span> {{ props.option.issued_invoices_count }}
+                        <br>
+                        <span style="width: 60px; display: inline-block;">Created:</span> {{ props.option.created_at | shortDate }}
+                      </div>
+
+                    </div>
+                  </template>
+                </v-multiselect>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="">Issue date:</label>
+                <div class="form-control cursor-not-allowed form-control-static bg-gray-light">{{ invoice.issue_date | moment('DD/MM/YYYY') }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Invoice to contact: </label>
+
+                <template v-if="isPaid">
+                  <div class="form-control form-control-static bg-gray-light cursor-not-allowed height-auto-sm">
+                    <span v-if="selectedContact">
+                      <span>{{ selectedContact.business_name }}</span>
+                      <a :href="'/app/contacts/' + selectedContact.id" target="_blank" title="View details"><i class="fa fa-external-link"></i></a>
+                    </span>
+                    <span v-if="!selectedContact" class="text-muted">-- Not selected --</span>
+                  </div>
+                </template>
+
+                <template v-if="!isPaid">
+                  <!-- Allow edit contact if unpaid -->
+                  <div v-if="selectedContact" class="form-control form-control-static height-auto-sm">
+                    <span class="pull-right"><a href="#" @click.prevent="onClickDeselectContact" class="text-muted pa-5 npr">×</a></span>
+                    <span>{{ selectedContact.business_name }}</span>
+                    <a :href="'/app/contacts/' + selectedContact.id" target="_blank" title="View details"><i class="fa fa-external-link"></i></a>
+                  </div>
+
+                  <v-multiselect
+                    v-show="!selectedContact"
+                    v-model="selectedContact"
+                    :options="contactOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :options-limit="10"
+                    :searchable="true"
+                    :hide-selected="true"
+                    :loading="isSearchingContacts"
+                    :internal-search="false"
+                    :clear-on-select="true"
+                    placeholder="-- Select one --"
+                    open-direction="bottom"
+                    track-by="id"
+                    @search-change="onSearchContactChanged"
+                    select-label=""
+                    deselect-label="Deselect"
+                    :custom-label="customSelectedContactLabel"
+                    @input="onContactChanged"
+                    >
+
+                    <template slot="noResult" v-hide="isSearchingContacts">
+                      <span>No contact match!</span>
+                    </template>
+
+                    <template slot="option" scope="props">
+                      <div class="desc">
+                        <span class="text-bolder" v-html="$options.filters.highlight(props.option.business_name, props.search)"></span>
+                        <div class="small pl-5">
+                          <span>{{ props.option | formattedLocalAddress }}</span>
+                        </div>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </template>
+              </div>
+
+            </div>
+
+          </div>
+
+          <hr>
+
+          <div class="table-invoice-items-wrap">
+            <table class="table table-bordered mb-0 table-invoice-items">
+              <thead class="bg-gray-light">
+                <tr>
+                  <th style="min-width: 450px">Item</th>
+                  <th style="width: 150px">Quantity</th>
+                  <th style="width: 150px">Unit price</th>
+                  <th style="width: 150px">Tax</th>
+                  <th style="width: 150px">Total</th>
+                  <th style="width: 50px"></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr v-for="(item, itemIdx) in invoiceItems" :key="itemIdx">
+                  <td>
+                    <div v-if="item.id" class="form-control cursor-not-allowed form-control-static bg-gray-light height-auto-sm">
+                      {{ item.unit_name }}
+                    </div>
+
+                    <div v-if="!item.id">
+                      <div v-if="item.invoiceable_type == 'BillableItem'">
+                        <v-multiselect
+                          v-model="item.invoiceable"
+                          :options="allBillableItems"
+                          :multiple="false"
+                          :close-on-select="true"
+                          :options-limit="100"
+                          :searchable="true"
+                          label="name"
+                          :clear-on-select="true"
+                          placeholder="Select billable item"
+                          open-direction="bottom"
+                          track-by="id"
+                          select-label=""
+                          deselect-label="Deselect"
+                          :custom-label="customSelectedBillableItemLabel"
+                          @input="onSelectedBillalbleItem(item)"
+                          >
+
+                          <template slot="noResult">
+                            <span>No billable item match!</span>
+                          </template>
+
+                          <template slot="option" scope="props">
+                            <div class="desc">
+                              <span class="text-bolder" v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+                              <small>[{{ props.option.item_number }}]</small>
+                            </div>
+                          </template>
+                        </v-multiselect>
+                      </div>
+
+                      <div v-if="item.invoiceable_type == 'Product'">
+                        <v-multiselect
+                          v-model="item.invoiceable"
+                          :options="allProducts"
+                          :multiple="false"
+                          :close-on-select="true"
+                          :options-limit="100"
+                          :searchable="true"
+                          label="name"
+                          :clear-on-select="true"
+                          placeholder="Select product"
+                          open-direction="bottom"
+                          track-by="id"
+                          select-label=""
+                          deselect-label="Deselect"
+                          :custom-label="customSelectedProductLabel"
+                          @input="onSelectedProduct(item)"
+                          >
+
+                          <template slot="noResult">
+                            <span>No product match!</span>
+                          </template>
+
+                          <template slot="option" scope="props">
+                            <div class="desc">
+                              <span class="text-bolder" v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+                              <small>[{{ props.option.item_code }}]</small>
+                            </div>
+                          </template>
+                        </v-multiselect>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <input type="text" class="form-control" v-if="!isPaid" min="0" max="1000" v-model.number="item.quantity" @change="calculateInvoice">
+                    <div v-if="isPaid" class="form-control cursor-not-allowed form-control-static bg-gray-light height-auto-sm">
+                      {{ item.quantity }}
+                    </div>
+                  </td>
+
+                  <td>
+                    <input type="text" class="form-control" v-if="!isPaid" max="1000000" v-model.number="item.unit_price" @change="calculateInvoice">
+                    <div v-if="isPaid" class="form-control cursor-not-allowed form-control-static bg-gray-light height-auto-sm">
+                      {{ item.unit_price }}
+                    </div>
+                  </td>
+
+                  <td>
+                    <span v-if="item.tax_name && item.tax_rate">
+                      {{ item.tax_name }} {{ item.tax_rate }}%
+                    </span>
+                  </td>
+
+                  <td>
+                    <span v-if="item.amount">
+                      ${{ item.amount | round(2) }}
+                    </span>
+                  </td>
+
+                  <td class="text-center">
+                    <a href="#" v-if="!isPaid" class="btn btn-white" @click.prevent="onClickRemoveInvoiceItem(itemIdx)"><i class="fa fa-trash text-danger"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+           </div>
+
+          <div class="mt-10" v-if="!isPaid">
+            <button class="btn btn-sm btn-white" @click.prevent="onClickAddBillableItem"><i class="fa fa-plus"></i> Add billable item</button>
+            <button class="btn btn-sm btn-white" @click.prevent="onClickAddProduct"><i class="fa fa-plus"></i> Add product</button>
+          </div>
+
+          <hr>
+
+          <div class="row mt-20">
+            <div class="col-sm-12 col-lg-5 col-lg-push-7">
+              <div class="bordered pa-10 rounded-3 bg-gray-light">
+                <table class="table table-borderless mb-0">
+                  <tbody>
+                    <tr>
+                      <td>Subtotal:</td>
+                      <td>${{ invoice.subtotal_amount | round(2) }}</td>
+                    </tr>
+
+                    <tr>
+                      <td>Tax:</td>
+                      <td>${{ invoice.tax_amount | round(2) }}</td>
+                    </tr>
+
+                    <tr>
+                      <td colspan="2"><hr class="mt-0 mb-0"></td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <h3 class="mt-0 mb-0">TOTAL:</h3>
+                      </td>
+                      <td>
+                        <h3 class="mt-0 mb-0">${{ invoice.total_amount | round(2) }}</h3>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+            <div class="col-sm-12 col-lg-7 col-lg-pull-5">
+              <hr class="visible-xs">
+              <label>Message:</label>
+              <textarea v-model="invoice.message" rows="5" class="form-control" maxlength="500" placeholder="Add custom message to the invoice"></textarea>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="col-md-7 col-xs-12">
+          <div class="panel panel-warning">
+            <div class="panel-heading">
+              <span class="text-warning">Notes</span>
+            </div>
+            <div class="panel-body">
+              <textarea v-model="invoice.notes" rows="3" class="form-control" placeholder="Notes for internal use"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn btn-primary" type="button" @click.prevent="onClickSubmitInvoice" :disabled="busy">Update invoice</button>
+        <a :href="'/app/invoices/' + invoice.id" class="btn btn-white">Cancel</a>
+      </div>
+
+    </div>
+  </div>
+
+</script>

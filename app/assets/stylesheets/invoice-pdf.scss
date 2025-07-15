@@ -1,0 +1,48 @@
+// @TODO: remove as being replaced by pdf/invoice.scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "pdf/common";
+@import "shared/helper";
+
+// Variable
+$backgroundColor: rgba(68, 182, 84, 0.2);
+$headingColor: #00aeef;
+
+h3 {
+  color: #00aeef;
+  font-size: 20px;
+  text-transform: uppercase;
+  margin: 10px 0px;
+}
+
+.block-info {
+  margin: 5px 0px;
+}
+
+.section-title {
+  margin-bottom: 5px;
+}
+
+.business-name {
+  font-size: 25px;
+  font-weight: normal;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.business-logo
+{
+  margin:0 auto;
+  border-radius: 2px;
+  max-height: 150px;
+  max-width: 400px;
+}
+
+.invoice-message {
+  text-align: left;
+  color: #515151;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  font-size: 13px;
+}

@@ -1,0 +1,49 @@
+<%= render 'patients/show_layout' do %>
+  <div class="row pt-20">
+    <div class="col-md-12">
+      <a href="<%= new_patient_outcome_measure_path(@patient) %>" class="btn sitebtn pull-right">
+        <i class="fa fa-plus"></i> New outcome measure
+      </a>
+      <h4 class="page-title">Outcome measures</h4>
+    </div>
+  </div>
+
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Practitioner</th>
+          <th>Created at</th>
+          <th width="15%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @outcome_measures.each do |om| %>
+          <tr>
+            <td>
+              <a href="<%= patient_outcome_measure_path(@patient, om) %>">
+                <%= om.outcome_measure_type.name %>
+              </a>
+            </td>
+            <td><%= om.practitioner.full_name %></td>
+            <td><%= om.created_at.strftime('%d %b %Y, %l:%M%P') %></td>
+            <td>
+              <a href="<%= patient_outcome_measure_path(@patient, om) %>" class="btn btn-link" title="Show"><i class="fa fa-eye" aria-hidden="true"></i></a>
+              <a href="<%= edit_patient_outcome_measure_path(@patient, om) %>" class="btn btn-link" title="Edit"><i class="fa fa-pencil"></i></a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @outcome_measures %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @outcome_measures %>
+      </div>
+    </div>
+  </div>
+<% end %>

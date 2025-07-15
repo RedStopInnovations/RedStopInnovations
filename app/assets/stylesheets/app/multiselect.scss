@@ -1,0 +1,29 @@
+.multiselect__tags {
+  border-color: #d2d6de;
+  border-radius: 0;
+
+  ::-webkit-input-placeholder {
+    color: #b7b7b7;
+  }
+}
+
+.multiselect__element .highlight {
+  text-decoration: underline;
+}
+
+/* Vue multiselect with gray theme like the default of selectize */
+.multiselect.theme-gray {
+  .multiselect__tag {
+    background: #efefef;
+    color: #333333;
+    border: 0 solid rgba(0, 0, 0, 0);
+    .multiselect__tag-icon {
+      &:after {
+        color: #333333;
+      }
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+}

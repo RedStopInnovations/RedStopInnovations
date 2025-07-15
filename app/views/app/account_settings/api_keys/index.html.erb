@@ -1,0 +1,83 @@
+<% content_for :title, 'Account settings - API keys' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>API keys</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= render 'app/account_settings/tabs', { active_tab: 'api_key' }  %>
+
+    <div class="callout callout-default">
+        <p>Use in other softwares to allow them to integrate with Tracksy.</p>
+    </div>
+
+    <% if @api_keys.size > 0 %>
+    <table class="table" id="js-table-api-keys">
+      <thead>
+        <tr>
+          <th>API key</th>
+          <th>Last used</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+          <% @api_keys.each do |api_key| %>
+          <tr data-id="<%= api_key.id %>">
+            <td>
+              <%= api_key.token %>
+              <button class="btn btn-white js-btn-copy-api-key" data-copy-text="<%= api_key.token %>"><i class="fa fa-copy"></i></button>
+            </td>
+
+            <td>
+              <% if api_key.last_used_at? %>
+                <%= api_key.last_used_at.strftime t('datetime.common') %>
+              <% else %>
+                <span class="text-muted">--</span>
+              <% end %>
+            </td>
+
+            <td>
+              <a
+                href="#"
+                class="btn btn-sm btn-danger btn-form"
+                data-form-url="<%= app_account_settings_api_keys_destroy_path(api_key) %>"
+                data-form-method="DELETE"
+                data-form-confirmation="Any applications using this key will no longer have access to your Tracksy account. Are you sure want to DEACTIVATE this API key?"
+                title="Deactivate"
+                ><i class="fa fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+
+          <% end %>
+      </tbody>
+    </table>
+    <% end %>
+
+    <button type="button" class="btn btn-primary btn-form"
+      data-form-url="<%= app_account_settings_api_keys_create_path %>"
+      data-form-method="POST"
+      data-form-confirmation="Are you sure you want to create new API key?"
+      >Generate a new API key</button>
+
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  var clipboard = new Clipboard('.js-btn-copy-api-key', {
+    text: function(trigger) {
+      return $(trigger).data('copy-text')
+    }
+  });
+
+  clipboard.on('success', function(e) {
+    Flash.success('Copied to clipboard');
+  });
+</script>
+<% end %>

@@ -1,0 +1,7 @@
+(function() {
+    <% if @success %>
+        Flash.success('The settings has been updated.');
+    <% else %>
+       Flash.error('<%= j @error %>');
+    <% end %>
+})();

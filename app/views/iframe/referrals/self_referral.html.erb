@@ -1,0 +1,129 @@
+<% content_for :title, 'Referral' %>
+
+<div class="referral-page">
+  <div class="container">
+    <% if @business.avatar.exists? %>
+      <div class="text-center">
+        <img src="<%= @business.avatar.url(:medium) %>" alt="<%= @business.name %> logo" class="business-logo">
+      </div>
+    <% end %>
+
+    <%= simple_nested_form_for @referral_form, as: :referral, url: iframe_create_referral_url, html: {id: 'js-form-referral', novalidate: 'novalidate', autocomplete: "off" } do |f| %>
+      <%= f.input :type, as: :hidden %>
+      <input type="hidden" name="business" value="<%= @business.id %>">
+
+      <h3>Service</h3>
+      <div class="box">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <%=
+                f.input :professions,
+                        as: :select,
+                        required: true,
+                        collection: @available_professions,
+                        include_blank: "-- Select professions --",
+                        include_hidden: false,
+                        input_html: {
+                          id: 'input-professions',
+                          multiple: true
+                        }
+              %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <%= f.input :availability_type_id, as: :select, required: true, collection: [['Home visit', AvailabilityType::TYPE_HOME_VISIT_ID], ['Facility', AvailabilityType::TYPE_FACILITY_ID]],
+                include_blank: "-- Select availability type --" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Your information</h3>
+      <div class="box">
+        <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+          <div class="row">
+            <div class="col-md-6">
+              <%= ff.input :first_name, required: true, input_html: { autocomplete: 'nope' } %>
+            </div>
+            <div class="col-md-6">
+              <%= ff.input :last_name, required: true, input_html: { autocomplete: 'nope' } %>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <%= ff.input :dob, as: :string, label: 'Date of Birth', required: true, placeholder: 'dd/mm/yyyy', input_html: { autocomplete: 'nope' } %>
+            </div>
+            <div class="col-md-6">
+              <%= ff.input :mobile, required: true, input_html: { autocomplete: 'nope' } %>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <%= ff.input :email, input_html: { autocomplete: 'nope' } %>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="row">
+            <div class="col-md-6 col-sm-12 col-xs-12">
+              <%= ff.input :address1, required: true, label: 'Address', input_html: { id: 'input-patient-address', input_html: { autocomplete: 'nope' } } %>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <%= ff.input :city, required: true, input_html: { id: 'input-patient-city', input_html: { autocomplete: 'nope' } } %>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <%= ff.input :state, required: true, input_html: { id: 'input-patient-state', input_html: { autocomplete: 'nope' } } %>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <%= ff.input :postcode, required: true, input_html: { id: 'input-patient-postcode', input_html: { autocomplete: 'nope' } } %>
+            </div>
+            <div class="col-md-6">
+              <%= ff.input :country, required: true, priority: [ @business.country ], input_html: { id: 'input-patient-country', input_html: { autocomplete: 'nope' } }%>
+            </div>
+          </div>
+        <% end %>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-12">
+            <%= f.input :medical_note, label: 'Relevant medical history', as: :text, input_html: { rows: 5 }, hint: "We appreciate as much information as possible." %>
+          </div>
+        </div>
+      </div>
+
+      <div id="js-form-error-wrap" class="box hidden"></div>
+
+      <% if App::RECAPTCHA_ENABLE %>
+        <div class="form-group">
+          <label class="control-label"><span class="text-smaller">Please complete the Captcha:</span></label>
+          <div class="g-recaptcha" data-sitekey="<%= ENV['RECAPTCHA_SITE_KEY'] %>" data-theme="light"></div>
+        </div>
+      <% end %>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-default btn-lg">Submit</button>
+      </div>
+    <% end %>
+
+    <div id="js-success-notification" class="box text-center hidden">
+      <h3>The referral was successfully submitted. We will contact you soon.</h3>
+      <a href="<%= request.fullpath %>"
+        class="btn btn-default">Create another referral</a>
+    </div>
+  </div>
+</div>
+
+<%= content_for :page_js do %>
+  <% if App::RECAPTCHA_ENABLE %>
+    <script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>
+  <% end %>
+  <%= render 'form_js' %>
+<% end %>

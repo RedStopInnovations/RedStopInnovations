@@ -1,0 +1,87 @@
+<script type="text/javascript">
+  $(function() {
+    var $form = $('#form-business-invoice');
+    var $invoiceTotal = $('#invoice-total');
+    var $invoiceSubtotal = $('#invoice-subtotal');
+    var $invoiceItemsWrap = $('#business-invoice-items');
+    var $invoiceTaxAmount = $('#tax-amount');
+    var $invoiceDiscount = $('#business_invoice_discount');
+
+    /* Handle quantity and price changes to update totals */
+    $form.on('change', '.input-quantity, .input-unit-price, #business_invoice_discount', function() {
+      updateTotals();
+    });
+
+    /* Calculate and update items and invoice totals */
+    var updateTotals = function() {
+      var items = $form.find('.invoice-item-wrap');
+      var invoiceDiscount = 0;
+
+      if ($invoiceDiscount.val().trim().length > 0) {
+        invoiceDiscount = parseFloat($invoiceDiscount.val());
+      }
+
+      var invoiceSubtotal = 0.00;
+      for (var i = items.length - 1; i >= 0; i--) {
+        var $itemWrap = $(items[i]);
+        var $inputDestroyItem = $itemWrap.find("input[name$='[_destroy]']");
+        var $inputQty = $itemWrap.find('.input-quantity');
+        var $inputUnitPrice = $itemWrap.find('.input-unit-price');
+        var $itemTotal = $itemWrap.find('.item-total');
+        var quantity = 0;
+        var unitPrice = 0.00;
+
+        if ($inputDestroyItem.val() == '1') {
+          continue;
+        }
+        if ($inputQty.val().length > 0) {
+          quantity = parseInt($inputQty.val());
+        }
+
+        if ($inputUnitPrice.val().length > 0) {
+          unitPrice = parseFloat($inputUnitPrice.val());
+        }
+
+        var itemTotal = quantity * unitPrice;
+        invoiceSubtotal += itemTotal;
+        $itemTotal.val(itemTotal.toFixed(2));
+      }
+      // Round:
+      invoiceSubtotal = Math.round(invoiceSubtotal * 100) / 100;
+
+      invoiceTotal = invoiceSubtotal;
+      var taxAmount = invoiceSubtotal * 0.1;
+      invoiceTotal += taxAmount;
+
+      if (invoiceDiscount > 0) {
+        invoiceTotal -= invoiceDiscount;
+      }
+
+      $invoiceTaxAmount.html(taxAmount.toFixed(2));
+
+      if (invoiceTotal <= 0) {
+        $invoiceTotal.html('0');
+      } else {
+        $invoiceTotal.html('' + invoiceTotal.toFixed(2));
+      }
+
+      $invoiceSubtotal.html('' + invoiceSubtotal.toFixed(2));
+    }
+
+    $form.on('click', '.btn-remove-item', function() {
+      if (confirm('Are you sure want to remove the item?')) {
+        var $this = $(this);
+        var $itemWrap = $this.closest('.invoice-item-wrap');
+        $itemWrap.find('.input-destroy-item').val('1');
+        $itemWrap.hide();
+        updateTotals();
+      }
+    });
+
+    $(document).on('nested:fieldRemoved:items', function(event){
+      updateTotals();
+    });
+
+    updateTotals();
+  });
+</script>

@@ -1,0 +1,36 @@
+<%= simple_form_for course, url: course.new_record? ? admin_courses_path : admin_course_path(course) do |f| %>
+  <div class="box">
+    <%= f.input :title %>
+    <%= f.input :video_url, as: :string %>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-md-4">
+          <label class="control-label">Thumbnail</label>
+          <%= f.input :thumbnail, as: :file, label: false, wrapper: false %>
+        </div>
+        <div class="col-sm-5">
+          <% if course.thumbnail.exists? %>
+            <img src="<%= course.thumbnail.url(:thumb) %>" class="img-responsive">
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <%= f.input :presenter_full_name %>
+    <%= f.input :course_duration %>
+    <%= f.input :cpd_points %>
+    <%= f.input :description, input_html: { rows: 5 } %>
+    <%= f.input :reflection_answer, input_html: { rows: 5 } %>
+    <%= f.input :profession_tags, as: :select, collection: Practitioner::PROFESSIONS, input_html: { class: 'selectize', multiple: true }, include_hidden: false %>
+    <%= f.input :seo_page_title %>
+    <%= f.input :seo_description %>
+    <%= f.input :seo_metatags %>
+  </div>
+  <div class="text-center">
+    <div class="switch-button">
+      <a href="<%= admin_courses_path %>">
+        Cancel
+      </a>
+      <button><%= course.new_record? ? "Create" : "Update" %></button>
+    </div>
+  </div>
+<% end %>

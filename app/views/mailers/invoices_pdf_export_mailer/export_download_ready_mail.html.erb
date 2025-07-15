@@ -1,0 +1,9 @@
+Hi <%= @author.first_name %>,
+<br>
+<br>
+An export of invoices PDF is ready to download.
+<br>
+Please view export details to find the link to download:
+<a href="<%= reports_invoices_pdf_export_url(@export.id) %>">View export details</a>
+<br>
+<br>

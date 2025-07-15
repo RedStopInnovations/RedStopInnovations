@@ -1,0 +1,52 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Medicare details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Card number:</strong>
+          <p>
+            <%= @referral.patient_attrs[:medicare_card_number].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Card IRN:</strong>
+          <p>
+            <%= @referral.patient_attrs[:medicare_card_irn].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Referrer name:</strong>
+          <p>
+            <%= @referral.patient_attrs[:medicare_referrer_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Provider number:</strong>
+          <p>
+            <%= @referral.patient_attrs[:medicare_referrer_provider_number].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Referral date:</strong>
+          <p>
+            <%= @referral.patient_attrs[:medicare_referral_date].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

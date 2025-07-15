@@ -1,0 +1,27 @@
+<% content_for :title, 'Edit appointment type' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @appointment_type.name %></h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= appointment_types_path %>">
+        Appointment types
+      </a>
+    </li>
+    <li class="active">Edit</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', appointment_type: @appointment_type %>
+</section>

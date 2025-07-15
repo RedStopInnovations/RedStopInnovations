@@ -1,0 +1,71 @@
+<% content_for :title, 'Revenue summary' %>
+
+<section class="box-header">
+  <h1>
+    Revenue Summary
+  </h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_dashboard_path %>"><i class="fa fa-dashboard"></i> Dashboard</a>
+    </li>
+    <li><a href="<%= admin_reports_path %>">Reports</a></li>
+    <li class="active">Revenue summary</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="box-body">
+      <h3 class="page-title visible-print">Payment summary</h3>
+      <div class="row hidden-print">
+        <div class="col-md-8">
+
+          <!-- Form filter -->
+          <form action="<%= admin_reports_revenue_summary_path %>" class="form-inline">
+            <div class="form-group">
+              <label for="revenue_type">Revenue Type:</label>
+              <select id="revenue_type" name="revenue_type" class="form-control">
+                  <option value="public" <%= "selected" if @report && @report.revenue_type == "public" %>>Public</option>
+                  <option value="private" <%= "selected" if @report && @report.revenue_type == "private" %>>Private</option>
+                  <option value="all" <%= "selected" if @report && @report.revenue_type == "all" %>>All</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="time_period">Time Period:</label>
+              <select id="time_period" name="time_period" class="form-control">
+                  <option value="current_month" <%= "selected" if @report && @report.time_period == "current_month" %>>Current Month</option>
+                  <option value="life_time" <%= "selected" if @report && @report.time_period == "life_time" %>>Life Time</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">Report</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-md-4 text-right">
+          <% unless @report.nil? %>
+            <button type="button" class="btn btn-default" onclick="print()"><i class="fa fa-print"></i> Print</button>
+          <% end %>
+        </div>
+      </div>
+      <hr class="hidden-print">
+
+      <% if @report %>
+        <% if @report.empty? %>
+          <p>No payments found for Subscription - <%= @report.revenue_type %> for <%= @report.time_period %> </p>
+        <% else %>
+          <p class="report-lead">There are <%= @report.payments.count %> payments for Subscription type - <%= @report.revenue_type %> for <%= @report.time_period %></p>
+
+          <h4>Payments:</h4>
+          <div class="table-responsive">
+            <%= render 'subscription_payments_report_table', payments: @report.payments %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

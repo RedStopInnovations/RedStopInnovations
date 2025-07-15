@@ -1,0 +1,134 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    width: 210mm;
+    height: 297mm;
+  }
+}
+
+body {
+  background: #FFF;
+  padding: 20px;
+  margin: 15px;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 5px 0;
+}
+
+hr {
+  margin: 10px 0;
+}
+
+
+/**
+  New style
+ */
+.header {
+  border-bottom: 1px solid #f4f4f4;
+  margin-bottom: 25px;
+  padding-bottom: 5px;
+
+  .box-logo {
+    text-align: right;
+
+    .logo {
+      max-width: 100%;
+      max-height: 120px;
+    }
+  }
+
+  .box-info {
+    text-align: left;
+
+    .business-name {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+}
+/**
+  End new style
+ */
+
+
+.business-logo {
+  margin: 0 auto;
+  border-radius: 2px;
+  max-height: 150px;
+  max-width: 400px;
+}
+
+.list-treatments {
+  .box-item {
+    margin-bottom: 15px;;
+    padding: 15px;
+    border: 1px solid #f4f4f4;
+
+    img {
+      width: 48px;
+      border-radius: 50%;
+      border:1px solid #f4f4f4;
+      float: left;
+      margin-right: 15px;
+    }
+
+    p {
+      margin: 5px 0px;
+    }
+
+    .panel-body .col-md-6 {
+      padding-left: 15px;
+    }
+
+    .block {
+      font-size: 13px;
+      border-bottom: 1px dotted #f4f4f4;
+      margin: 10px 0px;
+    }
+
+    .head {
+      border-bottom: 1px dotted #f4f4f4;
+      padding-bottom: 10px;
+    }
+
+    .time {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .template {
+      font-size: 13px;
+    }
+  }
+}
+
+.page-break {
+  display:block;
+  clear:both;
+  page-break-after:always;
+}
+
+/* Style for non-bootstrap table */
+table:not(.table) {
+  border-collapse: collapse;
+
+  tr {
+    > td, > th {
+      padding: 5px;
+    }
+  }
+}

@@ -1,0 +1,43 @@
+<script id="modal-attendance-proof-tmpl" type="text/template">
+  <modal :value="show" v-cloak @closed="onModalClosed">
+    <div slot="modal-header" class="modal-header bg-gray-light">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close"><span aria-hidden="true">×</span></button>
+      <h4 class="modal-title">Proof of attendance</h4>
+    </div>
+
+    <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+      <div class="loading-backdrop" v-if="loading"></div>
+      <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+
+      <div class="row" v-if="uploadedItems.length > 0">
+        <div class="col-xs-4" v-for="(item, index) in uploadedItems" :key="index">
+          <div class="bordered pa-10 text-center">
+            <a :href="item.url" target="_blank">
+            <div class="background-image" :style="{'height': '60px', 'background-image': 'url(\'' + item.url + '\')' }"></div>
+            </a>
+            <div class="small truncate mt-5">{{ item.file_name }}</div>
+            <a href="#" class="text-danger" @click.prevent="onClickDeleteItem(item)"><i class="fa fa-trash"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group mt-10">
+          <input type="file" class="form-control" ref="inputFile" accept=".jpeg,.png"
+            @change="onFileInputChange"
+            :disabled="uploadedItems.length >= 3"
+            >
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-primary" @click="onClickUpload" :disabled="!selectedFile || loading">Upload</button>
+          </span>
+
+        </div>
+        <span class="help-block">You can add up to 3 files. Only images are allowed.</span>
+      </div>
+    </div>
+
+    <div slot="modal-footer" class="modal-footer bg-gray-light">
+      <button class="btn btn-white" type="button" @click="close">Close</button>
+    </div>
+  </modal>
+</script>

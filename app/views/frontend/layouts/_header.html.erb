@@ -1,0 +1,85 @@
+<div class="header-main header-style3">
+    <!-- Top Bar -->
+    <div class="top-bar p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-8 col-lg-8 col-sm-8 col-10">
+                    <div class="top-bar-left d-flex">
+                        <div class="clearfix">
+                            <ul class="socials d-lg-none">
+                                <li>
+                                    <a href="#"><i class="fe fe-phone"></i> 1234 567 890</a>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fe fe-calendar"></i> Book online</a>
+                                </li>
+                            </ul>
+                            <div class="header-search-logo d-none d-lg-block ">
+                                <a class="header-logo header-brand-img" href="<%= frontend_home_path %>"></a>
+                            </div>
+                        </div>
+                        <div class="clearfix">
+                            <ul class="contact">
+                                <li class="mr-5">
+                                    <i class="fe fe-phone"></i> <a href="#">1234 567 890</a>
+                                </li>
+                                <li class="mr-5">
+                                    <i class="fe fe-send"></i> <a href="#">Send a referral</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-sm-4 col-2">
+                    <div class="top-bar-right">
+                        <ul class="custom">
+                            <!-- <li>
+                                <a class="text-dark" href="#"><i class="fa fa-user mr-1"></i> <span>Register</span></a>
+                            </li> -->
+                            <li>
+                                <a class="text-dark"
+                                    <% if user_signed_in? %>
+                                    href="<%= dashboard_path %>"
+                                    <% else %>
+                                    href="<%= new_user_session_path %>"
+                                    <% end %>
+                                    ><i class="fa fa-sign-in mr-1"></i> <span>Practice login</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/Top Bar-->
+
+    <!-- Horizontal Header -->
+    <div class="horizontal-header clearfix">
+        <div class="container">
+            <a class="animated-arrow" id="horizontal-navtoggle"><span></span></a>
+            <a class="smllogo mobile-logo" href="<%= frontend_home_path %>"></a>
+            <!-- <a class="callusbtn" href="#><i aria-hidden="true" class="fa fa-phone"></i></a> -->
+        </div>
+    </div>
+    <!-- /Horizontal Header -->
+
+    <!-- Horizontal Menu -->
+    <div class="sticky d-none">
+        <div class="horizontal-main clearfix">
+            <div class=" header-style horizontal-mainwrapper container clearfix">
+                <!--Nav-->
+                <nav class="horizontalMenu clearfix d-md-flex">
+                    <div class="horizontal-overlapbg"></div>
+                    <ul class="horizontalMenu-list">
+                        <li>
+                            <a href="<%= frontend_home_path %>">Home</a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- /Horizontal Menu -->
+
+</div>

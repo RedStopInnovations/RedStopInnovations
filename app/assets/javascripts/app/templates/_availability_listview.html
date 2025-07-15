@@ -1,0 +1,39 @@
+<script id="availability-listview-tmpl" type="text/template">
+  <div class="availability-listview" :style="{'border-left-color': availabilityTypeColor}">
+
+    <div class="avail-heading" @click="onClickHeading">
+      <div class="practitioner-info">
+        <img :src="availability.practitioner.profile_picture.thumb" width="70" height="70">
+        <span class="name">{{ availability.practitioner.full_name }}</span>
+        <span>{{ availability.practitioner.profession }}, {{ availability.practitioner.city }}</span>
+        <br>
+        <span class="avail-time text-smaller">{{ availability.start_time | hour }} - {{ availability.end_time | hour }} <span>({{ availability.start_time | tz }})</span></span>
+      </div>
+    </div>
+
+    <div class="avail-body">
+      <div v-if="availability.contact">
+        <span class="text-bolder">{{ availability.contact.business_name }}</span>
+      </div>
+
+      <div>{{ availability | formattedLocalAddress }}</div>
+
+      <div v-if="availability.availability_type_id == 5">{{ availability.name }}</div>
+
+      <p v-if="availability.description && availability.description.length > 0">{{ availability.description }}</p>
+
+      <div v-if="(availability.availability_type_id == 1 || availability.availability_type_id == 4)">
+        <span v-if="availability.appointments.length == 0" class="text-muted">No appointments</span>
+        <span v-if="availability.appointments.length > 0">{{ availability.appointments.length }} appointments</span>
+      </div>
+
+      <div v-if="availability.availability_type_id == 6">
+        <span v-if="availability.appointments.length == 0" class="text-muted">No clients added</span>
+        <span v-if="availability.appointments.length > 0">{{ availability.appointments.length }} clients</span>
+      </div>
+
+      <a href="#" class="btn btn-white mt-10" @click.prevent="onClickHeading">View details</a>
+    </div>
+
+  </div>
+</script>

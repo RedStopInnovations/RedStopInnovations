@@ -1,0 +1,14 @@
+Hi <%= @practitioner.full_name %>,
+<br>
+<br>
+<p>We've received a <strong><%= @referral.professions.join(', ') %> </strong> referral in <strong><%= @referral.patient_attrs[:city] %>, <%= @referral.patient_attrs[:state] %></strong>.
+<br>
+If you're available to help, can you please accept the referral using the link below. After accepting the referral you will find the client details in your database. This referral has been sent to many practitioners and the first to accept will get the referral.
+</p>
+<p>
+  We expect you will contact the client by phone within two hours to schedule an appointment.
+</p>
+<p>
+  <a href="<%= app_referral_url(@referral) %>">View referral details</a>
+</p>
+<br>

@@ -1,0 +1,39 @@
+<% content_for :title, 'Payment types' %>
+
+<section class="box-header">
+  <h1>Payment types</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Payment types</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="box">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @payment_types.each do |payment_type| %>
+              <tr>
+                <td>
+                  <%= payment_type.name %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

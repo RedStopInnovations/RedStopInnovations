@@ -1,0 +1,19 @@
+<section class="box-header">
+  <h1>Admin / Edit business profile</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_businesses_path %>">Businesses</a>
+    </li>
+    <li><%= @business.name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', business: @business %>
+</section>

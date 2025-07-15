@@ -1,0 +1,25 @@
+Dear <%= @practitioner.full_name %>,
+<br>
+<br>
+An appointment has been created.
+<br>
+<br>
+
+<b>Client details:</b><br>
+Name: <%= @patient.full_name %> <br>
+DOB: <%= @patient.dob.try(:strftime, t('date.dob')) %> <br>
+Mobile: <%= @patient.mobile %> <br>
+Address: <%= @patient.city %> <%= @patient.state %> <br>
+<br>
+
+<b>Appointment details:</b> <br>
+ID: <%= @appointment.id %> <br>
+Date: <%= @appointment.start_time_in_practitioner_timezone.strftime(t('date.common')) %> <br>
+Type: <%= @appointment.appointment_type.name %> <br>
+<br>
+<a href="<%= calendar_url(availability_id: @appointment.availability_id) %>">View in calendar</a>
+<br>
+<br>
+Thank you,
+<br>
+<%= @business.name %>

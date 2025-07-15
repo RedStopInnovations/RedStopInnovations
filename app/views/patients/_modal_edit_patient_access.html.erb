@@ -1,0 +1,54 @@
+<%
+  user_ids_has_access = PatientAccess.where(patient_id: @patient.id).pluck(:user_id)
+%>
+<div class="modal fade" id="modal-edit-patient-access">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Manage client access</h4>
+      </div>
+      <%= form_tag update_access_patient_path(patient), method: 'PUT', remote: true do %>
+        <div class="modal-body">
+          <div class="form-group has-feedback has-clear">
+            <input type="text" class="form-control input-search" placeholder="Search for user">
+            <a class="fa fa-remove form-control-feedback form-control-clear btn-clear-input-search"
+              style="pointer-events: auto; text-decoration: none; cursor: pointer; color: #333333"></a>
+          </div>
+          <div class="table-user-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Allow</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% current_business.users.not_role_administrator.active.practitioner_user.select(:id, :full_name).order(full_name: :asc).each do |user| %>
+                <tr>
+                  <td><%= user.full_name %></td>
+                  <td>
+                    <div class="check-box">
+                      <input type="checkbox"
+                        name="user_ids[]"
+                        id="cb-<%= user.id %>-access"
+                        value="<%= user.id %>"
+                        <%= 'checked' if user_ids_has_access.include?(user.id) %>
+                      >
+                      <label for="cb-<%= user.id %>-access">&nbsp;</label>
+                    </div>
+                  </td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-white" data-dismiss="modal">Cancel</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

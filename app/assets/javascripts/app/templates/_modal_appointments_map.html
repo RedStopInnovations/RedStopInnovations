@@ -1,0 +1,76 @@
+<script id="modal-appointments-map-tmpl" type="text/template">
+  <div>
+    <modal :value="show" class="modal-appointments-map" v-cloak @closed="onModalClosed" large>
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Appointments map</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body">
+        <div v-bind:class="{ loading: loading }">
+          <div class="loading-backdrop" v-if="loading"></div>
+          <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+
+          <gmap-map
+            style="width: 100%; height: 500px"
+            :center="mapCenter"
+            :zoom="mapZoom"
+            :options="mapOptions"
+            ref="map"
+            >
+
+            <gmap-info-window
+              v-if="selectedApptMarker"
+              :options="{ maxWidth: 350, pixelOffset: {width: 0, height: -25} }"
+              :position="selectedApptMarker.position"
+              @closeclick="showApptMarkerWindow = false"
+              :opened="showApptMarkerWindow"
+              >
+              <div class="info-window appt-info-window">
+                <div class="patient-info">
+                  <span>[{{ selectedApptMarker.appointment.order + 1 }}/{{ availability.appointments.length }}]</span>
+                  <span class="name"><strong>{{ selectedApptMarker.appointment.patient.full_name }}</strong></span>
+                  <br>
+                  {{ selectedApptMarker.appointment.patient.short_address }}
+                  <br>
+                  <span v-if="selectedApptMarker.appointment.patient.phone">
+                    P: <a :href="'tel:' + selectedApptMarker.appointment.patient.phone">{{ selectedApptMarker.appointment.patient.phone }}</a>
+                  </span>
+                  <span v-if="selectedApptMarker.appointment.patient.mobile">
+                    M: <a :href="'tel:' + selectedApptMarker.appointment.patient.mobile">{{ selectedApptMarker.appointment.patient.mobile }}</a>
+                  </span>
+                </div>
+
+                <div class="appt-info">
+                  <span><span class="title">Type:</span> {{ selectedApptMarker.appointment.appointment_type.name }}</span>
+
+                  <span v-if="selectedApptMarker.appointment.arrival && selectedApptMarker.appointment.arrival.arrival_at">
+                    <br>
+                    <span class="title">Arrival:</span>
+                    {{ selectedApptMarker.appointment.arrival.arrival_at | hour }}
+                  </span>
+                  <br>
+                </div>
+
+              </div>
+            </gmap-info-window>
+
+            <gmap-marker
+              v-for="marker in appointmentMarkers"
+              :key="marker.appointment_id"
+              :position="marker.position"
+              :clickable="true"
+              :draggable="false"
+              :label="marker.label"
+              @click="onApptMarkerClick(marker)"
+              ></gmap-marker>
+          </gmap-map>
+        </div>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer">
+        <button class="btn btn-white" type="button" @click="close">Close</button>
+      </div>
+    </modal>
+  </div>
+</script>

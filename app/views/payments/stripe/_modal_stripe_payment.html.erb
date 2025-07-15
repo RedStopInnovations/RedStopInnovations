@@ -1,0 +1,448 @@
+<script type="text/template" id="modal-stripe-payment-tmpl">
+  <div class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Stripe payment</h4>
+        </div>
+
+        <div class="modal-body"
+          :class="{ loading: busy }">
+          <div class="loading-backdrop" v-if="busy"></div>
+          <div class="loading-indicator" v-if="busy"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+          <div class="form-group">
+            <label>Client</label>
+            <v-multiselect
+              v-model="selectedPatient"
+              :options="patientOptions"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="true"
+              :options-limit="100"
+              :searchable="true"
+              :hide-selected="true"
+              :loading="isSearchingPatients"
+              :allow-empty="false"
+              select-label=""
+              placeholder="Type to search patient"
+              label="full_name"
+              open-direction="bottom"
+              track-by="id"
+              @search-change="onSearchPatientChanged"
+              @input="onPatientChanged">
+              <template slot="noResult" v-hide="isSearchingPatients">
+                <span>No clients found!</span>
+              </template>
+              <template slot="option" scope="props">
+                <div class="desc">
+                  <span class="text-bolder" v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                  <small v-if="props.option.dob">{{ props.option.dob | dob }}</small>
+                  <br>
+                  <small> {{ props.option.short_address }}</small>
+                </div>
+              </template>
+            </v-multiselect>
+          </div>
+
+          <div class="form-group">
+            <label>Credit card:</label>
+            <div v-if="currentCard">
+              <label class="fw-normal">
+                <input type="radio" id="rb-current-card" name="card-option"
+                  :value="true"
+                  v-model.boolean="useCurrentCard">
+                Current:  ****-<span class="text-bolder">{{ currentCard.last4 }}</span></label>
+              <br>
+              <label class="fw-normal">
+                <input type="radio" id="rb-new-card" name="card-option"
+                  v-model.boolean="useCurrentCard"
+                  :value="false">
+                Use another card</label>
+              <br>
+            </div>
+
+            <div v-show="!useCurrentCard" class="mt-5">
+              <div ref="cardElement"></div>
+              <div class="text-danger text-smaller mt-5">{{ cardError }}</div>
+            </div>
+          </div>
+
+          <div class="form-group text-right" v-show="!useCurrentCard">
+            <div class="check-box">
+              <input type="checkbox" id="checkbox-save-card"
+                :value="true"
+                v-model.boolean="saveCard">
+              <label for="checkbox-save-card" class="fw-normal">Save this card for next payments</label>
+            </div>
+          </div>
+
+        <hr>
+         <div class="form-group"
+            v-show="selectedPatient">
+            <label>Outstanding invoices:</label>
+            <a href="#"
+              class="pull-right"
+              @click.prevent="selectAllInvoices"
+              v-show="outstandingInvoices.length > 0"
+              >Select all</a>
+            <table class="table table-bordered" v-show="outstandingInvoices.length > 0">
+              <thead>
+                <tr>
+                  <th style="width: 110px">Invoice</th>
+                  <th>Issue date</th>
+                  <th>Amount</th>
+                  <th>Outstanding</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr v-for="(invoice, idx) in outstandingInvoices" :key="invoice.id"
+                  v-bind:class="{ 'success': invoice.selected }">
+                  <td>
+                    <div class="check-box">
+                      <input type="checkbox" :id="'checkbox-invoice-' + idx"
+                        v-model="invoice.selected"/>
+                      <label :for="'checkbox-invoice-' + idx">#{{ invoice.invoice_number }}</label>
+                    </div>
+                  </td>
+                  <td>
+                    {{ invoice.issue_date | shortDate }}
+                  </td>
+                  <td>
+                    ${{ invoice.amount }}
+                  </td>
+                  <td>
+                    ${{ invoice.outstanding }}
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="text-right">
+                    Total outstanding:
+                  </td>
+                  <td>
+                    <span class="text-bolder">${{ totalOutstanding }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="text-right">
+                    Charge amount:
+                  </td>
+                  <td>
+                    <span class="text-bolder">${{ totalChargeAmount }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div v-show="!busy && outstandingInvoices.length == 0">
+              <p class="text-muted">No outstanding invoices found.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-primary"
+            @click="submit"
+            :disabled="busy || (outstandingInvoices.length == 0)"
+            >Proceed payment</button>
+          <button type="button" class="btn btn-white" data-dismiss="modal"
+            :disabled="busy">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</script>
+
+<script type="text/javascript">
+(function() {
+  Vue.component('modal-stripe-payment', {
+    template: '#modal-stripe-payment-tmpl',
+    props: {
+      initialPatientId: {
+        type: String
+      },
+      targetInvoiceId:  {
+        type: String
+      }
+    },
+    data: function() {
+      return {
+        busy: false,
+        useCurrentCard: false,
+        patientOptions: [],
+        isSearchingPatients: false,
+        selectedPatient: null,
+        selectedInvoices: [],
+        outstandingInvoices: [],
+        currentCard: null,
+        businessId: window.session.user.business_id, // TODO: use user's session or JWT instead
+
+        stripeCardElm: null,
+        stripeInstance: null,
+        cardError: null,
+        saveCard: false
+      }
+    },
+
+    mounted: function() {
+      var self = this;
+      $(self.$el).modal('show');
+
+      $(self.$el).on('hidden.bs.modal', function() {
+        self.$emit('closed');
+      });
+
+      // Load patient
+      if (self.initialPatientId) {
+        $.ajax({
+          url: '/app/patients/' + self.initialPatientId + '.json',
+          beforeSend: function() {
+            self.busy = true;
+          },
+          success: function(res) {
+            self.selectedPatient = res.patient;
+
+            $.ajax({
+              url: '/app/patients/' + self.initialPatientId + '/credit_card_info.json',
+              beforeSend: function() {
+                self.busy = true;
+              },
+              success: function(res) {
+                if (res.card) {
+                  self.currentCard = res.card;
+                  self.useCurrentCard = true;
+                } else {
+                  self.currentCard = null;
+                  self.useCurrentCard = false;
+                }
+              },
+              complete: function() {
+                self.busy = false;
+              }
+            });
+            self.loadPatientOutstandingInvoices();
+          },
+          complete: function() {
+            self.busy = false;
+          }
+        });
+      }
+
+      // Init Stripe elements
+      var stripe = Stripe('<%= Rails.configuration.stripe[:publishable_key] %>');
+      self.stripeInstance = stripe;
+
+      self.stripeCardElm = stripe.elements({}).create('card', {
+        hidePostalCode: true,
+        style: {
+          base: {
+            color: '#333333',
+            fontSize: '14px',
+          },
+          invalid: {
+            color: '#a94442',
+            iconColor: '#a94442'
+          }
+        }
+      });
+
+      self.stripeCardElm.mount(self.$refs.cardElement);
+      self.stripeCardElm.on('change', function(event) {
+        if (event.error) {
+          self.cardError = event.error.message;
+        } else {
+          self.cardError = null;
+        }
+      });
+    },
+    computed: {
+      totalOutstanding: function () {
+        var total = 0;
+        for (var i = this.outstandingInvoices.length - 1; i >= 0; i--) {
+          total += this.outstandingInvoices[i].outstanding;
+        }
+        return Math.round(total * 100) / 100;
+      },
+      totalChargeAmount: function () {
+        var total = 0;
+        for (var i = this.outstandingInvoices.length - 1; i >= 0; i--) {
+          if (this.outstandingInvoices[i].selected) {
+            total += this.outstandingInvoices[i].outstanding;
+          }
+        }
+        return Math.round(total * 100) / 100;
+      }
+
+    },
+    methods: {
+      selectAllInvoices: function() {
+        for (var i = this.outstandingInvoices.length - 1; i >= 0; i--) {
+          this.outstandingInvoices[i].selected = true;
+        }
+      },
+      loadPatientOutstandingInvoices: function() {
+        var that = this;
+        $.ajax({
+          url: '/app/patients/' + that.selectedPatient.id + '/outstanding_invoices.json?' + '_time=' + (new Date).getTime(),
+          beforeSend: function() {
+            that.busy = true;
+          },
+          success: function(res) {
+            for (var i = 0; i < res.invoices.length; i++) {
+              var invoice = res.invoices[i];
+              invoice.selected = that.targetInvoiceId && (invoice.id == that.targetInvoiceId);
+              that.outstandingInvoices.push(invoice);
+            }
+          },
+          complete: function() {
+            that.busy = false;
+          }
+        });
+      },
+      onPatientChanged: function() {
+        var self = this;
+        if (self.selectedPatient) {
+          self.outstandingInvoices = [];
+          $.ajax({
+            url: '/app/patients/' + self.selectedPatient.id + '/credit_card_info.json',
+            beforeSend: function() {
+              self.busy = true;
+            },
+            success: function(res) {
+              if (res.card) {
+                // Set use current card by default
+                self.currentCard = res.card;
+                self.useCurrentCard = true;
+              } else {
+                self.currentCard = null;
+                self.useCurrentCard = false;
+              }
+            },
+            complete: function() {
+              self.busy = false;
+            }
+          });
+          self.loadPatientOutstandingInvoices();
+        } else {
+          self.outstandingInvoices = [];
+        }
+        // Clear enterred card details
+        self.stripeCardElm.clear();
+      },
+      onSearchPatientChanged: debounce(function(query) {
+        var that = this;
+
+        if (query.trim().length > 0) {
+          that.isSearchingPatients = true;
+          $.ajax({
+            method: 'GET',
+            url: '/api/patients/search?business_id=' + that.businessId + '&s=' + query,
+            success: function(res) {
+              that.patientOptions = res.patients;
+            },
+            complete: function() {
+              that.isSearchingPatients = false;
+            }
+          });
+        }
+      }, 300),
+      buildFormData: function() {
+        var data = {
+          patient_id: this.selectedPatient.id,
+          invoice_ids: [],
+          use_current_card: this.useCurrentCard,
+          save_card: this.saveCard
+        };
+        for (var i = this.outstandingInvoices.length - 1; i >= 0; i--) {
+          if (this.outstandingInvoices[i].selected) {
+            data.invoice_ids.push(this.outstandingInvoices[i].id);
+          }
+        }
+        return data;
+      },
+      submit: function() {
+        this.busy = true
+        var self = this;
+        var stripeCardElm = self.stripeCardElm;
+
+        if (self.totalChargeAmount <= 0) {
+          self.$notify('Please select at least one invoice to pay.', 'warning');
+          self.busy = false;
+          return;
+        }
+
+        var formData = self.buildFormData();
+
+        if (self.useCurrentCard) {
+          // Submit
+          $.ajax({
+            method: 'POST',
+            data: formData,
+            url: '/app/payments/stripe_payment',
+            success: function(res) {
+              self.$emit('complete', res.payment);
+              $(self.$el).modal('hide');
+            },
+            error: function(xhr) {
+              if (xhr.status === 422) {
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                  self.$notify(xhr.responseJSON.errors[0], 'error');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                  self.$notify(xhr.responseJSON.message, 'error');
+                }
+              } else {
+                self.$notify('An error has occurred. Please try again later. Sorry for the inconvenience.', 'error');
+              }
+            },
+            complete: function() {
+              self.busy = false;
+            }
+          });
+        } else {
+          self.stripeInstance
+            .createToken(self.stripeCardElm)
+            .then(function(result) {
+            if (result.error) {
+              self.cardError = result.error.message;
+              self.$notify('Please check the card details', 'warning');
+              self.busy = false;
+            } else {
+              formData.stripe_token = result.token.id;
+              // Submit
+              self.busy = true;
+              $.ajax({
+                method: 'POST',
+                data: formData,
+                url: '/app/payments/stripe_payment',
+                success: function(res) {
+                  self.$emit('complete', res.payment);
+                  $(self.$el).modal('hide');
+                },
+                error: function(xhr) {
+                  if (xhr.status === 422) {
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                      self.$notify(xhr.responseJSON.errors[0], 'error');
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                      self.$notify(xhr.responseJSON.message, 'error');
+                    }
+                  } else {
+                    self.$notify('An error has occurred. Please try again later. Sorry for the inconvenience.', 'error');
+                  }
+                },
+                complete: function() {
+                  self.busy = false;
+                }
+              });
+            }
+          });
+        }
+      }
+    }
+  });
+
+})();
+</script>

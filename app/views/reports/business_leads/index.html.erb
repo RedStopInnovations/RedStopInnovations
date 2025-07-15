@@ -1,0 +1,246 @@
+<% content_for :title, 'Business leads report' %>
+
+<section class="box-header">
+  <h1>Business Leads</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li class="active">Business Leads</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box text-smaller">
+    <i class="fa fa-info-circle"></i>
+    This report displays each request to view your business's contact details on the Tracksy website. You'll notice contact details are partially hidden, we record when a visitor requests to view they entire detail. The collection of this data commenced on May 26th, 2019.
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Summary</h4>
+      <div class="box">
+        <div class="box-body">
+          <table class="table table-bordered">
+            <tr>
+              <td style="width: 150px">All time</td>
+              <% @report.result[:monthly_leads_count_last_6_months].each do |row| %>
+              <td style="width: 150px"><%= row[:date].strftime('%b %Y') %></td>
+              <% end %>
+            </tr>
+
+            <tr>
+              <td><%= @report.result[:all_time_leads_count] %></td>
+              <% @report.result[:monthly_leads_count_last_6_months].each do |row| %>
+                <td><%= row[:leads_count] %></td>
+              <% end %>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="box">
+    <form action="<%= reports_business_leads_path %>">
+      <div class="row">
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Start date</label>
+            <input type="text"
+              class="form-control flatpickr-datepicker"
+              name="start_date"
+              value="<%= @options.start_date.strftime("%Y-%m-%d") if @options.start_date.present? %>"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d"
+              >
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>End date</label>
+            <input type="text"
+              class="form-control flatpickr-datepicker"
+              value="<%= @options.end_date.strftime("%Y-%m-%d") if @options.end_date.present? %>"
+              name="end_date"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d"
+              >
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Practitioners</label>
+            <select class="form-control selectize" name="practitioner_ids[]" multiple>
+              <option value="">All</option>
+              <%=
+                options_for_select(
+                  pracititioner_options_for_select(@business),
+                  @options.practitioner_ids
+                )
+              %>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label>&nbsp;</label><br>
+          <button type="submit" class="btn sitebtn">Filter</button>
+          <a href="<%= reports_business_leads_path(business_id: @business.id) %>" class="btn linebtn">Clear filters</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <% if @report.result[:paginated_events].total_count > 0 %>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-4">
+        <div style="height: 250px">
+          <canvas id="chart-source-pages" height="250"></canvas>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div style="height: 250px">
+          <canvas id="chart-contact-info-types" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-12">
+      <% if @report.result[:paginated_events].total_count > 0 %>
+        <div class="box-table">
+          <div id="table-events-wrap">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Page</th>
+                  <th>Practitioner</th>
+                  <th>Method</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @report.result[:paginated_events].each do |event| %>
+                  <tr>
+                    <td>
+                      <%= event.created_at.strftime(t('datetime.common')) %>
+                    </td>
+                    <td>
+                      <%= event.data['url'] %>
+                    </td>
+                    <td>
+                      <%= event.data['source_title'] %>
+                    </td>
+                    <td>
+                      <%= event.data['contact_info_type'] %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+
+            <div class="row hidden-print">
+              <div class="col-md-6 text-left">
+                <div id="events-pagination">
+                  <%= page_entries_info @report.result[:paginated_events], entry_name: 'items' %>
+                </div>
+              </div>
+              <div class="col-md-6 text-right">
+                <%= paginate @report.result[:paginated_events] %>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      <% else %>
+        <div class="box">
+          <p class="text-center">No data found to display.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<% if @report.result[:paginated_events].total_count > 0 %>
+<script>
+new Chart(
+  $('#chart-contact-info-types').get(0).getContext('2d'),
+  {
+    type: 'doughnut',
+    data: {
+      datasets: [
+        {
+          data: <%= @report.result[:contact_info_types_chart_data][:datasets][0][:data].to_json %>,
+          backgroundColor: [
+            '#BDC1E1',
+            '#FFAC8B',
+            '#ecf0f5',
+          ],
+        }
+      ],
+
+      labels: <%= @report.result[:contact_info_types_chart_data][:labels].to_json.html_safe %>
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: 'bottom',
+        labels: {
+          boxWidth: 14
+        }
+      },
+      title: {
+        text: 'Contact methods',
+        display: true
+      }
+    }
+  }
+);
+
+new Chart(
+  $('#chart-source-pages').get(0).getContext('2d'),
+  {
+    type: 'doughnut',
+    data: {
+      datasets: [
+        {
+          data: <%= @report.result[:contact_source_pages_chart_data][:datasets][0][:data].to_json %>,
+          backgroundColor: [
+            '#BDC1E1',
+            '#FFAC8B',
+            '#B3F694',
+            '#F9A5D9',
+            '#26B5C5',
+            '#ecf0f5',
+          ],
+        }
+      ],
+
+      labels: <%= @report.result[:contact_source_pages_chart_data][:labels].to_json.html_safe %>
+    },
+    options: {
+      responsive: false,
+      legend: {
+        position: 'bottom',
+        labels: {
+          boxWidth: 14
+        }
+      },
+      title: {
+        text: 'Pages',
+        display: true
+      }
+    }
+  }
+);
+
+</script>
+<% end %>
+<% end %>

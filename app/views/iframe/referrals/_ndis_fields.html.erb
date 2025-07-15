@@ -1,0 +1,41 @@
+<h3>Client NDIS</h3>
+<div class="box">
+  <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :ndis_client_number, label: 'NDIS client number', required: true %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :ndis_plan_start_date, required: true, as: :string, wrapper: :vertical_input_group, label: 'Plan start date' do %>
+          <%= ff.input_field :ndis_plan_start_date, class: "form-control daterpicker", placeholder: 'dd/mm/yyyy' %>
+          <div class="input-group-btn">
+            <button class="btn btn-default btn-trigger-datepicker data-toggle" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+          </div>
+        <% end %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :ndis_plan_end_date, required: true, as: :string, wrapper: :vertical_input_group, label: 'Plan end date' do %>
+          <%= ff.input_field :ndis_plan_end_date, class: "form-control daterpicker", placeholder: 'dd/mm/yyyy' %>
+          <div class="input-group-btn">
+            <button class="btn btn-default btn-trigger-datepicker" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :ndis_plan_manager_name, label: 'Invoice to name' %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :ndis_plan_manager_email, label: 'Invoice to email' %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :ndis_plan_manager_phone, label: 'Contact phone' %>
+      </div>
+    </div>
+  <% end %>
+</div>

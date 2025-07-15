@@ -1,0 +1,82 @@
+<section class="box-header">
+  <h1><%= @subscription.business.name %> subscription's invoices</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_subscriptions_path %>">Subscriptions</a>
+    </li>
+    <li><%= @subscription.business.name %> - Invoices</li>
+  </ul>
+</section>
+
+<section class="content pb-none">
+  <div class="box">
+    <div role="tabpanel">
+      <ul class="nav nav-tabs">
+        <li>
+          <a href="<%= admin_subscription_path(@subscription) %>">Subscription info</a>
+        </li>
+        <li class="active">
+          <a href="#invoices" data-toggle="tab">Issued invoices</a>
+        </li>
+        <li>
+          <a href="<%= payments_admin_subscription_path(@subscription) %>">Payment history</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="invoices">
+          <div class="box-table">
+            <table class="table-flat">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Issue date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @subscription_invoices.each do |subscription_invoice| %>
+                  <tr>
+                    <td>
+                      <a href="<%= admin_business_invoice_path(subscription_invoice) %>">#<%= subscription_invoice.invoice_number %></a>
+                    </td>
+                    <td><%= subscription_invoice.issue_date.try(:strftime, '%d %b, %Y') %></td>
+                    <td><%= format_money subscription_invoice.amount %></td>
+                    <td>
+                      <% if subscription_invoice.payment_status == 'paid' %>
+                        <span class="label label-success">Paid</span>
+                      <% else %>
+                        <span class="label label-warning"><%= subscription_invoice.payment_status.titleize %></span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <a href="<%= admin_business_invoice_path(subscription_invoice) %>">Show</a>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+            <div class="row">
+              <div class="col-md-6 text-left">
+                <%= page_entries_info @subscription_invoices, entry_name: 'Invoice' %>
+              </div>
+              <div class="col-md-6 text-right">
+                <%= paginate @subscription_invoices %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

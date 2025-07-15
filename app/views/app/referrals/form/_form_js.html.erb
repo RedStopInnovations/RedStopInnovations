@@ -1,0 +1,188 @@
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+<script type="text/javascript">
+  (function() {
+
+    if ($('#js-input-patient-address').length > 0) {
+
+
+      /**
+       * Gmap Autocomplete plugin
+       */
+      var autocomplete;
+
+      function onlocationSelected() {
+        var place = autocomplete.getPlace();
+
+        var componentForm = {
+          street_number: 'js-input-patient-address',
+          locality: 'js-input-patient-city',
+          administrative_area_level_1: 'js-input-patient-state',
+          postal_code: 'js-input-patient-postcode',
+          postal_town: 'js-input-patient-city'
+        };
+
+        if (place.address_components) {
+          $.each(componentForm, function(index, element) {
+            $('#' + element).val('');
+          });
+
+          $.each(place.address_components, function(index, item) {
+            if(componentForm[item.types[0]]) {
+              $('#' + componentForm[item.types[0]]).val(item.short_name)
+            }
+
+            if(item.types[0] == 'route') {
+              $('#js-input-patient-address').val($('#js-input-patient-address').val() + ' ' + item.long_name);
+            }
+
+            if(item.types[0] == 'country') {
+              $('#js-input-patient-country').val(item.short_name);
+            }
+          });
+
+          $.each(componentForm, function(index, element) {
+            $('#' + element).valid();
+          });
+        }
+      }
+
+      $('#js-input-patient-address').on('keypress', function(e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      autocomplete = new google.maps.places.Autocomplete(
+        $('#js-input-patient-address')[0], autocompleteDefaultOptions
+      );
+
+      autocomplete.addListener('place_changed', onlocationSelected);
+
+      setTimeout(function() {
+        $('#js-input-patient-address').attr('autocomplete', 'nope');
+      }, 3000);
+
+    }
+  })();
+
+  /**
+   * Handle change payment source type to toggle corresponding fields
+   */
+  $('.js-cb-referral-type').on('change', function() {
+    var selectedType = $(".js-cb-referral-type:checked").val();
+    var visiblePaymentWrap = $('.js-payment-referral-wrap[data-payment-type="' + selectedType + '"]');
+
+    visiblePaymentWrap.removeClass('hidden');
+    $('.js-payment-referral-wrap').not(visiblePaymentWrap).addClass('hidden');
+
+    if (selectedType == 'self_referral') {
+      $('#js-referrer-info-wrap').addClass('hide');
+    } else {
+      $('#js-referrer-info-wrap').removeClass('hide');
+    }
+  });
+
+  $.validator.addMethod("dobFormat", function(value, element) {
+    return this.optional(element) || moment(value, "DD/MM/YYYY", true).isValid();
+  }, "Please enter a valid date in the format dd/mm/yyyy");
+
+  /**
+   * Form validation and submission
+   */
+  $("#js-form-referral").validate({
+    rules: {
+      'referral[patient][dob]': {
+        dobFormat: true
+      }
+    },
+    highlight: function(element) {
+      $(element).closest('.form-group').addClass('has-error');
+    },
+    unhighlight: function(element) {
+      $(element).closest('.form-group').removeClass('has-error');
+    },
+    errorElement: 'div',
+    errorClass: 'error-message text-danger',
+    errorPlacement: function(error, element) {
+      if (element.closest('.form-group').length) {
+        element.closest('.form-group').append(error)
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    submitHandler: function(form) {
+      var $form = $(form);
+      $form.loadingOn();
+      var $errorWrap = $('#js-form-error-wrap');
+      var $btnSubmit = $form.find('button[type="submit"]');
+
+      $btnSubmit.attr('disabled', 'disabled');
+
+      $errorWrap.empty().addClass('hidden');
+
+      $.ajax({
+        method: $form.attr('method'),
+        url: $form.attr('action'),
+        data: new FormData($form.get(0)),
+        dataType: 'json',
+        contentType: false,
+        cache: false,
+        processData: false,
+
+        success: function(res) {
+          if (res.message) {
+            Flash.success(res.message);
+          } else {
+            Flash.success('Success');
+          }
+
+          if (res.redirect_url) {
+            window.location.href = res.redirect_url;
+          }
+        },
+
+        error: function(xhr) {
+          $btnSubmit.removeAttr('disabled');
+
+          if (xhr.status === 422) {
+            var fieldErrors = xhr.responseJSON;
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+              var validationErrors = xhr.responseJSON.errors;
+              var $errorHtml = $('<div class="text-danger"></div>');
+              var headingMessage = 'Validation errors:';
+
+              if (xhr.responseJSON.message) {
+                headingMessage = xhr.responseJSON.message
+              }
+
+              $errorHtml.append($('<p>', {
+                text: headingMessage
+              }));
+
+              var $errorList = $('<ul>');
+
+              for (var i = 0, l = validationErrors.length; i < l; i++) {
+                $errorList.append($('<li>', {
+                  text: validationErrors[i]
+                }));
+              }
+
+              $errorHtml.append($errorList);
+              $errorWrap.empty().append($errorHtml).removeClass('hidden');
+            } else {
+              $errorWrap.html('<div class="text-danger">Please check validation errors before submit again.</div>');
+            }
+          } else {
+            Flash.error('An error has occurred. Sorry for the inconvenience. Response status: ' + xhr.status);
+          }
+        },
+
+        complete: function() {
+          $form.loadingOff();
+        }
+      });
+    }
+  });
+
+</script>

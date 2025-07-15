@@ -1,0 +1,88 @@
+<% content_for :title, 'Export clients' %>
+
+<section class="box-header">
+  <h1>Export clients</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>">Data export</a>
+    </li>
+    <li class="active">Clients</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <form action="<%= app_data_export_patients_path(format: :csv) %>">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Created date:</label>
+              <div class="input-group">
+                <input
+                  name="create_date_start"
+                  class="form-control flatpickr-datepicker"
+                  placeholder="Select date"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  >
+                <span class="input-group-addon input-group-addon-middle">to</span>
+                <input
+                  name="create_date_end"
+                  class="form-control flatpickr-datepicker"
+                  placeholder="Select date"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  >
+                  <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <% today = Date.current %>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today - 90 %>" data-end-date="<%= today %>">Last 90 days</a></li>
+                    </ul>
+                  </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <div class="check-box mt-30">
+                <input type="checkbox" id="cb-include-archive" name="include_archived" value="1">
+                <label for="cb-include-archive">Include archived</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary">Export</button>
+                <button type="submit" name="csv_type" value="xero" class="btn btn-white"><i class="fa fa-download"></i> Export CSV for Xero import</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</section>
+
+<% content_for :page_js do %>
+<script>
+  $('[js-btn-date-range]').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    $btn.closest('.input-group').find('[name="create_date_start"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+    $btn.closest('.input-group').find('[name="create_date_end"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+  });
+</script>
+<% end %>

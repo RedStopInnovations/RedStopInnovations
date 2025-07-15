@@ -1,0 +1,109 @@
+<%
+  business = current_business
+  business_p = BusinessPresenter.new(business)
+  author = @patient_letter.author
+  patient = @patient_letter.patient
+%>
+
+<%= render 'patients/show_layout' do %>
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>Letter details</h4>
+    </div>
+
+    <div class="col-xs-6 text-right">
+
+      <div class="btn-group">
+        <a href="<%= edit_patient_letter_path(@patient_letter.patient, @patient_letter) %>" class="btn btn-white"><i class="fa fa-pencil"></i> Edit letter</a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+          <span class="caret"></span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a href="#modal-send-patient" data-toggle="modal">
+              <i class="fa fa-envelope"></i> Email to client
+            </a>
+          </li>
+          <li>
+            <a class="btn btn-link" href="#modal-send-others" data-toggle="modal">
+              <i class="fa fa-envelope"></i> Email others
+            </a>
+          </li>
+          <li>
+            <a class="btn btn-link" href="<%= patient_letter_path(@patient_letter.patient, @patient_letter, format: :pdf) %>"
+              target="_blank">
+              <i class="fa fa-print"></i> Print
+            </a>
+          </li>
+          <li>
+            <a class="btn btn-link" href="<%= patient_letter_path(@patient_letter.patient, @patient_letter, format: :pdf) %>"
+              download>
+              <i class="fa fa-download"></i> Download
+            </a>
+          </li>
+          <li>
+            <a class="btn btn-link" href="<%= patient_letter_path(@patient_letter.patient, @patient_letter) %>" data-confirm="Are you sure?"
+              data-method="DELETE" >
+          <i class="fa fa-trash"></i> Delete
+        </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-body p-0">
+      <div class="visual-print-wrap pa-20">
+        <div class="header">
+            <div class="row">
+                <div class="col-xs-7">
+                    <div class="box-info">
+                        <span class="business-name"><%= business.name %></span>
+                        <br>
+                        <%= business.short_address %><br>
+                        <%= business.phone %><br>
+                        <% if business.abn.present? %>
+                            ABN: <%= business.abn %><br>
+                        <% end %>
+                    </div>
+                </div>
+                <div class="col-xs-5">
+                    <div class="box-logo">
+                        <% if business.avatar.exists? %>
+                          <img src="<%= business_p.logo_url %>" class="logo">
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-bordered mt-15">
+            <tbody>
+                <tr>
+                    <td style="width: 50%;">
+                        <strong>CLIENT</strong><br>
+                        <%= patient.full_name %><br>
+                        DOB: <%= patient.dob&.strftime(t('date.dob')) %>
+                    </td>
+                    <td>
+                        <strong>AUTHOR</strong><br>
+                        <% if author %>
+                        <%= author.full_name %><br>
+                          <%= author.profession %>&nbsp;
+                        <% end %>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <%= sanitize @patient_letter.content, scrubber: Letter::Scrubber.new %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= render 'modal_send_patient' %>
+<%= render 'modal_send_others' %>
+

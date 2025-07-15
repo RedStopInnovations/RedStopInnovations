@@ -1,0 +1,662 @@
+<script>
+// TODO:
+// - limit max quantity and unit price?
+// - Reduce JSON load
+// - Improve searching with patient ID, item code, etc ...
+
+(function() {
+  Vue.component('edit-invoice', {
+    template: '#js-edit-invoice-tmpl',
+
+    props: {
+      invoiceId: {
+        type: Number,
+        required: true
+      }
+    },
+    data: function() {
+      return {
+        isInitialed: false,
+        busy: false,
+
+        invoice: null,
+
+        allBillableItems: [],
+        allProducts: [],
+
+        isSearchingPatients: false,
+        selectedPatient: null,
+        patientOptions: [],
+
+        selectedCase: null,
+        selectedAppointment: null,
+
+        allPatientCases: [],
+        allPatientAppointments: [],
+        patientRecentInvoices: [],
+
+        isSearchingContacts: false,
+        selectedContact: null,
+        contactOptions: [],
+
+        invoice: {
+          issue_date: moment().format('DD/MM/YYYY'),
+          notes: null,
+          message: null,
+          subtotal_amount: 0,
+          tax_amount: 0,
+          total_amount: 0
+        },
+
+        invoiceItems: [],
+        deletedInvoiceItems: []
+      }
+    },
+
+    mounted: function() {
+      const vm = this;
+
+      vm.loadInvoice();
+      vm.loadAllBillableItems();
+      vm.loadAllProducts();
+    },
+
+    computed: {
+      isPaid: function() {
+        return this.invoice && this.invoice.outstanding == 0;
+      },
+
+      patientOpenCases: function() {
+        const openCases = [];
+
+        for (let i = 0, l = this.allPatientCases.length; i < l; i++) {
+          let kase = this.allPatientCases[i];
+
+          if (kase.status == 'Open' && !kase.archived_at) {
+            openCases.push(kase);
+          }
+        }
+
+        return openCases;
+      },
+    },
+
+    methods: {
+      loadInvoice: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/invoices/' + vm.invoiceId + '.json',
+          success: function(res) {
+            vm.invoice = res.invoice;
+            vm.hydrateInvoiceItems();
+
+            vm.loadSelectedPatient();
+
+            if (vm.invoice.appointment_id) {
+              vm.invoice.origin_appointment_id = vm.invoice.appointment_id;
+              vm.loadSelectedAppointment();
+            }
+
+            if (vm.invoice.patient_case_id) {
+              vm.invoice.origin_patient_case_id = vm.invoice.patient_case_id;
+              vm.loadSelectedCase();
+            }
+
+            if (vm.invoice.invoice_to_contact_id) {
+              vm.invoice.origin_invoice_to_contact_id = vm.invoice.invoice_to_contact_id;
+              vm.loadSelectedInvoiceContact();
+            }
+          }
+        });
+      },
+
+      hydrateInvoiceItems: function() {
+        const vm = this;
+        vm.invoiceItems = [];
+
+        for (let i = 0; i < vm.invoice.items.length; i++) {
+          const itemObj = vm.invoice.items[i];
+          const vmInvoiceItemObj = {
+            id: itemObj.id,
+            invoiceable_type: itemObj.invoiceable_type,
+            invoiceable_id: itemObj.invoiceable_id,
+            invoiceable: itemObj.invoiceable,
+
+            unit_name: itemObj.unit_name,
+            quantity: itemObj.quantity,
+            unit_price: itemObj.unit_price,
+
+            tax_name: itemObj.tax_name,
+            tax_rate: itemObj.tax_rate,
+
+            amount: itemObj.amount
+          }
+
+          vm.invoiceItems.push(vmInvoiceItemObj);
+        }
+
+        vm.calculateInvoice();
+      },
+
+      loadSelectedPatient: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/patients/' + vm.invoice.patient_id + '.json',
+          success: function(res) {
+            vm.selectedPatient = res.patient;
+            vm.reloadPatientRelatedData();
+          }
+        });
+      },
+
+      loadSelectedAppointment: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/appointments/' + vm.invoice.appointment_id + '.json',
+          success: function(res) {
+            if (res.appointment) {
+              vm.selectedAppointment = res.appointment;
+            }
+          }
+        });
+      },
+
+      loadSelectedInvoiceContact: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/contacts/' + vm.invoice.invoice_to_contact_id + '.json',
+          success: function(res) {
+            if (res.contact) {
+              vm.selectedContact = res.contact;
+            }
+          }
+        });
+      },
+
+      loadSelectedCase: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/patient_cases/' + vm.invoice.patient_case_id + '.json',
+          success: function(res) {
+            if (res.patient_case) {
+              vm.selectedCase = res.patient_case;
+            }
+          }
+        });
+      },
+
+      loadPatientCases: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/patients/' + vm.selectedPatient.id + '/patient_cases.json',
+          success: function(res) {
+            vm.allPatientCases = res.patient_cases;
+          }
+        });
+      },
+
+      loadPatientAppointments: function() {
+        const vm = this;
+
+        $.ajax({
+          method: 'GET',
+          url: '/api/patients/' + vm.selectedPatient.id + '/appointments.json',
+          success: function(res) {
+            vm.allPatientAppointments = res.appointments;
+          }
+        });
+      },
+
+      loadAllBillableItems: function() {
+        const vm = this;
+        $.ajax({
+          method: 'GET',
+          url: '/api/billable_items.json',
+          success: function(res) {
+            vm.allBillableItems = res.billable_items;
+          }
+        });
+      },
+
+      loadAllProducts: function() {
+        const vm = this;
+        $.ajax({
+          method: 'GET',
+          url: '/api/products.json',
+          success: function(res) {
+            vm.allProducts = res.products;
+          }
+        });
+      },
+
+      customSelectedPatientLabel: function(patient) {
+        let label = patient.full_name;
+
+        if (patient.dob) {
+          label += ' (' + this.$options.filters.dob(patient.dob) + ')';
+        }
+
+        return label;
+      },
+
+      clearPatientRelatedData: function() {
+        this.selectedCase = null;
+        this.selectedAppointment = null;
+        this.selectedContact = null;
+        this.allPatientCases = [];
+        this.patientOpenCases = [];
+      },
+
+      reloadPatientRelatedData: function() {
+        if (this.selectedPatient) {
+          this.loadPatientCases();
+          this.loadPatientAppointments();
+        }
+      },
+
+      customSelectedContactLabel: function(contact) {
+        let label = contact.business_name;
+
+        return label;
+      },
+
+      customSelectedBillableItemLabel: function(billableItem) {
+        let label = billableItem.name;
+
+        if (billableItem.item_number) {
+          label += ' [' + billableItem.item_number + ']';
+        }
+        return label;
+      },
+
+      customSelectedProductLabel: function(product) {
+        let label = product.name;
+
+        if (product.item_code) {
+          label += ' [' + product.item_code + ']';
+        }
+
+        return label;
+      },
+
+      customSelectedCaseLabel: function(kase) {
+        let label = kase.case_type.title;
+
+        label += ' (' + kase.status + ')';
+
+        return label;
+      },
+
+      customSelectedAppointmentLabel: function(appt) {
+        let label = this.$options.filters.shortDate(appt.start_time) + ' - ' + appt.appointment_type.name;
+
+        return label;
+      },
+
+      onAppointmentChanged: function(appt) {
+        if (appt && appt.patient_case && !this.selectedCase) {
+          this.selectedCase = appt.patient_case;
+        }
+      },
+
+      onSearchContactChanged: debounce(function(query) {
+        const vm = this;
+
+        if (query.trim().length > 0) {
+          vm.isSearchingContacts = true;
+          $.ajax({
+            method: 'GET',
+            url: '/api/contacts/search?s=' + query,
+            success: function(res) {
+              vm.contactOptions = res.contacts;
+            },
+            complete: function() {
+              vm.isSearchingContacts = false;
+            }
+          });
+        }
+      }, 300),
+
+      onContactChanged: function(contact) {
+        this.selectedContact = contact;
+      },
+
+      onClickAddBillableItem: function() {
+        this.invoiceItems.push({
+          invoiceable: null,
+          invoiceable_type: 'BillableItem',
+
+          quantity: null,
+          unit_price: null,
+          amount: null,
+
+          tax_name: null,
+          tax_rate: null,
+          tax_id: null
+        });
+      },
+
+      onClickAddProduct: function() {
+        this.invoiceItems.push({
+          invoiceable: null,
+          invoiceable_type: 'Product',
+
+          quantity: null,
+          unit_price: null,
+          amount: null,
+
+          tax_name: null,
+          tax_rate: null,
+          tax_id: null
+        });
+      },
+
+      onClickRemoveInvoiceItem: function(itemIdx) {
+        const item = this.invoiceItems[itemIdx];
+        if (item.id) {
+          if (!confirm('This is a saved line item. Are you sure you want to REMOVE it?')) {
+            return;
+          }
+        }
+
+        this.invoiceItems.splice(itemIdx, 1);
+
+        if (item.id) {
+          this.deletedInvoiceItems.push(item);
+        }
+
+        this.calculateInvoice();
+      },
+
+      onSelectedProduct: function(invoiceItem) {
+        if (invoiceItem.invoiceable) {
+          const product = invoiceItem.invoiceable;
+          invoiceItem.quantity = 1;
+          invoiceItem.unit_price = product.price;
+
+          if (product.tax) {
+            invoiceItem.tax_name = product.tax.name;
+            invoiceItem.tax_rate = product.tax.rate;
+            invoiceItem.tax_id = product.tax.id;
+          } else {
+            invoiceItem.tax_name = null;
+            invoiceItem.tax_rate = null;
+            invoiceItem.tax_id = null;
+          }
+        } else {
+          invoiceItem.quantity = null;
+          invoiceItem.unit_price = null;
+          invoiceItem.tax_name = null;
+          invoiceItem.tax_rate = null;
+          invoiceItem.tax_id = null;
+        }
+
+        this.calculateInvoice();
+      },
+
+      onSelectedBillalbleItem: function(invoiceItem) {
+        if (invoiceItem.invoiceable) {
+          const billableItem = invoiceItem.invoiceable;
+
+          invoiceItem.quantity = 1;
+          invoiceItem.unit_price = billableItem.price;
+
+          if (billableItem.tax) {
+            invoiceItem.tax_name = billableItem.tax.name;
+            invoiceItem.tax_rate = billableItem.tax.rate;
+            invoiceItem.tax_id = billableItem.tax.id;
+          } else {
+            invoiceItem.tax_name = null;
+            invoiceItem.tax_rate = null;
+            invoiceItem.tax_id = null;
+          }
+
+          // Check variable pricing contacts
+          if (this.selectedContact && billableItem.pricing_contacts.length > 0) {
+            for (let i = 0; i < billableItem.pricing_contacts.length; i++) {
+              let pc = billableItem.pricing_contacts[i];
+              if (pc.contact_id == this.selectedContact.id && pc.price) {
+                invoiceItem.unit_price = pc.price;
+                break;
+              }
+            }
+          }
+        } else {
+          invoiceItem.quantity = null;
+          invoiceItem.unit_price = null;
+          invoiceItem.tax_name = null;
+          invoiceItem.tax_rate = null;
+          invoiceItem.tax_id = null;
+        }
+
+        this.calculateInvoice();
+      },
+
+      calculateInvoice: function() {
+        var invoiceSubtotalAmount = 0;
+        var invoiceTotalAmount = 0;
+        var invoiceTaxAmount = 0;
+
+        for (var i = 0; i < this.invoiceItems.length; i++) {
+          const item = this.invoiceItems[i];
+          if (item.invoiceable && item.quantity && item.quantity > 0 && item.unit_price && item.unit_price > 0) {
+            var itemAmountExTax = item.quantity * item.unit_price;
+            var itemTaxAmount = 0;
+
+            if (item.tax_rate) {
+              itemTaxAmount = itemAmountExTax * item.tax_rate / 100;
+            }
+
+            var itemAmount = itemAmountExTax + itemTaxAmount;
+
+            item.amount = itemAmount;
+
+            invoiceSubtotalAmount += itemAmountExTax;
+            invoiceTaxAmount += itemTaxAmount;
+            invoiceTotalAmount += itemAmount;
+          } else {
+            item.amount = null;
+          }
+        }
+
+        this.invoice.subtotal_amount = invoiceSubtotalAmount;
+        this.invoice.tax_amount = invoiceTaxAmount;
+        this.invoice.total_amount = invoiceTotalAmount;
+      },
+
+      validateForm: function() {
+        const errors = [];
+        const vm = this;
+
+        if (!this.selectedPatient) {
+          errors.push('Please select a client');
+        }
+
+        let notEmptyItemsCount = 0;
+        const unitPriceRegx = /^\d+(\.\d{1,2})?$/i;
+        const quantityRegx = /^\d+(\.\d{1,2})?$/i;
+
+        for (let i = 0; i < vm.invoiceItems.length; i++) {
+          const invoiceItem = vm.invoiceItems[i];
+
+          let itemErrors = [];
+
+          if (invoiceItem.invoiceable) {
+            notEmptyItemsCount++;
+          } else {
+            itemErrors.push('Please select an item');
+            continue;
+          }
+
+          if (!invoiceItem.quantity || isNaN(invoiceItem.quantity) || !quantityRegx.test(invoiceItem.quantity) || invoiceItem.quantity < 0) {
+            itemErrors.push('The quantity must be a positive number with a maximum of 2 decimals');
+          }
+
+          if (!invoiceItem.unit_price || isNaN(invoiceItem.unit_price) || !unitPriceRegx.test(invoiceItem.unit_price) || invoiceItem.unit_price < 0) {
+            itemErrors.push('The unit price must be a positive number with a maximum of 2 decimals');
+          }
+
+          if (itemErrors.length > 0) {
+            errors.push('The item #' + (i + 1) + ' errors: ' + itemErrors.join('. '));
+          }
+        }
+
+        if (notEmptyItemsCount === 0) {
+          errors.push('Please add at least one item');
+        }
+
+        return errors;
+      },
+
+      onClickDeselectCase: function() {
+        if (this.selectedCase && this.selectedCase.id == this.invoice.origin_patient_case_id) {
+          if (!confirm('This case was previously associated with this invoice. Are you sure you want to REMOVE this link?')) {
+            return;
+          }
+        }
+
+        this.selectedCase = null;
+      },
+
+      onClickDeselectAppointment: function() {
+        if (this.selectedAppointment && this.selectedAppointment.id == this.invoice.origin_appointment_id) {
+          if (!confirm('This invoice was previously issued for this appointment. Are you sure you want to REMOVE this link?')) {
+            return;
+          }
+        }
+
+        this.selectedAppointment = null;
+      },
+
+      onClickDeselectContact: function() {
+        if (this.selectedContact && this.selectedContact.id == this.invoice.origin_invoice_to_contact_id) {
+          if (!confirm('This invoice was previously issued to this contact. Are you sure you want to REMOVE this link?')) {
+            return;
+          }
+        }
+        this.selectedContact = null;
+      },
+
+      buildUpdateInvoiceData: function() {
+        vm = this;
+
+        let data = {
+          notes: vm.invoice.notes,
+          message: vm.invoice.message,
+          items_attributes: []
+        };
+
+        if (vm.selectedAppointment) {
+          data.appointment_id = vm.selectedAppointment.id;
+        } else {
+          data.appointment_id = null;
+        }
+
+        if (vm.selectedCase) {
+          data.patient_case_id = vm.selectedCase.id;
+        } else {
+          data.patient_case_id = null;
+        }
+
+        if (vm.selectedContact) {
+          data.invoice_to_contact_id = vm.selectedContact.id;
+        } else {
+          data.invoice_to_contact_id = null;
+        }
+
+        for (let i = 0; i < vm.invoiceItems.length; i++) {
+          const invoiceItem = vm.invoiceItems[i];
+
+          if (invoiceItem.invoiceable) {
+            const itemAttrs = {
+              quantity: invoiceItem.quantity,
+              unit_price: invoiceItem.unit_price,
+              invoiceable_type: invoiceItem.invoiceable_type,
+              tax_name: invoiceItem.tax_name,
+              tax_rate: invoiceItem.tax_rate,
+              tax_id: invoiceItem.tax_id
+            };
+
+            if (invoiceItem.id) {
+              itemAttrs.id = invoiceItem.id;
+            }
+
+            itemAttrs.invoiceable_id = invoiceItem.invoiceable.id;
+            data.items_attributes.push(itemAttrs);
+          }
+        }
+
+        for (let i = 0; i < vm.deletedInvoiceItems.length; i++) {
+          const deletedInvoiceItem = vm.deletedInvoiceItems[i];
+
+          data.items_attributes.push({
+            id: deletedInvoiceItem.id,
+            _destroy: true
+          });
+        }
+
+        return data;
+      },
+
+      onClickSubmitInvoice: function() {
+        const vm = this;
+        vm.busy = true;
+
+        const validationErrors = vm.validateForm();
+
+        if (validationErrors.length > 0) {
+          vm.$notify(validationErrors.join('. '), 'error');
+          vm.busy = false;
+          return;
+        }
+
+        $.ajax({
+          method: 'PUT',
+          url: '/app/invoices/' + vm.invoice.id,
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify(vm.buildUpdateInvoiceData()),
+          success: function(res) {
+            vm.$notify('The invoice was successfully updated.', 'success');
+
+            setTimeout(function() {
+              location.href = '/app/invoices/' + res.invoice.id;
+            }, 1000);
+          },
+          error: function(xhr) {
+            vm.busy = false;
+
+            if (xhr.responseJSON) {
+              if (xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message + ' ';
+              }
+
+              if (xhr.status === 422 && xhr.responseJSON.errors) {
+                errorMsg += xhr.responseJSON.errors.join('. ');
+              }
+
+              vm.$notify(errorMsg, 'error');
+            } else {
+              vm.$notify('An error has occurred. Sorry for the inconvenience.', 'error');
+            }
+          }
+        });
+      }
+    }
+
+  });
+})();
+
+</script>

@@ -1,0 +1,15 @@
+<%= simple_form_for(@tag, url: @tag.new_record? ? admin_tags_path : admin_tag_path(tag)) do |f| %>
+  <%= f.error_notification %>
+
+    <h3>General Info</h3>
+    <div class="box">
+        <%= f.input :name %>
+        <%= f.input :classification, as: :select, collection: Tag.classifications.values %>
+    </div>
+    <div class="text-center">
+        <div class="switch-button">
+            <a href="<%= admin_tags_path %>">Cancel</a>
+            <button><%= @tag.new_record? ? "Create" : "Update" %></button>
+        </div>
+    </div>
+<% end %>

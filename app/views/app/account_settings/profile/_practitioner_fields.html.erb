@@ -1,0 +1,179 @@
+<div class="box">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :phone %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :mobile %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :address1, required: true, input_html: { id: 'input-address1' } %>
+    </div>
+    <div class="col-sm-6">
+      <%= f.input :address2 %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :city, required: true, input_html: { id: 'input-city' } %>
+    </div>
+    <div class="col-sm-6">
+      <%= f.input :state, required: true, input_html: { id: 'input-state' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :postcode, required: true, input_html: { id: 'input-postcode' } %>
+    </div>
+    <div class="col-sm-6">
+      <%= f.input :country, priority: [ current_business.country ], input_html: { id: 'input-country' } %>
+    </div>
+  </div>
+</div>
+
+<h4>Qualifications</h4>
+
+<div class="box">
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :profession, as: :select, collection: Practitioner::PROFESSIONS %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :education, label:'University qualification' %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :medicare, label:'Provider registration number' %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <%= f.input :summary, label: 'Professional profile', as: :text, input_html: { rows: 10 },
+        hint: 'Describe your skills, experience, service area, availability and personality' %>
+    </div>
+  </div>
+</div>
+
+<% if @user.is_practitioner? && @user.practitioner %>
+  <% practitioner = @user.practitioner %>
+  <h4>Documents</h4>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="box">
+        <table class="table table-borderless">
+          <thead>
+            <th>Type</th>
+            <th>File</th>
+            <th>Expiry</th>
+          </thead>
+          <tbody>
+            <% documents = practitioner.documents.to_a %>
+            <% PractitionerDocument::TYPES.each do |type| %>
+              <% doc = documents.find { |doc| doc.type == type } %>
+              <% next unless doc.present? %>
+              <tr>
+                <td>
+                  <%= t("practitioner_document_types.#{type}") %>:
+                </td>
+                <td>
+                  <a href="<%= doc.document_url %>" class="normal-link" download="<%= doc.document_original_filename %>"><i class="fa fa-download"></i></a>
+                </td>
+                <td>
+                  <% if doc.expiry_date? %>
+                    <%= doc.expiry_date.strftime(t('date.common')) %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <a href="<%= app_account_settings_profile_modal_practitioner_documents_path %>" data-remote="true">Add/Edit documents</a>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% unless @user.new_record? %>
+<h4>Signature</h4>
+<div class="row">
+  <div class="col-md-6 col-xs-12">
+    <div class="box box-signature">
+      <div class="form-group">
+        <img
+          <% if @user.practitioner.signature.exists? %>
+            src="<%= @user.practitioner.signature.url(:medium) %>"
+          <% else %>
+            src="https://via.placeholder.com/150x50?text=NO+IMAGE"
+          <% end %>
+        />
+      </div>
+      <a href="#" class="js-btn-change-signature">Edit signature</a>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% content_for :page_js do %>
+<script>
+  // Address completion
+  (function() {
+    var autocomplete;
+
+    function locationSelected() {
+      var place = autocomplete.getPlace();
+
+      var componentForm = {
+        street_number: 'input-address1',
+        subpremise: 'input-address',
+        locality: 'input-city',
+        administrative_area_level_1: 'input-state',
+        postal_code: 'input-postcode',
+        country: 'input-country',
+        postal_town: 'input-city'
+      };
+
+      if (place.address_components) {
+        $.each(componentForm, function(index, element) {
+          $('#' + element).val('');
+        });
+        $.each(place.address_components, function(index, item) {
+          if (componentForm[item.types[0]]) {
+            $inputElement = $('#' + componentForm[item.types[0]]);
+            if (item.types[0] == 'subpremise') {
+              $($inputElement).val(item.short_name + '/')
+            } else {
+              $($inputElement).val($inputElement.val() + item.short_name)
+            }
+          }
+
+          if (item.types[0] == 'country') {
+            $('#input-country').val(item.short_name);
+          }
+
+          if (item.types[0] == 'route') {
+            $('#input-address1').val($('#input-address1').val() + ' ' + item.short_name);
+          }
+        });
+      }
+    };
+
+    autocomplete = new google.maps.places.Autocomplete(
+      $('#input-address1')[0], autocompleteDefaultOptions
+    );
+
+    $('#input-address1').on('keypress', function(e) {
+      if (e.keyCode === 13) {
+        return false;
+      }
+    });
+    autocomplete.addListener('place_changed', locationSelected);
+  })();
+
+</script>
+<% end %>

@@ -1,0 +1,88 @@
+<div class="modal fade" id="js-modal-edit-associate-contacts">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Edit associate contacts</h4>
+      </div>
+
+      <%= simple_form_for patient, url: update_associate_contacts_patient_path(patient), method: 'PUT', remote: true do |f| %>
+        <div class="modal-body">
+          <%
+            associated_contacts_ids = (patient.doctor_contact_ids + patient.specialist_contact_ids +
+                                    patient.referrer_contact_ids + patient.invoice_to_contact_ids +
+                                    patient.other_contact_ids).uniq
+
+            associated_contacts = current_business.contacts.where(id: associated_contacts_ids)
+
+          %>
+
+          <%=
+            f.input :referrer_contact_ids,
+                    as: :select,
+                    label: 'Referrer:',
+                    collection: associated_contacts,
+                    label_method: :business_name,
+                    input_html: {
+                      multiple: true,
+                      class: 'js-input-contact-tags'
+                    }
+          %>
+
+          <%=
+            f.input :invoice_to_contact_ids,
+                    as: :select,
+                    label: 'Invoice to:',
+                    collection: associated_contacts,
+                    label_method: :business_name,
+                    input_html: {
+                      multiple: true,
+                      class: 'js-input-contact-tags',
+                    }
+          %>
+
+          <%= f.input :doctor_contact_ids,
+                      as: :select,
+                      label: 'Doctor:',
+                      collection: associated_contacts,
+                      label_method: :business_name,
+                      input_html: {
+                        multiple: true,
+                        class: 'js-input-contact-tags'
+                      }
+          %>
+
+          <%=
+            f.input :specialist_contact_ids,
+                    as: :select,
+                    label: 'Specialist:',
+                    collection: associated_contacts,
+                    label_method: :business_name,
+                    input_html: {
+                      multiple: true,
+                      class: 'js-input-contact-tags',
+                    }
+          %>
+
+          <%=
+            f.input :other_contact_ids,
+                    as: :select,
+                    label: 'Other:',
+                    collection: associated_contacts,
+                    label_method: :business_name,
+                    input_html: {
+                      multiple: true,
+                      class: 'js-input-contact-tags',
+                    }
+          %>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Save changes</button>
+          <button class="btn btn-white" type="button" data-dismiss="modal">Close</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

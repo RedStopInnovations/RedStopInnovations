@@ -1,0 +1,163 @@
+<% content_for :title, 'Bulk create payments' %>
+
+<section class="box-header">
+  <h1>Bulk create payments</h1>
+</section>
+
+<section class="content">
+  <div id="js-bulk-payment-container" v-cloak class="panel panel-default">
+
+    <div class="panel-body" v-bind:class="{ loading: loading }">
+      <div class="loading-backdrop" v-if="loading"></div>
+      <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+
+      <div class="text-warning">
+        <strong>Notes:</strong>
+        <br>
+        <ul class="mb-0">
+          <li>This only support invoices paid in full.</li>
+          <li>Each invoice will have a separate payment record, not linked together.</li>
+          <li>This action cannot be undone. You can edit or void incorrect payments separately if necessary.</li>
+          <li>
+            After creation, you can find the payment records in the <b>Payment created</b> column.
+          </li>
+        </ul>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table mt-20 table-hover">
+          <thead>
+            <tr>
+              <th style="width: 20px;">#</th>
+              <th style="width: 100px;">Invoice</th>
+              <th style="width: 250px;">Client</th>
+              <th style="width: 200px;">Payment method</th>
+              <th style="width: 150px;">Payment date</th>
+              <th style="width: 150px;">Amount</th>
+              <th style="width: 150px;">Payment created</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="(payment, invoiceIndex) in payments" :key="payment.invoice.id">
+              <td>{{ invoiceIndex + 1 }}</td>
+
+              <td>
+                <a :href="'/app/invoices/' + payment.invoice.id">{{ payment.invoice.invoice_number }}</a> <br>
+                <ul class="list-unstyled text-smaller">
+                  <li v-for="invoice_item in payment.invoice.items">{{ invoice_item.unit_name }}</li>
+                </ul>
+              </td>
+
+              <td>
+                <a :href="'/app/patients/' + payment.invoice.patient.id">{{ payment.invoice.patient.full_name }}</a>
+                <br>
+                <template v-if="payment.invoice.invoice_to_contact">
+                  @ <a :href="'/app/contacts/' + payment.invoice.invoice_to_contact.id" class="normal-link text-bolder">{{ payment.invoice.invoice_to_contact.business_name }}</a>
+                </template>
+              </td>
+
+              <td>
+                <select class="form-control form-control-sm" v-model="payment.payment_method" v-show="!isComplete">
+                  <option value="">-- Select one --</option>
+                  <option v-for="method in PAYMENT_METHODS" :key="method">{{ method }}</option>
+                </select>
+                <div class="form-control form-control-sm" v-if="isComplete">{{ payment.payment_method }}</div>
+              </td>
+
+              <td>
+                <div v-show="!isComplete">
+                  <v-flatpickr
+                    v-model="payment.payment_date"
+                    :config="paymentDateDatepickerConfig"
+                    >
+                  </v-flatpickr>
+                </div>
+                <div class="form-control form-control-sm" v-if="isComplete">{{ payment.payment_date | shortDate }}</div>
+              </td>
+
+              <td>${{ payment.invoice.amount }}</td>
+
+              <td>
+                <div v-if="isComplete && payment.created_payment">
+                  <a :href="'/app/payments/' + payment.created_payment.id">View</a>
+                </div>
+                <span v-if="!isComplete" class="text-muted">--</span>
+              </td>
+
+              <td style="text-align: right;">
+                <button v-show="!isComplete" class="btn btn-white" title="Remove" type="button" @click="onClickRemoveInvoice(invoiceIndex)"><i class="fa fa-minus"></i></button>
+              </td>
+            </tr>
+
+            <tr v-show="payments.length > 0">
+              <td class="text-right" colspan="5"><h4>Total:</h4></td>
+              <td colspan="3">
+                <strong>
+                  <h4>${{ totalInvoicesAmount | round(2) }}</h4>
+                </strong>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <v-multiselect
+            v-if="!isComplete"
+            :options="invoiceOptions"
+            :multiple="false"
+            :close-on-select="true"
+            :options-limit="10"
+            :searchable="true"
+            :hide-selected="true"
+            :loading="isSearchingInvoices"
+            :internal-search="false"
+            :close-on-select="false"
+            :reset-after="true"
+            ref="searchInvoice"
+            placeholder="Search invoice to add. Enter number or client name"
+            open-direction="bottom"
+            track-by="id"
+            @search-change="onSearchInvoiceChanged"
+            select-label=""
+            selected-Label="Added"
+            deselect-label=""
+            @select="onSelectInvoice"
+            >
+
+            <template slot="noResult" v-hide="isSearchingInvoices">
+              <span>No outstanding invoice match!</span>
+            </template>
+
+            <template slot="option" scope="props">
+              <div class="desc">
+                <a :href="'/app/invoices/' + props.option.id">
+                  <span class="text-bolder" v-html="$options.filters.highlight(props.option.invoice_number, props.search)"></span>
+                </a>
+
+                <span>{{ props.option.patient.full_name }}</span>
+                <div class="pl-5 text-smaller">
+                  {{ props.option.issue_date | shortDate }} <span class="text-muted"> | </span> <span>Amount: ${{ props.option.amount }}</span>
+                </div>
+              </div>
+            </template>
+          </v-multiselect>
+        </div>
+      </div>
+      <hr>
+
+      <button class="btn btn-primary" type="button" @click="onClickSubmitPayments" :disabled="loading || !isFormValid || isComplete" v-show="!isComplete">
+        Create payments
+      </button>
+
+      <div v-if="isComplete" class="mt-10">
+        <span class="text-success">Payments has been successfully created.</span> <a href="" class="btn btn-white">Start again</a>
+      </div>
+    </div>
+
+  </div>
+</section>

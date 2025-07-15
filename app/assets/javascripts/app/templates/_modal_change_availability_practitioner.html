@@ -1,0 +1,65 @@
+<script type="text/template" id="modal-change-availability-practitioner-tmpl">
+  <div v-if="availability">
+    <modal :value="show" effect="fade" v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-warning">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cancel"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Change availability's practitioner</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+        <div class="loading-backdrop" v-if="loading"></div>
+        <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <div class="alert alert-danger" v-show="formErrors.length > 0">
+          <a href="#" class="close" v-on:click.prevent="formErrors = []" aria-label="close">&times;</a>
+          <ul class="list-unstyled">
+            <li v-for="error in formErrors">{{ error }}</li>
+          </ul>
+        </div>
+        <div v-if="availability.appointments_count > 0">
+          <p class="text-warning">Warning: This availablity has already {{ availability.appointments_count }} booked appointment(s).</p>
+        </div>
+        <div class="form-group">
+          <label class="control-label">Select practitioner: </label>
+          <div>
+            <v-multiselect
+              v-model="selectedPractitioner"
+              :options="practitioners"
+              :multiple="false"
+              :close-on-select="true"
+              :options-limit="50"
+              :searchable="practitioners.length > 10"
+              :hide-selected="true"
+              placeholder="Select practitioner"
+              select-label=""
+              label="full_name"
+              track-by="id"
+              >
+              <template slot="noResult">
+                <span>No practitioners found!</span>
+              </template>
+              <template slot="option" scope="props">
+                <div class="desc">
+                  <span v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                  <small v-if="props.option.profession"> - {{ props.option.profession }}</small>
+                </div>
+              </template>
+            </v-multiselect>
+          </div>
+        </div>
+
+        <div class="form-group" v-if="availability.recurring_id">
+          <div class="check-box">
+            <input type="checkbox" id="cb-apply-future-repeats" v-model="applyToFutureRepeats" :true-value="true" :false-value="false">
+            <label for="cb-apply-future-repeats">Apply for future repeats</label>
+          </div>
+          <small>(This will change practitioner for appointments in future repeats also)</small>
+        </div>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer bg-gray-light">
+        <button class="btn btn-primary" type="button" @click.prevent="submit" :disabled="loading">Update availability</button>
+        <button class="btn btn-white" type="button" @click="cancel" :disabled="loading">Cancel</button>
+      </div>
+    </modal>
+  </div>
+</script>

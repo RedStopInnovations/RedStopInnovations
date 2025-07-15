@@ -1,0 +1,36 @@
+Dear <%= @patient.full_name %>,
+<br>
+<br>
+This is details for the <%= @outcome_measure.outcome_measure_type.name %>.
+<br>
+<br>
+<b>Practitioner:</b>
+<br>
+<%= @practitioner.full_name %>
+<br>
+<%= @practitioner.profession %>
+<br>
+<br>
+<b>Test results:</b>
+<br>
+<table style="border-collapse: collapse;">
+  <tbody>
+    <tr>
+      <th style="width: 150px; border: 1px solid #ddd; text-align: left">Date performed</th>
+      <th style="border: 1px solid #ddd; text-align: left" >Result</th>
+    </tr>
+    <% @outcome_measure.tests.each do |test| %>
+      <tr>
+        <td style="border: 1px solid #ddd;"><%= test.date_performed.strftime('%d %b %Y') %></td>
+        <td style="border: 1px solid #ddd;"><%= test.result_formatted %> <span><%= @outcome_measure.outcome_measure_type.unit %></span></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<br>
+<br>
+Kind regards,
+<br>
+<%= @business.name %>
+<br>
+<%= @business.phone %>

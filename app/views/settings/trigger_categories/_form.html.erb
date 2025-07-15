@@ -1,0 +1,26 @@
+<%= simple_nested_form_for trigger_category, url: trigger_category.new_record? ? settings_trigger_categories_path : settings_trigger_category_path(trigger_category) do |f| %>
+  <%= f.input :name %>
+
+  <legend>Words: </legend>
+  <ul id="list-words" class="list-unstyled" style="padding-left: 10px">
+    <%= f.fields_for :words do |f_w| %>
+      <li>
+        <div class="row">
+          <div class="col-xs-8"><%= f_w.input :text, label: false, placeholder: 'Enter word' %></div>
+          <div class="col-xs-4">
+          <%= f_w.link_to_remove class: 'btn btn-white', tabindex: '-1' do %>
+            <span class="text-danger"><i class="fa fa-trash"></i></span>
+          <% end %>
+          </div>
+        </div>
+
+      </li>
+    <% end %>
+  </ul>
+  <p class="text-right"></p>
+  <%= f.link_to_add 'Add word', :words, class: 'btn btn-default', data: { target: '#list-words' } %>
+  <hr>
+  <button class="btn sitebtn">Save</button>
+  <a href="<%= trigger_category.new_record? ? settings_trigger_categories_path : settings_trigger_category_path(trigger_category) %>"
+    class="btn linebtn ">Cancel</a>
+<% end %>

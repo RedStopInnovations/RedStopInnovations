@@ -1,0 +1,14 @@
+en-US:
+  datetime:
+    common: '%-m/%e/%Y %l:%M%P'    # 3/1/2017 02:00pm
+    short_12h: '%-m/%e/%Y %l:%M%P' # 3/1/2017 02:00pm
+    short_12h_z: '%-m/%e/%Y %l:%M%P' # 3/1/2017 02:00pm EST
+    short_24h: '%-m/%e/%Y %H:%M'   # 3/1/2017 14:00
+  date:
+    common: '%-m/%e/%Y'            # 3/1/2017
+    short: '%-m/%e/%y'             # 3/1/17
+    short_dow: '%a, %-m/%e/%y'     # Mon, 3/1/17
+    dob: '%-m/%e/%Y'                # 3/1/2017
+  time:
+    12h: '%l:%M%P'                 # 02:00pm
+    24h: '%M:%M'                   # 14:00

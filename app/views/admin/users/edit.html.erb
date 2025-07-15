@@ -1,0 +1,52 @@
+<section class="box-header">
+  <h1>Editing <%= @user.full_name %></h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_users_path %>">Users</a>
+    </li>
+    <li><%= @user.full_name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= simple_form_for @user, url: admin_user_path(@user) do |f| %>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-6">
+          <%= f.input :first_name %>
+        </div>
+        <div class="col-md-6">
+          <%= f.input :last_name %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= f.input :email, readonly: true %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= f.input :role, as: :select, collection: User::ROLES, label_method: :titleize, include_blank: false %>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel-footer">
+      <button class="btn btn-primary">Update user</button>
+      <a href="<%= admin_user_path(@user) %>" class="btn btn-white">Cancel</a>
+    </div>
+  </div>
+
+  <% end %>
+</section>

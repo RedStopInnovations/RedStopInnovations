@@ -1,0 +1,139 @@
+<section class="box-header">
+  <h1>Manage users</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>Users</li>
+  </ul>
+</section>
+
+<section class="content">
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: admin_users_path, enforce_utf8: false, class: 'form-filter form-filter-patients' do |f| %>
+        <div class="row">
+          <div class="col-sm-4">
+            <label>Search:</label>
+            <%= f.search_field :full_name_or_email_or_business_name_cont, class: 'form-control', placeholder: 'Name, email, business' %>
+          </div>
+
+          <div class="col-sm-3">
+            <label>Role:</label>
+            <%
+              role_options = [["All", ""]]
+              User::ROLES.map do |role|
+                role_options << [role.titleize, role]
+              end
+            %>
+            <%= f.select :role_eq, role_options, {}, { class: 'form-control' } %>
+          </div>
+
+          <div class="col-sm-3">
+            <label>&nbsp;</label>
+            <div class="check-box mt-5">
+              <input type="checkbox" name="include_inactive" id="cb-show-hidden" value="1" <%= 'checked' if params[:include_inactive].to_s == '1' %> >
+              <label for="cb-show-hidden">Show inactive</label>
+            </div>
+          </div>
+
+          <div class="col-sm-2">
+            <label>&nbsp;</label><br>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="<%= admin_users_path %>" class="btn btn-white">Clear</a>
+            <a href="<%= admin_users_path(params.to_unsafe_h.slice(:q, :include_inactive).merge(format: 'csv')) %>" class="btn btn-white"><i class="fa fa-download"></i> CSV</a>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th style="width: 90px;">Photo</th>
+            <th style="width: 200px">Name</th>
+            <th>Business</th>
+            <th>Role</th>
+            <th>Last login</th>
+            <th>2FA</th>
+            <th>Join date</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @users.each do |user| %>
+            <tr>
+              <td>
+                <img src="<%= user.avatar.url(:thumb) %>" style="width: 50px">
+              </td>
+              <td>
+                <a href="<%= admin_user_path(user) %>"><%= user.full_name %></a>
+                <br>
+                <span class="text-smaller"><%= user.email %></span>
+                <% if !user.active? %><span class="label label-default">Inactive</span><% end %>
+              </td>
+              <td><a href="<%= admin_business_path(user.business) %>"><%= user.business.name %></a> [#<%= user.business_id %>]</td>
+              <td><%= user.role.titleize %></td>
+              <td>
+                <% if user.current_sign_in_at %>
+                  <%= user.current_sign_in_at.strftime(t('datetime.short_12h_z')) %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </td>
+              <td>
+                <% if user.enable_google_authenticator? %>
+                  <i class="fa fa-check"></i>
+                <% end %>
+              </td>
+              <td><%= user.created_at.strftime('%d/%b/%Y') %></td>
+              <td>
+                <div class="btn-group">
+                  <a href="<%= admin_user_path(user) %>" class="btn btn-white">Details</a>
+                  <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="<%= edit_admin_user_path(user) %>" title="Edit">Edit details</a>
+                    </li>
+
+                    <% if user.avatar.exists? %>
+                    <li>
+                        <a href="<%= delete_avatar_admin_user_path(user) %>" data-method="POST" data-confirm="Are you sure you want to delete the profile photo?">Delete profile photo</a>
+                    </li>
+                    <% end %>
+
+                    <% if user.active? %>
+                      <li>
+                        <a href="<%= login_as_admin_user_path(user) %>" target="_blank">Login as this user</a>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @users %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @users, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

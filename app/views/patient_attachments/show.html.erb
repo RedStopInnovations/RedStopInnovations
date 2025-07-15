@@ -1,0 +1,54 @@
+<%= render 'patients/show_layout' do %>
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>Attachment details</h4>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <div class="btn-group">
+        <a href="<%= edit_patient_attachment_path(@patient, @attachment) %>" class="btn btn-white">
+          Edit
+        </a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a href="<%= modal_email_others_patient_attachment_path(@patient, @attachment) %>" data-remote="true">
+              Email others
+            </a>
+          </li>
+          <li>
+            <a href="<%= send_to_patient_patient_attachment_path(@attachment.patient, @attachment)%>"
+              data-confirm="Are you sure?" data-method="POST" >
+              Email to client
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-body">
+      <div class="block-info">
+        <strong>File:</strong>
+        <p>
+          <a href="<%= @attachment.attachment.url %>">
+            <%= @attachment.attachment_file_name %>
+          </a>
+        </p>
+      </div>
+
+      <div class="block-info">
+        <strong>Created at:</strong>
+        <p><%= @attachment.created_at.strftime(t('datetime.common')) %></p>
+      </div>
+
+      <div class="block-info">
+        <strong>Description:</strong>
+        <p><%= @attachment.description %></p>
+      </div>
+    </div>
+  </div>
+<% end %>

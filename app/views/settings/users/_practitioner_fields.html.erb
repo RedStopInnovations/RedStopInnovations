@@ -1,0 +1,133 @@
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :profession, required: true, as: :select, collection: Practitioner::PROFESSIONS %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :medicare, label: 'Provider number' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :allow_online_bookings, as: :boolean %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :phone %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :mobile %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :address1, required: true, input_html: { id: 'input-address1' } %>
+    </div>
+    <div class="col-sm-6">
+      <%= f.input :address2 %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :city, required: true, input_html: { id: 'input-city' } %>
+    </div>
+    <div class="col-sm-6">
+      <%= f.input :state, required: true, input_html: { id: 'input-state' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <%= f.input :postcode, required: true, input_html: { id: 'input-postcode' } %>
+    </div>
+    <div class="col-sm-6">
+      <%= f.input :country, input_html: { id: 'input-country' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :education, label:'University qualification' %>
+    </div>
+    <div class="col-md-12">
+      <%= f.input :summary, label: 'Professional profile', as: :text, input_html: { rows: 5 },
+        hint: 'Describe skills, experience, service area, and availability' %>
+    </div>
+  </div>
+
+<%
+  if @user.present? && @user.persisted? && @user.practitioner
+    persisted_practitioner = @user.practitioner
+  else
+    persisted_practitioner = nil
+  end
+%>
+
+<% if persisted_practitioner %>
+  <% practitioner = persisted_practitioner %>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Documents</div>
+        <div class="panel-body">
+          <table class="table table-borderless">
+            <thead>
+              <th>Type</th>
+              <th>File</th>
+              <th>Expiry</th>
+            </thead>
+            <tbody>
+              <% documents = practitioner.documents.to_a %>
+              <% PractitionerDocument::TYPES.each do |type| %>
+                <% doc = documents.find { |doc| doc.type == type } %>
+                <% next unless doc.present? %>
+                <tr>
+                  <td>
+                    <%= t("practitioner_document_types.#{type}") %>:
+                  </td>
+                  <td>
+                    <a href="<%= doc.document_url %>" class="normal-link" download="<%= doc.document_original_filename %>"><i class="fa fa-download"></i></a>
+                  </td>
+                  <td>
+                    <% if doc.expiry_date? %>
+                      <%= doc.expiry_date.strftime(t('date.common')) %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <a href="<%= modal_practitioner_documents_settings_user_path(@user) %>" data-remote="true">Add/Edit documents</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% end %>
+
+<% if @user && @user.persisted? && @user.is_practitioner? && @user.practitioner %>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Signature</div>
+        <div class="panel-body">
+          <div class="box-signature">
+            <div class="form-group">
+              <img
+                <% if @user.practitioner.signature.exists? %>
+                  src="<%= @user.practitioner.signature.url(:medium) %>"
+                <% else %>
+                  src="https://via.placeholder.com/150x50?text=NO+IMAGE"
+                <% end %>
+              />
+            </div>
+            <a href="#" class="js-btn-change-signature">Edit signature</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,128 @@
+<% content_for :title, 'Subscription info' %>
+
+<section class="box-header">
+  <h1>Subscription info</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Subscription info</li>
+  </ul>
+</section>
+
+<section class="content pb-none">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <ul class="nav nav-tabs">
+        <li class="active">
+          <a href="#subscription-info" data-toggle="tab">Subscription info</a>
+        </li>
+        <li>
+          <a href="<%= settings_subscriptions_invoices_path %>">Invoices</a>
+        </li>
+        <li>
+          <a href="<%= settings_subscriptions_payments_path %>">Payment history</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="subscription-info">
+          <div class="row mt-20">
+            <div class="col-md-6">
+              <table class="table table-borderless mt-10">
+                <tbody>
+                  <tr>
+                    <td style="width: 200px;">
+                      Status
+                    </td>
+                    <td>
+                      <% if @subscription.business.in_trial_period? %>
+                        <span class="text-warning">In-trial</span>
+                      <% else %>
+                        <span class="text-green">Active</span>
+                      <% end %>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Plan</td>
+                    <td>
+                      <%= @subscription.subscription_plan.name.titleize %>
+                    </td>
+                  </tr>
+
+                  <% if @subscription.business.in_trial_period? %>
+                    <tr>
+                      <td>
+                        Trial period
+                      </td>
+                      <td>
+                        <%= @subscription.trial_start.strftime(t('date.common')) %> - <%= @subscription.trial_end.strftime(t('date.common')) %>
+                      </td>
+                    </tr>
+                  <% else %>
+                    <tr>
+                      <td>
+                        Billing period
+                      </td>
+                      <td>
+                        <%= @subscription.billing_start.strftime(t('date.common')) %> - <%= @subscription.billing_end.strftime(t('date.common')) %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <tr>
+                    <td>
+                      Payment method
+                    </td>
+                    <td>
+                      <% if @subscription.stripe_customer_id.nil? %>
+                        Not added
+                        <button type="button" class="btn btn-white btn-add-card ml-20">Add card</button>
+                      <% else %>
+                        ****-<%= @subscription.card_last4 %> <button type="button" class="btn btn-white btn-add-card ml-20">Change card</button>
+                      <% end %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">Software terms of service agreement</div>
+                <div class="panel-body">
+                  <div>
+                    Business name: <%= current_business.name %>
+                  </div>
+                  <div class="mt-10">
+                    Date agreed to terms of service: <%= current_business.created_at.strftime("%d/%b/%Y") %>
+                  </div>
+                  <div class="mt-10">
+                    Date of update: 09/Dec/2023
+                  </div>
+                  <div class="mt-10">
+                    <a href="/documents/Software.Licence.Terms.of.Service.pdf" target="_blank"><i class="fa fa-file-pdf-o"></i> View terms of service</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= render 'stripe_card_add' %>
+<% content_for :page_js do %>
+  <script type="text/javascript">
+    $(".btn-add-card").click(function(e) {
+      e.preventDefault();
+      $(".stripe-button-el").click();
+    });
+  </script>
+<% end %>

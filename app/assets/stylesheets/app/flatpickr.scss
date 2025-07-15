@@ -1,0 +1,73 @@
+.numInputWrapper {
+  /* Always show arrow for increase/decrease time */
+  span {
+    opacity: 1;
+    // Make arrows a bit bigger
+    width: 25px;
+    padding: 0 4px 0 8px;
+  }
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  background: none;
+}
+.flatpickr-day.endRange.inRange {
+  background: #44B654;
+  border-color: #44B654;
+}
+
+.flatpickr-calendar {
+  .flatpickr-months {
+    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg {
+      fill: #44b654;
+    }
+  }
+
+  .flatpickr-current-month {
+    /* Make year input a bit wider */
+    > .numInputWrapper {
+      width: 8ch;
+    }
+  }
+
+  .flatpickr-day {
+    &.selected {
+      background: #44B654;
+      border-color: #44B654;
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .flatpickr-calendar {
+    .flatpickr-rContainer {
+      .flatpickr-weekdays {
+        background: #FAFAFA;
+        padding: 0 5px;
+
+        .flatpickr-weekday {
+          font-size: 85%;
+          font-weight: 400;
+          background: #FAFAFA;
+        }
+      }
+    }
+
+    .flatpickr-days {
+      width: 100%;
+      .flatpickr-day {
+        font-size: 90%;
+        max-width: 32px;
+        height: 32px;
+        line-height: 32px;
+      }
+    }
+  }
+}
+
+/* The input of vue-flatpickr */
+.v-flatpickr {
+  &:read-only {
+    background-color: #fff;
+  }
+}

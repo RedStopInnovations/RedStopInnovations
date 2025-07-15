@@ -1,0 +1,325 @@
+<% content_for :title, 'Appointment details' %>
+<%
+  created_version = @appointment.created_version
+%>
+<section class="box-header">
+<div class="row">
+  <div class="col-md-6">
+    <h1>
+      Appointment <span class="text-copyable" js-click-to-copy="<%= @appointment.id %>">#<%= @appointment.id %></span>
+      <% if @appointment.cancelled_at? %>
+        <span class="label label-default ml-10"><span class="text-smaller"></span> Cancelled</span>
+      <% end %>
+
+      <% if @appointment.deleted_at? %>
+        <span class="label label-default ml-10"><span class="text-smaller"></span> DELETED</span>
+      <% end %>
+    </h1>
+  </div>
+  <div class="col-md-6 text-right">
+    <% unless @appointment.deleted_at? %>
+      <div class="btn-group" style="min-width: 90px">
+      <a href="<%= calendar_path(availability_id: @appointment.availability_id, practitioner_ids: @appointment.practitioner_id) %>" class="btn btn-white">View in calendar</a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+
+          <% if !@appointment.cancelled_at? && @appointment.start_time.past? %>
+            <li>
+              <a href="<%= modal_review_request_appointment_path(@appointment.id) %>" data-remote="true">Send review request</a>
+            </li>
+          <% end %>
+
+          <li>
+            <% if @appointment.is_confirmed? %>
+              <a
+                class="btn-form"
+                data-form-url="<%= mark_unconfirmed_appointment_path(@appointment) %>"
+                data-form-method="POST"
+                data-form-confirmation="Mark this appointment as UNCONFIRMED?"
+              >Mark as unconfirmed</a>
+            <% else %>
+              <a
+                class="btn-form"
+                data-form-url="<%= mark_confirmed_appointment_path(@appointment) %>"
+                data-form-method="POST"
+                data-form-confirmation="Mark this appointment as CONFIRMED?"
+              >Mark as confirmed</a>
+            <% end %>
+          </li>
+
+          <li>
+            <% if @appointment.is_invoice_required? %>
+              <a
+                class="btn-form"
+                data-form-url="<%= mark_invoice_not_required_appointment_path(@appointment) %>"
+                data-form-method="POST"
+                data-form-confirmation="Are you sure you want to mark this appointment NOT require an invoice?"
+              >Mark as NOT require invoice</a>
+            <% else %>
+              <a
+                class="btn-form"
+                data-form-url="<%= mark_invoice_required_appointment_path(@appointment) %>"
+                data-form-method="POST"
+                data-form-confirmation="Are you sure you want to mark this appointment require an invoice?"
+              >Mark as require invoice</a>
+            <% end %>
+          </li>
+
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</div>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12 col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Info</div>
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Client:</strong>
+            <p>
+              <a href="<%= patient_path(@appointment.patient_id) %>"><%= @appointment.patient.full_name %></a>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Practitioner:</strong>
+
+            <div class="mt-10 pb-10">
+              <div>
+                <img src="<%= @appointment.practitioner.user.avatar.url(:thumb) %>" height="50px" class="bordered pa-5">
+              </div>
+
+              <strong><%= @appointment.practitioner.full_name %></strong>
+              <div class="text-smaller">
+                <%= @appointment.practitioner.profession %> <br>
+                <%= @appointment.practitioner.city %>
+              </div>
+            </div>
+          </div>
+
+          <div class="block-info">
+            <strong>Appointment type:</strong>
+            <p>
+              <% if @appointment.appointment_type %>
+                <%= @appointment.appointment_type.name %>
+                (<%= @appointment.appointment_type.duration %> minutes )
+              <% end %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Date:</strong>
+            <p>
+              Availability: <strong><%= @appointment.start_time.strftime(t('date.common')) %></strong> /
+              <%= @appointment.start_time.strftime(t('time.common')) %> -
+              <%= @appointment.end_time.strftime(t('time.common')) %>
+
+              <% if @appointment.arrival %>
+                <br>
+                Arrival: <%= @appointment.arrival.arrival_at.try(:strftime, '%l:%M%P') %>
+              <% end %>
+              <br>
+
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Note:</strong>
+            <p>
+              <% if @appointment.notes.present? %>
+                <%= @appointment.notes %>
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Created:</strong>
+            <p>
+              <%= @appointment.created_at.strftime(t('datetime.common')) %>
+              <% if created_version && created_version.author %>
+                <span> by </span> <span class="text-bolder"><%= created_version.author.full_name %></span>
+              <% end %>
+            </p>
+          </div>
+
+          <% if @appointment.is_confirmed? %>
+          <div class="block-info">
+            <strong title="Client confirmation about the appointment">Confirmed:</strong>
+            <p>Yes</p>
+          </div>
+          <% end %>
+
+          <div class="block-info">
+            <strong>Status:</strong>
+            <p>
+              <% if @appointment.status? %>
+                <%= @appointment.status.humanize %>
+                <br>
+              <% end %>
+
+              <% if @appointment.cancelled_at? %>
+                <span>Cancelled on <%= @appointment.cancelled_at.strftime(t('datetime.common')) %></span>
+                <% if @appointment.cancelled_by_user %>
+                  <span> by </span> <span class="text-bolder"><%= @appointment.cancelled_by_user.full_name %></span>
+                <% end %>
+              <% end %>
+              &nbsp;
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Booked online:</strong>
+            <p>
+              <% if @appointment.booked_online? %>
+                <span>Yes</span>
+              <% else %>
+                <span>No</span>
+              <% end %>
+            </p>
+          </div>
+
+          <% if @appointment.deleted_at? %>
+
+          <div class="block-info">
+            <strong class="text-danger">Deleted:</strong>
+            <p>
+              <span>Deleted on <%= @appointment.deleted_at.strftime(t('datetime.common')) %></span>
+              <%
+                deleted_by = @appointment.deleted_version&.author&.full_name
+              %>
+              <% if deleted_by %>
+                <span>by <span class="text-bolder"><%= deleted_by %></span></span>
+              <% else %>
+                <% # Look up in deleted_resources table for very old appointments when the paper trail gem is not yet added %>
+                <% if @appointment.deleted_resource %>
+                  by <span class="text-bolder"><%= @appointment.deleted_resource&.author&.full_name %></span>
+                <% end %>
+
+              <% end %>
+              <span></span>
+            </p>
+          </div>
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Invoices</div>
+        <div class="panel-body">
+          <% if @invoices.present? %>
+            <ul class="list-unstyled">
+              <% @invoices.each do |invoice| %>
+              <li>
+                <a href="<%= invoice_path(invoice) %>">#<%= invoice.invoice_number %></a> <span class="text-muted"> | </span> <span>Amount: <%= format_money(invoice.amount) %></span> <span class="text-muted"> | </span>
+                <span>Created: <%= invoice.created_at.strftime(t('date.common')) %></span> <span class="text-muted"> | </span> <a href="<%= invoice_path(invoice) %>">View</a>
+              </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <span class="text-muted">Not added</span>
+          <% end %>
+        </div>
+        <div class="panel-footer">
+          <% unless @appointment.deleted_at? %>
+            <a href="<%= new_invoice_path(appointment_id: @appointment.id) %>">
+              <% if @invoices.present? %>
+                Add another invoice
+              <% else %>
+                Add invoice
+              <% end %>
+            </a>
+            <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Treatment note</div>
+        <div class="panel-body">
+
+          <% if @treatment_notes.present? %>
+            <ul class="list-unstyled">
+              <% @treatment_notes.each do |treatment_note| %>
+                <li>
+
+                  #<%= treatment_note.id %> <span class="text-muted"> | </span> <span>Status: <%= treatment_note.status %></span> <span class="text-muted"> | </span> <span>Created: <%= treatment_note.created_at.strftime(t('datetime.common')) %></span> <span class="text-muted"> | </span> <a href="<%= patient_treatment_path(treatment_note.patient, treatment_note) %>">View</a>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <span class="text-muted">Not added</span>
+          <% end %>
+
+        </div>
+        <div class="panel-footer">
+          <% unless @appointment.deleted_at? %>
+            <a href="<%= new_patient_treatment_path(patient_id: @appointment.patient_id, appointment_id: @appointment.id) %>">Add treatment note</a>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Proof of attendance
+        </div>
+        <div class="panel-body">
+          <% if @appointment.attendance_proofs.present? %>
+            <div class="row">
+              <% @appointment.attendance_proofs.each do |ap| %>
+                <div class="col-xs-12 col-md-4">
+                  <div class="bordered pa-10 text-center">
+                    <a href="<%= url_for(ap) %>" target="_blank">
+                      <div class="background-image" style="height: 60px; background-image: url('<%= url_for(ap) %>');"></div>
+                    </a>
+                    <div class="truncate mt-5"><%= ap.filename %></div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="text-muted">Not added</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Case
+        </div>
+        <div class="panel-body">
+          <% if @appointment.patient_case.present? %>
+            <% kase = @appointment.patient_case %>
+            <%= kase.case_type&.title %> - <%= kase.status %> <span class="text-muted"> | </span> <a href="<%= patient_case_path(kase.patient_id, kase.id) %>">View</a>
+          <% else %>
+            <span class="text-muted">Not added</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12 col-md-6">
+      <% if params[:audit] && (current_user.role_administrator? || current_user.role_supervisor?) %>
+        <%= render 'app/audit_logs', object: @appointment %>
+      <% end %>
+    </div>
+  </div>
+
+</section>

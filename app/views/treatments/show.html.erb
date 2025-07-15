@@ -1,0 +1,84 @@
+<%= render 'patients/show_layout' do %>
+  <div class="row">
+    <div class="col-md-8 col-xs-8">
+      <h4>Treatment note details</h4>
+    </div>
+
+    <div class="col-md-4 col-xs-4 text-right">
+      <a href="<%= patient_treatments_path(@patient) %>">View all notes</a>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-heading">
+
+      <div class="pull-right">
+          <div class="btn-group">
+            <a href="<%= export_pdf_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+              <i class="fa fa-print"></i> Print
+            </a>
+
+            <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li>
+                <a href="<%= deliver_patient_treatment_path(@patient, @treatment) %>"
+                  data-method="POST"
+                  data-confirm="Are you sure?">
+                  <i class="fa fa-envelope-o"></i> Email to client
+                </a>
+              </li>
+
+              <li>
+                <a href="javascript:void(0)" data-href="<%= modal_email_others_patient_treatment_path(@patient, @treatment, redirect: patient_treatments_path(@patient)) %>" class="btn-email-others">
+                  <i class="fa fa-send"></i> Email to others
+                </a>
+              </li>
+
+              <% unless @treatment.status == Treatment::STATUS_FINAL %>
+                <li>
+                  <a href="<%= edit_patient_treatment_path(@patient, @treatment) %>">
+                    <i class="fa fa-pencil-square-o"></i> Edit
+                  </a>
+                </li>
+                <% if can?(:destroy, @treatment) %>
+                  <li>
+                    <a href="<%= patient_treatment_path(@patient, @treatment, redirect: patient_treatments_path(@patient)) %>"
+                      data-confirm="Are you sure?" data-method="DELETE">
+                      <i class="fa fa-trash"></i> Delete
+                    </a>
+                  </li>
+                <% end %>
+              <% end %>
+            </ul>
+          </div>
+      </div>
+
+      <h4 class="text-bolder"><%= @treatment.name %></h4>
+
+      <div class="text-smaller">
+        Author: <% if @treatment.author %> <%= @treatment.author.full_name %> <% else %> <%= @treatment.author_name %> <% end %><br>
+        ID: <%= @treatment.id %> <br>
+        Status: <span class="<%= {Treatment::STATUS_DRAFT => 'text-yellow'}[@treatment.status] %>"><%= @treatment.status %></span> <br>
+        Appointment:
+          <%  if @treatment.appointment %>
+            <%= @treatment.appointment.start_time.strftime(t('date.common')) %> <span class="hidden-print"><span class="text-muted"> | </span><a href="<%= appointment_path(@treatment.appointment) %>">View</a></span>
+          <% else %>
+            <span class="text-muted">--</span>
+          <% end %>
+        <br>
+        Created: <%= @treatment.created_at.strftime(t('date.common')) %> <br>
+      </div>
+    </div>
+
+
+    <div class="panel-body">
+      <%= render 'sections', treatment: @treatment %>
+    </div>
+
+  </div>
+
+<% end %>
+
+<% content_for :page_js do %>
+  <%= render 'modal_email_others_js' %>
+<% end %>

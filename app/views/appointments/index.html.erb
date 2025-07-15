@@ -1,0 +1,56 @@
+<% content_for :title, 'Appointments' %>
+
+<section class="box-header">
+  <div class="col-xs-6">
+    <h1>Appointments</h1>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Client</th>
+          <th>Practitioner</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @appointments.each do |appointment| %>
+          <tr>
+
+            <td>
+              <%= appointment.start_time.strftime('%d %b, %Y') %>
+              <span class="text-muted"> / </span>
+              <%= appointment.start_time.strftime('%l:%M%P') %>
+              <span class="text-muted"> - </span>
+              <%= appointment.end_time.strftime('%l:%M%P (%Z)') %>
+            </td>
+            <td>
+              <a href=""><%= appointment.patient.try(:full_name) %></a>
+            </td>
+            <td>
+              <%= appointment.practitioner.full_name %>
+            </td>
+            <td>
+              <a href="<%= appointment_path(appointment) %>" class="btn btn-link" title="Show">
+                Details
+              </a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="row mt-15">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @appointments %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @appointments %>
+      </div>
+    </div>
+  </div>
+</section>

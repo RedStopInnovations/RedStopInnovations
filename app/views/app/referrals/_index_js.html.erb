@@ -1,0 +1,163 @@
+<script>
+(function() {
+
+    // Fix issue multi Boostrap modals
+    $(document).on('show.bs.modal', '.modal', function () {
+        var zIndex = 1040 + (10 * $('.modal:visible').length);
+        $(this).css('z-index', zIndex);
+        setTimeout(function() {
+            $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+        }, 0);
+    });
+
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
+
+    var loadAndShowReferralModal = function(modalHtmlUrl) {
+        $.ajax({
+            method: 'GET',
+            url: modalHtmlUrl,
+            success: function(html) {
+                $('#js-modal-show-referral').remove();
+                $('body').append(html);
+                $('#js-modal-show-referral').on('shown.bs.modal', function() {
+                    $('#js-modal-show-referral').find('.flatpickr-datepicker').bindFlatpickr();
+                });
+                $('#js-modal-show-referral').modal('show');
+            },
+            error: function() {
+                Flash.error('An error has occurred. Failed to load referral details.');
+            }
+        });
+    };
+
+    $('.js-btn-modal-show-details').on('click', function(e) {
+        e.preventDefault();
+        loadAndShowReferralModal($(this).data('url'));
+    });
+
+    $(document).on('click', '.js-btn-find-practitioners', function(e) {
+        e.preventDefault();
+        var modalHtmlUrl = $(this).data('url');
+
+        $.ajax({
+            method: 'GET',
+            url: modalHtmlUrl,
+            success: function(html) {
+                $('#js-modal-find-practitioners').remove();
+                $('body').append(html);
+                $('#js-modal-find-practitioners').modal('show');
+            }
+        });
+    });
+
+    $(document).on('click', '#js-modal-find-practitioners .js-btn-assign-practitioner', function(e) {
+        e.preventDefault();
+        var $button = $(this);
+        var practID = $button.data('practitioner-id');
+        var apiURL = $button.data('url');
+
+        $.ajax({
+            method: 'PUT',
+            url: apiURL,
+            data: {
+              practitioner_id: practID
+            },
+            success: function(html) {
+                Flash.success('The referral has been successfully updated.');
+                $('#js-modal-find-practitioners').modal('hide');
+                $('#js-modal-show-referral').modal('hide');
+            },
+            error: function(res) {
+                Flash.error('An error has occurred. Failed to assign the practitioner.');
+            }
+        });
+    });
+
+    $(document).on('click', '#js-btn-save-referral-note', function(e) {
+        e.preventDefault();
+        var noteStr = $('#js-input-referral-note').val();
+        var submitUrl = $(this).data('url');
+
+        $.ajax({
+            method: 'PUT',
+            url: submitUrl,
+            data: {
+                internal_note: noteStr
+            },
+            success: function(res) {
+                Flash.success('The note has been successfully saved.');
+            },
+            error: function(res) {
+                Flash.error('An error has occurred. Failed to update the note.');
+            }
+        });
+    });
+
+    $(document).on('click', '.js-btn-reject-referral', function(e) {
+        e.preventDefault();
+        var modalHtmlUrl = $(this).data('url');
+
+        $.ajax({
+            method: 'GET',
+            url: modalHtmlUrl,
+            success: function(html) {
+                const $modal = $(html);
+                $modal.appendTo('body');
+                $modal.modal('show');
+
+                $modal.on('hidden.bs.modal', function() {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+
+    /* Buttons select pre-defined reject reason */
+    $(document).on('change', '.js-cb-reject-reason-option', function(e) {
+        var selectReason = $(this).val();
+        if (selectReason === '__OTHER__') {
+            $('.js-input-reject-reason-text').val('').removeClass('hide').focus();
+        } else {
+            $('.js-input-reject-reason-text').val(selectReason).addClass('hide');
+        }
+    });
+
+    /* Buttons auto-fill the "First appointment date" */
+    $(document).on('click', '.js-button-find-first-appointment-date', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const $inputDate = $btn.closest('form').find('.js-input-first-appointment-date');
+
+        $.ajax({
+            method: 'GET',
+            url: $btn.data('url'),
+            success: function(res) {
+                if (res.appointment) {
+                    $inputDate.val(moment(res.appointment.start_time).format('YYYY-MM-DD'));
+                    $inputDate.bindFlatpickr();
+                } else {
+                    Flash.warning('No appointment found since the referral created!');
+                }
+            }
+        });
+    });
+
+    /* Toggle reject reason filter as "status" filter */
+    $('#js-input-filter-status').on('change', function() {
+        if ($(this).val() === 'Rejected') {
+            $('#js-input-filter-reject-reason-wrap').removeClass('hide');
+            $('#js-input-filter-reject-reason').val('').removeAttr('disabled');
+        } else {
+            $('#js-input-filter-reject-reason-wrap').addClass('hide');
+            $('#js-input-filter-reject-reason').val('').attr('disabled', true);
+        }
+    });
+
+    $(document).on('click', '.js-dropdown-select-reject-reason', function(e) {
+        e.preventDefault();
+        $('#js-input-filter-reject-reason').val($(this).data('reason'));
+    });
+})();
+</script>

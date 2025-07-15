@@ -1,0 +1,16 @@
+Hello,
+<br>
+<br>
+
+The bank details of <b><%= @business.name %></b> account has been updated as follows:
+
+<ul>
+    <li>Acount name: <%= @business.bank_account_name %></li>
+    <li>Account number: <%= @business.bank_account_number %></li>
+    <li>Account BSB: <%= @business.bank_branch_number %></li>
+</ul>
+
+Changes made by <b><%= @author.full_name %></b> on <b><%= @change_at.utc.strftime('%B %d, %Y at %l:%M%P %Z') %></b>
+
+<br>
+<br>

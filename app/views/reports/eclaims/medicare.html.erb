@@ -1,0 +1,220 @@
+<% content_for :title, 'Eclaims Medicare' %>
+
+<section class="box-header">
+  <h1>Eclaims Medicare <small>Upload CSV to <a href="https://eclaimstb.acsshealth.com/" target="_blank">Eclaims Portal</a> </small> </h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Transactions</a>
+    </li>
+    <li class="active">Eclaims Medicare </li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <form action="<%= reports_eclaims_medicare_path %>">
+        <div class="row">
+          <div class="col-md-3 col-xs-12">
+            <div class="form-group">
+              <label>Issue date<abbr title="required">*</abbr></label>
+              <div class="input-group">
+                <input type="text"
+                  class="form-control flatpickr-datepicker"
+                  id="input-start-date"
+                  name="start_date"
+                  value="<%= @options.start_date.try(:strftime, '%Y-%m-%d') %>"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  data-allow-input="true"
+                  />
+                <span class="input-group-addon input-group-addon-middle">to</span>
+
+                <input type="text"
+                  class="form-control flatpickr-datepicker"
+                  id="input-end-date"
+                  name="end_date"
+                  value="<%= @options.end_date.try(:strftime, '%Y-%m-%d') %>"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  data-allow-input="true"
+                  >
+
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <% today = Date.current %>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                    <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-xs-6">
+            <div class="form-group">
+              <label>Billable items<abbr title="required">*</abbr></label>
+              <select multiple class="form-control selectize" name="billable_item_ids[]"
+                id="input-billable-item-ids">
+                <%=
+                  options_for_select(
+                    billable_items_options_for_eclaims_report(
+                      current_business.billable_items.select(:id, :name, :item_number)
+                  ),
+                    @options.billable_item_ids
+                  )
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-xs-6">
+            <div class="form-group">
+              <label>Clients</label>
+              <select class="form-control selectize-patients-ajax" name="patient_ids[]"
+                multiple="true"
+                placeholder="All">
+                <% if @options.patient_ids.present? %>
+                  <%=
+                    options_from_collection_for_select(
+                      current_business.patients.where(id: @options.patient_ids),
+                      :id,
+                      :full_name,
+                      @options.patient_ids
+                    )
+                  %>
+                <% end %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-1 col-xs-6">
+            <label for="input-unpaid-only">Unpaid only</label><br>
+            <input type="checkbox" name="unpaid_only"
+              id="input-unpaid-only"
+              value="1"
+              <% if @options.unpaid_only %>
+              checked
+              <% end %>
+              >
+          </div>
+
+          <div class="col-md-1 col-xs-6 text-right">
+            <div class="form-group">
+              <label class="control-label">&nbsp;</label><br>
+              <button class="btn btn-primary" type="submit" id="btn-submit-report" disabled="disabled">Report</button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if @options.valid? && !@report.empty? %>
+    <p class="text-right">
+      <a href="<%= reports_eclaims_medicare_path(@options.to_param.merge(format: 'csv')) %>" class="btn btn-white" download="eclaims_medicare.csv"><i class="fa fa-download"></i> CSV</a>
+      </p>
+  <% end %>
+
+  <% if @options.valid? %>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Issue date</th>
+              <th>Practitioner</th>
+              <th>Client</th>
+              <th>Amount</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @report.result[:invoices].each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a>
+                </td>
+                <td>
+                  <%= invoice.issue_date.strftime(t('date.common')) %>
+                </td>
+                <td>
+                  <%= invoice.practitioner&.full_name %>
+                </td>
+                <td>
+                  <a href="<%= patient_path(invoice.patient_id) %>"><%= invoice.patient.full_name %></a>
+                </td>
+                <td>
+                  <%= format_money invoice.amount %>
+                </td>
+                <td></td>
+              </tr>
+            <% end %>
+
+            <% if @report.empty? %>
+              <tr>
+                <td colspan="5">
+                  <span class="text-muted">No invoices found.</span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<% content_for :page_js do %>
+  <script>
+    $(document).ready(function() {
+      var toggleReportBtn = function() {
+        var requireInputs = ['#input-billable-item-ids', '#input-start-date', '#input-end-date'];
+        var validForm = true;
+        for (var i = 0; i < requireInputs.length; i++) {
+          if (!$(requireInputs[i]).val()) {
+            validForm = false;
+            break;
+          }
+        }
+
+        if (validForm) {
+          $('#btn-submit-report').removeAttr('disabled');
+        } else {
+          $('#btn-submit-report').attr('disabled', 'disabled');
+        }
+      };
+
+      $('#input-billable-item-ids').on('change', function() {
+        toggleReportBtn();
+      });
+
+      $('#input-start-date').on('change', function() {
+        toggleReportBtn();
+      });
+
+      $('#input-end-date').on('change', function() {
+        toggleReportBtn();
+      });
+
+      $('[js-btn-date-range]').on('click', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate($btn.data('start-date'));
+        $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate($btn.data('end-date'));
+      });
+
+      toggleReportBtn();
+    });
+  </script>
+<% end %>

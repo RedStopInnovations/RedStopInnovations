@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /app/
+Disallow: /admin/
+Disallow: /*users/
+Disallow: /*onboard
+Disallow: /iframe
+Disallow: /*referrals
+Disallow: /*bookings
+Disallow: /*pricing
+Disallow: /referral
+
+Sitemap: https://example.com/sitemap.xml

@@ -1,0 +1,78 @@
+<div class="modal fade" id="modal-merge-patients">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Merge duplicate clients</h4>
+      </div>
+      <form action="<%= merge_patient_path(@patient) %>" method="POST">
+        <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+
+        <div class="modal-body">
+          <% if patients.empty? %>
+            No duplicate clients were found.
+          <% else %>
+            <p>
+              We've found the following possible duplicate clients. Check each confirmed client and then hit the <strong>Merge clients</strong> button.
+            </p>
+
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>CRN</th>
+                    <th>Name</th>
+                    <th>DOB</th>
+                    <th>Email</th>
+                    <th>Mobile #</th>
+                    <th colspan="2">Creation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% patients.each do |patient| %>
+                  <tr>
+                    <td><%= patient.id %></td>
+                    <td>
+                      <a href="<%= patient_path(patient)%>"><%= patient.full_name.titleize %></a>
+                    </td>
+                    <td>
+                      <%= patient.dob.try(:strftime, '%d/%m/%Y') %>
+                    </td>
+                    <td>
+                      <%= patient.email %>
+                    </td>
+                    <td>
+                      <%= patient.mobile %>
+                    </td>
+                    <td>
+                      <%= patient.created_at.strftime('%d %b %Y - %l:%M%P') %>
+                    </td>
+                    <td>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" name="patient_ids[]" value="<%= patient.id %>"> Merge?
+                      </label>
+                    </td>
+                  </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <div class="alert alert-danger">
+              <h4>Caution! You can not undo this action.</h4>
+              This will merge selected clients into <strong><%= @patient.full_name %> (CRN <%= @patient.id %>)</strong>, including client details, contacts, treatment notes, attachments, appointments, invoices, payments, account statements and communications.
+            </div>
+          <% end %>
+        </div>
+
+        <div class="modal-footer">
+          <% if patients.empty? %>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <% else %>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger" disabled="disabled">Merge clients</button>
+          <% end %>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

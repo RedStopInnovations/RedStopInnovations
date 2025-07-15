@@ -1,0 +1,486 @@
+{
+  "transactionId": "5a5876704f01310028d0289a",
+  "transaction": {
+    "_id": "5a5876704f01310028d0289a",
+    "currencyCode": "AUD",
+    "organisationId": "566e4768694d4bc48b441ed0",
+    "transactionType": "invoice",
+    "businessId": "58fff21bbbed490028ad9d32",
+    "serviceDateString": "2018-01-11",
+    "terminalId": "M12345",
+    "accountId": "5901c6ed9bd17300271dcccc",
+    "createdByAccountId": "58fff18b187cfd1c542cf999",
+    "transactionId": "0000-0000-6605",
+    "status": "completed",
+    "modified": "2018-01-12T08:49:06.506Z",
+    "__v": 0,
+    "paymentRequested": "2018-01-12T08:48:48.324Z",
+    "approvedByUsername": "htluan2605@gmail.com",
+    "approvedByAccountId": "5901c6ed9bd17300271dcccc",
+    "approved": "2018-01-12T08:49:06.506Z",
+    "created": "2018-01-12T08:48:48.181Z",
+    "approvedLnglat": [
+      0,
+      0
+    ],
+    "webhooks": [
+      {
+        "method": "POST",
+        "url": "http://bb4a97bc.ngrok.io/_hooks/medipass?token=b7b5c7a8e5b7b448cd17279611ad62cc&evt=approved",
+        "event": "memberApprovedInvoice",
+        "_id": "5a5876704f01310028d0289d"
+      },
+      {
+        "method": "POST",
+        "url": "http://bb4a97bc.ngrok.io/_hooks/medipass?token=b7b5c7a8e5b7b448cd17279611ad62cc&evt=rejected",
+        "event": "memberRejectedInvoice",
+        "_id": "5a5876704f01310028d0289c"
+      },
+      {
+        "method": "POST",
+        "url": "http://bb4a97bc.ngrok.io/_hooks/medipass?token=b7b5c7a8e5b7b448cd17279611ad62cc&evt=cancelled",
+        "event": "medipassAutoCancelledInvoice",
+        "_id": "5a5876704f01310028d0289b"
+      }
+    ],
+    "otherItems": [
+
+    ],
+    "payments": [
+      {
+        "paymentId": "42db3123-363e-4f0b-bcde-38235c6a4084",
+        "paymentDateString": "2018-01-12",
+        "settlementPending": true,
+        "paymentType": "sale",
+        "responded": "2018-01-12T08:49:06.472Z",
+        "requested": "2018-01-12T08:49:05.166Z",
+        "gatewayDescription": "Approved",
+        "gatewayCode": "1000",
+        "gatewayRefId": "kzt5ff5t",
+        "status": "accepted",
+        "amount": 3600,
+        "_id": "5a5876829bf56e0028412374",
+        "lnglat": [
+          0,
+          0
+        ],
+        "paymentMethod": {
+          "_id": "5901c7639bd17300271dcccf",
+          "source": "braintree",
+          "methodType": "creditCard",
+          "cardType": "Visa",
+          "lastFour": "1111"
+        },
+        "terminalId": "M12345",
+        "statusDescription": "Payment approved by member.",
+        "amountString": "$36.00"
+      }
+    ],
+    "claims": [
+      {
+        "approved": "2018-01-12T08:49:06.491Z",
+        "status": "approved",
+        "providerNumber": "1000002A",
+        "providerName": "Koaben's practice",
+        "claimType": "claim",
+        "claimId": "f4704c72-8f6d-4a05-922b-aa1bd34300fc",
+        "claimDateString": "2018-01-12",
+        "_id": "5a5876704f01310028d028a0",
+        "gatewayDescription": "Approved",
+        "gatewayCode": "00",
+        "gatewayRefId": "618010014471",
+        "responded": "2018-01-12T08:48:48.206Z",
+        "requested": "2018-01-12T08:48:48.206Z",
+        "healthFundAccount": {
+          "lastFour": "5678",
+          "cardIssueNumber": "12",
+          "membershipNumber": "****5678",
+          "cardRank": "10",
+          "_id": "5906bd8b9bd17300271dd1e3",
+          "healthFund": {
+            "_id": "566e46f5745d8985445de1c6",
+            "code": "AUF",
+            "fullName": "Australian Unity Health Limited",
+            "displayName": "Australian Unity",
+            "cardImageUrl": "https://dev-images.medipass.io/healthfund/card_generic%403x.png",
+            "logoSmallUrl": "https://dev-images.medipass.io/healthfund/logo_auf_small.svg"
+          }
+        },
+        "claimItems": [
+          {
+            "gatewayDescription": "Approved",
+            "gatewayCode": "00",
+            "patientId": "10",
+            "serviceDate": "2018-01-11T00:00:00.000Z",
+            "status": "approved",
+            "amountBenefit": 5400,
+            "amountDiscount": 0,
+            "amountGap": 3600,
+            "amountCharged": 9000,
+            "amountFee": 9000,
+            "displayName": "Assessment Consultation",
+            "fullName": "Assessment Consultation",
+            "itemCode": "500",
+            "_id": "5a5876704f01310028d028a1",
+            "amountFeeString": "$90.00",
+            "amountChargedString": "$90.00",
+            "amountBenefitString": "$54.00",
+            "amountGapString": "$36.00",
+            "amountDiscountString": "$0.00",
+            "clientMessage": "Approved"
+          }
+        ],
+        "terminalId": "M12345",
+        "statusDescription": "Claim approved by health fund and member.",
+        "clientMessage": "00 Approved"
+      }
+    ],
+    "patient": {
+      "_id": "5906bd929bd17300271dd1e4",
+      "refSource": "medipass",
+      "refId": "5906bd929bd17300271dd1e4",
+      "firstName": "Luan",
+      "lastName": "Ho Thanh",
+      "dobString": "1989-05-26",
+      "mobile": "+61470101111",
+      "email": "htluan2605@gmail.com",
+      "mobileE164": "+61470101111",
+      "status": "ACTIVE"
+    },
+    "modality": {
+      "_id": "57396575c6113c9d3d295eca",
+      "displayName": "Physiotherapy"
+    },
+    "staff": {
+      "_id": "58fff26e187cfd1c542cf99c",
+      "title": "Dr",
+      "firstName": "Henry",
+      "lastName": "McCoy",
+      "staffType": "practitioner",
+      "refId": "58fff26e187cfd1c542cf99c",
+      "refSource": "medipass"
+    },
+    "practice": {
+      "_id": "58fff238bbed490028ad9d3c",
+      "refId": "58fff238bbed490028ad9d3c",
+      "fullName": "Koaben's practice",
+      "abn": "49 857 349 8759",
+      "displayName": "Koaben's practice",
+      "address": "102 Collins Street",
+      "countryCode": "AU",
+      "country": "Australia",
+      "state": "Victoria",
+      "city": "Melbourne",
+      "postcode": "3000",
+      "lnglat": [
+        144.97001569999998,
+        -37.8142643
+      ],
+      "tz": "Australia/Melbourne",
+      "refSource": "medipass"
+    },
+    "member": {
+      "_id": "5901c6ed9bd17300271dcccb",
+      "firstName": "Luan",
+      "lastName": "Ho Thanh",
+      "mobile": "+61470101111",
+      "email": "htluan2605@gmail.com",
+      "mobileE164": "+61470101111",
+      "defaultHealthFundAccountCardRank": "10"
+    },
+    "memberApproved": {
+      "_id": "5901c6ed9bd17300271dcccb",
+      "firstName": "Luan",
+      "lastName": "Ho Thanh"
+    },
+    "shipping": {
+      "amountDiscount": 0,
+      "amountInsurance": 0,
+      "amountHandling": 0,
+      "amountShipping": 0,
+      "amountShippingString": "$0.00",
+      "amountHandlingString": "$0.00",
+      "amountInsuranceString": "$0.00",
+      "amountDiscountString": "$0.00"
+    },
+    "amountOtherItemsDiscount": 0,
+    "amountOtherItemsCharged": 0,
+    "amountOtherItemsFee": 0,
+    "amountClaimsGap": 3600,
+    "amountClaimsBenefit": 5400,
+    "amountClaimsDiscount": 0,
+    "amountClaimsCharged": 9000,
+    "amountClaimsFee": 9000,
+    "amountShippingDiscount": 0,
+    "amountShippingCharged": 0,
+    "amountShippingFee": 0,
+    "amountDiscount": 0,
+    "amountGap": 3600,
+    "amountBenefit": 5400,
+    "amountCharged": 9000,
+    "amountFee": 9000,
+    "amountBalance": 0,
+    "amountFeeString": "$90.00",
+    "amountBalanceString": "$0.00",
+    "amountChargedString": "$90.00",
+    "amountBenefitString": "$54.00",
+    "amountGapString": "$36.00",
+    "amountDiscountString": "$0.00",
+    "amountClaimsFeeString": "$90.00",
+    "amountClaimsChargedString": "$90.00",
+    "amountClaimsBenefitString": "$54.00",
+    "amountClaimsGapString": "$36.00",
+    "amountClaimsDiscountString": "$0.00",
+    "amountOtherItemsFeeString": "$0.00",
+    "amountOtherItemsChargedString": "$0.00",
+    "amountOtherItemsDiscountString": "$0.00",
+    "amountShippingFeeString": "$0.00",
+    "amountShippingChargedString": "$0.00",
+    "amountShippingDiscountString": "$0.00"
+  },
+  "event": "memberApprovedInvoice",
+  "token": "[FILTERED]",
+  "evt": "approved",
+  "hook": {
+    "transactionId": "5a5876704f01310028d0289a",
+    "transaction": {
+      "_id": "5a5876704f01310028d0289a",
+      "currencyCode": "AUD",
+      "organisationId": "566e4768694d4bc48b441ed0",
+      "transactionType": "invoice",
+      "businessId": "58fff21bbbed490028ad9d32",
+      "serviceDateString": "2018-01-11",
+      "terminalId": "M12345",
+      "accountId": "5901c6ed9bd17300271dcccc",
+      "createdByAccountId": "58fff18b187cfd1c542cf999",
+      "transactionId": "0000-0000-6605",
+      "status": "completed",
+      "modified": "2018-01-12T08:49:06.506Z",
+      "__v": 0,
+      "paymentRequested": "2018-01-12T08:48:48.324Z",
+      "approvedByUsername": "htluan2605@gmail.com",
+      "approvedByAccountId": "5901c6ed9bd17300271dcccc",
+      "approved": "2018-01-12T08:49:06.506Z",
+      "created": "2018-01-12T08:48:48.181Z",
+      "approvedLnglat": [
+        0,
+        0
+      ],
+      "webhooks": [
+        {
+          "method": "POST",
+          "url": "http://bb4a97bc.ngrok.io/_hooks/medipass?token=b7b5c7a8e5b7b448cd17279611ad62cc&evt=approved",
+          "event": "memberApprovedInvoice",
+          "_id": "5a5876704f01310028d0289d"
+        },
+        {
+          "method": "POST",
+          "url": "http://bb4a97bc.ngrok.io/_hooks/medipass?token=b7b5c7a8e5b7b448cd17279611ad62cc&evt=rejected",
+          "event": "memberRejectedInvoice",
+          "_id": "5a5876704f01310028d0289c"
+        },
+        {
+          "method": "POST",
+          "url": "http://bb4a97bc.ngrok.io/_hooks/medipass?token=b7b5c7a8e5b7b448cd17279611ad62cc&evt=cancelled",
+          "event": "medipassAutoCancelledInvoice",
+          "_id": "5a5876704f01310028d0289b"
+        }
+      ],
+      "otherItems": [
+
+      ],
+      "payments": [
+        {
+          "paymentId": "42db3123-363e-4f0b-bcde-38235c6a4084",
+          "paymentDateString": "2018-01-12",
+          "settlementPending": true,
+          "paymentType": "sale",
+          "responded": "2018-01-12T08:49:06.472Z",
+          "requested": "2018-01-12T08:49:05.166Z",
+          "gatewayDescription": "Approved",
+          "gatewayCode": "1000",
+          "gatewayRefId": "kzt5ff5t",
+          "status": "accepted",
+          "amount": 3600,
+          "_id": "5a5876829bf56e0028412374",
+          "lnglat": [
+            0,
+            0
+          ],
+          "paymentMethod": {
+            "_id": "5901c7639bd17300271dcccf",
+            "source": "braintree",
+            "methodType": "creditCard",
+            "cardType": "Visa",
+            "lastFour": "1111"
+          },
+          "terminalId": "M12345",
+          "statusDescription": "Payment approved by member.",
+          "amountString": "$36.00"
+        }
+      ],
+      "claims": [
+        {
+          "approved": "2018-01-12T08:49:06.491Z",
+          "status": "approved",
+          "providerNumber": "1000002A",
+          "providerName": "Koaben's practice",
+          "claimType": "claim",
+          "claimId": "f4704c72-8f6d-4a05-922b-aa1bd34300fc",
+          "claimDateString": "2018-01-12",
+          "_id": "5a5876704f01310028d028a0",
+          "gatewayDescription": "Approved",
+          "gatewayCode": "00",
+          "gatewayRefId": "618010014471",
+          "responded": "2018-01-12T08:48:48.206Z",
+          "requested": "2018-01-12T08:48:48.206Z",
+          "healthFundAccount": {
+            "lastFour": "5678",
+            "cardIssueNumber": "12",
+            "membershipNumber": "****5678",
+            "cardRank": "10",
+            "_id": "5906bd8b9bd17300271dd1e3",
+            "healthFund": {
+              "_id": "566e46f5745d8985445de1c6",
+              "code": "AUF",
+              "fullName": "Australian Unity Health Limited",
+              "displayName": "Australian Unity",
+              "cardImageUrl": "https://dev-images.medipass.io/healthfund/card_generic%403x.png",
+              "logoSmallUrl": "https://dev-images.medipass.io/healthfund/logo_auf_small.svg"
+            }
+          },
+          "claimItems": [
+            {
+              "gatewayDescription": "Approved",
+              "gatewayCode": "00",
+              "patientId": "10",
+              "serviceDate": "2018-01-11T00:00:00.000Z",
+              "status": "approved",
+              "amountBenefit": 5400,
+              "amountDiscount": 0,
+              "amountGap": 3600,
+              "amountCharged": 9000,
+              "amountFee": 9000,
+              "displayName": "Assessment Consultation",
+              "fullName": "Assessment Consultation",
+              "itemCode": "500",
+              "_id": "5a5876704f01310028d028a1",
+              "amountFeeString": "$90.00",
+              "amountChargedString": "$90.00",
+              "amountBenefitString": "$54.00",
+              "amountGapString": "$36.00",
+              "amountDiscountString": "$0.00",
+              "clientMessage": "Approved"
+            }
+          ],
+          "terminalId": "M12345",
+          "statusDescription": "Claim approved by health fund and member.",
+          "clientMessage": "00 Approved"
+        }
+      ],
+      "patient": {
+        "_id": "5906bd929bd17300271dd1e4",
+        "refSource": "medipass",
+        "refId": "5906bd929bd17300271dd1e4",
+        "firstName": "Luan",
+        "lastName": "Ho Thanh",
+        "dobString": "1989-05-26",
+        "mobile": "+61470101111",
+        "email": "htluan2605@gmail.com",
+        "mobileE164": "+61470101111",
+        "status": "ACTIVE"
+      },
+      "modality": {
+        "_id": "57396575c6113c9d3d295eca",
+        "displayName": "Physiotherapy"
+      },
+      "staff": {
+        "_id": "58fff26e187cfd1c542cf99c",
+        "title": "Dr",
+        "firstName": "Henry",
+        "lastName": "McCoy",
+        "staffType": "practitioner",
+        "refId": "58fff26e187cfd1c542cf99c",
+        "refSource": "medipass"
+      },
+      "practice": {
+        "_id": "58fff238bbed490028ad9d3c",
+        "refId": "58fff238bbed490028ad9d3c",
+        "fullName": "Koaben's practice",
+        "abn": "49 857 349 8759",
+        "displayName": "Koaben's practice",
+        "address": "102 Collins Street",
+        "countryCode": "AU",
+        "country": "Australia",
+        "state": "Victoria",
+        "city": "Melbourne",
+        "postcode": "3000",
+        "lnglat": [
+          144.97001569999998,
+          -37.8142643
+        ],
+        "tz": "Australia/Melbourne",
+        "refSource": "medipass"
+      },
+      "member": {
+        "_id": "5901c6ed9bd17300271dcccb",
+        "firstName": "Luan",
+        "lastName": "Ho Thanh",
+        "mobile": "+61470101111",
+        "email": "htluan2605@gmail.com",
+        "mobileE164": "+61470101111",
+        "defaultHealthFundAccountCardRank": "10"
+      },
+      "memberApproved": {
+        "_id": "5901c6ed9bd17300271dcccb",
+        "firstName": "Luan",
+        "lastName": "Ho Thanh"
+      },
+      "shipping": {
+        "amountDiscount": 0,
+        "amountInsurance": 0,
+        "amountHandling": 0,
+        "amountShipping": 0,
+        "amountShippingString": "$0.00",
+        "amountHandlingString": "$0.00",
+        "amountInsuranceString": "$0.00",
+        "amountDiscountString": "$0.00"
+      },
+      "amountOtherItemsDiscount": 0,
+      "amountOtherItemsCharged": 0,
+      "amountOtherItemsFee": 0,
+      "amountClaimsGap": 3600,
+      "amountClaimsBenefit": 5400,
+      "amountClaimsDiscount": 0,
+      "amountClaimsCharged": 9000,
+      "amountClaimsFee": 9000,
+      "amountShippingDiscount": 0,
+      "amountShippingCharged": 0,
+      "amountShippingFee": 0,
+      "amountDiscount": 0,
+      "amountGap": 3600,
+      "amountBenefit": 5400,
+      "amountCharged": 9000,
+      "amountFee": 9000,
+      "amountBalance": 0,
+      "amountFeeString": "$90.00",
+      "amountBalanceString": "$0.00",
+      "amountChargedString": "$90.00",
+      "amountBenefitString": "$54.00",
+      "amountGapString": "$36.00",
+      "amountDiscountString": "$0.00",
+      "amountClaimsFeeString": "$90.00",
+      "amountClaimsChargedString": "$90.00",
+      "amountClaimsBenefitString": "$54.00",
+      "amountClaimsGapString": "$36.00",
+      "amountClaimsDiscountString": "$0.00",
+      "amountOtherItemsFeeString": "$0.00",
+      "amountOtherItemsChargedString": "$0.00",
+      "amountOtherItemsDiscountString": "$0.00",
+      "amountShippingFeeString": "$0.00",
+      "amountShippingChargedString": "$0.00",
+      "amountShippingDiscountString": "$0.00"
+    },
+    "event": "memberApprovedInvoice"
+  }
+}

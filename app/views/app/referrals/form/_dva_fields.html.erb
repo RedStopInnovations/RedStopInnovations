@@ -1,0 +1,24 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>DVA details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+      <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :dva_file_number, label: 'DVA File number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :dva_card_type, label: 'Card type', collection: ['Gold card', 'White card'] %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :dva_referrer_name, label: 'Doctor name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :dva_referrer_provider_number, label: 'Doctor provider number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :dva_referral_date, required: true, as: :string, label: 'Referral date' %>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>

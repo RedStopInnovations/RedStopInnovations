@@ -1,0 +1,266 @@
+<%= render 'patients/show_layout' do %>
+
+<div class="row">
+  <div class="col-xs-12 col-md-6">
+    <h4>
+      Account statement <span class="text-bolder">#<%= @account_statement.number %></span>
+    </h4>
+  </div>
+
+  <div class="col-xs-12 col-md-6 text-right">
+    <div class="btn-group">
+        <a href="<%= patient_account_statement_path(@patient, @account_statement, format: :pdf) %>" class="btn btn-white" target="_blank">
+            <i class="fa fa-print"></i> Print
+        </a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+                <a href="<%= send_to_patient_patient_account_statement_path(@patient, @account_statement) %>" data-method="POST" data-confirm="Are you sure?">
+                  Email to client
+                </a>
+            </li>
+            <li>
+                <a href="<%= pre_send_to_contacts_patient_account_statement_path(@patient, @account_statement) %>"
+                    data-remote="true">
+                  Email to others
+                </a>
+            </li>
+            <li>
+              <a href="#" class="btn-form"
+                data-form-url="<%= regenerate_patient_account_statement_path(@patient, @account_statement) %>"
+                data-form-method="POST"
+                data-form-confirmation="Are you sure you want to regenerate the PDF?"
+                >
+                Regenerate PDF
+              </a>
+            </li>
+            <li>
+                <a href="<%= patient_account_statement_path(@patient, @account_statement) %>"
+                    data-method="DELETE" data-confirm="Are you sure?">Delete</a>
+            </li>
+        </ul>
+    </div>
+
+  </div>
+</div>
+
+<div class="panel panel-default mt-10">
+  <div class="panel-body">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="block-info">
+                <strong>Created at:</strong>
+                <p><%= @account_statement.created_at.strftime(t('datetime.common')) %></p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="block-info">
+                <strong>Statement date:</strong>
+                <p>
+                    <%= @account_statement.start_date.try(:strftime, t('date.common')) %>
+                    <span class="text-muted"> to </span>
+                    <%= @account_statement.end_date.try(:strftime, t('date.common')) %>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="block-info">
+                <strong>Type:</strong>
+                <p><%= @account_statement.options['type'] %> statement</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="block-info">
+                <strong>Invoice status:</strong>
+                <p>
+                    <%= @account_statement.options['invoice_status'] || "All" %>
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+          <div class="block-info">
+            <strong>Last sent at:</strong>
+            <p>
+              <% if @account_statement.last_send_at? %>
+                <%= @account_statement.last_send_at.strftime('%d %b, %Y - %l:%M%P') %>
+              <% else %>
+                <span class="text-muted">N/A</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="block-info">
+                <strong>Items:</strong>
+                <p>
+                    <ul class="pl-15">
+                        <li>
+                            Invoices: <%= @account_statement.invoices.count %>
+                        </li>
+                        <li>
+                            Payments: <%= @account_statement.payments.count %>
+                        </li>
+                        <li>
+                            Appointments: <%= @account_statement.appointments.count %>
+                        </li>
+                    </ul>
+
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="block-info">
+          <strong>Invoiced amount:</strong>
+          <p><%= format_money @account_statement.invoices.sum(:amount) %></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="block-info">
+          <strong>Outstanding:</strong>
+          <p>
+            <% outstanding = @account_statement.invoices.sum(:outstanding) %>
+            <% if outstanding > 0 %>
+              <%= format_money(outstanding) %>
+            <% else %>
+              <span class="label label-success">Paid</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Preview</strong></div>
+  <div class="panel-body">
+    <object data="<%= patient_account_statement_path(@patient, @account_statement, format: :pdf) %>" type="application/pdf" style="width: 100%; height: 500px">
+        <div>No online PDF viewer installed</div>
+    </object>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Received payments</strong></div>
+  <div class="panel-body">
+    <% if @received_payments.present? %>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 100px">Date</th>
+              <th style="width: 400px">Invoice(s)</th>
+              <th>Details</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @received_payments.each do |payment| %>
+            <tr>
+              <td><%= payment.payment_date.try(:strftime, t('date.common')) %></td>
+              <td>
+                <% if payment.payment_allocations.size > 0 %>
+                  <% payment.payment_allocations.each do |pa| %>
+                    <% invoice = pa.invoice %>
+                    <% next if invoice.nil? %>
+                    <a href="<%= invoice_path(invoice) %>">
+                      #<%= invoice.invoice_number %>
+                    </a>
+                  <% end %>
+                <% else %>
+                  <span>-</span>
+                <% end %>
+              </td>
+              <td>
+                <% if payment.hicaps.to_f > 0 %>
+                <div class="block-info inline">
+                <strong>Hicaps:</strong> <%= format_money payment.hicaps %>
+                </div>
+                <% end %>
+                <% if payment.cash.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Cash:</strong>
+                  <p><%= format_money payment.cash %></p>
+                </div>
+                <% end %>
+                <% if payment.eftpos.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Eftpos:</strong>
+                  <p><%= format_money payment.eftpos %></p>
+                </div>
+                <% end %>
+                <% if payment.medicare.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Medicare:</strong>
+                  <p><%= format_money payment.medicare %></p>
+                </div>
+                <% end %>
+                <% if payment.workcover.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Workcover:</strong>
+                  <p><%= format_money payment.workcover %></p>
+                </div>
+                <% end %>
+                <% if payment.dva.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>DVA:</strong>
+                  <p><%= format_money payment.dva %></p>
+                </div>
+                <% end %>
+                <% if payment.stripe_charge_id? %>
+                <div class="block-info inline">
+                  <strong>Stripe:</strong>
+                  <p><%= format_money payment.stripe_charge_amount %></p>
+                </div>
+                <% end %>
+                <% if payment.direct_deposit? && payment.direct_deposit > 0 %>
+                <div class="block-info inline">
+                  <strong>Direct deposit:</strong>
+                  <p><%= format_money payment.direct_deposit %></p>
+                </div>
+                <% end %>
+                <% if payment.cheque? && payment.cheque > 0 %>
+                <div class="block-info inline">
+                  <strong>Cheque:</strong>
+                  <p><%= format_money payment.cheque %></p>
+                </div>
+                <% end %>
+                <% if payment.other.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Other:</strong>
+                  <p><%= format_money payment.other %></p>
+                </div>
+                <% end %>
+              </td>
+              <td><%= format_money payment.amount %></td>
+            </tr>
+            <% end %>
+
+              <tr>
+                <td colspan="2"></td>
+                <td><strong>Total:</strong></td>
+                <td>
+                  <strong><%= format_money @received_payments.sum(&:amount) %></strong>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+    <% else %>
+        <span class="text-muted">No payment found</span>
+    <% end %>
+  </div>
+</div>
+
+<% end %>

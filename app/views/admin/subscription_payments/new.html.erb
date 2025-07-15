@@ -1,0 +1,55 @@
+<section class="box-header">
+  <h1>Add payment</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_subscription_payments_path %>">Subscription payments</a>
+    </li>
+    <li>New</li>
+  </ul>
+</section>
+
+
+<section class="content">
+  <div class="box">
+    <div class="row">
+      <div class="col-sm-6 col-xs-12">
+        <%
+          invoice_collections_for_select = []
+          BusinessInvoice.not_deleted.pending.includes(:business).each do |invoice|
+            invoice_collections_for_select << [
+              "##{invoice.invoice_number} - #{invoice.business.name} - $#{invoice.amount}",
+              invoice.id
+            ]
+          end
+        %>
+        <%= simple_form_for @subscription_payment, url: admin_subscription_payments_path, method: 'POST' do |f| %>
+          <%= f.input :invoice_id, as: :select, collection: invoice_collections_for_select %>
+          <%=
+            f.input :payment_date,
+                    as: :string,
+                    input_html: {
+                      class: 'flatpickr-datepicker',
+                      'data-alt-format' => 'd M Y',
+                      'data-date-format' => 'Y-m-d',
+                      value: (@subscription_payment.payment_date? ? @subscription_payment.payment_date.strftime('%Y-%m-%d') : nil)
+                    }
+          %>
+          <%=
+            f.input :payment_type,
+                    as: :select,
+                    collection: SubscriptionPayment::MANUAL_PAYMENT_TYPES
+          %>
+          <%= f.input :amount, input_html: { min: 0, type: 'number' } %>
+          <button type="submit" class="btn sitebtn">Save payment</button>
+          <a href="<%= admin_subscription_payments_path %>" class="btn linebtn">Cancel</a>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

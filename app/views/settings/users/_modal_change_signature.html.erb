@@ -1,0 +1,42 @@
+<div class="modal fade" id="modal-practitioner-signature">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+        <div class="modal-header bg-gray-light">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Update signature</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <div class="row">
+              <div class="col-xs-4">
+                <label>Draw signature:</label>
+              </div>
+              <div class="col-xs-8 text-right">
+                <button class="btn btn-white js-btn-undo-pad" type="button">Undo</button>
+                <button class="btn btn-white js-btn-clear-pad" type="button">Clear</button>
+                <span class="text-muted"> | </span>
+                <button class="btn btn-primary js-btn-submit-pad" type="button">Save</button>
+              </div>
+            </div>
+
+            <div class="signature-pad-wrap js-signature-pad-wrap mt-10" style="height: 200px">
+              <canvas class="js-signature-pad"></canvas>
+            </div>
+          </div>
+          <hr />
+          <div class="form-group">
+            <label>Or upload a file:</label>
+            <div class="input-group">
+              <input type="file" class="form-control js-input-file" accept="image/*">
+              <span class="input-group-btn">
+                <button class="btn btn-primary js-btn-upload-file" type="button">Upload</button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" class="btn btn-white">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

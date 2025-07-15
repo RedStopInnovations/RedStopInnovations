@@ -1,0 +1,42 @@
+<% content_for :body_class, 'login-page' %>
+<div class="login-box">
+  <div class="row">
+
+    <div class="col-sm-6 col-xs-12">
+      <img src="<%= asset_pack_path 'static/images/tracksy-logo.jpeg' %>" alt="Tracksy" height="55px">
+    </div>
+    <div class="col-sm-6 text-right hidden-xs">
+      <span style="font-size: 21px">Accept invitation</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h3 class="visible-xs">
+    Accept invitation
+  </h3>
+
+  <div class="login-box-body">
+    <%= simple_form_for resource, as: resource_name, url: invitation_path(resource_name), html: { method: :put, novalidate: false }, wrapper: :vertical_form do |f| %>
+      <%= devise_error_messages! %>
+      <%= f.hidden_field :invitation_token %>
+
+      <%= f.input :password, required: true, placeholder:"Enter your password here" %>
+      <p>
+        <span class="text-smaller">Password must contain at least one number and one uppercase and lowercase letter, and at least 8 characters.</span>
+      </p>
+      <%= f.input :password_confirmation, required: true, placeholder:"Confirm your password" %>
+
+      <%= f.submit "Set password & login", class: "btn sitebtn btn-block" %>
+    <% end %>
+
+    <hr>
+
+    <div class="row">
+      <div class="col-xs-6 text-left"><a href="<%= new_user_session_path %>">Login</a></div>
+      <div class="col-xs-6 text-right">
+        <a href="<%= frontend_home_path %>" class="normal-link"><i class="fa fa-home"></i> Homepage</a>
+      </div>
+    </div>
+  </div>
+</div>

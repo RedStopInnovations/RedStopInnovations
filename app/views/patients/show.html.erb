@@ -1,0 +1,840 @@
+<% presenter = PatientPresenter.new @patient %>
+
+<%= render 'show_layout' do %>
+  <div class="mt-15 row">
+    <div class="col-lg-8 col-md-12 col-xs-12">
+
+      <div id="important-notif-wrap" class="mb-15">
+        <div class="text-right">
+          <a href="#" class="normal-link btn-add <% if @patient.important_notification.present? %> hide <% end %>">+ Add important notification</a>
+          <div class="form-edit hide">
+            <div class="input-group">
+              <input type="text" class="form-control input-notif-content" placeholder="Enter important notification">
+              <span class="input-group-btn">
+                <button class="btn btn-primary btn-save" type="button">Save</button>
+                <button class="btn btn-white btn-cancel" type="button">Cancel</button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="notif-content-wrap <% unless @patient.important_notification.present? %> hide <% end %>"
+        ><span class="notif-content"><%= @patient.important_notification %></span> <a href="#" class="btn-edit"><i class="fa fa-pencil-square-o"></i></a></div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading"><span class="panel-title">General info</span></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>First name:</strong>
+                <p><%= @patient.first_name %>&nbsp;</p>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Last name:</strong>
+                <p><%= @patient.last_name %>&nbsp;</p>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Dob:</strong>
+                <% if @patient.dob %>
+                  <p>
+                    <%= @patient.dob.strftime(t('date.dob')) %>
+                    <% if @patient.dob.year < Time.current.year %>
+                      <span>(Age: <%= calculate_age @patient.dob %>)</span>
+                    <% end %>
+                  </p>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Phone:</strong>
+                <% if @patient.phone.present? %>
+                <p>
+                  <a href="tel: <%= @patient.phone %>">
+                    <%= @patient.phone %>
+                  </a>
+                  &nbsp;
+                </p>
+                <% else %>
+                <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Mobile:</strong>
+                <% if @patient.mobile.present? %>
+                <p>
+                  <a href="tel: <%= @patient.mobile %>" title="Click to call">
+                    <%= @patient.mobile %>
+                  </a>
+                  &nbsp;
+                </p>
+                <% else %>
+                <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Email:</strong>
+                <% if @patient.email.present? %>
+                <p>
+                  <a href="mailto: <%= @patient.email %>">
+                    <%= @patient.email %>
+                    &nbsp;
+                  </a>
+                </p>
+                <% else %>
+                <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="block-info">
+                <strong>Address:</strong>
+                <div>
+                  <% if @patient.short_address.present? %>
+                    <%= @patient.short_address %>
+                    <div class="btn-group">
+                      <a class="btn btn-white dropdown-toggle" href="#" data-toggle="dropdown" style="padding: 3px 5px;">
+                        <i class="fa fa-map-o"></i>
+                      </a>
+
+                      <div class="dropdown-menu dropdown-menu-right custom-dropdown">
+                        <li><a href="https://maps.google.com/?q=<%= u @patient.full_address_for_geocoding %>" target="_blank">Google map</a></li>
+                        <li><a href="http://maps.apple.com/?q=<%= u @patient.full_address_for_geocoding %>" target="_blank">Apple map</a></li>
+                        <li><a href="https://waze.com/ul?q=<%= u @patient.full_address_for_geocoding %>" target="_blank">Waze</a></li>
+                      </div>
+                    </div>
+
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Next of kin:</strong>
+                <% if @patient.next_of_kin.present? %>
+                  <p>
+                    <%= simple_format @patient.next_of_kin.presence %>
+                  </p>
+                <% else %>
+                  <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading"><span class="panel-title">Additional info</span></div>
+        <div class="panel-body">
+          <% if @patient.general_info.present? %>
+            <%= simple_format @patient.general_info.presence %>
+          <% else %>
+            <p><span class="text-muted">--</span></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading"><span class="panel-title">Other info</span></div>
+        <div class="panel-body">
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Nationality:</strong>
+                <% if @patient.nationality.present? %>
+                <p>
+                  <%= @patient.nationality %>
+                </p>
+                <% else %>
+                <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Spoken languages:</strong>
+                <% if @patient.spoken_languages.present? %>
+                <p>
+                  <%= @patient.spoken_languages %>
+                </p>
+                <% else %>
+                <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+
+            <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Aboriginal status:</strong>
+                <% if @patient.aboriginal_status.present? %>
+                <p>
+                  <%= @patient.aboriginal_status %>
+                </p>
+                <% else %>
+                <p><span class="text-muted">--</span></p>
+                <% end %>
+              </div>
+            </div>
+            <% end %>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Gender:</strong>
+                <p>
+                  <% if @patient.gender.present? %>
+                    <%= @patient.gender %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Privacy policy:</strong>
+                <p>
+                  <% if @patient.accepted_privacy_policy.nil? %>
+                    <span>No response</span>
+                  <% elsif @patient.accepted_privacy_policy === true %>
+                    <span>Accepted</span>
+                  <% elsif @patient.accepted_privacy_policy === false %>
+                    <span>Rejected</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Email & SMS reminder:&nbsp;</strong>
+                <p>
+                  <% if @patient.reminder_enable? %>
+                    <span class="text-green">ON</span>
+                  <% else %>
+                    <span class="text-muted">OFF</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-xs-12">
+              <div class="block-info">
+                <strong>Created:</strong>
+                <p>
+                  <%= simple_format @patient.created_at.strftime(t('date.common')) %>
+                </p>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+              <div class="block-info">
+                <strong>Last updated:</strong>
+                <p>
+                  <%= simple_format @patient.updated_at.strftime(t('date.common')) %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Payment methods</span>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info" id="patient-payment-method-wrap">
+                <strong>Credit card:</strong>
+                <p>
+                  <% if @patient.stripe_customer %>
+                    <span>Card: ****-<%= @patient.stripe_customer.card_last4 %></span>
+                    <br>
+                    <a href="#" class="mt-10" id="btn-add-patient-card"> Change card</a>
+                    <span class="text-muted"> | </span>
+                    <a href="<%= delete_card_patient_path(@patient) %>"
+                      class="text-danger"
+                      data-confirm="Are you sure want to delete this card?"
+                      data-method="DELETE">Delete card</a>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                    <% if current_business.stripe_payment_available? %>
+                      <a href="#" class="ml-10" id="btn-add-patient-card"> Add card</a>
+                    <% else %>
+                      <a href="#modal-stripe-integration-error"
+                        class="ml-10"
+                        data-toggle="modal"
+                        > Add card</a>
+                    <% end %>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+
+            <% if current_business.medipass_payment_available? %>
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Medipass:</strong>
+                <p>
+                  <% if @patient.medipass_member_id %>
+                    <span class="text-success">Mapped</span>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+            <% end %>
+
+          </div>
+
+          <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+            <% if @patient.medicare_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>Medicare:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'medicare') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  Card number: <%= @patient.medicare_card_number.presence || 'N/A' %> <br>
+                  IRN: <%= @patient.medicare_card_irn.presence || 'N/A' %> <br>
+                  Referrer: <%= @patient.medicare_referrer_name.presence || 'N/A' %> <br>
+                  Provider number: <%= @patient.medicare_referrer_provider_number.presence || 'N/A' %> <br>
+                  Date of referral: <%= presenter.display_medicare_referral_date.presence || 'N/A' %>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @patient.dva_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>DVA:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'dva') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  File number: <%= @patient.dva_file_number.presence || 'N/A' %> <br>
+                  Hospital: <%= @patient.dva_hospital.presence || 'N/A' %> <br>
+                  Card type: <%= @patient.dva_card_type.presence || 'N/A' %> <br>
+                  <% if @patient.dva_card_type == 'White Card' %>
+                    White card disability: <%= @patient.dva_white_card_disability.presence || 'N/A' %> <br>
+                  <% end %>
+                  Referrer: <%= @patient.dva_referrer_name.presence || 'N/A' %> <br>
+                  Provider number: <%= @patient.dva_referrer_provider_number.presence || 'N/A' %> <br>
+                  Referral date: <%= presenter.display_dva_referral_date.presence || 'N/A' %>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @patient.ndis_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>NDIS:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'ndis') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  NDIS client number: <%= @patient.ndis_client_number.presence || 'N/A' %> <br>
+                  Plan start/end date: <%= presenter.display_ndis_plan_start_date.presence || 'N/A' %> / <%= presenter.display_ndis_plan_end_date.presence || 'N/A' %> <br>
+                  Client DOB: <%= @patient.dob.try(:strftime, t('date.dob')) %> <br>
+                  Invoice to name: <%= @patient.ndis_plan_manager_name.presence || 'N/A' %> <br>
+                  Manager phone: <%= @patient.ndis_plan_manager_phone.presence || 'N/A' %> <br>
+                  Manager email: <%= @patient.ndis_plan_manager_email.presence || 'N/A' %>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @patient.hih_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>Hospital in home:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'hih') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  Hospital: <%= @patient.hih_hospital.presence || 'N/A' %> <br>
+                  Procedure: <%= @patient.hih_procedure.presence || 'N/A' %> <br>
+                  Discharge date: <%= presenter.display_hih_discharge_date.presence || 'N/A' %> <br>
+                  Surgery date: <%= presenter.display_hih_surgery_date.presence || 'N/A' %> <br>
+                  Doctor name: <%= @patient.hih_doctor_name.presence || 'N/A' %> <br>
+                  Doctor phone: <%= @patient.hih_doctor_phone.presence || 'N/A' %> <br>
+                  Doctor email: <%= @patient.hih_doctor_email.presence || 'N/A' %>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @patient.hcp_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>Home care package:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'hcp') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  Company: <%= @patient.hcp_company_name.presence || 'N/A' %> <br>
+                  Manager: <%= @patient.hcp_manager_name.presence || 'N/A' %> <br>
+                  Phone: <%= @patient.hcp_manager_phone.presence || 'N/A' %> <br>
+                  Email: <%= @patient.hcp_manager_email.presence || 'N/A' %> <br>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @patient.hi_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>Health insurance:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'hi') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  Insurer: <%= @patient.hi_company_name.presence || 'N/A' %> <br>
+                  Member number: <%= @patient.hi_number.presence || 'N/A' %> <br>
+                  Invoice to name: <%= @patient.hi_manager_name.presence || 'N/A' %> <br>
+                  Manager email: <%= @patient.hi_manager_email.presence || 'N/A' %> <br>
+                  Manager phone: <%= @patient.hi_manager_phone.presence || 'N/A' %>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @patient.strc_details.present? %>
+              <div class="block-info visible-hover-container">
+                <strong>STRC:</strong>
+                <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'strc') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                <p class="text-smaller">
+                  Company name: <%= @patient.strc_company_name.presence || 'N/A' %> <br>
+                  Phone: <%= @patient.strc_company_phone.presence || 'N/A' %> <br>
+                  Invoice to name: <%= @patient.strc_invoice_to_name.presence || 'N/A' %> <br>
+                  Invoice to email: <%= @patient.strc_invoice_to_email.presence || 'N/A' %>
+                </p>
+              </div>
+            <% end %>
+
+            <div class="row">
+              <% unless @patient.medicare_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>Medicare:</strong>
+                    <p><span class="text-muted">--</span><a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'medicare') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% unless @patient.dva_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>DVA:</strong>
+                    <p class="text-muted">--<a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'dva') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% unless @patient.ndis_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>NDIS:</strong>
+                    <p class="text-muted">--<a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'ndis') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% unless @patient.hih_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>Hospital in home:</strong>
+                    <p class="text-muted">--<a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'hih') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% unless @patient.hcp_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>Home care package:</strong>
+                    <p class="text-muted">--<a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'hcp') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% unless @patient.hi_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>Health insurance:</strong>
+                    <p class="text-muted">--<a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'hi') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% unless @patient.strc_details.present? %>
+                <div class="col-md-6 col-xs-12">
+                  <div class="block-info visible-hover-container">
+                    <strong>STRC:</strong>
+                    <p class="text-muted">--<a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'strc') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Add</a></p>
+                  </div>
+                </div>
+              <% end %>
+
+            </div>
+
+        <% end %>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Associate contacts</span>
+          <a class="pull-right" href="<%= edit_associate_contacts_patient_path(@patient) %>" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+        </div>
+
+        <div class="panel-body">
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Referrer:</strong>
+                <% if @patient.referrer_contacts.size > 0 %>
+                  <ul class="list-unstyled">
+                    <% @patient.referrer_contacts.each do |contact| %>
+                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Invoice to:</strong>
+                <% if @patient.invoice_to_contacts.size > 0 %>
+                  <ul class="list-unstyled">
+                    <% @patient.invoice_to_contacts.each do |contact| %>
+                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Doctor:</strong>
+                <% if @patient.doctor_contacts.size > 0 %>
+                  <ul class="list-unstyled">
+                    <% @patient.doctor_contacts.each do |contact| %>
+                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Specialist:</strong>
+                <% if @patient.specialist_contacts.size > 0 %>
+                  <ul class="list-unstyled">
+                    <% @patient.specialist_contacts.each do |contact| %>
+                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Other:</strong>
+                <% if @patient.other_contacts.size > 0 %>
+                  <ul class="list-unstyled">
+                    <% @patient.other_contacts.each do |contact| %>
+                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if params[:audit] && (current_user.role_administrator? || current_user.role_supervisor?) %>
+        <%= render 'app/audit_logs', object: @patient %>
+      <% end %>
+    </div>
+
+    <!-- <div class="col-lg-4 col-md-4 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Upcoming appointment</span>
+        </div>
+
+        <div class="panel-body">
+          <p>
+            There are no upcoming appointments scheduled. <a href="#">Book new appointent</a> ?
+          </p>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Open case</span>
+        </div>
+
+        <div class="panel-body">
+          <p>
+            ...
+          </p>
+        </div>
+      </div>
+    </div> -->
+  </div>
+
+<% end %>
+
+<div class="modal fade" id="modal-medipass-member-explanation">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-info-circle"></i> Medipass member</h4>
+      </div>
+      <div class="modal-body">
+        <p>
+          Medipass member mapping is required in order to send payment requests to a client via Medipass.
+          <br>
+          <br>
+          Please make sure the client first name, last name and date of birth are correct.
+          Once the client info is updated, system will automatically map the client the corresponding medipass member.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-stripe-integration-error">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add client card</h4>
+      </div>
+      <div class="modal-body">
+        <% if can?(:manage, :stripe_integration) %>
+          <p>
+           This feature is not available for your company account. Please check to active the <a href="<%= settings_stripe_integration_path %>">Stripe integration</a> first.
+          </p>
+        <% else %>
+          <p>This feature is not available for your company account. Please contact business manager if you have any questions.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :page_js do %>
+
+<% if can?(:manage_access, @patient) && current_business.patient_access_enable? %>
+  <%= render 'patients/modal_edit_patient_access_js' %>
+<% end %>
+
+<% if params[:merge] %>
+  <script type="text/javascript">
+    $('#btn-check-duplicates').click();
+  </script>
+<% end %>
+
+<script>
+  $('.selectize-control').slideUp(0);
+
+  $('.edit_patient').submit(function(event) {
+    return false;
+  });
+
+  /* Add/Change card */
+  (function() {
+    var stripeHandler;
+    var $paymentMethodWrap = $('#patient-payment-method-wrap');
+
+    $('#btn-add-patient-card').click(function(e) {
+      e.preventDefault();
+      $paymentMethodWrap.loadingOn();
+      $.getScript('https://checkout.stripe.com/checkout.js')
+        .done(function() {
+          stripeHandler = StripeCheckout.configure({
+            key: '<%= Rails.configuration.stripe[:publishable_key] %>',
+            locale: 'auto',
+            email:'<%= @patient.email %>',
+            panelLabel: 'Update card details',
+            allowRememberMe: false,
+            token: function(token) {
+              $.ajax({
+                method: 'PUT',
+                url: '<%= update_card_patient_path(@patient) %>',
+                dataType: 'json',
+                data: { token: token.id},
+                beforeSend: function() {
+                  $paymentMethodWrap.loadingOn();
+                },
+                success: function(res) {
+                  if (res.success) {
+                    Flash.success('The client card has been successfully updated.');
+                    location.reload();
+                  } else {
+                    var errMsg = 'An error has occurred while saving card details. Sorry for the inconvenience.';
+                    if (res.message) {
+                      errMsg = res.message;
+                    }
+
+                    Flash.error(errMsg);
+                  }
+                },
+                error: function() {
+                  Flash.error(
+                    'An server error has occurred. Sorry for the inconvenience.'
+                  )
+                },
+                complete: function() {
+                  $paymentMethodWrap.loadingOff();
+                }
+              });
+            }
+          });
+
+          stripeHandler.open();
+          setTimeout(function() {
+            $paymentMethodWrap.loadingOff();
+          }, 1000);
+        })
+        .fail(function() {
+          $paymentMethodWrap.loadingOff();
+          Flash.error(
+            'An error has occurred while creating checkout form. Sorry for the inconvenience.'
+          )
+        });
+    });
+
+    $(window).on('popstate', function() {
+      if (stripeHandler) {
+        stripeHandler.close();
+      }
+    });
+  })();
+
+  $(document).ready(function() {
+    // Handle add/edit important form
+    (function() {
+      var $wrap = $('#important-notif-wrap');
+      var $formEdit = $wrap.find(".form-edit");
+      var $btnAdd = $wrap.find('.btn-add');
+      var $btnEdit = $wrap.find('.btn-edit');
+      var $btnSave = $wrap.find('.btn-save');
+      var $btnCancel = $wrap.find('.btn-cancel');
+      var $notifContentWrap = $wrap.find('.notif-content-wrap');
+      var $notifContent = $notifContentWrap.find('.notif-content');
+      var $inputNotif = $wrap.find('.input-notif-content');
+
+      var enableEditMode = function() {
+        $btnAdd.addClass('hide');
+        $notifContentWrap.addClass('hide');
+        $formEdit.removeClass('hide');
+        $inputNotif.val($notifContent.text()).focus();
+      };
+
+      var disableEditMode = function() {
+        if ($notifContent.text().length > 0) {
+          $notifContentWrap.removeClass('hide');
+        } else {
+          $btnAdd.removeClass('hide');
+        }
+        $formEdit.addClass('hide');
+      };
+
+      $btnAdd.on('click', function(e) {
+        e.preventDefault();
+        enableEditMode();
+      });
+
+      $btnEdit.on('click', function(e) {
+        e.preventDefault();
+        enableEditMode();
+      });
+
+      $btnCancel.on('click', function(e) {
+        e.preventDefault(e);
+        disableEditMode();
+      });
+
+      $btnSave.on('click', function() {
+        var content = $inputNotif.val().trim();
+        if (content.length > 300) {
+          Flash.error('The notification is maximum by 300 characters.');
+          return;
+        }
+        $btnSave.attr('disabled', true);
+        $.ajax({
+          method: 'PUT',
+          url: "<%= update_important_notification_patient_path(@patient) %>",
+          data: {
+            important_notification: content
+          },
+          success: function(res) {
+            $notifContent.text(content);
+            disableEditMode();
+            Flash.success('The notification has been updated.');
+          },
+          complete: function() {
+            $btnSave.removeAttr('disabled');
+          },
+          error: function() {
+            Flash.error('Could not save notification. An error has occurred.');
+          }
+        });
+      });
+    })();
+
+  });
+</script>
+<% end %>

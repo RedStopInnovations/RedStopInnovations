@@ -1,0 +1,50 @@
+<% content_for :title, 'Triggers by category' %>
+
+<section class="box-header">
+  <h1>Search treatments for category</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="#">Treatment notes</a>
+    </li>
+    <li class="active">Triggers by category</li>
+  </ul>
+</section>
+
+
+<section class="content">
+  <div class="box">
+    <table class="table-flat">
+      <thead>
+        <th>Category</th>
+        <th>Words</th>
+        <th># mentions</th>
+        <th># clients</th>
+      </thead>
+      <tbody>
+        <% @trigger_categories.each do |tc| %>
+          <tr>
+            <td><%= tc.name %></td>
+            <td><%= tc.words.map(&:text).join(', ') %></td>
+            <td><%= tc.trigger_report.try(:mentions_count) || '...' %></td>
+            <td><%= tc.trigger_report.try(:patients_count) || '...' %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @trigger_categories, entry_name: 'category' %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @trigger_categories %>
+      </div>
+    </div>
+  </div>
+</section>

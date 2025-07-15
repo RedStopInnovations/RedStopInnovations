@@ -1,0 +1,38 @@
+<script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
+<script type="text/javascript">
+  $(function() {
+    var $inputTemplateContent = $('#input-template-content');
+    var ckeditor;
+    /* Insert variable at current(or last) caret position */
+    function insertVariable(value) {
+      var textToInsert = "{{" + value + "}}";
+      ckeditor.insertText(textToInsert);
+    }
+
+    ckeditor = CKEDITOR.replace($inputTemplateContent.get(0), {
+      enterMode: CKEDITOR.ENTER_BR,
+      on: {
+        instanceReady: function(env) {
+          this.dataProcessor.writer.indentationChars = '';
+          this.dataProcessor.writer.lineBreakChars = '';
+        }
+      }
+    });
+
+    /* Bind selectize to variables dropdowns */
+    $('.select-variables').each(
+      function() {
+        var $this = $(this);
+        $this.selectize({
+          placeholder: $this.attr('placeholder'),
+          onChange: function(val) {
+            if (val && val.length > 0) {
+              insertVariable(val);
+            }
+            this.clear();
+          }
+        });
+      }
+    );
+  });
+</script>

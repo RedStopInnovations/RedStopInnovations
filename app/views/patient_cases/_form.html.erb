@@ -1,0 +1,104 @@
+<%= simple_nested_form_for object, url: object.new_record? ? patient_cases_path(@patient) : patient_case_path(@patient, object) do |f| %>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.association :patient, as: :select, collection: object.patient ? [object.patient] : [], label_method: :full_name, readonly: !object.new_record?, input_html: { class: 'selectize-patients-ajax', id: 'select-patient-id' }, label: "Client" %>
+    </div>
+    <div class="col-md-6">
+      <%
+        case_types = current_business.case_types.not_deleted.select(:id, :title).order(title: :asc).to_a
+
+        # Incase edit and the case type is deleted
+        if object.persisted? && object.case_type && object.case_type.deleted?
+          case_types << object.case_type
+        end
+      %>
+      <%= f.association :case_type, as: :select, collection: case_types, label_method: :title, input_html: { class: 'selectize' } %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+        <%= f.input :status, as: :select, collection: PatientCase::STATUS, input_html: { class: 'selectize'} %>
+    </div>
+    <div class="col-md-6">
+        <%= f.input :practitioner_id, label: 'Lead practitioner', as: :select, collection: business_pracititioner_options_for_select(current_business, include_inactive: true), input_html: { class: 'selectize' } %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :invoice_total, label: 'Maximum invoice total' %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :invoice_number, label: 'Maximum invoiced appointments' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.input :notes %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :end_date, as: :string, input_html: { class: 'flatpickr-datepicker', value: (object.end_date? ? object.end_date.strftime('%Y-%m-%d') : nil), data: { 'alt-format' => 'd M Y', 'date-format' => 'Y-m-d' } } %>
+    </div>
+  </div>
+
+  <%= f.input :attachments, as: :file, label: 'Attachments', input_html: { multiple: true },
+    hint: 'Accepts PDF and images only. Maximum for 2MB.' %>
+
+  <hr>
+  <div class="mb-20 clearfix">
+    <button class="btn btn-primary" type="submit">Submit</button>
+    <a href="<%= object.persisted? ? patient_case_path(@patient, @patient_case) : patient_cases_path(@patient) %>" class="btn btn-white">Cancel</a>
+  </div>
+<% end %>
+
+<% if object.persisted? && request.get? %>
+<h4>Uploaded attachments</h4>
+<div class="box-table">
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>Created at</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @patient_case.attachments.each do |attachment| %>
+        <tr>
+          <td>
+            <a href="<%= attachment.attachment.url %>" target="_blank">
+            <i class="fa fa-2x <%= icon_class_for_attachment_content_type(attachment.attachment_content_type) %>"></i>
+            <span>
+              <%= attachment.attachment_file_name %> (<%= number_to_human_size(attachment.attachment_file_size) %>)
+            </span>
+            </a>
+          </td>
+          <td>
+            <%= attachment.created_at.strftime(t('datetime.common')) %>
+          </td>
+          <td>
+            <a href="<%= patient_attachment_path(attachment.patient, attachment) %>"
+              class="btn btn-link" title="show">
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </a>
+            <a href="<%= edit_patient_attachment_path(attachment.patient, attachment) %>"
+              class="btn btn-link" title="Edit"
+              ><i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+            </a>
+            <a href="<%= patient_attachment_path(attachment.patient, attachment, {redirect: edit_patient_case_path(@patient_case)}) %>"
+              title="Delete" data-confirm="Are you sure?" data-method="delete"
+              class="btn btn-link"><i class="fa fa-trash" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+      <% end %>
+
+      <% if @patient_case.attachments.blank? %>
+        <tr>
+          <td colspan="3">No attachments found</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<% end %>

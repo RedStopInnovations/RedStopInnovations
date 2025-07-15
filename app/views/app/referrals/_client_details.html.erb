@@ -1,0 +1,147 @@
+<div class="row">
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>First name: </strong>
+            <p><%= @referral.patient_attrs[:first_name] %></p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Last name: </strong>
+            <p><%= @referral.patient_attrs[:last_name] %></p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>DOB: </strong>
+            <p>
+                <% if @referral.patient_attrs[:dob].present? %>
+                    <%= @referral.patient_attrs[:dob] %>
+                <% else %>
+                    <span class="text-muted">N/A</span>
+                <% end %>
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Gender: </strong>
+            <p>
+                <% if @referral.patient_attrs[:gender].present? %>
+                    <%= @referral.patient_attrs[:gender] %>
+                <% else %>
+                    <span class="text-muted">N/A</span>
+                <% end %>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Phone:</strong>
+            <p>
+                <% if @referral.patient_attrs[:phone].present? %>
+                    <%= @referral.patient_attrs[:phone] %>
+                <% else %>
+                    <span class="text-muted">N/A</span>
+                <% end %>
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Mobile:</strong>
+            <p>
+                <% if @referral.patient_attrs[:mobile].present? %>
+                    <%= @referral.patient_attrs[:mobile] %>
+                <% else %>
+                    <span class="text-muted">N/A</span>
+                <% end %>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Email: </strong>
+            <p>
+                <% if @referral.patient_attrs[:email].present? %>
+                    <%= @referral.patient_attrs[:email] %>
+                <% else %>
+                    <span class="text-muted">N/A</span>
+                <% end %>
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Aboriginal status: </strong>
+            <p>
+                <% if @referral.patient_attrs[:aboriginal_status].present? %>
+                    <%= @referral.patient_attrs[:aboriginal_status] %>
+                <% else %>
+                    <span class="text-muted">N/A</span>
+                <% end %>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="block-info">
+            <strong>Address:</strong>
+            <p><%= @referral.patient_address %></p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+        <div class="col-md-12">
+            <div class="block-info">
+                <strong>Next of kin: </strong>
+                <% if @referral.patient_attrs[:next_of_kin].present? %>
+                    <%= simple_format @referral.patient_attrs[:next_of_kin] %>
+                <% else %>
+                    <p>
+                        <span class="text-muted">N/A</span>
+                    </p>
+                <% end %>
+            </div>
+        </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="block-info">
+            <strong>Additional info: </strong>
+            <% if @referral.patient_attrs[:general_info].present? %>
+                <%= simple_format @referral.patient_attrs[:general_info] %>
+            <% else %>
+                <p><span class="text-muted">N/A</span></p>
+            <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="block-info">
+        <strong>Relevant medical history note: </strong>
+        <p>
+            <% if @referral.medical_note.present? %>
+                <%= simple_format @referral.medical_note %>
+            <% else %>
+                <span class="text-muted">N/A</span>
+            <% end %>
+            </p>
+        </div>
+    </div>
+</div>

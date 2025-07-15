@@ -1,0 +1,13 @@
+(function() {
+  if ($('#js-modal-show-task').length > 0) {
+    $('#js-modal-show-task').remove();
+  }
+
+  $('body').append('<%= j render('modal_show') %>');
+  const $modal = $('#js-modal-show-task');
+  $modal.modal('show');
+
+  $modal.on('hidden.bs.modal', function() {
+    $(this).remove();
+  });
+})();

@@ -1,0 +1,34 @@
+nav.app-pagination {
+  ul {
+    margin: 0px;
+
+    li.page-item + li.page-item {
+      margin-left: 5px;
+    }
+
+    > li.page-item {
+      > a {
+        margin-left: 5px;
+        color: #414141;
+        font-weight: 600;
+        font-size: 13px;
+        background: none;
+        border: none;
+        border-radius: 3px;
+
+        &:hover {
+          background: #d2d6de;
+        }
+
+        &:focus {
+          background: none;
+        }
+      }
+    }
+
+    > li.page-item.active > a {
+      background: #44b654;
+      color: #FFF;
+    }
+  }
+}

@@ -1,0 +1,61 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>NDIS details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Client number:</strong>
+          <p>
+            <%= @referral.patient_attrs[:ndis_client_number].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Plan start date:</strong>
+          <p>
+            <%= @referral.patient_attrs[:ndis_plan_start_date].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Plan end date:</strong>
+          <p>
+            <%= @referral.patient_attrs[:ndis_plan_end_date].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Manager name:</strong>
+          <p>
+            <%= @referral.patient_attrs[:ndis_plan_manager_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Manager phone:</strong>
+          <p>
+            <%= @referral.patient_attrs[:ndis_plan_manager_phone].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Manager email:</strong>
+          <p>
+            <%= @referral.patient_attrs[:ndis_plan_manager_email].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

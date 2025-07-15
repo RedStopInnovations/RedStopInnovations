@@ -1,0 +1,39 @@
+<script id="modal-confirm-change-availability-tmpl" type="text/template">
+  <div>
+    <modal :value="show" v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-warning">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cancel"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Please confirm for availability change!</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+        <div class="loading-backdrop" v-if="loading"></div>
+        <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <div v-if="availability">
+          <strong>The availability was:</strong>
+          <br>
+            <span>{{ oldStartTime | availabilityDate }}</span>
+            <span class="text-muted"> / </span> <span>{{ oldStartTime | hour }}</span>
+            <span class="text-muted"> - </span> <span>{{ oldEndTime | hour }}</span>
+            <span>({{ oldStartTime | tz }})</span>
+          <br>
+          <br>
+          <strong>change to:</strong>
+          <br>
+          <span>{{ newStartTime | availabilityDate }}</span>
+          <span class="text-muted"> / </span> <span>{{ newStartTime | mhour }}</span>
+          <span class="text-muted"> - </span> <span>{{ newEndTime | mhour }}</span>
+          <span>({{ newStartTime | tz }})</span>
+        </div>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer bg-gray-light" v-if="availability">
+        <label class="checkbox-inline" v-if="availability.recurring_id">
+          <input type="checkbox" v-model="apply_to_future_repeats"> <span class="text-warning text-bold"><strong>Apply to future repeats?</strong></span>
+        </label>
+        <button class="btn btn-primary" type="button" @click.prevent="submit" :disabled="loading">Confirm</button>
+        <button class="btn btn-white" type="button" @click="cancel" :disabled="loading">Cancel</button>
+      </div>
+    </modal>
+  </div>
+</script>

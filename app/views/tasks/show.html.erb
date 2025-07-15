@@ -1,0 +1,56 @@
+<% content_for :title, 'Task details' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+        <h1>Task details</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <%
+        is_open_and_assigned_to_current_user =
+          @task.task_users.any? do |task_user|
+            task_user.user_id == current_user.id && task_user.status != TaskUser::STATUS_COMPLETE
+          end
+      %>
+
+      <% if is_open_and_assigned_to_current_user %>
+        <a href="<%= modal_update_completion_task_path(@task) %>" class="btn btn-primary" title="Mark complete" data-remote="true">
+            <i class="fa fa-check"></i> Complete
+        </a>
+      <% end %>
+
+      <% if can?(:edit, @task) %>
+        <a class="btn btn-white" href="<%= edit_task_path(@task) %>" data-remote="true"><i class="fa fa-pencil"></i> Edit</a>
+      <% end %>
+
+      <% if @task.owner.id === current_user.id %>
+        <button type="button" class="btn btn-white btn-form"
+          data-form-url="<%= task_path(@task) %>"
+          data-form-method="DELETE"
+          data-form-confirmation="Are you sure you want to DELETE this task?"
+          ><i class="fa fa-trash text-danger"></i></button>
+      <% end %>
+    </div>
+
+  </div>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-sm-6 col-xs-12">
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <%= render 'task_details' %>
+        </div>
+
+        <div class="panel-footer">
+          <a href="<%= tasks_path %>" class="btn btn-white">Back to list</a>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</section>

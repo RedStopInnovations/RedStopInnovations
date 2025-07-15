@@ -1,0 +1,42 @@
+<div class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Satisfaction review</h4>
+      </div>
+
+        <% if @review %>
+            <div class="modal-body">
+                <p class="text-green">The client has already given a review to the practitioner.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+            </div>
+        <% else %>
+            <%= form_tag send_review_request_appointment_path(@appointment), class: 'js-form-submit' do %>
+
+                <% if @review_request_communication %>
+                    <div class="modal-body">
+                        <p>A review request was already sent to the client on <span class="text-bolder"><%= @review_request_communication.created_at.strftime(t('datetime.common')) %></span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-warning">Resend it!</button>
+                        <button type="button" class="btn btn-white" data-dismiss="modal">Cancel</button>
+                    </div>
+                <% else %>
+                    <div class="modal-body">
+                        <p>Are you sure you want to send satisfaction review request to the client?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Send request</button>
+                        <button type="button" class="btn btn-white" data-dismiss="modal">Cancel</button>
+                    </div>
+                <% end %>
+
+            <% end %>
+        <% end %>
+
+    </div>
+  </div>
+</div>

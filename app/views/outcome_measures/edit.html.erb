@@ -1,0 +1,7 @@
+<%= render 'patients/show_layout' do %>
+  <h4>Edit outcome measure details</h4>
+
+  <section class="content">
+    <%= render 'form', outcome_measure: @outcome_measure, patient: @patient %>
+  </section>
+<% end %>

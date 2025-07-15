@@ -1,0 +1,243 @@
+<section class="new_template_container" id="form-template-wrap">
+<form
+  action="<%= treatment_template.new_record? ? treatment_templates_path : treatment_template_path(treatment_template) %>"
+  id="form-template"
+  method="<%= treatment_template.new_record? ? 'POST' : 'PUT' %>"
+  @submit.prevent="onSubmit"
+  ref="form">
+  <h4>Template Details:</h4>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-12">
+        <label>Template name:</label>
+        <input type="text" class="form-control" v-model="template.name">
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Approved users:</label>
+          <select name="user_ids[]" multiple id="input-user-ids">
+            <%= options_from_collection_for_select current_business.users.active.select(:full_name, :id), :id, :full_name, treatment_template.user_ids %>
+          </select>
+          <span class="help-block">Select users who have access to this template.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h4>Template form:</h4>
+  <div class="box treatment-template">
+
+    <div class="section-group">
+      <draggable
+        v-model="template.template_sections"
+        :options="{ draggable: '.panel', handle: '.btn-sort-section'}"
+        >
+        <div class="panel panel-default panel-section"
+            v-for="(section, s_idx) in template.template_sections">
+
+          <!-- Section heading -->
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-md-9 col-xs-8">
+                <label>Section title</label>
+                <input type="text"
+                    class="form-control"
+                    name="treatment_template[template_sections][][name]"
+                    v-model="section.name">
+              </div>
+              <div class="col-md-3 col-xs-4 text-right">
+                <button class="btn btn-white btn-sm"
+                  type="button"
+                  @click="removeSection(section)">
+                  <i class="fa fa-trash text-danger"></i>
+                </button>
+                <span class="btn btn-white btn-sm btn-sort-section" type="button">
+                  <i class="fa fa-arrows"></i>
+                </span>
+
+                <div class="dropdown" style="display: inline-block;">
+                  <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#" @click.prevent="moveSectionTop(section)"><i class="fa fa-angle-double-up"></i>Move to top</a></li>
+                    <li><a href="#" @click.prevent="moveSectionUp(section)"><i class="fa fa-angle-up"></i>Move up</a></li>
+                    <li><a href="#" @click.prevent="moveSectionDown(section)"><i class="fa fa-angle-down"></i>Move down</a></li>
+                    <li><a href="#" @click.prevent="moveSectionBottom(section)"><i class="fa fa-angle-double-down"></i>Move to bottom</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Questions -->
+          <div class="panel-body">
+            <div class="question-group">
+              <draggable
+                v-model="section.questions"
+                :options="{ draggable: '.box-question', handle: '.btn-sort-question'}">
+                <div class="box-question"
+                  v-for="(question, q_idx) in section.questions">
+                  <div class="row">
+                    <div class="col-md-7">
+                      <label>Question title</label>
+                      <input type="text"
+                        class="form-control"
+                        v-model="question.name"
+                        >
+                    </div>
+                    <div class="col-md-2">
+                      <label>Type</label>
+                      <select
+                        class="form-control"
+                        v-model="question.type"
+                        @change="onQuestionTypeChanged(question)"
+                        >
+                        <option value="Text">Text</option>
+                        <option value="Paragraph">Paragraph</option>
+                        <option value="Checkboxes">Checkboxes</option>
+                        <option value="Radiobuttons">Radiobuttons</option>
+                        <option value="Integer">Integer</option>
+                        <option value="Multiselect">Multiselect</option>
+                      </select>
+                    </div>
+                    <div class="col-md-1">
+                      <label :for="'section_' + s_idx + '_question_' + q_idx + '_required'" class="control-label">Required</label>
+                      <div class="check-box">
+                        <input type="checkbox"
+                          v-model="question.required"
+                          :true-value="'1'"
+                          :false-value="'0'"
+                          :id="'section_' + s_idx + '_question_' + q_idx + '_required'"
+                          />
+                        <label :for="'section_' + s_idx + '_question_' + q_idx + '_required'"></label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-2 text-left">
+                      <label>&nbsp;</label><br>
+                      <button class="btn btn-white" type="button"
+                        @click="removeQuestion(section, question)">
+                        <i class="fa fa-trash text-danger"></i>
+                      </button>
+                      <span class="btn btn-white btn-sort-question" type="button">
+                        <i class="fa fa-arrows"></i>
+                      </span>
+                      <div class="dropdown" style="display: inline-block;">
+                        <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li><a href="#" @click.prevent="moveQuestionTop(section, question)"><i class="fa fa-angle-double-up"></i>Move to top</a></li>
+                          <li><a href="#" @click.prevent="moveQuestionUp(section, question)"><i class="fa fa-angle-up"></i>Move up</a></li>
+                          <li><a href="#" @click.prevent="moveQuestionDown(section, question)"><i class="fa fa-angle-down"></i>Move down</a></li>
+                          <li><a href="#" @click.prevent="moveQuestionBottom(section, question)"><i class="fa fa-angle-double-down"></i>Move to bottom</a></li>
+                        </ul>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- Answers -->
+                  <div class="row answer-wrap">
+                    <div class="col-md-10 col-xs-12">
+                      <div v-if="question.type === 'Paragraph'">
+                        <label>Default answer</label>
+                        <textarea
+                          class="form-control"
+                          rows="2"
+                          name="treatment_template[template_sections][][questions][][answer][content]"
+                          v-model="question.answer.content"
+                        ></textarea>
+                      </div>
+
+                      <div v-if="question.type === 'Checkboxes' || question.type === 'Radiobuttons'">
+                        <label>Answers</label>
+                        <div class="list-answers">
+                          <draggable
+                            v-model="question.answers"
+                            :options="{ draggable: '.box-answer', handle: '.btn-sort-answer'}">
+                            <div v-for="answer in question.answers" class="box-answer">
+                              <div class="row">
+                                <div class="col-xs-10">
+                                  <div class="input-group">
+                                    <span class="input-group-addon">
+                                      <input type="checkbox" readonly="true" disabled="disabled" v-if="question.type === 'Checkboxes'">
+                                      <input type="radio" readonly="true" disabled="disabled" v-if="question.type === 'Radiobuttons'">
+                                    </span>
+                                    <input
+                                      class="form-control"
+                                      type="text"
+                                      name="treatment_template[template_sections][][questions][][answers][][content]"
+                                      v-model="answer.content"
+                                      />
+                                    </div>
+                                </div>
+                                <div class="col-xs-2 text-left">
+                                  <button class="btn btn-white btn-sm" type="button"
+                                    @click="removeAnswer(question, answer)">
+                                    <i class="fa fa-trash text-danger"></i>
+                                  </button>
+                                  <span class="btn btn-white btn-sm btn-sort-answer" type="button">
+                                    <i class="fa fa-arrows"></i>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </draggable>
+                        </div>
+                        <button class="btn btn-muted btn-sm"
+                          type="button"
+                          @click="addAnswer(question)">Add answer</button>
+                      </div>
+
+                      <div v-if="question.type === 'Multiselect'">
+                        <label>Selections</label>
+                        <div class="list-answers">
+                          <v-multiselect
+                            v-model="question.answers"
+                            :options="question.answers"
+                            :taggable="true"
+                            tag-placeholder="Add this as new selection"
+                            placeholder="Type to add a selection"
+                            label="content"
+                            track-by="content"
+                            :multiple="true"
+                            :hide-selected="true"
+                            :show-no-results="false"
+                            :close-on-select="false"
+                            class="multiselect-selections theme-gray"
+                            @tag="onAddSelection($event, question)"
+                            ></v-multiselect>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </draggable>
+
+            </div>
+          </div>
+          <div class="panel-footer">
+            <button class="btn btn-white" type="button" @click="addQuestion(section)">Add question</button>
+          </div>
+        </div>
+      </draggable>
+    </div>
+
+    <button class="btn btn-white btn-add-item" type="button" @click="addSection()">Add section</button>
+  </div>
+
+
+  <div class="row">
+    <div class="col-md-12">
+      <button class="btn btn-primary" type="submit" :disabled="busy">Save template</button>
+      <a class="btn btn-white" href="<%= treatment_template.new_record? ? treatment_templates_path : treatment_template_path(treatment_template) %>">Cancel</a>
+    </div>
+  </div>
+
+</form>
+
+</section>
+<%= content_for :page_js do %>
+  <%= render 'form_js', treatment_template: treatment_template %>
+<% end %>

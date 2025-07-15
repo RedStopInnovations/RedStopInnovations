@@ -1,0 +1,44 @@
+Hi <%= @practitioner.full_name %>,
+<br>
+<br>
+Please find below your data for the period between <%= @start_date.strftime(t('date.common')) %> and <%= @end_date.strftime(t('date.common')) %>. If you have any further questions please contact your business admin.
+<br>
+<br>
+
+Appointments: <%= @performance_data['appointments_count'] %>
+<br>
+Treatment notes created: <%= @performance_data['treatment_notes_count'] %>
+<br>
+Letters created: <%= @performance_data['letters_count'] %>
+<br>
+Occupancy: <%= ((@performance_data['appointments_count'] / @performance_data['max_appointments'].to_f) * 100).round(2) %>%
+<br>
+Cancellation: <%= @performance_data['cancelleds_count'] %>
+<br>
+Invoice total: <%= format_money_amount @performance_data['invoiced_amount'] %>
+<br>
+Invoice total ex tax: <%= format_money_amount @performance_data['invoiced_amount_ex_tax'] %>
+<br>
+Average invoice: <%= format_money_amount (@performance_data['invoiced_amount'].to_f / @performance_data['appointments_count'].to_f).to_s %>
+<br>
+PVA(*): <%= @performance_data['appointments_count'].to_i.zero? ? 0 : (@performance_data['appointments_count'].to_f / @performance_data['patients_count'].to_f).round(1) %>
+<br>
+Availability duration: <%= (@performance_data['availability_duration'].to_f / 3600).round(2) %> hrs
+<br>
+Appointment duration: <%= (@performance_data['appointments_duration'].to_f / 3600).round(2) %> hrs
+<br>
+Travel distance: <%= (@performance_data['travel_distance'].to_f / 1000).round(2) %> km
+<br>
+Travel duration: <%= (@performance_data['travel_duration'].to_f / 3600).round(2) %> hrs
+<br>
+Vacant time: <%= (@performance_data['vacant_duration'].to_f / 3600).round(2) %> hrs
+<br>
+<br>
+<small>
+<i>(*) The patient visit average (PVA) is the number of appointments divided by the number of clients.</i>
+</small>
+<br>
+<br>
+Kind regards,
+<br>
+<%= @business.name %>

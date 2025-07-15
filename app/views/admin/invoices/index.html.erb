@@ -1,0 +1,64 @@
+<section class="box-header">
+  <h1>Manage invoices</h1>
+</section>
+
+<div class="search_box">
+  <%= search_form_for @search_query, url: admin_invoices_path, enforce_utf8: false, class: 'form-filter form-filter-invoices' do |f| %>
+  <div class="row">
+    <div class="col-md-8 col-xs-7">
+      <%= f.search_field :invoice_number_or_patient_first_name_or_patient_last_name_cont, class: 'form-control', placeholder: 'Enter invoice number, patient name' %>
+    </div>
+    <div class="col-md-4 col-xs-5">
+      <button type="submit" class="btn sitebtn"><i class="fa fa-search"></i>  Search</button>
+    </div>
+  </div>
+  <% end %>
+</div>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Number</th>
+          <th>Business</th>
+          <th>Patient</th>
+          <th>Issue date</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @invoices.each do |invoice| %>
+          <tr>
+            <td>
+              <a href="<%= admin_invoice_path(invoice) %>">#<%= invoice.invoice_number %></a>
+            </td>
+            <td>
+              <a href="<%= admin_business_path(invoice.business) %>"><%= invoice.business.name %></a>
+            </td>
+            <td><%= link_to invoice.patient.full_name, admin_patient_path(invoice.patient) %></td>
+            <td><%= invoice.issue_date.try(:strftime, '%B %d, %Y') %></td>
+            <td>
+              <%= format_money invoice.amount %>
+            </td>
+            <td>
+              <a href="<%= admin_invoice_path(invoice) %>" class="btn btn-link">
+                <i class="fa fa-eye"></i>
+              </a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @invoices %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @invoices %>
+      </div>
+    </div>
+  </div>
+</section>

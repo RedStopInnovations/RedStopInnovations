@@ -1,0 +1,39 @@
+<% content_for :title, 'Bulk archive clients' %>
+
+<% content_for :no_gmapjs, 1 %>
+<% content_for :page_additional_html do %>
+  <%= render 'shared/app_templates' %>
+<% end %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Bulk archive clients</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <ul class="nav nav-tabs mb-15">
+        <li class="active"><a href="#">Search</a></li>
+        <li><a href="<%= app_patient_bulk_archive_requests_path %>">Bulk archive history</a></li>
+      </ul>
+
+      <div id="patient-bulk-archive-search-wrap">
+        <patient-bulk-archive-search/>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<% content_for :page_js do %>
+<script>
+  new Vue({
+    el: '#patient-bulk-archive-search-wrap'
+  });
+</script>
+<% end %>

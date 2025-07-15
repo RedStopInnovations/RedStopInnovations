@@ -1,0 +1,29 @@
+<script id="appointments-list-agenda-tmpl" type="text/template">
+  <div class="appointment-list-agendar-wrap">
+    <div class="appointment" v-for="appt in appointments" :key="appt.id" :style="{'background-color': findBackgroundColorForAppointment(appt)}">
+      <div class="patient-name">{{ appt.patient.full_name }}</div>
+      <div class="appointment-stats">
+
+        <span class="arrival-time" v-if="appt.arrival" title="Arrival time">
+          {{ appt.arrival.arrival_at | hour }}
+        </span>
+
+        <span title="Marked as confirmed" v-if="appt.is_confirmed"><i class="fa fa-calendar-check-o"></i></span>
+
+        <span v-if="appt.notes && appt.notes.length > 0" title="Appointment notes" class="text-yellow" @click="showAppointmentNote(appt)"><i class="fa fa-sticky-note-o"></i></span>
+
+        <span v-if="appt.status == 'completed'" title="Completed"><i class="fa fa-check-square-o"></i></span>
+
+        <span v-if="appt.treatment" title="Has a treatment note"><i class="fa fa-file-text-o"></i></span>
+
+        <span v-if="appt.invoice" title="An invoice issued">
+          <i class="fa fa-credit-card" v-bind:class="{ unpaid: appt.invoice.outstanding > 0}"></i>
+        </span>
+
+      </div>
+      <div class="patient-addr">
+        {{ [appt.patient.city, appt.patient.postcode].join(', ') }}
+      </div>
+    </div>
+  </div>
+</script>

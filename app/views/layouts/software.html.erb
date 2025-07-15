@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= "#{ yield(:title) }" if content_for?(:title) %></title>
+    <meta name="description" content="<%= yield(:meta_description) %>">
+    <meta name="keywords" content="<%= yield(:meta_keywords) %>">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <%= csrf_meta_tags %>
+    <link href="//fonts.googleapis.com/css?family=Roboto:400,300,500,300italic,400italic,500italic,700,700italic" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="//a.vimeocdn.com/js/froogaloop2.min.js"></script>
+    <%= stylesheet_link_tag    'software', media: 'all' %>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <% if content_for?(:canonical_path) %>
+      <link rel="canonical" href="<%= canonical_url(yield(:canonical_path).presence) %>" />
+    <% end %>
+
+    <%= yield(:head_js) %>
+  </head>
+
+  <body class="<%= yield(:body_class) %>">
+
+    <%= render 'layouts/software/navbar' %>
+
+    <%= yield %>
+
+    <%= render 'layouts/software/footer' %>
+
+    <%= javascript_include_tag 'software' %>
+
+    <%= yield :page_js %>
+  </body>
+</html>

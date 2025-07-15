@@ -1,0 +1,52 @@
+(function() {
+  $('#js-modal-practitioner-documents').remove();
+  $('body').append('<%= j(render 'modal_practitioner_documents_content', practitioner: @practitioner) %>');
+
+  var $modal = $('#js-modal-practitioner-documents');
+  $modal.modal('show');
+
+  $modal.find('.flatpickr-datepicker').bindFlatpickr();
+
+  $modal.find('.js-form-document').on('submit', function(e) {
+    e.preventDefault();
+    var form = this;
+    var $btnSubmit = $(form).find('[type="submit"]');
+
+    $btnSubmit.attr('disabled', true);
+    $modal.find('.modal-body').loadingOn();
+    var formData = new FormData(form);
+
+    $.ajax({
+      method: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      url: '<%= update_practitioner_document_settings_user_path(@user) %>',
+      success: function(res) {
+        if (res.message) {
+          Flash.success(res.message);
+        }
+        $modal.modal('hide');
+        setTimeout(function() {
+          window.location.reload();
+        }, 2000);
+      },
+      error: function(xhr) {
+        var errMsg = 'Could not save document.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errMsg = xhr.responseJSON.message;
+        }
+
+        if (xhr.status == 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+          var formErrors = xhr.responseJSON.errors;
+          Flash.error('Validation errors: ' + '<br/>' + formErrors.join('<br/>'));
+        }
+      },
+      complete: function() {
+        $modal.find('.modal-body').loadingOff();
+        $btnSubmit.removeAttr('disabled');
+      }
+    });
+  });
+
+})();

@@ -1,0 +1,116 @@
+<% if params[:country] == 'au' %>
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_physiotherapy_path %>">Physiotherapy <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_physiotherapy_brisbane_path %>">Mobile Physiotherapy Brisbane</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_physiotherapy_sydney_path %>">Mobile Physiotherapy Sydney</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_physiotherapy_melbourne_path %>">Mobile Physiotherapy Melbourne</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_physiotherapy_adelaide_path %>">Mobile Physiotherapy Adelaide</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_physiotherapy_perth_path %>">Mobile Physiotherapy Perth</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_sunday_physiotherapy_path %>">Sunday Physiotherapy</a>
+            </li>
+        </ul>
+    </li>
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_podiatry_path %>">Podiatry <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_podiatry_brisbane_path %>">Mobile Podiatry Brisbane</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_podiatry_sydney_path %>">Mobile Podiatry Sydney</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_podiatry_melbourne_path %>">Mobile Podiatry Melbourne</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_podiatry_adelaide_path %>">Mobile Podiatry Adelaide</a>
+            </li>
+            <li aria-haspopup="true">
+                <a href="<%= frontend_mobile_podiatry_perth_path %>">Mobile Podiatry Perth</a>
+            </li>
+        </ul>
+    </li>
+    <li aria-haspopup="false">
+      <a href="<%= frontend_mobile_occupational_therapy_path %>">Occupational Therapy</a>
+    </li>
+
+<% elsif params[:country] == 'nz' %>
+
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_physiotherapy_path %>">Physiotherapy <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li>
+                <a href="<%= frontend_mobile_physiotherapy_auckland_path %>">Mobile Physiotherapy Auckland</a>
+            </li>
+        </ul>
+    </li>
+
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_podiatry_path %>">Podiatry <span class="fe fe-chevron-down"></span></a>
+        <ul class="sub-menu">
+            <li>
+                <a href="<%= frontend_mobile_podiatry_auckland_path %>">Mobile Podiatry Auckland</a>
+            </li>
+        </ul>
+    </li>
+
+<% elsif params[:country] == 'uk' %>
+
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_physiotherapy_path %>">Physiotherapy <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li>
+                <a href="<%= frontend_mobile_physiotherapy_london_path %>">Mobile Physiotherapy London</a>
+            </li>
+        </ul>
+    </li>
+
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_podiatry_path %>">Podiatry <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li>
+                <a href="<%= frontend_mobile_podiatry_london_path %>">Mobile Podiatry London</a>
+            </li>
+        </ul>
+    </li>
+
+<% elsif params[:country] == 'us' %>
+
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_physical_therapy_path %>">Physical Therapy  <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li>
+                <a href="<%= frontend_mobile_physical_therapy_new_york_path %>">Mobile Physical Therapy New York</a>
+            </li>
+        </ul>
+    </li>
+
+    <li aria-haspopup="true">
+        <a href="<%= frontend_mobile_podiatry_path %>">Podiatry <span class="fe fe-chevron-down"></span></a>
+        <span class="horizontalMenu-click"><i class="horizontalMenu-arrow fa fa-angle-down"></i></span>
+        <ul class="sub-menu">
+            <li>
+                <a href="<%= frontend_mobile_podiatry_new_york_path %>">Mobile Podiatry New York</a>
+            </li>
+        </ul>
+    </li>
+
+<% end %>

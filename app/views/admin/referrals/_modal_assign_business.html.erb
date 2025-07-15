@@ -1,0 +1,21 @@
+<div class="modal fade" id="modal-assgin-business">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-aqua">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Assign Business</h4>
+      </div>
+        <%= simple_form_for :referral do |f| %>
+        <input type="hidden" name="_method" value="PUT">
+        <div class="modal-body">
+          <%= f.input :business_id, as: :select, collection: Business.all.collect {|b| ["#{b.name} - ##{b.id}", b.id]},
+              include_blank: "-- Select business --", input_html: { class: 'selectize' }%>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary btn-create">Assign</button>
+          <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">Cancel</button>
+        </div>
+        <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<% content_for :title, 'Search appointment' %>
+<% content_for :no_gmapjs, 1 %>
+<% content_for :page_additional_html do %>
+  <%= render 'shared/app_templates' %>
+<% end %>
+<section class="box-header">
+  <h1>Search appointment</h1>
+</section>
+
+<section class="content">
+  <div id="search-appointment-wrap">
+    <search-appointment/>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+  Vue.use(VueGoogleMaps, {
+    load: {
+      key: '<%= ENV['GOOGLE_API_KEY'] %>',
+      libraries: 'places, drawing',
+      v: '3.53',
+    },
+    installComponents: false,
+  });
+
+  $(document).ready(function() {
+    VueGoogleMaps.loaded.then(function() {
+      new Vue({
+        el: '#search-appointment-wrap',
+        data: function() {
+          return {
+            business: null
+          };
+        }
+      });
+    });
+  });
+</script>
+<% end %>

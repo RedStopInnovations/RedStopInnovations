@@ -1,0 +1,139 @@
+<% content_for :title, 'New clients' %>
+
+<section class="box-header">
+  <h1>New clients</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Clients</a>
+    </li>
+    <li class="active">New clients</li>
+  </ul>
+</section>
+
+<section class="print-head">
+  <h3 class="text-center">New clients report <%= @report.options[:year] %></h3>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default hidden-print">
+        <div class="panel-body">
+            <form action="<%= reports_new_patient_path %>">
+            <div class="row">
+                <div class="col-md-6">
+                  <%
+                    year_options = (current_business.created_at.strftime('%Y').to_i..Date.current.strftime('%Y').to_i).to_a.reverse
+                  %>
+                  <div class="form-group">
+                    <label>Select year:</label>
+                    <select name="year" required class="form-control">
+                      <%= options_for_select year_options, @report.options[:year] %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                <div class="form-group">
+                    <label>&nbsp;</label><br>
+                    <button type="submit" class="btn btn-primary">Report</button>
+                </div>
+                </div>
+            </div>
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="text-right hidden-print mb-10">
+    <a href="<%= reports_new_patient_path(year: @report.options[:year], format: :csv) %>"
+    class="btn btn-white">
+      <i class="fa fa-download"></i> CSV
+    </a>
+    <button type="button" class="btn btn-white" onclick="print()"><i class="fa fa-print"></i> Print</button>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th style="width: 120px">Month</th>
+                <th>Clients count</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @report.result[:data].each do |month_data| %>
+                <tr>
+                  <td><%= month_data['year_month'].to_date.try(:strftime, '%b %Y') %></td>
+                  <td>
+                    <%= month_data['patients_count'] %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="chart-container" id="js-chart-new-patient" data-chart-data="<%= @report.as_chart_data.to_json %>"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</section>
+
+
+<% content_for :page_js do %>
+<script>
+  $(function() {
+    if ($('#js-chart-new-patient').length) {
+      (function() {
+        var $container = $('#js-chart-new-patient');
+        var chartData = $container.data('chart-data');
+        var canvas = $('<canvas>').appendTo($container);
+
+        new Chart(
+          canvas,
+          {
+            type: 'bar',
+            data: chartData,
+            options: {
+              legend: {
+                display: false
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true
+                  }
+                }]
+              }
+            }
+          }
+        );
+
+      })();
+    }
+  });
+
+</script>
+<% end %>

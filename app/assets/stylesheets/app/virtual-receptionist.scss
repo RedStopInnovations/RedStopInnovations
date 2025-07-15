@@ -1,0 +1,26 @@
+.virtual-receptionist-page {
+  background: #ecf0f5;
+
+  > .container {
+    margin-top: 20px;
+
+    .header {
+      height: 30px;
+
+      .logo {
+        max-height: 100%;
+        float: right;
+        border: 1px solid #fff;
+        background: #fff;
+        padding: 5px;
+        border-radius: 5px;
+      }
+    }
+
+    .main {
+      margin-top: 10px;
+      background-color: #fff;
+      padding: 15px 20px;
+    }
+  }
+}

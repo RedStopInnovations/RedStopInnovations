@@ -1,0 +1,15 @@
+<div class="box-header">
+  <h1><%= @patient.full_name %></h1>
+</div>
+
+<div class="patient-page">
+  <div class="clearfix patient-content">
+    <div class="col-lg-2 col-md-3 col-sm-3 content-sidenav">
+      <%= render 'patient_sidebar' %>
+    </div>
+
+    <div class="col-lg-10 col-md-9 col-sm-9 col-xs-15 bdr-lft box-primary pt-20">
+      <%= render 'form', patient: @patient %>
+    </div>
+  </div>
+</div>

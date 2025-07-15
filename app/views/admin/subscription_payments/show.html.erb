@@ -1,0 +1,59 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6"><h1>Payment details</h1></div>
+    <div class="col-xs-6 text-right">
+      <div class="btn-group">
+          <a href="<%= edit_admin_subscription_payment_path(@subscription_payment) %>" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit</a>
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+              <a href="<%= admin_subscription_payment_path(@subscription_payment) %>" data-method="DELETE" data-confirm="Are you sure want to DELETE this payment?"
+                ><i class="fa fa-trash text-danger"></i> <span class="text-danger">Delete</span></a>
+            </li>
+          </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_subscription_payments_path %>">Subscription payments</a>
+    </li>
+    <li>Show</li>
+  </ul>
+</section>
+
+
+<section class="content">
+  <div class="box">
+    <div class="block-info">
+      <strong>Invoice:</strong>
+      <p>
+        <a href="<%= admin_business_invoice_path(@subscription_payment.business_invoice.id) %>">#<%= @subscription_payment.business_invoice.invoice_number %></a>
+      </p>
+    </div>
+
+    <div class="block-info">
+      <strong>Date:</strong>
+      <p><%= @subscription_payment.payment_date.strftime('%d %b, %Y') %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Amount:</strong>
+      <p><%= format_money @subscription_payment.amount %></p>
+    </div>
+
+    <div class="block-info">
+      <strong>Payment type:</strong>
+      <p><%= @subscription_payment.payment_type %></p>
+    </div>
+
+  </div>
+</section>

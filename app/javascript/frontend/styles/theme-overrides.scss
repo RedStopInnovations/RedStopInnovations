@@ -1,0 +1,457 @@
+@import "../../medz/scss/variables";
+body {
+    font-family: 'Lato', sans-serif;
+    font-size: 15px;
+}
+
+.font-size-bigger {
+    font-size: 1.05rem;
+}
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lato', sans-serif;
+}
+@media (min-width:992px) and (max-width:1300px) {
+    .header-search-logo .header-brand-img {
+        margin-top:10px !important;
+    }
+}
+
+@media only screen and (max-width: 991px) {
+    .horizontal-header .smllogo {
+        margin-top:0;
+    }
+}
+
+.header-search .header-search-logo {
+    margin-top:0 !important;
+}
+
+.header-style2 .header-search-logo .header-brand-img, .header-style3 .header-search-logo .header-brand-img {
+    margin-top:0 !important
+}
+
+/* Fix position of the location icon in search input */
+.location-gps {
+    top: 15px;
+}
+
+/* Override header logo on desktop */
+.header-search-logo .header-brand-img {
+    background-image: url('../images/tracksy-logo.jpeg');
+    background-size: contain;
+    background-position: center;
+}
+
+@media only screen and (max-width: 991px) {
+    /* Override header logo on mobile */
+    .smllogo.mobile-logo {
+        background-image: url('../images/tracksy-logo.jpeg');
+        background-size: contain;
+        background-position: center;
+    }
+
+    /* Callus button */
+    .horizontal-header .callusbtn i {
+        color: $primary7;
+    }
+
+    /* Sidbar toggle button */
+    .animated-arrow span {
+        background: $color;
+
+        &:before, &:after {
+            background: $color;
+        }
+    }
+}
+
+/* Remove right border in last child of header's right box */
+.header-main .top-bar-right .custom li:last-child {
+    border-right: none;
+}
+
+/* Adjust hero h1 font-size */
+.banner-section .header-text h1 {
+    font-size: 3rem;
+}
+
+/* Increase hero search spacing */
+.sptb-hero-search {
+    padding-top: 8rem;
+    padding-bottom: 15rem;
+}
+
+@media (max-width: 576px) {
+    .sptb-hero-search .header-text h1 {
+        font-size: 1.5rem;
+    }
+    .section-title h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Add padding top of hero search as header is sticky on mobile */
+@media (max-width: 991px) {
+    .sptb-hero-search {
+        padding-top: 2rem !important;
+    }
+}
+
+.section-workflow {
+    .icon {
+        font-size: 3rem;
+    }
+
+    .text {
+        font-size: 1.05rem;
+    }
+
+    @media (max-width: 991px) {
+        .icon {
+            font-size: 2rem;
+        }
+        .text {
+            font-size: 1rem;
+        }
+    }
+
+    .step:not(:last-child) {
+        &:after {
+            // fe-chevron-right
+            content: "\e92f";
+            font-family: feather!important;
+            font-style: normal;
+            font-weight: 400;
+            font-variant: normal;
+            text-transform: none;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            position: absolute;
+            right: 0;
+            top: 20px;
+            font-size: 1.5rem;
+        }
+    }
+}
+
+.bg-gradient-primary {
+    &:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        right: 0;
+        display: block;
+        z-index: 0;
+        top: 0;
+        background: linear-gradient(-225deg, rgba(10, 14, 14, 0.6) 48%, rgba(10, 14, 14, 0.6) 100%);
+        // background: linear-gradient(86deg, rgba(8, 158, 96, 0.8) 0%, rgba(19, 150, 204, 0.9) 100%);
+    }
+}
+
+.breadcrumbs {
+    .header-text {
+        position: relative;
+        z-index: 10;
+    }
+}
+
+textarea.form-control {
+    height: auto;
+}
+
+label.required {
+    &:after {
+        content: "*";
+        font-size: 0.85rem;
+        margin-left: 2px;
+        color: #fc3d50;
+    }
+}
+
+/* Reset <ul> style by default */
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bg-img {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.blog-list .item7-card-img {
+    height: 100% !important;
+}
+
+/* Practitioner list & profile pages */
+.tab-content > {
+    .tab-pane {
+        display: none;
+    }
+    .active {
+        display: block;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-content.card-body {
+        .btn {
+            min-width: 1.625rem;
+        }
+        .progress-bar {
+            display: none;
+        }
+    }
+}
+
+.tabs-menu ul li {
+    a {
+        padding: 10px 20px 11px 20px;
+    }
+    .active {
+        color: $white;
+        border-radius: 2px;
+    }
+}
+
+.tabs-menu1 ul li {
+    a {
+        padding: 10px 20px 11px 20px;
+    }
+    .active {
+        border-radius: 2px;
+    }
+}
+
+.tabs-menu-body {
+    padding: 15px;
+    border: 1px solid #e4e6f1;
+    p:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.tab-menu-heading {
+    padding: 20px;
+    border: 1px solid #e4e6f1;
+    border-bottom: 0;
+}
+
+.tab_wrapper {
+    .content_wrapper .tab_content.active p:last-child {
+        margin-bottom: 0;
+    }
+    >ul {
+        li {
+            border: 1px solid #e4e6f1;
+            border-top: 3px solid #e4e6f1;
+        }
+        border-bottom: 1px solid #e4e6f1;
+    }
+    &.right_side {
+        .content_wrapper {
+            border: 1px solid #e4e6f1;
+        }
+        >ul {
+            li {
+                &.active {
+                    border-color: #e4e6f1;
+                }
+                &:after {
+                    background: #e4e6f1;
+                }
+            }
+            border-bottom: 1px solid #e4e6f1;
+        }
+    }
+}
+
+@media (min-width: 767px) {
+    .tab-content #tab-list-style {
+        .item-card9-img {
+            width: 400px;
+            &.doctor-details {
+                width: 200px;
+            }
+        }
+        .item-card9-imgs img {
+            height: 190px;
+        }
+        .item-card9-img .doctors {
+            width: 200px;
+        }
+        .item-card2-img img {
+            height: 197px;
+        }
+    }
+}
+
+#tab-list-style .item-card2-img:hover a {
+    background: 0 0;
+}
+
+#tab-grid-style {
+    .item-card2-img:hover a {
+        background: 0 0;
+    }
+    .address {
+        display: grid !important;
+    }
+    .item-card9-imgs img {
+        height: 270px;
+    }
+}
+
+/* Fix the practitioner photo size without strech the image */
+.item-card9-imgs img {
+    object-fit: cover;
+}
+
+.item-card2-img img {
+    object-fit: cover;
+    height: 300px;
+}
+
+.item-overly-trans span.badge {
+    // left: 5px;
+    // bottom: 5px;
+    background-color: rgb(52 58 64 / 74%);
+}
+
+@media (max-width: 480px) {
+    .tabs-menu ul.eductaional-tabs li {
+        a {
+            margin: 0;
+        }
+        width: 100% !important;
+    }
+
+    .item-card-features li a {
+        display: inline !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .tabs-menu1 ul li a {
+        display: block;
+        width: 100%;
+        border: 1px solid #e4e6f1;
+        margin: 1px;
+        border-radius: 2px;
+    }
+}
+
+@media (min-width: 561px) and (max-width: 767px) {
+    .tabs-menu1 ul li {
+        display: block;
+        width: 49%;
+        margin: 1px;
+    }
+}
+
+/* Practitioners list */
+.item-overly-trans .rating-stars {
+    padding: 0 5px;
+}
+
+.section-top-companies .client-img {
+    height: 70px;
+    display: flex;
+}
+
+#tab-grid-style {
+    .item-card-features li {
+        width: 100%;
+        float: none;
+    }
+}
+
+#tab-list-style {
+    .item-card-features li {
+        width: 100%;
+        float: none;
+    }
+}
+
+.item-search-tabs .btn-submit-search {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    font-size: 0.8525rem;
+    right: -2px;
+    position: relative;
+    line-height: 1.94615385;
+}
+
+/* Top location sections: disable mouse event on stats numbers text */
+.section-top-locations .item-card-text {
+    pointer-events: none;
+}
+
+.form-group {
+    &.has-error {
+        .form-control {
+            border-color: #fc3d50;
+        }
+        .help-block {
+            color: #fc3d50;
+        }
+    }
+}
+
+#modal-crop-avatar.show {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cropper-container {
+    margin: 0 auto;
+  }
+}
+
+/* Add top spacing for the main content in mobile view b/c the main menu is sticky */
+
+@media (max-width: 992px) {
+    section.breadcrumbs {
+        margin-top: 54px;
+    }
+}
+
+.location-gps {
+    height: auto;
+}
+
+.section-top-locations {
+    .item-card .item-card-desc .item-card-text h4 {
+        top: 50%;
+    }
+}
+.horizontalMenu {
+    font-size: 15px;
+}
+
+/* horizontalMenu Lato font weight */
+.horizontalMenu > .horizontalMenu-list > li > a {
+    font-weight: 600;
+}
+
+h4 {
+    font-family: "Lato", sans-serif;
+}
+
+.fw-600 {
+    font-weight: 600;
+}
+
+.horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > a {
+    font-size: 15px;
+    padding: 12px 15px;
+}

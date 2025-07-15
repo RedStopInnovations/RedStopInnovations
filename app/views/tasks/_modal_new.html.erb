@@ -1,0 +1,88 @@
+<div class="modal fade" id="js-modal-new-task">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add task</h4>
+      </div>
+
+      <%= simple_nested_form_for @task, url: tasks_path, html: { class: 'js-form-new-task', 'novalidate' => false } do |f| %>
+        <div class="modal-body">
+          <%= f.input :name, required: true %>
+
+          <div class="form-group">
+            <label>Client:</label>
+            <select class="form-control selectize-patients-ajax" name="task[patient_id]" placeholder="-- Select client --">
+              <% if @task.patient.present? %>
+                <%=
+                  options_from_collection_for_select(
+                    current_business.patients.where(id: @task.patient_id),
+                    :id,
+                    :full_name,
+                    [@task.patient.id]
+                  )
+                %>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="form-group" js-invoice-require-inpput-wrap style="display: none;">
+            <label>Invoice required?</label>
+            <div class="form-control">
+              <div class="checkbox-inline npl">
+                <input type="radio" checked name="task[is_invoice_required]" value="0" id="cb_invoice_required_no">
+                <label for="cb_invoice_required_no">No</label>
+              </div>
+              <div class="checkbox-inline">
+                <input type="radio" name="task[is_invoice_required]" value="1" id="cb_invoice_required_yes">
+                <label for="cb_invoice_required_yes">Yes</label>
+              </div>
+            </div>
+          </div>
+
+          <%= f.input :description, input_html: { rows: 3 } %>
+
+          <div class="form-group <%= 'has-error' if @task.errors.key?(:priority) %>">
+            <label><abbr title="required">*</abbr> Priority</label>
+            <div class="form-control">
+              <% Task::PRIORITIES.each_with_index do |priority, index| %>
+              <div class="checkbox-inline <%= 'npl' if index === 0 %>">
+                <input type="radio"
+                  name="task[priority]"
+                  value="<%= priority %>"
+                  id="cb_task_priority_<%= index %>"
+                  <% if @task.priority === priority %>
+                    checked
+                  <% end %>
+                  />
+                <label for="cb_task_priority_<%= index %>" class="fw-400"><%= priority.titleize %></label>
+              </div>
+              <% end %>
+            </div>
+            <span class="help-block">
+              <%= @task.errors[:priority].first %>
+            </span>
+          </div>
+
+          <%= f.association :users, as: :select, collection: user_option_for_task(current_business),
+          label: 'Assignees', input_html: { class: 'js-selectize', multiple: true } %>
+
+          <div class="form-group">
+            <label><abbr title="required">*</abbr> Due:</label>
+            <div class="row">
+              <div class="col-md-6 col-xs-12">
+                <%= f.input_field :due_on, placeholder: 'Due date', label: 'Due', as: :string, class: 'bg-white js-flatpickr-datepicker', value: (@task.due_on? ? @task.due_on.strftime('%Y-%m-%d') : nil), data: { 'alt-format' => 'd M Y', 'date-format' => 'Y-m-d' } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create task</button>
+          <button class="btn btn-white" type="button" data-dismiss="modal">Cancel</button>
+        </div>
+        <% end %>
+    </div>
+  </div>
+</div>

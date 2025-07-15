@@ -1,0 +1,67 @@
+<% content_for :title, 'Trigger category' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @trigger_category.name %></h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <div class="btn-group">
+        <button type="button" class="btn btn-success btn-flat dropdown-toggle" data-toggle="dropdown">
+          Action <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a href="<%= edit_settings_trigger_category_path(@trigger_category) %>">
+              <i class="fa fa-pencil"></i> Edit
+            </a>
+          </li>
+          <li>
+            <a href="<%= settings_trigger_category_path(@trigger_category) %>"
+              data-confirm="Are you sure?" data-method="delete" >
+              <i class="fa fa-trash"></i> Delete
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_trigger_categories_path %>">Trigger categories</a>
+    </li>
+    <li class="active"><%= @trigger_category.name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="col-md-6 col-xs-12">
+    <div class="box">
+      <div class="block-info">
+        <strong>Name</strong>
+        <p><%= @trigger_category.name %></p>
+      </div>
+      <div class="block-info">
+        <strong>Words(<%= @trigger_category.words_count %>)</strong>
+        <ul style="padding-left: 10px">
+          <% @trigger_category.words.each do |word| %>
+            <li><%= word.text %></li>
+          <% end %>
+        </ul>
+      </div>
+      <div class="block-info">
+        <strong>Updated</strong>
+        <p>
+          <%= @trigger_category.updated_at.strftime('%d %b, %Y at %l:%M%P') %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>

@@ -1,0 +1,33 @@
+Hi,
+<br>
+<br>
+A business account has been <b>suspended</b>.
+<br>
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td>Name:</td>
+      <td>
+        <a href="<%= admin_business_url(@business) %>"><%= @business.name %></a>
+      </td>
+    </tr>
+    <tr>
+      <td>Address:</td>
+      <td>
+        <%= @business.short_address %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        No. users:
+      </td>
+      <td>
+        <%= @business.users.count %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+Regards.

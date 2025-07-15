@@ -1,0 +1,327 @@
+<% content_for :title, 'Businesses' %>
+
+  <section class="box-header">
+    <div class="row">
+      <div class="col-xs-6">
+        <h1>Businesses</h1>
+      </div>
+    </div>
+  </section>
+
+  <section class="breadcrumb">
+    <ul>
+      <li>
+        <a href="<%= admin_settings_path %>">Settings</a>
+      </li>
+      <li class="active">Businesses</li>
+    </ul>
+  </section>
+</section>
+
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: admin_businesses_path, enforce_utf8: false do |f| %>
+      <div class="row">
+        <div class="col-sm-2">
+          <label>Search</label>
+          <%= f.search_field :name_cont, class: 'form-control', placeholder: 'Business name' %>
+        </div>
+
+        <div class="col-sm-2">
+          <label>Credit card added?</label>
+          <select class="form-control" name="has_credit_card">
+            <option value="">-- Not selected --</option>
+            <option value="1" <%= 'selected' if params[:has_credit_card].to_s == '1' %>>Yes</option>
+            <option value="0" <%= 'selected' if params[:has_credit_card].to_s == '0' %>>No</option>
+          </select>
+        </div>
+
+        <div class="col-sm-2">
+          <label>Approved?</label>
+          <select class="form-control" name="is_approved">
+            <option value="">-- Not selected --</option>
+            <option value="1" <%= 'selected' if params[:is_approved].to_s == '1' %>>Yes</option>
+            <option value="0" <%= 'selected' if params[:is_approved].to_s == '0' %>>No</option>
+          </select>
+        </div>
+
+        <div class="col-sm-2">
+          <label>Suspended?</label>
+          <select class="form-control" name="is_suspended">
+            <option value="">-- Not selected --</option>
+            <option value="1" <%= 'selected' if params[:is_suspended].to_s == '1' %>>Yes</option>
+            <option value="0" <%= 'selected' if params[:is_suspended].to_s == '0' %>>No</option>
+          </select>
+        </div>
+
+        <div class="col-sm-1">
+          <label>Min. age:</label>
+          <input type="number" placeholder="days" class="form-control" name="min_age" value="<%= params[:min_age].to_i if params[:min_age].present? %>">
+        </div>
+
+        <div class="col-sm-2 text-right">
+          <br>
+          <button type="submit" class="btn btn-primary">
+            Search</button>
+          <a href="<%= admin_businesses_path %>" class="btn btn-white">Clear</a>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-6">
+      <div class="dropdown">
+        <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" disabled js-btn-toggle-dropdown-bulk-actions>
+        Bulk actions <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu custom-dropdown">
+          <li><a href="#" js-btn-bulk-approve>Approve</a></li>
+          <li><a href="#" js-btn-bulk-suspend>Suspend</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <a href="<%= admin_businesses_path(params.to_unsafe_h.slice(:q, :has_credit_card, :is_approved, :is_suspended, :min_age).merge(format: :csv)) %>" class="btn btn-white" download="business_export.csv"><i class="fa fa-download"></i> CSV</a>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-20">
+    <div class="panel-body">
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th style="width: 30px;">
+                <input type="checkbox" js-cb-toggle-select-all-records
+                  <% if @businesses.total_count == 0 %>
+                    disabled
+                  <% end %>
+                  >
+              </th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>No. users</th>
+              <th>Join date</th>
+              <th>Credit card added?</th>
+              <th>Partner</th>
+              <th>Status</th>
+              <th style="width: 120px;"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @businesses.each do |business| %>
+              <tr>
+                <td>
+                  <input type="checkbox" js-cb-bulk-select
+                    data-record-id="<%= business.id %>"
+                    >
+                </td>
+                <td>
+                  <%= business.id %>
+                </td>
+                <td>
+                  <% if business.suspended? %>
+                    <span class="label label-default pull-right">Suspended</span>
+                  <% end %>
+                  <a href="<%= admin_business_path(business) %>"><%= business.name %></a>
+                  <div class="text-smaller">
+                    <% if business.short_address.present? %>
+                      <%= business.short_address %>
+                    <% end %>
+                    <% if business.phone.present? %>
+                      <br>
+                      <%= business.phone %>
+                    <% end %>
+                  </div>
+                </td>
+                <td><%= business.users.count %></td>
+                <td>
+                  <%= business.created_at.strftime(t('date.common')) %>
+                  <br>
+                  (<span class="text-smaller"><%= (Date.today - business.created_at.to_date).to_i %> days</span>)
+                </td>
+                <td>
+                  <% if business.subscription.credit_card_added? %>
+                    <i class="fa fa-check text-green"></i>
+                  <% else %>
+                    <i class="fa fa-close text-red"></i>
+                  <% end %>
+                </td>
+                <td>
+                  <% if business.is_partner? %>
+                    <i class="fa fa-check text-green"></i>
+                  <% else %>
+                    <i class="fa fa-close text-red"></i>
+                  <% end %>
+                </td>
+                <td>
+                  <% if business.active? %>
+                    <span class="label bg-green">Approved</span>
+                  <% else %>
+                    <span class="label bg-red">Disapproved</span>
+                  <% end %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <a href="<%= admin_business_path(business) %>" class="btn btn-white">Details</a>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                      <li>
+                        <a href="<%= approve_admin_business_path(business) %>" data-method="PUT" data-confirm="Are you sure?">
+                          <% if business.active? %>
+                            Disapprove
+                          <% else %>
+                            Approve
+                          <% end %>
+                        </a>
+                      </li>
+
+                      <li>
+                        <a href="<%= edit_admin_business_path(business) %>">
+                          Edit
+                        </a>
+                      </li>
+
+                      <li>
+                        <a href="#" class="btn-form" data-form-url="<%= suspend_admin_business_path(business) %>" data-form-method="PUT" data-form-confirmation="Are you sure?">
+                          <% if business.suspended? %>
+                            Unsuspend
+                          <% else %>
+                            Suspend
+                          <% end %>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @businesses %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @businesses, theme: 'app' %>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+ //=== Handle bulk actions
+  const $cbToggleSelectAllRecords = $('[js-cb-toggle-select-all-records]');
+  const $btnToggleBulkActions = $('[js-btn-toggle-dropdown-bulk-actions]');
+  const $btnBulkApprove = $('[js-btn-bulk-approve]');
+  const $btnBulkSuspend = $('[js-btn-bulk-suspend]');
+
+  const updateBtnBulkActionsClickable = function() {
+    if ($('[js-cb-bulk-select]:checked').length > 0) {
+      $btnToggleBulkActions.removeAttr('disabled');
+    } else {
+      $btnToggleBulkActions.attr('disabled', 'disabled');
+    }
+  };
+
+  const isAllRecordsSelected = function() {
+    return $('[js-cb-bulk-select]:checked').length === $('[js-cb-bulk-select]').length;
+  };
+
+  const getSelectedRecordIds = function() {
+    return $('[js-cb-bulk-select]:checked').map(function() {
+      return $(this).data('record-id');
+    }).toArray();
+  };
+
+  $cbToggleSelectAllRecords.on('change', function() {
+    $('[js-cb-bulk-select]').prop('checked', $(this).prop('checked'));
+    updateBtnBulkActionsClickable();
+  });
+
+  $('[js-cb-bulk-select]').on('change', function() {
+    const $input = $(this);
+
+    $cbToggleSelectAllRecords.prop('checked', isAllRecordsSelected());
+    updateBtnBulkActionsClickable();
+  });
+
+  $btnBulkApprove.on('click', function(e) {
+    e.preventDefault();
+    const selectedRecordIds = getSelectedRecordIds();
+
+    if (confirm('Are you sure you want to APPROVE the selected businesses?')) {
+      const $form = $('<form>', {
+        method: 'POST',
+        action: '<%= bulk_approve_admin_businesses_path %>'
+      });
+
+      var csrfInput = $('<input>', {
+        type: 'hidden',
+        name: 'authenticity_token',
+        value: $('meta[name="csrf-token"]').attr('content')
+      });
+
+      selectedRecordIds.forEach(function(recordId) {
+        $form.append(
+          $('<input>', {
+            name: 'business_ids[]',
+            type: 'checkbox',
+            checked: true,
+            value: recordId,
+            class: 'hide'
+          })
+        );
+      });
+
+      $form.append(csrfInput).appendTo('body');
+      $form.submit();
+    }
+  });
+
+  $btnBulkSuspend.on('click', function(e) {
+    e.preventDefault();
+    const selectedRecordIds = getSelectedRecordIds();
+
+    if (confirm('Are you sure you want to SUSPEND the selected businesses?')) {
+      const $form = $('<form>', {
+        method: 'POST',
+        action: '<%= bulk_suspend_admin_businesses_path %>'
+      });
+
+      var csrfInput = $('<input>', {
+        type: 'hidden',
+        name: 'authenticity_token',
+        value: $('meta[name="csrf-token"]').attr('content')
+      });
+
+      selectedRecordIds.forEach(function(recordId) {
+        $form.append(
+          $('<input>', {
+            name: 'business_ids[]',
+            type: 'checkbox',
+            checked: true,
+            value: recordId,
+            class: 'hide'
+          })
+        );
+      });
+
+      $form.append(csrfInput).appendTo('body');
+      $form.submit();
+    }
+  });
+</script>
+<% end %>

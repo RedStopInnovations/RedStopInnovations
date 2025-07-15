@@ -1,0 +1,139 @@
+<%= render 'show_layout' do %>
+  <h4>INVOICE ITEMS</h4>
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Item number</th>
+          <th>Quantity</th>
+          <th>Unit price</th>
+          <th>Total price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @invoice.items.each do |item| %>
+          <tr>
+            <td>
+              <%= item.unit_name %>
+            </td>
+            <td>
+              <%= item.item_number %>
+            </td>
+            <td>
+              <%= item.quantity %>
+            </td>
+            <td>
+              $<%= item.unit_price %>
+            </td>
+            <td>
+              $<%= item.amount %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-6">
+      <table class="table">
+        <tr>
+          <td style="text-align: right; width: 70%;">
+            <strong class="pull-right">Tax:</strong>
+          </td>
+          <td style="text-align: right">
+            <%= format_money @invoice.tax_amount %>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: right; width: 70%;">
+            <strong class="pull-right">Total:</strong>
+          </td>
+          <td style="text-align: right">
+            <%= format_money @invoice.amount %>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: right; width: 70%;">
+            <h4><b>OUTSTANDING BALANCE:</b></h4>
+          </td>
+          <td style="text-align: right">
+            <h4><b><%= format_money @invoice.outstanding %></b></h4>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <h4>PAYMENT DETAILS</h4>
+  <div class="row panel-detail">
+    <div class="col-xs-12">
+      <div class="box-table">
+        <table class="table-flat">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th style="text-align: left; width: 200px;">Date</th>
+              <th style="text-align: left">Details</th>
+              <th>Allocated / Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @payment_allocations.each do |pa| %>
+              <% payment = pa.payment %>
+              <% next unless payment.amount > 0 %>
+              <tr>
+                <td>
+                  <a href="<%= payment_path(payment) %>">#<%= payment.id %></a>
+                </td>
+                <td><%= payment.payment_date.try(:strftime, '%d %b %Y') %> </td>
+                <td>
+                  <% if payment.hicaps.to_f > 0 %>
+                    <strong>Hicaps:</strong> <%= format_money payment.hicaps %><br>
+                  <% end %>
+                  <% if payment.cash.to_f > 0 %>
+                    <strong>Cash:</strong> <%= format_money payment.cash %><br>
+                  <% end %>
+                  <% if payment.eftpos.to_f > 0 %>
+                    <strong>Eftpos:</strong> <%= format_money payment.eftpos %><br>
+                  <% end %>
+                  <% if payment.medicare.to_f > 0 %>
+                    <strong>Medicare:</strong> <%= format_money payment.medicare %><br>
+                  <% end %>
+                  <% if payment.workcover.to_f > 0 %>
+                    <strong>Workcover:</strong> <%= format_money payment.workcover %><br>
+                  <% end %>
+                  <% if payment.dva.to_f > 0 %>
+                    <strong>DVA:</strong> <%= format_money payment.dva %><br>
+                  <% end %>
+                  <% if payment.stripe_charge_id? %>
+                    <strong>Stripe:</strong> <%= format_money payment.stripe_charge_amount %><br>
+                  <% end %>
+                  <% if payment.direct_deposit? && payment.direct_deposit > 0 %>
+                    <strong>Direct deposit:</strong> <%= format_money payment.direct_deposit %><br>
+                  <% end %>
+                  <% if payment.cheque? && payment.cheque > 0 %>
+                    <strong>Cheque:</strong> <%= format_money payment.cheque %><br>
+                  <% end %>
+                  <% if payment.other.to_f > 0 %>
+                    <strong>Other:</strong> <%= format_money payment.other %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= format_money pa.amount %> / <%= format_money payment.amount %>
+                </td>
+                <td>
+                  <a href="<%= payment_path(payment) %>" class="btn btn-link">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                  <a href="<%= edit_payment_path(payment) %>" class="btn btn-link">
+                    <i class="fa fa-pencil-square-o"></i>
+                  </a>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>

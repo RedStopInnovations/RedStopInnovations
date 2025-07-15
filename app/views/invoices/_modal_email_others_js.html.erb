@@ -1,0 +1,49 @@
+<script type="text/javascript">
+  $('body').on('click', '.btn-send-invoice-others', function(e) {
+    e.preventDefault();
+    var self = $(this);
+
+    $.ajax({
+      url: self.attr('data-href'),
+      type: 'GET',
+      beforeSend: function() {
+        $('body').loadingOn();
+      },
+      success: function(res) {
+        $('#modal-email-others').remove();
+        $('body').append(res);
+        $('#modal-email-others #input-contact-ids').selectize({
+          plugins: ['remove_button', 'no_results']
+        });
+        $('#modal-email-others #input-extra-emails').selectize({
+          plugins: ['remove_button'],
+          createFilter: function(input) {
+            return Utils.isValidEmail(input);
+          },
+          create: true,
+          onEnterKeypress: function() {
+            return false;
+          },
+          onEnter: function() {
+            return false;
+          }
+        });
+        $('#modal-email-others').modal('show');
+        $('#modal-email-others form').on('submit', function(e) {
+          if (confirm('Are you sure you want to send this invoice?')) {
+            return true;
+          } else {
+            e.preventDefault();
+            return false;
+          }
+        });
+      },
+      error: function() {
+        Flash.error('Somethings was wrong. Please try again!');
+      },
+      complete: function() {
+        $('body').loadingOff();
+      }
+    });
+  });
+</script>

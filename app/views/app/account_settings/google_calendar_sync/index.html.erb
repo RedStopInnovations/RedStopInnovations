@@ -1,0 +1,48 @@
+<% content_for :title, 'Google calendar sync' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Google Calendar sync</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= render 'app/account_settings/tabs', { active_tab: 'google_calendar' } %>
+
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+
+        <div class="callout callout-default">
+          <p>This feature keep your appointments synced to your Google calendar.</p>
+        </div>
+          <% if @current_setting %>
+          <table class="table table-borderless">
+            <tbody>
+              <tr>
+                <td class="text-bold" style="width: 150px;">Status</td>
+                <td><%= @current_setting.status.titleize %></td>
+              </tr>
+              <tr>
+                <td class="text-bold">Connected at</td>
+                <td><%= @current_setting.connected_at.strftime('%d %b %Y, %l:%M%P') %></td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- TODO: re-authorize when status is error -->
+          <button type="button" class="btn btn-danger btn-form"
+            data-form-url="<%= app_account_settings_google_calendar_sync_deauthorize_path %>"
+            data-form-method="PUT"
+            data-form-confirmation="Are you sure you want to disconnect your Google account?">Disconnect</button>
+        <% else %>
+          <p>Status: <span class="text-muted">Not enabled</span></p>
+          <a href="<%= app_account_settings_google_calendar_sync_authorize_path %>" class="btn btn-primary">Connect Google account</a>
+        <% end %>
+
+      </div>
+    </div>
+
+  </div>
+</section>

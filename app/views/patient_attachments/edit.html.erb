@@ -1,0 +1,9 @@
+<%= render 'patients/show_layout' do %>
+  <h4>Edit attachment</h4>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= render 'form', attachment: @attachment, patient: @patient %>
+    </div>
+  </div>
+<% end %>

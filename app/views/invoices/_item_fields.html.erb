@@ -1,0 +1,14 @@
+<td>
+  <%= f.collection_select(:invoiceable_id, Product.all, :id, :name, { prompt: '-- Select product --' }, { class: 'input-item-id' }) %>
+</td>
+<td>
+  <%= f.number_field :quantity, class: 'input-quantity', min: 0, step: 1 %>
+</td>
+<td>
+  <%= f.number_field :unit_price, class: 'input-unit-price', value: f.object.unit_price.try(:to_i), min: 0, step: 1 %>
+</td>
+<td>
+  $<span class="item-total">0</span>
+</td>
+<td>
+</td>

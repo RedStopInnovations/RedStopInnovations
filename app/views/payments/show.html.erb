@@ -1,0 +1,229 @@
+<% content_for :title, 'Payment details' %>
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>
+        Payment details <span class="text-copyable" js-click-to-copy="<%= @payment.id %>">#<%= @payment.id %></span>
+        <% if @payment.deleted_at? %>
+          <span class="label label-default">Voided</span>
+        <% end %>
+      </h1>
+    </div>
+    <div class="col-xs-6 text-right">
+
+      <% unless @payment.deleted_at? %>
+        <div class="btn-group">
+          <a href="<%= edit_payment_path(@payment) %>" class="btn btn-white">
+            <i class="fa fa-pencil"></i> Edit
+          </a>
+          <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+            Action
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <% if can?(:destroy, @payment)%>
+              <li>
+                <a href="<%= payment_path(@payment) %>" title="delete" data-confirm=" This will remove all allocated amounts for invoices. Are you sure want to void this payment?" data-method="delete"><i class="fa fa-times" aria-hidden="true"></i> <span class="text-danger">Void</span></a>
+              </li>
+            <% end %>
+          </ul>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Client:</strong>
+            <p>
+              <a href="<%= patient_path(@payment.patient) %>">
+                <%= @payment.patient.try(:full_name) %>
+              </a>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Payment date:</strong>
+            <p><%= @payment.payment_date.strftime(t('date.common')) %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Amount:</strong>
+            <p><%= format_money @payment.amount %></p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Payment methods</strong></div>
+        <div class="panel-body">
+          <% if @payment.stripe_charge_amount? %>
+            <div class="block-info">
+              <strong>Stripe:</strong>
+              <p><%= format_money @payment.stripe_charge_amount %></p>
+            </div>
+          <% end %>
+          <% if @payment.cash? && @payment.cash > 0 %>
+            <div class="block-info">
+              <strong>Cash:</strong>
+              <p><%= format_money @payment.cash %></p>
+            </div>
+          <% end %>
+
+          <% if @payment.medicare? && @payment.medicare > 0 %>
+            <div class="block-info">
+              <strong>Medicare:</strong>
+              <p><%= format_money @payment.medicare %></p>
+            </div>
+          <% end %>
+
+          <% if @payment.workcover? && @payment.workcover > 0 %>
+            <div class="block-info">
+              <strong>Workcover:</strong>
+              <p><%= format_money @payment.workcover %></p>
+            </div>
+          <% end %>
+
+          <% if @payment.dva? && @payment.dva > 0 %>
+            <div class="block-info">
+              <strong>Dva:</strong>
+              <p><%= format_money @payment.dva %></p>
+            </div>
+          <% end %>
+
+          <% if @payment.direct_deposit? && @payment.direct_deposit > 0 %>
+            <div class="block-info">
+              <strong>Direct deposit:</strong>
+              <p><%= format_money @payment.direct_deposit %></p>
+            </div>
+          <% end %>
+          <% if @payment.cheque? && @payment.cheque > 0 %>
+            <div class="block-info">
+              <strong>Cheque:</strong>
+              <p><%= format_money @payment.cheque %></p>
+            </div>
+          <% end %>
+          <% if @payment.other? && @payment.other > 0 %>
+            <div class="block-info">
+              <strong>Other:</strong>
+              <p><%= format_money @payment.other %></p>
+            </div>
+          <% end %>
+
+          <% if @payment.hicaps_transaction %>
+
+            <div class="block-info">
+              <strong>Eftpos:</strong>
+              <p><%= format_money @payment.eftpos %></p>
+            </div>
+            <div class="block-info">
+              <strong>Hicaps:</strong>
+              <p><%= format_money @payment.hicaps %></p>
+            </div>
+            <h4>Medipass transaction details:</h4>
+            <% hicaps_txn = @payment.hicaps_transaction %>
+            <div class="block-info">
+              <strong>Transaction ID:</strong>
+              <p><%= hicaps_txn.transaction_id %></p>
+            </div>
+            <div class="block-info">
+              <strong>Status:</strong>
+              <p><%= hicaps_txn.status.titleize %></p>
+            </div>
+            <div class="block-info">
+              <strong>EFTPOS:</strong>
+              <p><%= format_money hicaps_txn.amount_gap %></p>
+            </div>
+            <div class="block-info">
+              <strong>HICAPS:</strong>
+              <p><%= format_money hicaps_txn.amount_benefit %></p>
+            </div>
+            <div class="block-info">
+              <strong>Requested at:</strong>
+              <p><%= hicaps_txn.requested_at.strftime(t('datetime.common')) %></p>
+            </div>
+
+            <% if hicaps_txn.completed? %>
+              <div class="block-info">
+                <strong>Approved at:</strong>
+                <p><%= hicaps_txn.approved_at.strftime(t('datetime.common')) %></p>
+              </div>
+            <% elsif hicaps_txn.pending? %>
+              <button type="button" class="btn btn-primary btn-form" data-form-url="<%= resend_medipass_request_payment_path(@payment) %>" data-form-method="POST" data-form-confirmation="Are you sure want to send payment request to the client?">Resend payment request</button>
+            <% end %>
+          <% end %>
+
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Allocation to invoices</strong>
+        </div>
+        <div class="panel-body">
+          <% if @payment_allocations.size > 0 %>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th colspan="2">Allocated amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @payment_allocations.each do |pa| %>
+                  <% invoice = pa.invoice %>
+                  <tr>
+                    <td>
+                      <a href="<%= invoice_path(invoice.id) %>"><%= invoice.invoice_number %></a>
+                    </td>
+                    <td>
+                      <%= format_money pa.amount %>
+                    </td>
+                    <td>
+                        <a href="<%= deliver_invoice_path(invoice, redirect: invoice_path(invoice))%>"
+                          class="btn btn-white"
+
+                        <%
+                          send_invoice_confirm = ""
+                          if !invoice.patient.reminder_enable?
+                            send_invoice_confirm << "Warning: #{invoice.patient.full_name} has disabled reminders on their profile.\n\n"
+                          end
+
+                          if invoice.last_send_patient_at.present?
+                            send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                          else
+                            send_invoice_confirm << "Are you sure want to send invoice?"
+                          end
+                        %>
+
+                        data-confirm="<%= send_invoice_confirm %>"
+                        data-method="POST"
+                        >Email to client</a>
+
+                      <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoice_path(invoice)) %>"
+                        class="btn btn-white btn-send-invoice-others" href="javascript:void(0)">
+                        Email others
+                      </a>
+
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p class="text-muted">No invoices</p>
+          <% end %>
+        </div>
+      </div>
+
+      <%= render 'change_log' %>
+
+  </div>
+</section>
+
+<%= render 'invoices/modal_email_others_js' %>

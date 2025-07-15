@@ -1,0 +1,94 @@
+<aside class="main-sidebar">
+    <section class="sidebar">
+    <ul class="sidebar-menu">
+
+      <li>
+        <a href="<%= dashboard_path %>">
+          <i class="fa fa-dashboard fa-bg"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <% if can?(:manage, :calendar) %>
+        <li>
+          <a href="<%= calendar_path %>">
+            <i class="fa fa-calendar fa-bg"></i>
+            <span>Calendar</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:search, Availability) %>
+      <li>
+        <a href="<%= calendar_search_appointment_path %>">
+          <i class="fa fa-search fa-bg"></i>
+          <span>Availability</span>
+        </a>
+      </li>
+      <% end %>
+
+      <% if can?(:read, Patient) %>
+        <li>
+          <a href="<%= patients_path %>">
+            <i class="fa fa-user-plus fa-bg"></i>
+            <span>Clients</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:read, Contact)  %>
+        <li>
+          <a href="<%= contacts_path %>">
+            <i class="fa fa-phone fa-bg"></i>
+            <span>Contacts</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:read, Invoice) %>
+        <li>
+          <a href="<%= invoices_path %>">
+            <i class="fa fa-file-text-o fa-bg"></i>
+            <span>Invoices</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:manage, Communication) %>
+        <li>
+          <a href="<%= communications_path %>">
+            <i class="fa fa-commenting-o fa-bg"></i>
+            <span>Messages</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:read, Referral) %>
+        <li>
+          <a href="<%= app_referrals_path %>">
+            <i class="fa fa-envelope-o fa-bg"></i>
+            <span>Referrals</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:read, :reports) %>
+        <li>
+          <a href="<%= reports_path %>">
+            <i class="fa fa-bar-chart fa-bg"></i>
+            <span>Reports</span>
+          </a>
+        </li>
+      <% end %>
+
+      <% if can?(:read, :settings) %>
+        <li>
+          <a href="<%= settings_path %>">
+            <i class="fa fa-cogs fa-bg"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+</aside>

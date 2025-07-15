@@ -1,0 +1,267 @@
+<% content_for :title, @contact.business_name %>
+
+<%= render 'show_layout' do %>
+
+<div class="row">
+  <div class="col-lg-8 col-md-12 col-xs-12">
+    <div id="important-notif-wrap">
+      <div class="text-right">
+        <a href="#" class="normal-link btn-add <% if @contact.important_notification.present? %> hide <% end %>">+ Add
+          important notification</a>
+        <div class="form-edit hide">
+          <div class="input-group">
+            <input type="text" class="form-control input-notif-content" placeholder="Enter important notification">
+            <span class="input-group-btn">
+              <button class="btn btn-primary btn-save" type="button">Save</button>
+              <button class="btn btn-white btn-cancel" type="button">Cancel</button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="notif-content-wrap <% unless @contact.important_notification.present? %> hide <% end %>">
+        <span class="notif-content"><%= @contact.important_notification %></span> <a href="#" class="btn-edit"><i class="fa fa-pencil-square-o"></i></a>
+      </div>
+    </div>
+
+    <div class="panel panel-default mt-20">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="block-info">
+              <strong>Contact name:</strong>
+              <p>
+                <%= @contact.business_name %>&nbsp;
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>Title:</strong>
+              <p>
+                <% if @contact.title.present? %>
+                  <%= @contact.title %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>First name:</strong>
+              <p>
+                <% if @contact.first_name.present? %>
+                  <%= @contact.first_name %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>Last name:</strong>
+              <p>
+                <% if @contact.last_name.present? %>
+                  <%= @contact.last_name %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>Phone:</strong>
+              <p>
+                <% if @contact.phone.present? %>
+                  <%= @contact.phone %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>Mobile:</strong>
+              <p>
+                <% if @contact.mobile.present? %>
+                  <%= @contact.mobile %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>Email:</strong>
+              <p>
+                <% if @contact.email.present? %>
+                  <%= @contact.email %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="block-info">
+                <strong>Address:</strong>
+                <p>
+                  <% if @contact.short_address.present? %>
+                    <%= @contact.short_address %>
+                      <a href="https://www.google.com/maps/place/<%= u @contact.full_address_for_geocoding %>" target="_blank"
+                        title="View on Google map">
+                        <i class="fa fa-map"></i>
+                      </a>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          </div>
+
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="block-info">
+              <strong>Notes:</strong>
+              <% if @contact.notes.present? %>
+                <%= simple_format @contact.notes %>
+              <% else %>
+                <p>
+                  <span class="text-muted">--</span>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="block-info">
+              <strong>Created:</strong>
+              <p>
+                <%= @contact.created_at.strftime(t('date.common')) %>
+              </p>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="block-info">
+              <strong>Last updated:</strong>
+              <p>
+                <%= @contact.updated_at.strftime(t('date.common')) %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <% if params[:audit] && (current_user.role_administrator? || current_user.role_supervisor?) %>
+      <%= render 'app/audit_logs', object: @contact %>
+    <% end %>
+
+  </div>
+</div>
+
+<% end %>
+
+
+<% content_for :page_js do %>
+<script>
+  $(document).ready(function() {
+    <% if params[:merge].present? %>
+      $('#btn-possible-duplicates').click();
+    <% end %>
+    // Handle add/edit important form
+    (function() {
+      var $wrap = $('#important-notif-wrap');
+      var $formEdit = $wrap.find(".form-edit");
+      var $btnAdd = $wrap.find('.btn-add');
+      var $btnEdit = $wrap.find('.btn-edit');
+      var $btnSave = $wrap.find('.btn-save');
+      var $btnCancel = $wrap.find('.btn-cancel');
+      var $notifContentWrap = $wrap.find('.notif-content-wrap');
+      var $notifContent = $notifContentWrap.find('.notif-content');
+      var $inputNotif = $wrap.find('.input-notif-content');
+
+      var enableEditMode = function() {
+        $btnAdd.addClass('hide');
+        $notifContentWrap.addClass('hide');
+        $formEdit.removeClass('hide');
+        $inputNotif.val($notifContent.text()).focus();
+      };
+
+      var disableEditMode = function() {
+        if ($notifContent.text().length > 0) {
+          $notifContentWrap.removeClass('hide');
+        } else {
+          $btnAdd.removeClass('hide');
+        }
+        $formEdit.addClass('hide');
+      };
+
+      $btnAdd.on('click', function(e) {
+        e.preventDefault();
+        enableEditMode();
+      });
+
+      $btnEdit.on('click', function(e) {
+        e.preventDefault();
+        enableEditMode();
+      });
+
+      $btnCancel.on('click', function(e) {
+        e.preventDefault(e);
+        disableEditMode();
+      });
+
+      $btnSave.on('click', function() {
+        var content = $inputNotif.val().trim();
+        if (content.length > 300) {
+          Flash.error('The notification is maximum by 300 characters.');
+          return;
+        }
+        $btnSave.attr('disabled', true);
+        $.ajax({
+          method: 'PUT',
+          url: "<%= update_important_notification_contact_path(@contact) %>",
+          data: {
+            important_notification: content
+          },
+          success: function(res) {
+            $notifContent.text(content);
+            disableEditMode();
+            Flash.success('The notification has been updated.');
+          },
+          complete: function() {
+            $btnSave.removeAttr('disabled');
+          },
+          error: function() {
+            Flash.error('Could not save notification. An error has occurred.');
+          }
+        });
+      });
+    })();
+
+  });
+</script>
+<% end %>

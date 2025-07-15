@@ -1,0 +1,221 @@
+<script id="appointments-list-listview-tmpl" type="text/template">
+  <div class="table-appointments">
+    <div class="appointment-row" v-for="appt in availability.appointments" :key="appt.id">
+      <div class="before-appt" v-if="appt.travel_duration > 0">
+        <i class="fa fa-car"></i> Travel {{ appt.travel_distance | m2km(1) }} km ({{ appt.travel_duration | humanizeMinutes }})
+      </div>
+
+      <div class="appointment-content">
+        <div class="appointment-content-inner">
+
+          <div class="col-md-5 col-sm-5 col-xs-12 col-patient">
+            <div>
+              <a :href="'/app/patients/' + appt.patient.id" class="link-patient-name" @click.prevent="showPatient(appt.patient)">
+                <span class="text-bolder">{{ appt.patient.full_name }}</span>
+              </a>
+
+              <template v-if="appt.patient.important_notification && appt.patient.important_notification.length > 0">
+                <span class="icon-patient-important-notif">
+                <popover effect="fade" placement="bottom" title="Important notification" :content="appt.patient.important_notification" trigger="hover">
+                  <i class="fa fa-bullhorn"></i>
+                </popover>
+                </span>
+              </template>
+            </div>
+
+            <div v-if="availability.availability_type_id == 4 || availability.availability_type_id == 1" class="text-smaller">
+              <div class="patient-address">
+                <div class="address-text">
+                  {{ appt.patient.short_address }}
+                </div>
+                <div class="dropdown map-actions-dropdown">
+                  <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                    <i class="fa fa-map-o"></i>
+                  </a>
+
+                  <div class="dropdown-menu dropdown-menu-right custom-dropdown">
+                    <li><a :href="'https://maps.google.com/?q=' + appt.patient.full_address" target="_blank">Google map</a></li>
+                    <li><a :href="'http://maps.apple.com/?q=' + appt.patient.full_address" target="_blank">Apple map</a></li>
+                    <li><a :href="'https://waze.com/ul?q=' + appt.patient.full_address" target="_blank">Waze</a></li>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <span class="patient-phone text-smaller">
+              <span v-if="appt.patient.phone">
+                <a :href="'tel:' + appt.patient.phone_formated" title="Call"><span class="text-bolder">P:</span> {{ appt.patient.phone }}</a>
+              </span>
+              <span v-if="appt.patient.mobile">
+                <a :href="'tel:' + appt.patient.mobile_formated" title="Call"><span class="text-bolder">M:</span> {{ appt.patient.mobile }}</a>
+              </span>
+              <!-- <span v-if="appt.patient.mobile">
+                <a :href="'facetime:' + appt.patient.mobile" title="FaceTime call"> <i class="fa fa-video-camera"></i></a>
+              </span> -->
+            </span>
+          </div>
+
+          <div class="col-md-5 col-sm-5 col-xs-12 col-appointment-type">
+            <div class="appointment-type-name">
+              <span class="color-label" v-if="appt.appointment_type.color" :style="{'background-color': appt.appointment_type.color}"></span>
+              <span>{{ appt.appointment_type.name }}</span>
+            </div>
+
+            <div
+              class="arrival-time text-smaller"
+              v-if="(availability.availability_type_id == 1 || availability.availability_type_id == 4) && appt.arrival && appt.arrival.arrival_at">Arrival {{ appt.arrival.arrival_at | hourz }}
+              <span v-if="appt.arrival.sent_at" title="Sent to client"><i class="fa fa-check text-success"></i></span>
+            </div>
+
+            <div class="appointment-status">
+
+              <span title="Marked as confirmed" v-if="appt.is_confirmed"><i class="fa fa-calendar-check-o"></i></span>
+
+              <span v-if="appt.booked_online" title="Booked online"><i class="fa fa-globe"></i></span>
+
+              <template v-if="appt.notes && appt.notes.length > 0">
+                <popover effect="fade" placement="bottom" title="Appointment notes" :content="appt.notes" trigger="hover">
+                  <span class="text-yellow" @click="showAppointmentNote(appt)"><i class="fa fa-sticky-note-o"></i></span>
+                </popover>
+              </template>
+
+              <span v-if="appt.status == 'completed'" title="Completed"><i class="fa fa-check-square-o"></i></span>
+
+              <span v-if="appt.treatment" title="Treatment note created"><i class="fa fa-file-text-o"></i></span>
+
+              <span v-if="appt.invoice" title="An invoice issued">
+                <i class="fa fa-credit-card" v-bind:class="{ unpaid: appt.invoice.outstanding > 0}"></i>
+              </span>
+
+              <!-- <span v-if="appt.bookings_answers && appt.bookings_answers.length > 0" title="View booking confimation questions answer" @click="showAppointmentBookingsAnswers(appt)"><i class="fa fa-list-ul"></i></span> -->
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-2 col-xs-12 col-actions">
+            <div class="dropdown">
+              <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+              <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                <li>
+                  <a title="Edit appointment" v-on:click.prevent="editAppointment(appt)">Edit details</a>
+                </li>
+
+                <li>
+                  <a href="#"
+                    @click.prevent="onClickSmsPractitionerOnRoute(appt)"
+                    >SMS practitioner on route</a>
+                </li>
+
+                <li>
+                  <a href="#"
+                    @click.prevent="onClickSendAppointmentArrivalTime(appt)"
+                    >Send arrival time</a>
+                </li>
+
+                <li role="separator" class="divider"></li>
+
+                <li v-show="isCanViewInvoice">
+                  <a title="Invoice" v-on:click.prevent="appointmentInvoice(appt)">
+                    Invoice
+                  </a>
+                </li>
+
+                <li>
+                  <a title="Treatment" v-on:click.prevent="appointmentTreatment(appt)">
+                    Treatment note
+                  </a>
+                </li>
+
+                <li>
+                  <a title="Send review request" v-on:click.prevent="appointmentSendReviewRequest(appt)">
+                    Send review request
+                  </a>
+                </li>
+
+                <li>
+                  <a title="Proof of attendance" v-on:click.prevent="openAttendanceProofModal(appt)">
+                    Proof of attendance
+                  </a>
+                </li>
+
+                <li role="separator" class="divider"></li>
+                <li v-if="availability.availability_type_id == 1 || availability.availability_type_id == 4">
+                  <a title="Repeat appointment"
+                    v-on:click.prevent="repeatAppointment(appt)">
+                    <i class="fa fa-calendar"></i> Repeat appointment
+                  </a>
+                </li>
+                <li>
+                  <a title="Cancel appointment"
+                    v-on:click.prevent="cancelAppointment(appt)">
+                    <i class="fa fa-undo"></i> Cancel appointment
+                  </a>
+                </li>
+                <li>
+                  <a class="text-danger btn-delete-appt" title="Delete appointment"
+                    v-on:click.prevent="deleteAppointment(appt)">
+                    <i class="fa fa-trash"></i> Delete appointment
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="dropdown">
+              <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Status <span class="caret"></span></button>
+              <ul class="dropdown-menu dropdown-menu-right custom-dropdown appointment-status-dropdown">
+                <li>
+                  <a title="Mark as unconfirmed" v-if="appt.is_confirmed"
+                    v-on:click.prevent="markAppointmentUnconfirmed(appt)">Mark as unconfirmed</a>
+                </li>
+                <li>
+                  <a title="Mark as confirmed" v-if="!appt.is_confirmed"
+                    v-on:click.prevent="markAppointmentConfirmed(appt)">Mark as confirmed</a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li>
+                  <a title="Completed"
+                    :class="{ 'selected': appt.status == 'completed' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'completed')">Completed</a>
+                </li>
+                <li >
+                  <a title="Client not home"
+                    :class="{ 'selected': appt.status == 'client not home' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'client not home')">Client not home</a>
+                </li>
+                <li>
+                  <a title="Client unwell"
+                    :class="{ 'selected': appt.status == 'client unwell' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'client unwell')">Client unwell</a>
+                </li>
+                <li>
+                  <a title="Not required"
+                    :class="{ 'selected': appt.status == 'not required' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'not required')">Not required</a>
+                </li>
+                <li>
+                  <a title="Late cancel by client"
+                    :class="{ 'selected': appt.status == 'late cancel by client' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'late cancel by client')">Late cancel by client</a>
+                </li>
+                <li>
+                  <a title="Overtime"
+                    :class="{ 'selected': appt.status == 'overtime' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'overtime')">Overtime</a>
+                </li>
+                <li>
+                  <a title="Extra Pay"
+                    :class="{ 'selected': appt.status == 'extra pay' }"
+                    v-on:click.prevent="updateAppointmentStatus(appt, 'extra pay')">Extra Pay</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="after-appt" v-if="(appt.break_times && appt.break_times > 0)">
+        <i class="fa fa-clock-o"></i> Break {{ appt.break_times }}m
+      </div>
+    </div>
+  </div>
+</script>

@@ -1,0 +1,29 @@
+<div class="modal fade" id="js-modal-disable-2fa-authentication">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Disable 2FA</h4>
+      </div>
+
+      <div class="modal-body">
+        <%= form_tag app_account_settings_tfa_authentication_disable_path, { autocomplete: 'off' } do |f| %>
+          <div class="form-group">
+            <label>Enter 2FA code:</label>
+            <input type="text" class="form-control" name="code" autocomplete="nope" placeholder="2FA code" required="true">
+          </div>
+
+          <div class="form-group">
+            <label>Login password:</label>
+            <input type="password" class="form-control" name="current_password" autocomplete="nope" required="true">
+          </div>
+
+          <div>
+            <button class="btn btn-danger" type="submit">Disable</button>
+            <button type="button" data-dismiss="modal" class="btn btn-white">Cancel</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

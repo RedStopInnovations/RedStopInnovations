@@ -1,0 +1,14 @@
+<%
+form_url = review.new_record? ? admin_reviews_path : admin_review_path(review)
+%>
+<%= simple_form_for @review, url: form_url do |f| %>
+  <%= f.input :patient_name, required: true %>
+  <%= f.input :practitioner_id, as: :select, collection: Practitioner.pluck(:full_name, :id), input_html: { class: 'selectize' }, required: true %>
+  <%= f.input :rating, as: :select, collection: (1..5).to_a %>
+  <%= f.input :comment, input_html: { rows: 3 } %>
+  <%= f.input :approved, as: :boolean %>
+  <%= f.input :publish_rating, as: :boolean %>
+  <%= f.input :publish_comment, as: :boolean %>
+  <button type="submit" class="btn sitebtn">Submit</button>
+  <a href="<%= form_url %>" class="btn linebtn">Cancel</a>
+<% end %>

@@ -1,0 +1,401 @@
+<%
+as_presenter = AccountStatementPresenter.new(account_statement)
+%>
+<div style="margin-bottom: 10px; text-align: center;">
+  <% if business.avatar.exists? %>
+    <%= wicked_pdf_image_tag business.avatar.url, class: "business-logo" %>
+  <% end %>
+</div>
+<div class="section-report">
+  <div class="report-content">
+    <div class="report-head">
+      <h3>Tax Invoice #<%= account_statement.number %>S<%= number + 1 %></h3>
+      <h4><%= contact.business_name %></h4>
+      <div>
+        <%= account_statement.start_date.strftime("%d/%b/%Y") %> -
+        <%= account_statement.end_date.strftime("%d/%b/%Y") %>
+      </div>
+    </div>
+    <div class="report-body clearfix">
+      <div class="row">
+        <div class="col-xs-6">
+          <h3>Account Information</h3>
+          <div class="box-table" style="border: 1px solid #eee;">
+            <table style="width: 100%">
+              <tr>
+                <td>
+                  <div class="block-info">
+                    <strong>Name:</strong>
+                    <p><%= contact.full_name %>&nbsp;</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>Email:</strong>
+                    <p><%= contact.email %>&nbsp;</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>Phone:</strong>
+                    <p><%= contact.phone %>&nbsp;</p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <div class="block-info">
+                    <strong>Address:</strong>
+                    <p><%= contact.full_address %>&nbsp;</p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-xs-6">
+          <h3>Business</h3>
+          <div class="box-table" style="border: 1px solid #eee;">
+            <table style="width: 100%">
+              <tr>
+                <td>
+                  <div class="block-info">
+                    <strong>Name:</strong>
+                    <p><%= business.name%>&nbsp;</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>ABN:</strong>
+                    <p><%= business.abn %>&nbsp;</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>Phone</strong>
+                    <p><%= business.phone %>&nbsp;</p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <div class="block-info">
+                    <strong>Address:</strong>
+                    <p><%= business.full_address %>&nbsp;</p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <h3>Client</h3>
+      <div class="box-table" style="border: 1px solid #eee;">
+        <table class="table-flat align-top">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>DOB</th>
+              <th>Address</th>
+              <th>IDs</th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td>
+                  <%= patient.full_name %>
+                </td>
+                <td>
+                  <%= patient.dob.try(:strftime, t('date.dob')) %>
+                </td>
+                <td>
+                  <%= patient.short_address %>
+                </td>
+                <td>
+                  <%= patient.id_numbers.where(contact_id: contact.id).pluck(:id_number).join(', ') %>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Invoices</h3>
+      <div class="box-table" style="border: 1px solid #eee;">
+        <table class="table-flat align-top">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Issue</th>
+              <th>Service</th>
+              <th>Practitioner</th>
+              <th>Billable items</th>
+              <th>Amount</th>
+              <th>Outstanding</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% invoices.each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= Rails.application.routes.url_helpers.account_statement_invoice_public_url(invoice_id: invoice.id, public_token: account_statement.public_token, format: :pdf) %>"
+                    target="_blank">
+                    #<%= invoice.invoice_number %>
+                  </a>
+
+                </td>
+                <td><%= invoice.issue_date.strftime('%d %b %Y') %></td>
+                <td>
+                  <% if invoice.appointment %>
+                    <%= invoice.appointment.start_time.strftime('%d %b %Y') %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.appointment %>
+                    <%= invoice.practitioner.full_name %>
+                    <span class="help-text">
+                      <%= "##{invoice.practitioner.medicare}" %>
+                    </span>
+                  <% end %>
+                </td>
+                <td style="vertical-align: top;">
+                  <% invoice.items.each do |item| %>
+                  <span class="help-text">
+                    [<%= item.item_number %>] <%= item.unit_name %>
+                  </span>
+                  <% end %>
+                </td>
+                <td style="vertical-align: top;">
+                  <% if invoice.items.count > 1 %>
+                    <% invoice.items.each do |item| %>
+                    <div class="help-text">
+                      <%= as_presenter.format_money item.unit_price %>
+                    </div>
+                    <% end %>
+                  <% end %>
+                  <div class="help-text">
+                    <strong><%= as_presenter.format_money invoice.amount %></strong>
+                  </div>
+                </td>
+                <td>
+                  <% if invoice.outstanding > 0 %>
+                    <div class="help-text">
+                      <strong><%= as_presenter.format_money invoice.outstanding %></strong>
+                    </div>
+                  <% else %>
+                    <span class="label label-success">Paid</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+            <% if invoices.present? %>
+              <tr>
+                <td colspan="5"></td>
+                <td>
+                  <div class="help-text">
+                    <strong>Tax: </strong>
+                  </td>
+                <td>
+                  <div class="help-text">
+                    <strong><%= as_presenter.format_money invoices.map { |invoice| invoice.tax_amount }.sum %></strong>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="5"></td>
+                <td><strong>Total:</strong></td>
+                <td>
+                  <div class="help-text">
+                    <strong><%= as_presenter.format_money invoices.sum(&:outstanding), business.currency %></strong>
+                  </div>
+                </td>
+              </tr>
+            <% else %>
+              <tr>
+                <td colspan="7">No invoices</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Payments</h3>
+      <div class="box-table" style="border: 1px solid #eee;">
+        <table class="table-flat">
+          <thead>
+            <tr>
+              <th style="width: 100px">Payment date</th>
+              <th>Invoice(s)</th>
+              <th>Details</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% payments.each do |payment| %>
+            <tr>
+              <td><%= payment.payment_date.try(:strftime, '%d %b %Y') %></td>
+              <td>
+                <% if payment.payment_allocations.size > 0 %>
+                  <% payment.payment_allocations.each do |pa| %>
+                    <% invoice = pa.invoice %>
+                    <% next if invoice.nil? %>
+                    <a href="<%= Rails.application.routes.url_helpers.account_statement_invoice_public_url(invoice_id: invoice.id, public_token: account_statement.public_token, format: :pdf) %>"
+                      target="_blank">
+                      #<%= invoice.invoice_number %>
+                    </a>
+
+                  <% end %>
+                <% else %>
+                  <span>-</span>
+                <% end %>
+              </td>
+              <td>
+                <% if payment.hicaps.to_f > 0 %>
+                <div class="block-info inline">
+                <strong>Hicaps:</strong> <%= as_presenter.format_money payment.hicaps, business.currency %>
+                </div>
+                <% end %>
+                <% if payment.cash.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Cash:</strong>
+                  <p><%= as_presenter.format_money payment.cash, business.currency %></p>
+                </div>
+                <% end %>
+                <% if payment.eftpos.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Eftpos:</strong>
+                  <p><%= as_presenter.format_money payment.eftpos, business.currency %></p>
+                </div>
+                <% end %>
+                <% if payment.medicare.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Medicare:</strong>
+                  <p><%= as_presenter.format_money payment.medicare, business.currency %></p>
+                </div>
+                <% end %>
+                <% if payment.workcover.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Workcover:</strong>
+                  <p><%= as_presenter.format_money payment.workcover, business.currency %></p>
+                </div>
+                <% end %>
+                <% if payment.dva.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>DVA:</strong>
+                  <p><%= as_presenter.format_money payment.dva, business.currency %></p>
+                </div>
+                <% end %>
+                <% if payment.stripe_charge_id? %>
+                <div class="block-info inline">
+                  <strong>Stripe:</strong>
+                  <p><%= as_presenter.format_money payment.stripe_charge_amount, business.currency %></p>
+                </div>
+                <% end %>
+                <% if payment.direct_deposit? && payment.direct_deposit > 0 %>
+                  <div class="block-info inline">
+                    <strong>Direct deposit:</strong>
+                    <p><%= as_presenter.format_money payment.direct_deposit, business.currency %></p>
+                  </div>
+                <% end %>
+                <% if payment.cheque? && payment.cheque > 0 %>
+                  <div class="block-info inline">
+                    <strong>Cheque:</strong>
+                    <p><%= as_presenter.format_money payment.cheque %></p>
+                  </div>
+                <% end %>
+                <% if payment.other.to_f > 0 %>
+                <div class="block-info inline">
+                  <strong>Other:</strong>
+                  <p><%= as_presenter.format_money payment.other, business.currency %></p>
+                </div>
+                <% end %>
+              </td>
+              <td><%= as_presenter.format_money payment.amount, business.currency %></td>
+            </tr>
+            <% end %>
+            <% if payments.present? %>
+              <tr>
+                <td colspan="2"></td>
+                <td><strong>Total:</strong></td>
+                <td>
+                  <strong><%= as_presenter.format_money payments.sum(&:amount) %></strong>
+                </td>
+              </tr>
+            <% else %>
+              <tr>
+                <td colspan="5">No payments</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Summary</h3>
+          <div class="box-table" style="border: 1px solid #eee;">
+            <table style="width: 100%">
+              <tr>
+                <td style="width: 200px">
+                  <div class="block-info">
+                    <strong>Total amount:</strong>
+                    <p><%= as_presenter.format_money invoices.sum(&:amount), business.currency %></p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>Tax:</strong>
+                    <p><%= as_presenter.format_money invoices.sum(&:tax_amount), business.currency %></p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>Total outstanding:</strong>
+                    <p><%= as_presenter.format_money invoices.sum(&:outstanding), business.currency %></p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Bank Details</h3>
+          <div class="box-table" style="border: 1px solid #eee;">
+            <table style="width: 100%">
+              <tr>
+                <td>
+                  <div class="block-info">
+                    <strong>Name:</strong>
+                    <p><%= business.bank_account_name %>&nbsp;</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>BSB:</strong>
+                    <p><%= business.bank_branch_number %>&nbsp;</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="block-info">
+                    <strong>Account:</strong>
+                    <p><%= business.bank_account_number %>&nbsp;</p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <br><br>
+      <% if business.invoice_setting&.messages.present? %>
+        <div class="invoice-message">
+          <%= simple_format business.invoice_setting&.messages %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

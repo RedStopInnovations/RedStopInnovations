@@ -1,0 +1,287 @@
+<script id="modal-create-appointment-tmpl" type="text/template">
+  <div>
+    <modal class="modal-appointment modal-create-appointment" :value="show" large effect="fade" v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="show = false">
+            <span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">New appointment</h4>
+      </div>
+      <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+        <div class="loading-backdrop" v-if="loading"></div>
+        <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <form v-on:submit.prevent="submitForm" class="form-appointment form-horizontal">
+          <div class="alert alert-danger" v-show="formErrors.length > 0">
+            <a href="#" class="close" v-on:click.prevent="formErrors = []" aria-label="close">&times;</a>
+            <ul class="list-unstyled">
+              <li v-for="error in formErrors">{{ error }}</li>
+            </ul>
+          </div>
+
+          <div class="row">
+            <div class="col-md-7 left">
+              <div class="row">
+                <label class="col-md-3 col-xs-12">Client<abbr title="required">*</abbr>
+                  <a href="#" v-on:click.prevent="addPatient" class="visible-xs pull-right">New client?</a>
+                </label>
+                <div class="col-md-9 col-xs-12">
+                  <v-multiselect
+                    v-model="selectedPatient"
+                    :options="patientOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :options-limit="100"
+                    :searchable="true"
+                    :hide-selected="true"
+                    :loading="isSearchingPatients"
+                    select-label=""
+                    placeholder="Type to search client"
+                    label="full_name"
+                    open-direction="bottom"
+                    track-by="id"
+                    @search-change="onSearchPatientChanged"
+                    @input="onPatientChanged">
+                    <template slot="noResult" v-hide="isSearchingPatients">
+                      <span>No clients found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                     <div class="desc">
+                        <span class="text-bolder" v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                        <small v-if="props.option.dob">{{ props.option.dob | dob }}</small>
+                        <br>
+                        <small> {{ props.option.short_address }}</small>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                  <a href="#" v-on:click.prevent="addPatient" class="hidden-xs pull-right">New client?</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-5 col-xs-12 right">
+              <div v-if="selectedPatient != null">
+                <span>{{ selectedPatient.short_address }}</span>
+                <br>
+                <span><span class="text-bolder">P: </span>{{ selectedPatient.phone | naIfEmpty }}</span>
+                <span class="text-muted">|</span><span><span class="text-bolder">M: </span>{{ selectedPatient.mobile | naIfEmpty }}</span>
+                <br>
+                <span v-if="selectedAvailability && selectedAvailability.availability_type_id == 1">
+                  <span class="text-bolder">Driving: </span>
+                  <span v-if="distanceToSelectedPatient !== null">
+                    {{ distanceToSelectedPatient | round(2) }} km
+                    <span v-if="distanceToSelectedPatient > selectedAvailability.service_radius">
+                      <span> - </span>
+                      <span class="text-danger text-bold">Out of service radius!</span>
+                    </span>
+                  </span>
+                  <span class="text-danger text-bold" v-if="distanceToSelectedPatient == null">
+                    Client location is not recognizable!
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-7 left">
+              <div class="row">
+                <label class="col-md-3 col-xs-12">Practitioner<abbr title="required">*</abbr></label>
+                <div class="col-md-9 col-xs-12">
+                  <v-multiselect
+                    v-model="selectedPractitioner"
+                    :options="practitioners"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :options-limit="50"
+                    :searchable="practitioners.length > 10"
+                    :hide-selected="true"
+                    select-label=""
+                    placeholder="Select practitioner"
+                    label="full_name"
+                    track-by="id"
+                    @input="onPractitionerChanged">
+                    <template slot="noResult">
+                      <span>No practitioners found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                      <div class="desc">
+                        <span v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-5 col-xs-12 right">
+              <div v-if="selectedPractitioner">
+                <span>{{ selectedPractitioner.profession | naIfEmpty }}</span> - <span>{{ selectedPractitioner.city }}</span>
+                <br>
+                <span class="text-bolder">P:</span> {{ selectedPractitioner.phone | naIfEmpty }} <span>
+                <span class="text-muted">|</span>
+                <span class="text-bolder">M:</span> {{ selectedPractitioner.mobile | naIfEmpty }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" v-bind:class="{ disabled: selectedPractitioner == null }">
+            <div class="col-md-7 left">
+              <div class="row">
+                <label class="col-md-3 col-xs-12">Availability <abbr title="required">*</abbr></label>
+                <div class="col-md-9 col-xs-12">
+                  <div class="clearfix availability-select-wrap">
+                    <div class="datepicker">
+                      <v-flatpickr
+                        v-model="availabilityDate"
+                        @input="onAvailabilityDateChanged"
+                        :config="availabilityDatePickerConfig"
+                        >
+                      </v-flatpickr>
+                    </div>
+
+                    <v-multiselect
+                      ref="availabilitySelect"
+                      v-model="selectedAvailability"
+                      :options="availabilityOptions"
+                      :multiple="false"
+                      :close-on-select="true"
+                      :options-limit="50"
+                      :loading="isSearchingAvailability"
+                      :searchable="false"
+                      :custom-label="availabilityDisplayLabel"
+                      :disabled="!selectAvailabilityEnabled"
+                      :hide-selected="true"
+                      select-label=""
+                      deselect-label=""
+                      selected-label=""
+                      placeholder="Select availability"
+                      track-by="id"
+                      @input="onAvailabilityChanged">
+                      <template slot="beforeList">
+                        <div v-if="availabilityOptions.length == 0" class="availability-list-header empty">
+                        No availability found!
+                        </div>
+                      </template>
+                      <template slot="option" scope="props">
+                        <div>
+                          <span class="desc">
+                          {{ props.option.start_time | hour }} - {{ props.option.end_time | hour }}</span>
+                          </span>
+                        </div>
+                      </template>
+                    </v-multiselect>
+                  </div>
+
+                  <div v-if="!isSearchingAvailability && hasEnoughAvailSearchParams()"
+                    class="availability-search-results-summary"
+                    v-bind:class="{ 'text-danger': (availabilityOptions.length === 0) }">
+                    <span class="text-bolder">{{ selectedPractitioner.first_name }}</span> has
+                    <span class="text-bolder">{{ availabilityOptions.length }}</span> availability on <span class="text-bolder">{{ availabilityDate | shortDate }}</span>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-5 col-xs-12 right">
+              <div v-if="selectedAvailability">
+                <div v-if="selectedAvailability.availability_type_id == 1">
+                  <span><span class="text-bolder">Attending:</span> {{ selectedAvailability.appointments_count }}/{{ selectedAvailability.max_appointment }}</span>
+                  <br>
+                  <span><span class="text-bolder">Service radius: </span> <span>{{ selectedAvailability.service_radius }} km</span></span>
+                  <br>
+                  <span><span class="text-bolder">Start location: </span> <span>{{ selectedAvailability.short_address }}</span></span>
+                </div>
+                <div v-if="selectedAvailability.availability_type_id != 1">
+                  <span><span class="text-bolder">Type: </span> {{ selectedAvailability.availability_type.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" v-bind:class="{ disabled: selectedAvailability == null }">
+            <div class="col-md-7 left">
+              <div class="row">
+                <label class="col-md-3 col-xs-12">Appt. type<abbr title="required">*</abbr></label>
+                <div class="col-md-9 col-xs-12">
+                  <v-multiselect
+                    v-model="selectedAppointmentType"
+                    :options="appointmentTypeOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :options-limit="50"
+                    :searchable="appointmentTypeOptions.length > 10"
+                    :hide-selected="true"
+                    :allow-empty="true"
+                    select-label=""
+                    placeholder="Select appointment type"
+                    label="name"
+                    track-by="id"
+                    @input="onAppointmentTypeChanged">
+                    <template slot="noResult">
+                      <span>No appointment types found!</span>
+                    </template>
+                  </v-multiselect>
+
+                  <div class="appointment-time-wrap"
+                    v-if="selectedAvailability && selectedAvailability.availability_type_id == 2"
+                    v-bind:class="{ disabled: ((selectedAvailability == null) || (selectedAppointmentType == null)) }">
+                    <v-multiselect
+                      v-model="selectedAppointmentSlot"
+                      :options="appointmentSlots"
+                      :multiple="false"
+                      :close-on-select="true"
+                      :hide-selected="true"
+                      select-label=""
+                      placeholder="Time"
+                      label="label"
+                      track-by="id"
+                      @input="onAppointmentSlotChanged">
+                      <template slot="beforeList">
+                        <div class="empty-slots-message-wrap"
+                          v-if="selectedAppointmentType != null && appointmentSlots.length == 0">
+                          <span>No available slots for {{ selectedAppointmentType.duration }} minutes</span>
+                        </div>
+                      </template>
+                      <template slot="noResult">
+                        <span>No available slot found!</span>
+                      </template>
+                    </v-multiselect>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-5 col-xs-12 right">
+              <div v-if="selectedAppointmentType">
+                <span>{{ selectedAppointmentType.availability_type.name }}</span>
+                <br>
+                <strong>Duration: </strong> <span>{{ selectedAppointmentType.duration }} minutes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-7 left">
+              <div class="row">
+                <label for="appointment_notes" class="col-md-3 col-xs-12">Notes</label>
+                <div class="col-md-9 col-xs-12">
+                  <textarea name="appointment_notes"
+                    id="appointment_notes"
+                    rows="3"
+                    class="form-control"
+                    v-model="appointmentData.notes"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div slot="modal-footer" class="modal-footer bg-gray-light">
+        <button class="btn btn-primary" type="button" v-on:click.prevent="submitForm" :disabled="loading">Create appointment</button>
+        <button class="btn btn-white" type="button" @click="cancel">Cancel</button>
+      </div>
+    </modal>
+  </div>
+</script>

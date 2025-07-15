@@ -1,0 +1,70 @@
+<% content_for :title, "Account statements export" %>
+
+<section class="box-header">
+  <h1>Account statements export</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>">Data exports</a>
+    </li>
+
+    <li>
+      <a href="<%= app_data_export_account_statements_exports_path %>">Account statements export</a>
+    </li>
+
+    <li class="active">Details</li>
+  </ul>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-md-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="block-info">
+                        <strong>Description:</strong>
+                        <p><%= @export.description %></p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Created at:</strong>
+                        <p><%= @export.created_at.strftime(t("datetime.common")) %></p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Created by:</strong>
+                        <p><%= @export.author.full_name %></p>
+                    </div>
+                    <div class="block-info">
+                        <strong>Export status:</strong>
+                        <p <% if @export.status_completed? %> class="text-success" <% end %> ><%= @export.status.titleize %></p>
+                    </div>
+
+                    <% if @export.status_completed? && @export.zip_file.attached? %>
+                    <div class="block-info">
+                        <strong>Download:</strong>
+                        <p>
+                            <a href="<%= download_app_data_export_account_statements_export_path(@export.id) %>"><i class="fa fa-download"></i> Download</a>
+                            (<%= number_to_human_size(@export.zip_file.blob.byte_size) %>)
+                        </p>
+                    </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="block-info">
+                        <strong>Date range:</strong>
+                        <p>
+                          <%= @export.options["start_date"].to_date.strftime(t("date.common")) %> <span class="text-muted"> - </span> <%= @export.options["end_date"].to_date.strftime(t("date.common")) %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>

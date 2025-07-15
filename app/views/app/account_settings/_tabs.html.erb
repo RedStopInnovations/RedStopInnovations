@@ -1,0 +1,20 @@
+<%
+  active_tab_id = nil
+  if local_assigns[:active_tab]
+    active_tab_id = active_tab
+  end
+%>
+<ul class="nav nav-tabs mb-15">
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'profile' %>"><a href="<%= app_account_settings_profile_path %>">Profile</a></li>
+    <% if current_user.is_practitioner? %>
+      <li role="presentation" class="<%= 'active' if active_tab_id == 'google_calendar' %>"><a href="<%= app_account_settings_google_calendar_sync_path %>">Google calendar sync</a></li>
+
+      <li role="presentation" class="<%= 'active' if active_tab_id == 'timeable_settings' %>">
+        <a href="<%= app_account_settings_timeable_settings_path %>">Timeable settings</a>
+      </li>
+    <% end %>
+    <% if current_user.role_administrator? %>
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'api_key' %>"><a href="<%= app_account_settings_api_keys_path %>">API keys</a></li>
+    <% end %>
+    <li role="presentation" class="<%= 'active' if active_tab_id == 'security' %>"><a href="<%= app_account_settings_security_path %>">Security</a></li>
+</ul>

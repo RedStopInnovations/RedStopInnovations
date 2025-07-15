@@ -1,0 +1,48 @@
+<script type="text/template" id="modal-appointment-bookings-answers-tmpl">
+  <div>
+    <modal :value="show" v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Online booking answers</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body">
+        <div class="row" v-for="answer in bookingsAnswers">
+          <div class="col-md-12">
+            <span>Question: </span> <strong>{{ answer.question_title }}</strong>
+            <br>
+            <div v-if="answer.question.type == 'Text'">
+              <span>Answer:</span>
+              <blockquote>
+                {{ answer.answer.content }}
+              </blockquote>
+            </div>
+
+            <div v-if="answer.question.type == 'Checkboxes' || answer.question.type == 'Radiobuttons'">
+              <span>Answer: </span>
+              <blockquote>
+              <ul v-if="answer.answers.length > 0" class="list-unstyled">
+                <li v-for="answ in answer.answers">
+                  <span v-if="answer.question.type == 'Checkboxes'">
+                    <input type="checkbox" checked readonly disabled>
+                  </span>
+                  <span v-if="answer.question.type == 'Radiobuttons'">
+                    <input type="radio" checked readonly disabled>
+                  </span>
+                  {{ answ.content }}
+                </li>
+              </ul>
+              </blockquote>
+              <span v-if="answer.answers.length === 0" class="text-muted">(Not provided)</span>
+            </div>
+            <hr>
+          </div>
+        </div>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer bg-gray-light">
+        <button class="btn btn-white" type="button" @click="close">Close</button>
+      </div>
+    </modal>
+  </div>
+</script>

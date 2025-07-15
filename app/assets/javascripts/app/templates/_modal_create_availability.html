@@ -1,0 +1,749 @@
+<script id="modal-create-availability-tmpl" type="text/template">
+  <div>
+  <modal :value="show" large effect="fade" @closed="onModalClosed">
+    <div slot="modal-header" class="modal-header bg-gray-light">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="show = false">
+          <span aria-hidden="true">×</span></button>
+      <h4 class="modal-title">Add Availability</h4>
+    </div>
+
+    <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+      <div class="loading-backdrop" v-if="loading"></div>
+      <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+      <form accept-charset="UTF-8" method="post" v-on:submit.prevent="submitForm"
+        class="form-availability">
+        <input type="submit" class="hide">
+        <div class="alert alert-danger" v-show="formErrors.length">
+          <a href="#" class="close" v-on:click.prevent="formErrors = []" aria-label="close">&times;</a>
+          <ul>
+            <li v-for="error in formErrors">{{ error }}</li>
+          </ul>
+        </div>
+
+        <div class="form-inputs">
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label" for="availability_practitioner_id"><abbr title="required">*</abbr> Practitioner:</label>
+                <select class="form-control"
+                        name="availability[practitioner_id]"
+                        id="availability_practitioner_id"
+                        v-model="availabilityData.practitioner_id"
+                        v-on:change="onChangePractitioner">
+                  <option selected disabled>-- Select practitioner --</option>
+                  <option v-for="pract in practitioners" :value="pract.id">{{ pract.full_name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label" for="availability_type_id"><abbr title="required">*</abbr> Availability type:</label>
+            <div style="min-height: 40px; height: auto;" class="form-control">
+              <label class="radio-inline"
+                v-for="at in availabilityTypeOptions"
+                  :key="at.id"
+                >
+                <input type="radio" :value="at.id" v-model.number="availabilityData.availability_type_id" @change="onAvailabilityTypeChanged">
+                {{ at.name }}
+              </label>
+            </div>
+          </div>
+
+          <hr class="mt-5 mb-5">
+
+          <!-- Non-billable -->
+          <div v-if="availabilityData.availability_type_id == 5">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="select_availability_subtype_id">Non-billable subtype:</label>
+                  <select class="form-control" id="select_availability_subtype_id" v-model.number="availabilityData.availability_subtype_id">
+                    <option :value="null">-- Not selected --</option>
+                    <option :value="at.id" v-for="at in availabilitySubtypeOptions" :key="at.id">{{ at.name }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="availability_name"><abbr title="required">*</abbr> Name</label>
+                  <input class="form-control"
+                    type="text"
+                    name="availability[name]"
+                    placeholder=""
+                    v-model.trim="availabilityData.name">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="availability_description">Description</label>
+                  <input class="form-control"
+                    type="text"
+                    name="availability[description]"
+                    placeholder=""
+                    v-model.trim="availabilityData.description"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label" for="availability_start_time"><abbr title="required">*</abbr> Start time</label>
+                <v-flatpickr
+                  v-model="availabilityData.start_time"
+                  :config="availabilityTimePickerConfig"
+                  >
+                </v-flatpickr>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label" for="availability_end_time"><abbr title="required">*</abbr> End time</label>
+                <v-flatpickr
+                  v-model="availabilityData.end_time"
+                  :config="availabilityTimePickerConfig"
+                  >
+                </v-flatpickr>
+              </div>
+            </div>
+          </div>
+
+          <!-- Single home visit -->
+          <div v-if="availabilityData.availability_type_id == 11">
+            <legend>Appointment info:</legend>
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="control-label">Client<abbr title="required">*</abbr>
+                  </label>
+                  <a href="#" v-on:click.prevent="addPatient" class="pull-right"><strong>New client?</strong></a>
+                  <div>
+                    <v-multiselect
+                      v-model="selectedPatient"
+                      :options="patientOptions"
+                      :multiple="false"
+                      :close-on-select="true"
+                      :options-limit="100"
+                      :searchable="true"
+                      :hide-selected="true"
+                      :loading="isSearchingPatients"
+                      select-label=""
+                      placeholder="Type to search client"
+                      label="full_name"
+                      open-direction="bottom"
+                      track-by="id"
+                      @search-change="onSearchPatientChanged"
+                      @input="onPatientChanged">
+                      <template slot="noResult" v-hide="isSearchingPatients">
+                        <span>No clients found!</span>
+                      </template>
+                      <template slot="option" scope="props">
+                       <div class="desc">
+                          <span class="text-bolder" v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                          <small v-if="props.option.dob">{{ props.option.dob | dob }}</small>
+                          <br>
+                          <small> {{ props.option.short_address }}</small>
+                        </div>
+                      </template>
+                    </v-multiselect>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="control-label">Appointment type <abbr title="required">*</abbr></label>
+                  <v-multiselect
+                    v-model="selectedAppointmentType"
+                    :options="appointmentTypeOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :options-limit="50"
+                    :searchable="appointmentTypeOptions.length > 10"
+                    :hide-selected="true"
+                    :allow-empty="true"
+                    select-label=""
+                    placeholder="Select appointment type"
+                    label="name"
+                    track-by="id"
+                    >
+                    <template slot="noResult">
+                      <span>No appointment types found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                      <div class="desc">
+                        <div>
+                          <span v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+                          <br>
+                          <span class="text-smaller">{{ props.option.duration }} mins</span>
+                        </div>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Home visit -->
+          <div v-if="availabilityData.availability_type_id == 1 || availabilityData.availability_type_id == 11">
+            <div class="row" v-if="availabilityData.availability_type_id == 1">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="availability_max_appointment"><abbr title="required">*</abbr> Max appointment</label>
+                  <input class="form-control"
+                        type="number"
+                        step="1"
+                        name="availability[max_appointment]"
+                        id="availability_max_appointment"
+                        v-model="availabilityData.max_appointment"></div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="availability_service_radius"><abbr title="required">*</abbr> Service radius (kilometers)</label>
+                  <input class="form-control"
+                         type="number"
+                         step="1"
+                         name="availability[service_radius]"
+                         id="availability_service_radius"
+                         v-model="availabilityData.service_radius"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label" for="availability_address1"><abbr title="required">*</abbr> Street address</label>
+              <input class="form-control"
+                     type="text"
+                     name="availability[address1]"
+                     @focus.once="bindGoogleAutocomplete"
+                     ref="inputAddress1"
+                     placeholder=""
+                     id="availability_address1"
+                     v-model="availabilityData.address1">
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_city"><abbr title="required">*</abbr> City</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[city]"
+                         id="availability_city"
+                         v-model="availabilityData.city">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_state"><abbr title="required">*</abbr> State</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[state]"
+                         id="availability_state"
+                         v-model="availabilityData.state">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_postcode">Postcode</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[postcode]"
+                         id="availability_postcode"
+                         v-model="availabilityData.postcode"></div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_country"><abbr title="required">*</abbr> Country</label>
+                  <select class="form-control"
+                          name="availability[country]"
+                          id="availability_country"
+                          v-model="availabilityData.country"
+                          v-country-select>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Facility -->
+          <div v-if="availabilityData.availability_type_id == 4">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label"><abbr title="required">*</abbr> Contact:</label>
+                  <v-multiselect
+                    v-model="selectedContact"
+                    :options="contactOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :clear-on-select="true"
+                    :options-limit="100"
+                    :searchable="true"
+                    :hide-selected="true"
+                    :loading="isSearchingContacts"
+                    :internal-search="false"
+                    select-label=""
+                    placeholder="Type to search contact"
+                    label="business_name"
+                    open-direction="bottom"
+                    track-by="id"
+                    @search-change="onSearchContactChanged"
+                    @input="onContactChanged">
+                    <template slot="noResult" v-hide="isSearchingContacts">
+                      <span>No contacts found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                     <div class="desc">
+                      <span>
+                        <span v-if="props.option.full_name" v-html="$options.filters.highlight(props.option.business_name + ' | ' + props.option.full_name, props.search)"></span>
+                        <span v-if="!props.option.full_name" v-html="$options.filters.highlight(props.option.business_name, props.search)"></span><br>
+                        <span>{{ props.option.short_address }}</span>
+                      </span>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="availability_max_appointment"><abbr title="required">*</abbr> Max appointment</label>
+                  <input class="form-control"
+                        type="number"
+                        step="1"
+                        name="availability[max_appointment]"
+                        id="availability_max_appointment"
+                        v-model.number="availabilityData.max_appointment">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label" for="availability_address1"><abbr title="required">*</abbr> Street address</label>
+              <input class="form-control"
+                type="text"
+                name="availability[address1]"
+                placeholder=""
+                @focus.once="bindGoogleAutocomplete"
+                ref="inputAddress1"
+                id="availability_address1"
+                v-model="availabilityData.address1">
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_city"><abbr title="required">*</abbr> City</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[city]"
+                         id="availability_city"
+                         v-model="availabilityData.city">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_state"><abbr title="required">*</abbr> State</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[state]"
+                         id="availability_state"
+                         v-model="availabilityData.state">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_postcode">Postcode</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[postcode]"
+                         id="availability_postcode"
+                         v-model="availabilityData.postcode"></div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_country"><abbr title="required">*</abbr> Country</label>
+                  <select class="form-control"
+                          name="availability[country]"
+                          id="availability_country"
+                          v-model="availabilityData.country"
+                          v-country-select>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Non-billable -->
+          <div v-if="availabilityData.availability_type_id == 5">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label">Contact:</label>
+                  <v-multiselect
+                    v-model="selectedContact"
+                    :options="contactOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :clear-on-select="true"
+                    :options-limit="100"
+                    :searchable="true"
+                    :hide-selected="true"
+                    :loading="isSearchingContacts"
+                    :internal-search="false"
+                    select-label=""
+                    placeholder="Type to search contact"
+                    label="business_name"
+                    open-direction="bottom"
+                    track-by="id"
+                    @search-change="onSearchContactChanged"
+                    @input="onContactChanged">
+                    <template slot="noResult" v-hide="isSearchingContacts">
+                      <span>No contacts found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                     <div class="desc">
+                      <span>
+                        <span v-if="props.option.full_name" v-html="$options.filters.highlight(props.option.business_name + ' | ' + props.option.full_name, props.search)"></span>
+                        <span v-if="!props.option.full_name" v-html="$options.filters.highlight(props.option.business_name, props.search)"></span><br>
+                        <span>{{ props.option | formattedLocalAddress }}</span>
+                      </span>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label" for="availability_address1">Street address</label>
+              <input class="form-control"
+                type="text"
+                name="availability[address1]"
+                placeholder=""
+                @focus.once="bindGoogleAutocomplete"
+                ref="inputAddress1"
+                id="availability_address1"
+                v-model="availabilityData.address1">
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_city">City</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[city]"
+                         id="availability_city"
+                         v-model="availabilityData.city">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_state">State</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[state]"
+                         id="availability_state"
+                         v-model="availabilityData.state">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_postcode">Postcode</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[postcode]"
+                         id="availability_postcode"
+                         v-model="availabilityData.postcode"></div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_country">Country</label>
+                  <select class="form-control"
+                          name="availability[country]"
+                          id="availability_country"
+                          v-model="availabilityData.country"
+                          v-country-select>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group appointment -->
+          <div v-if="availabilityData.availability_type_id == 6">
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label"><abbr title="required">*</abbr> Group appointment type:</label>
+                  <v-multiselect
+                    v-model="selectedAppointmentType"
+                    :options="appointmentTypeOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :options-limit="50"
+                    :searchable="appointmentTypeOptions.length > 10"
+                    :hide-selected="true"
+                    :allow-empty="true"
+                    select-label=""
+                    placeholder="Select appointment type"
+                    label="name"
+                    track-by="id"
+                    >
+                    <template slot="noResult">
+                      <span>No appointment types found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                      <div class="desc">
+                        <div>
+                          <span v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+                          <br>
+                          <span class="text-smaller">{{ props.option.duration }} mins</span>
+                        </div>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label">Description:</label>
+                  <input class="form-control"
+                    type="text"
+                    name="availability[description]"
+                    placeholder=""
+                    v-model.trim="availabilityData.description"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label">Contact:</label>
+                  <v-multiselect
+                    v-model="selectedContact"
+                    :options="contactOptions"
+                    :multiple="false"
+                    :close-on-select="true"
+                    :clear-on-select="true"
+                    :options-limit="100"
+                    :searchable="true"
+                    :hide-selected="true"
+                    :loading="isSearchingContacts"
+                    :internal-search="false"
+                    select-label=""
+                    placeholder="Type to search contact"
+                    label="business_name"
+                    open-direction="bottom"
+                    track-by="id"
+                    @search-change="onSearchContactChanged"
+                    @input="onContactChanged">
+                    <template slot="noResult" v-hide="isSearchingContacts">
+                      <span>No contacts found!</span>
+                    </template>
+                    <template slot="option" scope="props">
+                     <div class="desc">
+                      <span>
+                        <span v-if="props.option.full_name" v-html="$options.filters.highlight(props.option.business_name + ' | ' + props.option.full_name, props.search)"></span>
+                        <span v-if="!props.option.full_name" v-html="$options.filters.highlight(props.option.business_name, props.search)"></span><br>
+                        <span>{{ props.option.short_address }}</span>
+                      </span>
+                      </div>
+                    </template>
+                  </v-multiselect>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label" for="availability_max_appointment"><abbr title="required">*</abbr> Max clients</label>
+                  <input class="form-control"
+                        type="number"
+                        step="1"
+                        name="availability[max_appointment]"
+                        id="availability_max_appointment"
+                        v-model.number="availabilityData.max_appointment"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label" for="availability_address1"><abbr title="required">*</abbr> Street address</label>
+              <input class="form-control"
+                type="text"
+                name="availability[address1]"
+                placeholder=""
+                @focus.once="bindGoogleAutocomplete"
+                ref="inputAddress1"
+                id="availability_address1"
+                v-model="availabilityData.address1">
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_city"><abbr title="required">*</abbr> City</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[city]"
+                         id="availability_city"
+                         v-model="availabilityData.city">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_state"><abbr title="required">*</abbr> State</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[state]"
+                         id="availability_state"
+                         v-model="availabilityData.state">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_postcode">Postcode</label>
+                  <input class="form-control"
+                         type="text"
+                         name="availability[postcode]"
+                         id="availability_postcode"
+                         v-model="availabilityData.postcode"></div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="control-label" for="availability_country"><abbr title="required">*</abbr> Country</label>
+                  <select class="form-control"
+                          name="availability[country]"
+                          id="availability_country"
+                          v-model="availabilityData.country"
+                          v-country-select>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" v-if="availabilityData.availability_type_id == 11">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label">Client case:</label>
+                <v-multiselect
+                  v-model="selectedCase"
+                  :options="patientOpenCases"
+                  :multiple="false"
+                  :disabled="!selectedPatient"
+                  :close-on-select="true"
+                  :options-limit="100"
+                  :searchable="false"
+                  :clear-on-select="true"
+                  placeholder="-- Select one --"
+                  open-direction="bottom"
+                  track-by="id"
+                  select-label=""
+                  deselect-label="Deselect"
+                  :custom-label="customSelectedCaseLabel"
+                  @select="onSelectedCaseChanged"
+                  >
+                  <template slot="beforeList" v-if="patientOpenCases.length == 0">
+                    <div class="pa-5 text-muted">There is no OPEN cases to select</div>
+                  </template>
+
+                  <template slot="option" scope="props">
+                    <div class="desc">
+                      <span class="text-bolder">{{ props.option.case_type.title }}</span>
+                      <span v-if="props.option.archived_at" class="label label-default">ARCHIVED</span>
+                      <a :href="'/app/patient-cases/' + props.option.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                      <div class="small pl-5">
+                        <span style="width: 65px; display: inline-block;">Status:</span> {{ props.option.status }}
+                        <br>
+                        <span style="width: 65px; display: inline-block;">Budget($): </span> Used: {{ props.option.issued_invoices_amount }} / Max:
+                        <span v-if="props.option.invoice_total">{{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        / Remaining: <span v-if="props.option.invoice_total">{{ props.option.invoice_total - props.option.issued_invoices_amount | round(2, {remove_trailing_zeros: true}) }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        <br>
+                        <span style="width: 65px; display: inline-block;">Invoices:</span> {{ props.option.issued_invoices_count }}
+                        <br>
+                        <span style="width: 65px; display: inline-block;">Created:</span> {{ props.option.created_at | shortDate }}
+                      </div>
+
+                    </div>
+                  </template>
+                </v-multiselect>
+              </div>
+            </div>
+          </div>
+
+          <hr v-if="isRepeatable" class="mt-5 mb-5">
+
+          <div class="row" v-show="isRepeatable">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="control-label">Repeat</label>
+                <select
+                  name="availability[repeat_type]"
+                  class="form-control"
+                  v-model="availabilityData.repeat_type">
+                  <option value="">None</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group" v-show="availabilityData.repeat_type">
+                <label class="control-label"><abbr title="required">*</abbr> Every</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="availability[repeat_interval]"
+                    v-model.number="availabilityData.repeat_interval" />
+                  <span class="input-group-addon">
+                    <span v-if="availabilityData.repeat_type == 'daily'">day(s)</span>
+                    <span v-if="availabilityData.repeat_type == 'weekly'">week(s)</span>
+                    <span v-if="availabilityData.repeat_type == 'monthly'">month(s)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group" v-show="availabilityData.repeat_type">
+                <label class="control-label"><abbr title="required">*</abbr> Number of repeats</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  name="availability[repeat_total]"
+                  v-model.number="availabilityData.repeat_total" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+
+    <div slot="modal-footer" class="modal-footer bg-gray-light">
+      <label
+        class="checkbox-inline"
+        title="Allow online bookings"
+        v-show="(availabilityData.availability_type_id == 1 || availabilityData.availability_type_id == 2) && (selectedPractitioner && selectedPractitioner.allow_online_bookings)">
+        <input type="checkbox" v-model="availabilityData.allow_online_bookings">
+        Online bookings
+      </label>
+
+      <button class="btn btn-primary" @click="submitForm" :disabled="loading">Create availability</button>
+      <button class="btn btn-white" @click="show = false" :disabled="loading">Cancel</button>
+    </div>
+  </modal>
+  </div>
+</script>

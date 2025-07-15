@@ -1,0 +1,56 @@
+<% content_for :title, 'Proof of attendance export' %>
+
+<section class="box-header">
+  <h1>Proof of attendance export</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Appointments</a>
+    </li>
+    <li>
+      <a href="<%= reports_attendance_proof_exports_path %>">Proof of attendance exports</a>
+    </li>
+
+    <li class="active">Details</li>
+  </ul>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-md-6 col-xs-12">
+            <div class="box">
+                <div class="block-info">
+                    <strong>Created at:</strong>
+                    <p><%= @export.created_at.strftime(t('datetime.common')) %></p>
+                </div>
+                <div class="block-info">
+                    <strong>Export status:</strong>
+                    <p <% if @export.status_completed? %> class="text-success" <% end %> ><%= @export.status.titleize %></p>
+                </div>
+                <div class="block-info">
+                    <strong>Description:</strong>
+                    <p><%= @export.description %></p>
+                </div>
+                <div class="block-info">
+                    <strong>Created by:</strong>
+                    <p><%= @export.author.full_name %></p>
+                </div>
+                <% if @export.status_completed? && @export.zip_file.attached? %>
+                <div class="block-info">
+                    <strong>Download:</strong>
+                    <p>
+                        <a href="<%= download_reports_attendance_proof_export_path(@export.id) %>"><i class="fa fa-download"></i> Download ZIP</a>
+                        (<%= number_to_human_size(@export.zip_file.blob.byte_size) %>)
+                    </p>
+                </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+
+</section>

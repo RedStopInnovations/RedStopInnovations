@@ -1,0 +1,67 @@
+<script type="text/javascript">
+  (function() {
+    $('[name="user[is_practitioner]"]').on('change', function() {
+      var isPractitioner = $(this).val() === 'true';
+      $('#practitioner-info-wrapper').toggle(isPractitioner);
+    });
+
+    $('.edit_user, .new_user').submit(function(event) {
+      $(this).find('button[type="submit"]')
+        .prop("disabled", true)
+        .text("Processing ...");
+     });
+   })();
+
+  (function() {
+    var autocomplete;
+
+    function locationSelected() {
+      var place = autocomplete.getPlace();
+
+      var componentForm = {
+        street_number: 'input-address1',
+        subpremise: 'input-address',
+        locality: 'input-city',
+        administrative_area_level_1: 'input-state',
+        postal_code: 'input-postcode',
+        country: 'input-country',
+        postal_town: 'input-city'
+      };
+
+      if (place.address_components) {
+        $.each(componentForm, function(index, element) {
+          $('#' + element).val('');
+        });
+        $.each(place.address_components, function(index, item) {
+          if (componentForm[item.types[0]]) {
+            $inputElement = $('#' + componentForm[item.types[0]]);
+            if (item.types[0] == 'subpremise') {
+              $($inputElement).val(item.short_name + '/')
+            } else {
+              $($inputElement).val($inputElement.val() + item.short_name)
+            }
+          }
+
+          if (item.types[0] == 'country') {
+            $('#input-country').val(item.short_name);
+          }
+
+          if (item.types[0] == 'route') {
+            $('#input-address1').val($('#input-address1').val() + ' ' + item.short_name);
+          }
+        });
+      }
+    };
+
+    autocomplete = new google.maps.places.Autocomplete(
+      $('#input-address1')[0], autocompleteDefaultOptions
+    );
+
+    $('#input-address1').on('keypress', function(e) {
+      if (e.keyCode === 13) {
+        return false;
+      }
+    });
+    autocomplete.addListener('place_changed', locationSelected);
+  })();
+</script>

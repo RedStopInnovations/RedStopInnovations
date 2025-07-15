@@ -1,0 +1,28 @@
+(function() {
+  var $modal = $('#modal-preview-medipass-payment-request');
+  var $modalBody = $modal.find('.modal-body');
+  $modalBody.empty();
+
+  <% if current_business.medipass_payment_available? %>
+    <% if @payment_availability.errors.any? %>
+      $modalBody.append('<%= j (render 'medipass_payment_availability_errors', payment_availability: @payment_availability) %>')
+    <% else %>
+
+      <% if @quote %>
+        $modalBody.append('<%= j (render 'quote', quote: @quote) %>');
+        <% if @invoice.pending_medipass_transaction.nil? %>
+          $modalBody.append('<hr><div class="text-right"><a class="btn btn-primary btn-send-payment-request" data-remote="true" href="<%= send_medipass_request_invoice_path %>" data-method="POST">Send payment request</button></div>');
+        <% else %>
+          $modalBody.append('<hr><div class="text-right"><button type="button" class="btn btn-primary btn-form" data-form-url="<%= resend_medipass_request_invoice_path(@invoice) %>" data-form-method="POST" data-form-confirmation="Are you sure?">Resend payment request</button></div>');
+        <% end %>
+      <% elsif @quote_error %>
+        $modalBody.append('<div class="callout callout-danger"><h4><i class="fa fa-exclamation-triangle"></i> An error has occurred!</h4><p><%= @quote_error %></p></div>');
+      <% end %>
+
+    <% end %>
+  <% else %>
+    $modalBody.append('<%= j (render 'medipass_account_error') %>');
+  <% end %>
+
+  $modalBody.loadingOff();
+})();

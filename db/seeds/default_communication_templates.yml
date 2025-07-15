@@ -1,0 +1,268 @@
+-
+  name: Appointment confirmation
+  template_id: appointment_confirmation
+  email_subject: Appointment booking confirmation
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    Thanks for booking an appointment with {{Business.Name}}.\
+    <br>\
+    Here are all the details you need:\
+    <br>\
+    <br>\
+    <b>Appointment:</b>\
+    <br>\
+    {{Appointment.StartTime}} to {{Appointment.EndTime}}\
+    <br>\
+    {{Appointment.Date}}\
+    <br>\
+    <br>\
+    <b>Practitioner:</b>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Profession}}\
+    <br>\
+    {{Appointment.CancelLink}}
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger: Appointment created or client booked online
+    action: Send an email with appointment details
+    purpose: Reassure the client that an appointment has been created
+-
+  name: Send invoice PDF
+  template_id: send_invoice_pdf
+  email_subject: Invoice info
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    Please find attached a copy of your invoice / receipt.\
+    <br>\
+    To pay the invoice - <a href=\"{{Invoice.OnlinePaymentURL}}\">Click Here</a>\
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger: Manual button press on invoice pages
+    action: Send an email with the invoice pdf attached
+    purpose: Request payment or provide a paid invoice
+-
+  name: Satisfaction review request
+  template_id: satisfaction_review_request
+  email_subject: Practitioner review request
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    We would like to request you to review your practitioner.\
+    <br>\
+    <br>\
+    <b>Practitioner:</b>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Profession}}\
+    <br>\
+    To leave your review - <a href=\"{{Appointment.SatisfactionReviewURL}}\">Click Here</a>\
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger: Automatically sent after an invoice is created unless a review has already been completed
+    action: Send an email with a request for review
+    purpose: Monitor client satisfaction and practitioner performance
+-
+  name: Appointment reminder
+  template_id: appointment_reminder
+  email_subject: Appointment reminder
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    Appointment reminder from {{Business.Name}}. Here are the details you will need:\
+    <br>\
+    <br>\
+    <b>Appointment:</b>\
+    <br>\
+    {{Appointment.StartTime}} to {{Appointment.EndTime}}\
+    <br>\
+    {{Appointment.Date}}\
+    <br>\
+    <br>\
+    <b>Practitioner:</b>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Profession}}\
+    <br>\
+    {{Appointment.CancelLink}}
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger: 24 hours before an appointment
+    action: Send an email with appointment details
+    purpose: To remind the client of your scheduled attendance
+-
+  name: Appointment reminder SMS
+  template_id: appointment_reminder_sms
+  content:
+    "Appointment reminder from {{Business.Name}}.\n\
+    Time: {{Appointment.StartTime}} to {{Appointment.EndTime}} on {{Appointment.Date}}\n\
+    Practitioner: {{Practitioner.FullName}}"
+  explanation:
+    trigger: 24 hours before an appointment
+    action: Send an SMS with appointment details
+    purpose: To remind the client of your scheduled attendance
+-
+  name: Week out appointment reminder SMS
+  template_id: appointment_reminder_sms_1week
+  content:
+    "Appointment reminder from {{Business.Name}}.\n\
+    Time: {{Appointment.StartTime}} to {{Appointment.EndTime}} on {{Appointment.Date}}\n\
+    Practitioner: {{Practitioner.FullName}}"
+  explanation:
+    trigger: 7 days before an appointment
+    action: Send an SMS with appointment details
+    purpose: To remind the client of your scheduled attendance
+-
+  name: Patient followup
+  template_id: patient_followup
+  email_subject: We miss you
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    Thank you for your recent appointment at {{Business.Name}}.\
+    <br>\
+    Do you have any questions? Contact us here:\
+    <br>\
+    {{Business.Phone}}\
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger:
+    action:
+    purpose:
+-
+  name: Outstanding invoice reminder
+  template_id: outstanding_invoice_reminder
+  email_subject: Outstanding invoice reminder
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    Please find attached a copy of your invoice / receipt.\
+    <br>\
+    To pay the invoice - <a href=\"{{Invoice.OnlinePaymentURL}}\">Click Here</a>\
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger: Manual and automation triggers as settings
+    action: Send an email with invoice details
+    purpose: Notify unpaid invoices
+  settings:
+    outstanding_days: 14
+    repeat: false
+-
+  name: Appointment arrival time SMS
+  template_id: appointment_arrival_time
+  content:
+    "{{Practitioner.FullName}} {{Practitioner.Profession}} is scheduled to arrive at {{Appointment.ArrivalTime}}"
+  explanation:
+    trigger: Manual trigger on the calendar
+    action: Send SMS
+    purpose: Inform of scheduled arrival time
+-
+  name: Practitioner on route SMS
+  template_id: practitioner_on_route_sms
+  content:
+    "To {{Patient.FullName}},\n\
+    {{Practitioner.FullName}} is on route to {{Appointment.TravelDestinationAddress}}, travelling from {{Appointment.TravelStartAddress}}.\n\
+    If any problems please call this number ASAP: {{Business.Phone}}"
+  explanation:
+    trigger: Manual trigger on the calendar
+    action: Send SMS
+    purpose: Notify on route to appointment
+
+-
+  name: New client confirmation
+  template_id: new_patient_confirmation
+  email_subject: Welcome to our practice
+  content:
+    "Dear {{Patient.FullName}},\
+    <br>\
+    <br>\
+    This is an automated email to welcome you to {{Business.Name}}. If you have any questions, you can contact us using the details below. We look forward to the first appointment.\
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}\
+    <br>\
+    {{Business.Email}}"
+  explanation:
+    trigger: Trigger when a client is created
+    action: Send an email
+    purpose: Send general information when a client is created
+
+-
+  name: Payment remittance
+  template_id: invoice_payment_remittance
+  email_subject: Payment remittance confirmation
+  content:
+    "Dear {{Patient.FullName}}\
+    <br>\
+    <br>\
+    The invoice #{{Invoice.Number}} has been paid. Please find attached a copy of the invoice / receipt.\
+    <br>\
+    <br>\
+    Kind regards,\
+    <br>\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}"
+  explanation:
+    trigger: Trigger when an invoice is paid
+    action: Send an email
+    purpose: Notify paid invoices

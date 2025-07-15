@@ -1,0 +1,9 @@
+(function (argument) {
+  $('#table-billed-items')
+    .find('[data-item-id="<%= @billed_item.id %>"]')
+    .addClass('bg-danger')
+    .fadeOut(500, function() {
+      $(this).remove();
+      Flash.success("The billed item has been deleted.");
+    });
+})();

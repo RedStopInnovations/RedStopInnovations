@@ -1,0 +1,88 @@
+<% content_for :page_js do %>
+<script type="text/javascript">
+  (function() {
+    var $inputsWrap = $('#input-contact-tags-wrap');
+    var selectizies = [];
+
+    /* Add new contact just created to all inputs */
+    var addNewContactOption = function(contact) {
+      for (var i = selectizies.length - 1; i >= 0; i--) {
+        selectizies[i].addOption(contact);
+      }
+    };
+
+    $('.input-contact-tags').each(function() {
+      var $this = $(this);
+      var initialValue = $this.data('value');
+      var selectize = $this.selectize({
+        plugins: ['remove_button', 'no_results'],
+        options: [],
+        valueField: 'id',
+        addPrecedence: false,
+        labelField: 'business_name',
+        searchField: ['business_name', 'full_name'],
+        load: function(query, callback) {
+          if (!query.length) return callback();
+          var self = this;
+
+          $.get(
+            '/api/contacts/search?business_id=' + window.session.user.business_id + '&s=' + query,
+            function(res) {
+              if (res.contacts.length > 0) {
+                callback(res.contacts);
+              } else {
+                self.$empty_results_container.show();
+              }
+            }
+          );
+        },
+        create: function(input, callback) {
+          if (confirm('Are you sure to create "' + input + '" as a new contact?')) {
+            $.ajax({
+              method: 'POST',
+              data: { contact: { business_name: input } },
+              url: '<%= contacts_path(format: :json) %>',
+              dataType: 'json',
+              beforeSend: function() {
+                $inputsWrap.loadingOn();
+              },
+              success: function(res) {
+                callback(res.contact);
+                addNewContactOption(res.contact);
+                Flash.success('The contact has been successfully created.');
+              },
+              error: function(xhr) {
+                var errorMsg = 'An error has occurred. Sorry for the inconvenience.';
+
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+
+                  var validationErrors = xhr.responseJSON.errors
+                  errorMsg = 'Validation errors:';
+                  for (var i = validationErrors.length - 1; i >= 0; i--) {
+                    errorMsg += '<br>' + validationErrors[i];
+                  }
+                }
+
+                if (xhr.status === 403) {
+                  errorMsg = 'You dont have permission to create new contacts';
+                }
+
+                Flash.error(errorMsg);
+              },
+              complete: function() {
+                $inputsWrap.loadingOff();
+              }
+            });
+          } else {
+            callback();
+          }
+        }
+      })[0].selectize;
+
+      selectize.setValue(initialValue);
+      selectizies.push(selectize);
+    });
+
+  })();
+</script>
+<% end %>

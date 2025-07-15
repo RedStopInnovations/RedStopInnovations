@@ -1,0 +1,151 @@
+<% content_for :title, 'Practitioner documents' %>
+
+<section class="box-header">
+  <h1>Practitioner documents</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Practitioner</a>
+    </li>
+    <li class="active">Practitioner documents</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+      <form action="<%= reports_practitioner_documents_path %>">
+        <div class="row">
+          <div class="col-md-3 col-xs-6">
+            <div class="form-group">
+              <label>Document type:</label>
+              <select name="type" class="form-control">
+                <option value="">All</option>
+                <%=
+                  options_for_select(
+                    pracititioner_document_types_for_select,
+                    @options.type
+                  )
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-7">
+            <div class="form-group">
+              <label>Status:</label><br>
+              <label class="checkbox-inline" style="padding-left: 0;">
+                <input type="radio" id="cb-status-all" value="" name="status"
+                  <%= 'checked' if @options.status.blank? %>> Any
+              </label>
+              <label class="checkbox-inline">
+                <input type="radio" id="cb-status-current" value="current" name="status"
+                  <%= 'checked' if @options.status == 'current' %>>
+                Current (<i class="fa fa-check text-green"></i>)
+              </label>
+              <label class="checkbox-inline">
+                <input type="radio" id="cb-status-missing" value="missing" name="status"
+                  <%= 'checked' if @options.status == 'missing' %>>
+                Missing (<i class="fa fa-times text-muted"></i>)
+              </label>
+              <label class="checkbox-inline">
+                <input type="radio" id="cb-status-expired" value="expired" name="status"
+                  <%= 'checked' if @options.status == 'expired' %>>
+                Expired (<i class="fa fa-exclamation text-yellow"></i> )
+              </label>
+              <label class="checkbox-inline">
+                <input type="radio" id="cb-status-missing-expiry" value="missing_expiry" name="status"
+                  <%= 'checked' if @options.status == 'missing_expiry' %>>
+                Missing expiry (<i class="fa fa-question"></i> )
+              </label>
+            </div>
+          </div>
+          <div class="col-md-2 col-xs-12">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if can?(:export, PractitionerDocument) %>
+  <p class="text-right">
+    <a href="<%= app_data_export_practitioner_documents_path %>" class="btn btn-white" download
+      ><i class="fa fa-download"></i> Download all documents</a>
+  </p>
+  <% end %>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th style="width: 250px">Practitioner</th>
+              <% PractitionerDocument::TYPES.each do |type| %>
+                <% if @options.type.blank? || @options.type == type %>
+                  <th style="width: 120px;"><%= type.humanize %></th>
+                <% end %>
+              <% end %>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @practitioners.each do |pract| %>
+              <%
+                documents = pract.documents.to_a
+              %>
+              <tr>
+                <td>
+                  <a href="<%= settings_user_path(pract.user_id) %>"><%= pract.full_name %></a>
+                  <br>
+                  <small><%= pract.profession %></small>
+                </td>
+
+              <% PractitionerDocument::TYPES.each do |type| %>
+                <% if @options.type.blank? || @options.type == type %>
+                  <% doc = documents.find { |doc| doc.type == type } %>
+                  <td>
+                    <% if doc %>
+                      <%= practitioner_document_status_icon(doc) %>
+                      <% if doc.expiry_date? %>
+                        <small><%= doc.expiry_date.strftime('%d %b %Y') %></small>
+                      <% end %>
+                    <% else %>
+                      <small><i class="fa fa-times text-muted"></i></small>
+                    <% end %>
+                  </td>
+                <% end %>
+              <% end %>
+
+                <td>
+                  <% if can?(:view, User) %>
+                    <a href="<%= edit_settings_user_path(pract.user_id) %>" class="btn btn-white">View profile</a>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @practitioners %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @practitioners %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

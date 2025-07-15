@@ -1,0 +1,137 @@
+<% content_for :title, 'Calendar' %>
+
+<% content_for :no_gmapjs, 1 %>
+
+<% content_for :page_additional_html do %>
+  <%= render 'shared/app_templates' %>
+<% end %>
+
+<div id="business-calendar">
+  <section class="content">
+    <div v-cloak>
+      <business-calendar
+        ref="calendar"
+        @filters-changed="rememberCalendarSettings"
+        @settings-changed="rememberCalendarSettings"></business-calendar>
+    </div>
+
+    <div class="loading" id="js-calendar-loading-wrap" style="min-height: 600px;">
+      <div class="loading-backdrop"></div>
+      <div class="loading-indicator"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+    </div>
+
+  </section>
+</div>
+
+<%= content_for :page_js do %>
+<script type="text/javascript">
+  Vue.use(VueGoogleMaps, {
+    load: {
+      key: '<%= ENV['GOOGLE_API_KEY'] %>',
+      libraries: 'places, drawing',
+      v: '3.53',
+    },
+    installComponents: false,
+  });
+
+  // TODO: move to a wrapper plugin for localStorage
+  var LS_PREFIX = 'oh';
+  var CALENDAR_SETTINGS_KEY = 'calendar_settings';
+  var current_user_id = window.session.user.id;
+
+  new Vue({
+    el: '#business-calendar',
+    data: {
+      business: null
+    },
+    mounted: function() {
+      var that = this;
+      // TODO: clean up cached calendar settings
+      try {
+        var calendarSettings = JSON.parse(
+          localStorage.getItem(LS_PREFIX + '.' + current_user_id + '.' + CALENDAR_SETTINGS_KEY)
+        );
+        var calendarView = calendarSettings.calendarView;
+        if (calendarView) {
+          this.$refs.calendar.settings.calendarView = calendarView;
+        }
+
+        var timezone = calendarSettings.timezone;
+        if (timezone) {
+          this.$refs.calendar.settings.timezone = timezone;
+          App.timezone = timezone;
+        }
+      } catch (e) {
+      }
+
+      var availabilityIdParam = Utils.getQueryParameter('availability_id');
+
+      $.ajax({
+        method: 'GET',
+        url: '/api/businesses/<%= current_business.id %>.json',
+        success: function(res) {
+          if (res.business) {
+            that.setBusiness(res.business);
+            if (availabilityIdParam) {
+              that.$nextTick(function() {
+                this.$refs.calendar.showAvailability(availabilityIdParam);
+              });
+            }
+          }
+        },
+        complete: function() {
+          $('#js-calendar-loading-wrap').remove();
+        }
+      });
+    },
+    methods: {
+      defaultPractitionerIds: function() {
+        if (window.session.user.is_practitioner) {
+          return [window.session.user.practitioner_id];
+        } else {
+          return [];
+        }
+      },
+      setBusiness: function(business) {
+
+        this.business = business;
+        var practitionerIds = [];
+
+        var practIdsParam = Utils.getQueryParameter('practitioner_ids');
+        if (practIdsParam && practIdsParam.trim().length) {
+          practIdsParam.trim().split(',').map(function(id) {
+            practitionerIds.push(parseInt(id));
+          });
+        } else {
+          if (window.session.user.role == App.CONSTANTS.USER.ROLE_RESTRICTED_PRACTITIONER || window.session.user.role == App.CONSTANTS.USER.ROLE_PRACTITIONER) {
+            practitionerIds = this.defaultPractitionerIds();
+          } else {
+            try {
+              var rememberedCalendarSettings = JSON.parse(
+                localStorage.getItem(LS_PREFIX + '.' + current_user_id + '.' + CALENDAR_SETTINGS_KEY)
+              );
+              practitionerIds = rememberedCalendarSettings.practitioner_ids;
+            } catch (e) {
+              practitionerIds = this.defaultPractitionerIds();
+            }
+          }
+        }
+        this.$refs.calendar.setBusiness(business, practitionerIds);
+      },
+      rememberCalendarSettings: function() {
+        localStorage.setItem(
+          LS_PREFIX + '.' + current_user_id + '.' + CALENDAR_SETTINGS_KEY,
+          JSON.stringify(this.buildCalendarSettings())
+        )
+      },
+      buildCalendarSettings: function() {
+        var settings = {};
+        settings.practitioner_ids = this.$refs.calendar.selectedPractitionerIds;
+        settings.calendarView = this.$refs.calendar.settings.calendarView;
+        settings.timezone = this.$refs.calendar.settings.timezone;
+        return settings;
+      }
+    }
+  });
+</script>
+<% end %>

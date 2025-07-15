@@ -1,0 +1,18 @@
+(function() {
+  var $modalAddTest = $('#modal-add-outcome-measure-test');
+
+  <% if @outcome_measure_test.valid? %>
+    $modalAddTest.modal('hide');
+    setTimeout(function() {
+      $modalAddTest.remove();
+      window.location.reload();
+    }, 100);
+  <% else %>
+    var validationErrors = <%= @outcome_measure_test.errors.full_messages.to_json.html_safe %>;
+    var errorMsg = 'Form errors:';
+    for (var i = validationErrors.length - 1; i >= 0; i--) {
+      errorMsg += '<br>' + validationErrors[i];
+    }
+    Flash.error(errorMsg);
+  <% end %>
+})();

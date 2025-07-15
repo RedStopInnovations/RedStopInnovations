@@ -1,0 +1,237 @@
+<script type="text/javascript" src="https://maps.google.com/maps/api/js?libraries=geometry,places&v=3&key=<%= ENV['GOOGLE_API_KEY'] %>"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+<script type="text/javascript">
+  (function() {
+    var autocomplete;
+
+    function onlocationSelected() {
+      var place = autocomplete.getPlace();
+
+      if (place.address_components) {
+        var address1 = null;
+        var city = null;
+        var state = null;
+        var postcode = null;
+        var country = null;
+
+        for (var i = 0; i < place.address_components.length; i++) {
+          var component = place.address_components[i];
+
+          if (component.types.indexOf('subpremise') !== -1) {
+            address1 = component.short_name + '/';
+          }
+
+          if (component.types.indexOf('street_number') !== -1) {
+            if(address1) {
+              address1 += component.short_name;
+            } else {
+              address1 = component.short_name;
+            }
+          }
+          if (component.types.indexOf('route') !== -1) {
+            address1 = [address1, component.short_name].join(' ').trim();
+          }
+          if (component.types.indexOf('postal_town') !== -1) {
+            city = component.short_name;
+          }
+          if (component.types.indexOf('locality') !== -1) {
+            city = component.short_name;
+          }
+          if (component.types.indexOf('administrative_area_level_1') !== -1) {
+            state = component.short_name;
+          }
+          if (component.types.indexOf('postal_code') !== -1) {
+            postcode = component.long_name;
+          }
+          if(component.types.indexOf('country') !== -1) {
+            country = component.short_name;
+          }
+        }
+
+        $('#input-patient-address').val(address1);
+        $('#input-patient-city').val(city);
+        $('#input-patient-state').val(state);
+        $('#input-patient-postcode').val(postcode);
+        $('#input-patient-country').val(country);
+      }
+    }
+
+    $('#input-patient-address').on('keypress', function(e) {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    autocomplete = new google.maps.places.Autocomplete(
+      $('#input-patient-address')[0],
+      {
+        types: ['geocode'],
+        componentRestrictions: { 'country': ['<%= @business&.country.to_s.downcase %>'] }
+      }
+    );
+
+    autocomplete.addListener('place_changed', onlocationSelected);
+
+    setTimeout(function() {
+      $('#input-patient-address').attr('autocomplete', 'nope');
+    }, 3000);
+
+    /**
+     * Handle add/remove attachment
+     */
+    var $attachmentsWrap = $('.attachments-upload-wrap');
+    var $attachmentsList = $attachmentsWrap.find('.attachments-list');
+    var $attachmentTmpl = $attachmentsWrap.find('.attachment-template');
+
+    $attachmentsWrap.find('.btn-add').on('click', function(e) {
+      e.preventDefault();
+      $attachmentsList.append($attachmentTmpl.html());
+      $attachmentsList.find('.attachment:last-child')
+        .find('input[type=file]').click();
+    });
+
+    $attachmentsWrap.on('click', '.btn-remove', function(e) {
+      e.preventDefault();
+      $(this).closest('.attachment').remove();
+    });
+
+  })();
+
+  /**
+   * Bind datepicker plugin
+   */
+  $('.daterpicker').each(function() {
+    var $el = $(this);
+
+    var datepickerOpts = {
+      altInput: true,
+      dateFormat: 'd/m/Y',
+      altFormat: 'd/m/Y',
+      clickOpens: false,
+      allowInput: true
+    };
+
+    var flatpickrInst = $(this).flatpickr(datepickerOpts);
+
+    flatpickrInst._input.addEventListener('blur', function (event) {
+      flatpickrInst.setDate(flatpickrInst._input.value);
+    }, true);
+
+    $el.closest('.input-group').find('.btn-trigger-datepicker').click(function() {
+      flatpickrInst.open();
+    });
+
+  });
+
+  $('#input-professions').selectize({
+    plugins: ['remove_button']
+  });
+
+  /**
+   * Handle change payment source type to toggle corresponding fields
+   */
+  $('.js-cb-payment-type').on('change', function() {
+    var selectedType = $(".js-cb-payment-type:checked").val();
+    var visiblePaymentWrap = $('.js-payment-referral-wrap[data-payment-type="' + selectedType +'"]');
+    visiblePaymentWrap.removeClass('hidden');
+     $('.js-payment-referral-wrap').not(visiblePaymentWrap).addClass('hidden');
+  });
+
+  $.validator.addMethod("dobFormat", function(value, element) {
+    return this.optional(element) || moment(value, "DD/MM/YYYY", true).isValid();
+  }, "Please enter a valid date in the format dd/mm/yyyy");
+
+  /**
+   * Form validation and submission
+   */
+  $("#js-form-referral").validate({
+    rules: {
+      'referral[patient][dob]': {
+        dobFormat: true
+      }
+    },
+    highlight: function(element) {
+      $(element).closest('.form-group').addClass('has-error');
+    },
+    unhighlight: function(element) {
+      $(element).closest('.form-group').removeClass('has-error');
+    },
+    errorElement: 'div',
+    errorClass: 'error-message text-danger',
+    errorPlacement: function(error, element) {
+      if (element.closest('.form-group').length) {
+        element.closest('.form-group').append(error)
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    submitHandler: function(form) {
+      var $form = $(form);
+      var $errorWrap = $('#js-form-error-wrap');
+      var $btnSubmit = $form.find('button[type="submit"]');
+
+      $btnSubmit.text('Processing ...');
+      $btnSubmit.attr('disabled', 'disabled');
+      $errorWrap.empty().addClass('hidden');
+
+      $.ajax({
+        method: $form.attr('method'),
+        url: $form.attr('action'),
+        data: new FormData($form.get(0)),
+        dataType: 'json',
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function(res) {
+          $form.addClass('hidden');
+          $('#js-success-notification').removeClass('hidden');
+          // Dispatch a message to the parent window as workaround for cross-domain tracking via Google Tag Manager
+          if (window.self !== window.top) {
+            window.parent.postMessage({
+              event: 'tracksy.referral.created'
+            }, '*');
+          }
+        },
+        error: function(xhr) {
+
+          $btnSubmit.text('Submit').removeAttr('disabled');
+          if (xhr.status === 422) {
+            var fieldErrors = xhr.responseJSON;
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+              var validationErrors = xhr.responseJSON.errors;
+              var $errorHtml = $('<div class="text-danger"></div>');
+              var headingMessage = 'Validation errors:';
+
+              if (xhr.responseJSON.message) {
+                headingMessage = xhr.responseJSON.message
+              }
+
+              $errorHtml.append($('<p>', {
+                text: headingMessage
+              }));
+
+              var $errorList = $('<ul>');
+
+              for (var i = 0, l = validationErrors.length; i < l; i++) {
+                $errorList.append($('<li>', {
+                  text: validationErrors[i]
+                }));
+              }
+
+              $errorHtml.append($errorList);
+              $errorWrap.empty().append($errorHtml).removeClass('hidden');
+            } else {
+              $errorWrap.html('<div class="text-danger">There are validation errors. Please check before submit again.</div>');
+            }
+          } else if (xhr.status === 500) {
+
+          } else {
+            alert('An error has occurred. Sorry for the inconvenience.');
+          }
+        }
+      });
+    }
+  });
+
+</script>

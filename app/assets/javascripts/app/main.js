@@ -1,0 +1,9 @@
+//= require ./init.js
+//= require_directory ./initializers
+//= require_directory ./utils
+//= require_directory ./mixins
+//= require_directory ./components
+//= require_directory ./filters
+//= require_directory ./directives
+//= require_directory ./services
+//= require_directory ./plugins

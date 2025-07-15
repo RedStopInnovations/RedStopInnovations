@@ -1,0 +1,74 @@
+<section class="box-header">
+  <h1>Search clients</h1>
+</section>
+<section class="content">
+  <div class="box">
+    <div class="box-body">
+      <section class="search_box mt-20">
+        <form action="<%= admin_reception_search_patient_path %>">
+          <div class="row">
+            <div class="col-md-9 col-xs-7">
+              <input type="text" name="q" class="form-control"
+                value="<%= params[:q].try(:strip) %>"
+                placeholder="Enter name, email, mobile or phone ..."
+                autofocus="true">
+            </div>
+            <div class="col-md-3 pad-lft-none col-xs-5">
+              <button type="submit" class="btn sitebtn">
+                <i class="fa fa-search"></i> Search
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <div class="box-table">
+        <table class="table-flat">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th style="width: 90px;">DOB</th>
+              <th>Address</th>
+              <th>Business name</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @patients.each do |patient| %>
+              <tr>
+                <td>
+                  <a href="<%= admin_patient_path(patient) %>">
+                    <strong><%= patient.full_name %></strong>
+                  </a>
+                </td>
+                <td><%= patient.dob.try(:strftime, '%d/%b/%Y') %></td>
+                <td><%= patient.short_address %></td>
+                <td><%= patient.business.name %></td>
+                <td>
+
+                  <a href="<%= admin_patient_path(patient) %>" class="btn btn-link" title="Show">
+                    <i class="fa fa-eye"></i>
+                  </a>
+
+                  <% if current_admin_user.is_super_admin? %>
+                  <a href="<%= edit_admin_patient_path(patient) %>" class="btn btn-link" title="Edit">
+                    <i class="fa fa-pencil-square-o"></i>
+                  </a>
+                  <% end %>
+                </td>
+            <% end %>
+
+            <% if @patients.size == 0 %>
+              <tr>
+                <td colspan="5">
+                  No any patients found!
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

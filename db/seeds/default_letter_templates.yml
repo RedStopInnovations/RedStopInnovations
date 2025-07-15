@@ -1,0 +1,138 @@
+# Note for "content" value: ending line with "\" to escape whitespace on the next line.
+-
+  name: General Letter
+  email_subject:
+  content:
+    "{{General.CurrentDate}}\
+    <br>\
+    <br>\
+    Dear *** INSERT NAME ***\
+    <br>\
+    <br>\
+    Regarding:\
+    <br>\
+    {{Patient.FullName}}\
+    <br>\
+    {{Patient.DateOfBirth}}\
+    <br>\
+    <br>\
+    *** INSERT LETTER HERE ***\
+    <br>\
+    <br>\
+    Kind Regards,\
+    <br>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Email}}"
+-
+  name: Doctor Letter
+  email_subject: Doctor Letter
+  content:
+    "{{General.CurrentDate}}\
+    <br>\
+    <br>\
+    To {{Doctor.Title}} {{Doctor.FullName}}\
+    <br>\
+    <br>\
+    Regarding:\
+    <br>\
+    {{Patient.FullName}}\
+    <br>\
+    {{Patient.DateOfBirth}}\
+    <br>\
+    <br>\
+    *** INSERT LETTER HERE ***\
+    <br>\
+    <br>\
+    Kind Regards\
+    <br>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Email}}"
+-
+  name: Radiology referral
+  email_subject: Radiology referral
+  content:
+    "Patient Details:\
+    <br>\
+    {{Patient.FullName}}\
+    <br>\
+    {{Patient.DateOfBirth}}\
+    <br>\
+    <br>\
+    Examination Requested:\
+    <br>\
+    Clinical Indication:\
+    <br>\
+    <br>\
+    Practitioner:\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Email}}\
+    <br>\
+    {{Practitioner.Phone}}\
+    <br>\
+    <br>\
+    Please send results to the following:\
+    <br>\
+    {{Business.Name}}\
+    <br>\
+    {{Business.Phone}}\
+    <br>\
+    {{Business.Email}}"
+-
+  name: Off work certificate
+  email_subject: Off work certificate
+  content:
+    "To whom it may concern,\
+    <br>\
+    <br>\
+    I have assessed {{Patient.FullName}} to be unfit to return to normal work and/or
+    school duties from {{General.CurrentDate}} to ***END DATE***. I will continue
+    assessment and treatment as required.\
+    <br>\
+    <br>\
+    Kind Regards\
+    <br>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Email}}\
+    <br>\
+    {{Practitioner.Medicare}}"
+-
+  name: EPC referral
+  email_subject: EPC referral
+  content:
+    "{{General.CurrentDate}}\
+    <br>\
+    <br>\
+    Dear {{Doctor.Title}} {{Doctor.FullName}}\
+    <br>\
+    <br>\
+    Regarding:\
+    <br>\
+    {{Patient.FullName}}\
+    <br>\
+    {{Patient.DateOfBirth}}\
+    <br>\
+    Thank you for the referral of {{Patient.FullName}}\
+    <br>\
+    <br>\
+    We are happy to participate in the team care arrangement. We do not require
+    any changes to be made to the plan. We will provide you regular updates
+    regarding the care. We have included the initial assessment for your records.\
+    <br>\
+    <br>\
+    If you have any questions, please contact us directly.\
+    <br>\
+    <br>\
+    Kind Regards,\
+    <br>\
+    <br>\
+    {{Practitioner.FullName}}\
+    <br>\
+    {{Practitioner.Email}}"

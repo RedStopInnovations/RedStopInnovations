@@ -1,0 +1,69 @@
+<script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
+<script type="text/javascript">
+  $(function() {
+    var $inputTemplateContent = $('#input-template-content');
+    var ckeditor;
+    /* Insert variable at current(or last) caret position */
+    function insertVariable(value) {
+      var textToInsert = "{{" + value + "}}";
+      ckeditor.insertText(textToInsert);
+    }
+
+    /* Remove link protocol so users can enter full url */
+    CKEDITOR.on('dialogDefinition', function(ev) {
+      var dialogName = ev.data.name;
+      var dialogDefinition = ev.data.definition;
+
+      if (dialogName === 'link') {
+        var infoTab = dialogDefinition.getContents('info');
+        infoTab.remove('protocol');
+
+        var url = infoTab.get('url');
+        url.onKeyUp = function(){};
+        url.setup = function(data) {
+          this.allowOnChange = false;
+          if (data.url) {
+            var value = '';
+            if (data.url.protocol) {
+              value += data.url.protocol;
+            }
+            if (data.url.url) {
+              value += data.url.url;
+            }
+            this.setValue(value);
+          }
+          this.allowOnChange = true;
+        };
+        url.commit = function(data) {
+          data.url = { protocol: '', url: this.getValue() };
+        };
+      }
+    });
+
+    ckeditor = CKEDITOR.replace($inputTemplateContent.get(0), {
+      enterMode: CKEDITOR.ENTER_BR,
+      on: {
+        instanceReady: function(env) {
+          this.dataProcessor.writer.indentationChars = '';
+          this.dataProcessor.writer.lineBreakChars = '';
+        }
+      }
+    });
+
+    /* Bind selectize to variables dropdowns */
+    $('.js-select-variables').each(
+      function() {
+        var $this = $(this);
+        $this.selectize({
+          placeholder: $this.attr('placeholder'),
+          onChange: function(val) {
+            if (val && val.length > 0) {
+              insertVariable(val);
+            }
+            this.clear();
+          }
+        });
+      }
+    );
+  });
+</script>

@@ -1,0 +1,12 @@
+<div class="row">
+  <div class="col-md-6">
+    <div class="box">
+      <%= simple_nested_form_for object, url: object.new_record? ? case_types_path : case_type_path(object) do |f| %>
+        <%= f.input :title %>
+        <%= f.input :description, input_html: { rows: 5 } %>
+        <%= f.submit class: 'btn btn-primary', value: object.new_record? ? "Create" : "Update", "data-disable-with": object.new_record? ? "Create" : "Update" %>
+        <a href="<%= case_types_path %>" class="btn btn-white">Cancel</a>
+      <% end %>
+    </div>
+  </div>
+</div>

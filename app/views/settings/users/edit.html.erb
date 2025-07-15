@@ -1,0 +1,320 @@
+<% content_for :title, 'Edit User' %>
+
+<section class="box-header">
+  <h1>Edit User</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_users_path %>">
+        Users & Practitioners
+      </a>
+    </li>
+    <li>
+      <a href="<%= settings_user_path(@user) %>"><%= @user.full_name %></a>
+    </li>
+    <li class="active">Edit</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= render 'user_tabs', active_tab: 'edit_profile' %>
+
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active">
+        <%= simple_nested_form_for @form, as: :user, url: settings_user_path(@user), method: 'PUT', html: { enctype: 'multipart/form-data', autocomplete: 'off' } do |f| %>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">Personal details</div>
+                <div class="panel-body">
+                  <div class="form-group">
+                    <label class="control-label">Profile picture</label>
+                    <br>
+                    <div class="box-avatar-preview" <% if @user.avatar.exists? %> style="background-image: url(<%= @user.avatar.url(:thumb) %>)" <% end %>>
+                      <span class="btn-edit" id="btn-select-avatar"><i class="fa fa-pencil"></i> Edit </span>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <%= f.input :first_name, required: true %>
+                    </div>
+                    <div class="col-md-6">
+                      <%= f.input :last_name, required: true %>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <%= f.input :email, required: true, input_html: { autocomplete: 'off' } %>
+                    </div>
+
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <%= f.input :timezone, collection: timezone_options, required: true %>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <%= f.input :employee_number %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">Account settings</div>
+                <div class="panel-body">
+                  <div class="form-group">
+                    <%= f.input :active, wrapper: false, as: :boolean, label: 'Active' %>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Is this person a practitioner?</label>
+                    <br>
+                    <%=
+                      f.input_field :is_practitioner,
+                                    as: :radio_buttons,
+                                    collection: SimpleForm::Inputs::CollectionInput.boolean_collection,
+                                    item_wrapper_tag: false,
+                                    item_label_class: 'radio-inline'
+                    %>
+                  </div>
+
+                  <%= f.input :role, as: :select, collection: User::ROLES, label_method: :titleize, include_blank: false %>
+
+                  <div class="form-group">
+                    <label for="">Password:</label>
+                    <div>
+                      <a href="#modal-change-password" data-toggle="modal">Change password</a> <span class="text-muted"> | </span>
+                      <a href="#" class="btn-form" data-form-url="<%= send_reset_password_email_settings_user_path(@user) %>" data-form-method="POST" data-form-confirmation="Are you sure you want to send reset password instruction to this user?">Reset password</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="practitioner-info-wrapper" style="<%= 'display: none' unless @form.is_practitioner? %>">
+            <div class="panel panel-default">
+              <div class="panel-heading">Practitioner information</div>
+              <div class="panel-body">
+                <%= render 'practitioner_fields', f: f %>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <button class="btn btn-primary" type="submit">Update</button>
+          <a href="<%= settings_user_path(@user) %>" class="btn btn-white">Cancel</a>
+
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<%= render 'modal_crop_avatar' %>
+<%= render 'modal_change_signature' %>
+<%= render 'modal_change_password' %>
+
+<% content_for :page_js do %>
+  <%= render 'form_js' %>
+  <script>
+  $('#btn-select-avatar').click(function() {
+    $("#modal-crop-avatar").modal({
+      backdrop: 'static',
+      keyboard: false
+    })
+    .modal('show');
+
+    // Open file dialog automatically
+    setTimeout(function() {
+      $("#modal-crop-avatar").find('.input-file').click();
+    }, 100);
+  });
+
+  $('#modal-crop-avatar').on('cropped', function(event, file, imageDataUrl) {
+    $.ajax({
+      url: '<%= update_avatar_settings_user_path(@user) %>',
+      method: 'PUT',
+      data: {
+        avatar_data_url: imageDataUrl
+      },
+      success: function(res) {
+        $('.box-avatar-preview').css('background-image', 'url(' + res.avatar.thumb + ')');
+        Flash.success('The profile picture has been successfully updated.');
+      },
+      error: function(xhr) {
+        var errorMsg = 'An error has occured. Sorry for the inconvenience.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMsg = xhr.responseJSON.message;
+        }
+        Flash.error(errorMsg);
+      }
+    });
+  });
+
+  <% if @user.is_practitioner? %>
+    // Modal change practitioner signature
+    (function() {
+      var $btnTriggerModal = $('.js-btn-change-signature');
+      var $modal = $("#modal-practitioner-signature");
+
+      var signaturePad;
+      var $btnClear = $modal.find('.js-btn-clear-pad');
+      var $btnUndo = $modal.find('.js-btn-undo-pad');
+      var $signaturePadCanvas = $modal.find('.js-signature-pad');
+      var $signaturePadCanvasWrap = $modal.find('.js-signature-pad-wrap');
+      var $btnSubmitDraw = $modal.find('.js-btn-submit-pad');
+
+      var $btnSelectFile = $modal.find('.js-btn-select-file');
+      var $inputFile = $modal.find('.js-input-file');
+      var $btnUploadFile = $modal.find('.js-btn-upload-file');
+
+      var init = function() {
+        $btnSubmitDraw.attr('disabled', true);
+        $btnUploadFile.attr('disabled', true);
+        $inputFile.val('');
+
+        if (!signaturePad) {
+          $signaturePadCanvas.attr('width', $signaturePadCanvasWrap.width());
+          $signaturePadCanvas.attr('height', $signaturePadCanvasWrap.height());
+
+          signaturePad = new SignaturePad($signaturePadCanvas.get(0), {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(0, 0, 0)'
+          });
+
+          signaturePad.onEnd = function() {
+            $btnSubmitDraw.removeAttr('disabled');
+          }
+        }
+
+        signaturePad.clear();
+      };
+
+      $btnClear.click(function(e) {
+        e.preventDefault();
+        signaturePad.clear();
+        $btnSubmitDraw.removeAttr('disabled');
+      });
+
+      $btnUndo.click(function(e) {
+        e.preventDefault();
+
+        var data = signaturePad.toData();
+        if (data) {
+          data.pop(); // remove the last dot or line
+          signaturePad.fromData(data);
+        }
+      });
+
+      $btnSelectFile.click(function(e) {
+        e.preventDefault();
+        $inputFile.val('');
+        $inputFile.trigger('click');
+      });
+
+      var validateSelectedFile = function(file) {
+        // Validate file size
+        if (file.size > 100 * 1024) {
+          Flash.warning('The selected file is too large. Maximum is 100KB.');
+          return false;
+        }
+
+        // Validate file mimetype
+        if (["image/jpeg", "image/png", "image/jpg"].indexOf(file.type) === -1) {
+          Flash.warning('Only PNG or JPG images are allowed.');
+          return false;
+        }
+
+        return true;
+      };
+
+      var uploadSelectedFile = function(file) {
+        var formData = new FormData;
+        formData.append('signature_image_file', file);
+
+        $.ajax({
+          method: 'POST',
+          url: '<%= change_signature_settings_user_path(@user) %>',
+          data: formData,
+          contentType: false,
+          cache: false,
+          processData: false,
+        });
+      };
+
+      $inputFile.on('change', function() {
+        var file = $inputFile.get(0).files[0];
+
+        if (file) {
+          var isValid = validateSelectedFile(file);
+          if (isValid) {
+            $btnUploadFile.removeAttr('disabled');
+          } else {
+            $inputFile.val('');
+            $btnUploadFile.attr('disabled', true);
+          }
+        } else {
+          $btnUploadFile.attr('disabled', true);
+        }
+      });
+
+      $btnSubmitDraw.click(function(e) {
+        e.preventDefault();
+
+        if (signaturePad.isEmpty()) {
+          Flash.warning('Signature is blank!');
+        } else {
+          var formData = {
+            signature_image_data_url: signaturePad.toDataURL()
+          };
+
+          $.ajax({
+            method: 'POST',
+            url: '<%= change_signature_settings_user_path %>',
+            data: formData,
+          });
+        }
+      });
+
+      $btnUploadFile.click(function(e) {
+        e.preventDefault();
+
+        if ($inputFile.get(0).files.length === 0) {
+          Flash.warning('No file chosen!');
+        } else {
+          var file = $inputFile.get(0).files[0];
+          var isValid = validateSelectedFile(file);
+          if (isValid) {
+            uploadSelectedFile(file);
+          }
+        }
+      });
+
+      $btnTriggerModal.on('click', function(e) {
+        e.preventDefault();
+        $modal.modal('show');
+      });
+
+      $modal.on('shown.bs.modal', function() {
+        init();
+      });
+
+    })();
+  <% end %>
+  </script>
+<% end %>

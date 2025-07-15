@@ -1,0 +1,175 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @user.full_name %> <% if !@user.active? %><span class="label label-default">Inactive</span><% end %></h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= edit_admin_user_path(@user) %>" class="btn btn-white">Edit</a>
+
+      <% if @user.active? %>
+        <a href="<%= login_as_admin_user_path(@user) %>" class="btn btn-white" target="_blank">Login as this user</a>
+        <a href="<%= deactivate_admin_user_path(@user) %>" class="btn btn-white" data-method="POST" data-confirm="Are you sure you want to DEACTIVATE this user?">Deactivate</a>
+      <% else %>
+        <a href="<%= activate_admin_user_path(@user) %>" class="btn btn-white" data-method="POST" data-confirm="Are you sure you want to ACTIVE this user?">Activate</a>
+      <% end %>
+
+      <% if @user.avatar.exists? %>
+        <a href="<%= delete_avatar_admin_user_path(@user) %>" class="btn btn-white" data-method="POST" data-confirm="Are you sure you want to delete the profile photo?">Delete profile photo</a>
+      <% end %>
+
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_users_path %>">Users</a>
+    </li>
+    <li>#<%= @user.id %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>User info</strong>
+        </div>
+
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>ID:</strong>
+            <p><%= @user.id %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Business:</strong>
+            <p>
+              <a href="<%= admin_business_path(@user.business) %>"><%= @user.business.name %></a> [#<%= @user.business.id %>]
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Active:</strong>
+            <p>
+              <% if @user.active? %>
+                <span class="text-green">Yes</span>
+              <% else %>
+                <span class="text-muted text-bolder">No</span>
+              <% end %>
+            </p>
+          </div>
+
+          <% if @user.avatar.exists? %>
+          <div class="block-info">
+            <strong>Photo:</strong>
+            <p>
+              <img src="<%= @user.avatar.url(:thumb) %>" height="50px">
+            </p>
+          </div>
+          <% end %>
+
+          <div class="block-info">
+            <strong>Full name:</strong>
+            <p><%= @user.full_name %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Email:</strong>
+            <p>
+              <%= @user.email %>
+              <% if @user.invited_to_sign_up? %>
+                <a href="<%= resend_invitation_email_admin_user_path(@user) %>" data-method="POST" data-confirm="Are you sure?">Resend invitation email</a>
+              <% end %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>2FA:</strong>
+
+            <p>
+              <% if @user.enable_google_authenticator? %>
+                <span>Enabled</span>
+                <a href="#" class="text-danger btn-form"
+                  data-form-url="<%= remove_tfa_admin_user_path(@user) %>"
+                  data-form-method="POST"
+                  data-form-confirmation="Are you sure you want to REMOVE 2FA from this user?"
+                  >Remove?</a>
+              <% else %>
+                <span class="text-muted text-bolder">No</span>
+              <% end %>
+            </p>
+          </div>
+
+
+          <div class="block-info">
+            <strong>Last login:</strong>
+            <p>
+              <% if @user.current_sign_in_at %>
+                <%= @user.current_sign_in_at.strftime(t('datetime.short_12h_z')) %> <span class="text-muted"> - </span> <%= @user.current_sign_in_ip %>
+              <% else %>
+                <span class="text-muted">--</span>
+              <% end %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Timezone:</strong>
+            <p><%= @user.timezone %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Role:</strong>
+            <p><%= @user.role.titleize %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Created:</strong>
+            <p><%= @user.created_at.strftime('%d/%b/%Y') %></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <% if @user.is_practitioner? && @user.practitioner %>
+      <% practitioner = @user.practitioner %>
+      <div class="col-md-6 col-xs-12">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>Practitioner profile</strong>
+          </div>
+
+          <div class="panel-body">
+            <div class="block-info">
+              <strong>Profession:</strong>
+              <p><%= practitioner.profession %></p>
+            </div>
+
+            <div class="block-info">
+              <strong>Profile approval:</strong>
+              <p>
+                <% if practitioner.approved? %>
+                    Profile is approved.
+                    <a href="<%= frontend_team_profile_path(slug: practitioner.slug, country: practitioner.country.try(:downcase)) %>" target="_blank">View public profile page</a>
+                <% else %>
+                  <span class="text-muted">Practitioner profile is not approved yet.</span>
+                <% end %>
+              </p>
+            </div>
+
+            <a href="<%= admin_practitioner_path(practitioner) %>">Manage practitioner profile</a>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+</section>

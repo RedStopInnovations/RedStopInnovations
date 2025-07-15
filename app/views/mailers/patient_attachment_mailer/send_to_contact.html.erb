@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    Dear <%= @contact.first_name %>,
+    <br>
+    <br>
+    <%= simple_format @message %>
+    <br>
+    Kind regards,
+    <br>
+    <%= @business.name %>
+  </body>
+</html>

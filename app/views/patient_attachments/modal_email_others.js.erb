@@ -1,0 +1,18 @@
+(function() {
+  $('#modal-email-others-attachment').remove();
+  $('body').append('<%= j(render 'modal_email_others', patient: @patient, attachment: @attachment) %>');
+
+  var $modal = $('#modal-email-others-attachment');
+  $modal.find('#input-contact-ids').selectize({
+    plugins: ['remove_button']
+  });
+
+  $modal.find('#input-extra-emails').selectize({
+    plugins: ['remove_button'],
+    createFilter: function(input) {
+      return Utils.isValidEmail(input);
+    },
+    create: true,
+  });
+  $modal.modal('show');
+})();

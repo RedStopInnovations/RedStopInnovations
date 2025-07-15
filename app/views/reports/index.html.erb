@@ -1,0 +1,284 @@
+<% content_for :title, 'Reports' %>
+
+<section class="box-header">
+  <h1>Reports</h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Appointments</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= reports_appointments_schedule_path %>">Appointment schedule</a>
+                </li>
+                <li>
+                  <a href="<%= reports_uninvoiced_appointments_path %>">
+                    Uninvoiced appointments
+                  </a>
+                </li>
+                <li>
+                  <a href="<%= reports_uninvoiced_tasks_path %>">
+                    Uninvoiced tasks
+                  </a>
+                </li>
+                <li>
+                  <a href="<%= reports_cancelled_appointments_path %>">
+                    Cancelled appointments
+                  </a>
+                </li>
+                <li>
+                  <a href="<%= reports_appointments_incomplete_path %>">
+                    Incomplete appointments
+                  </a>
+                </li>
+                <li>
+                  <a href="<%= reports_attendance_proof_exports_path %>">
+                    Proof of attendance
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Clients</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= reports_patient_invoices_path %>">Clients by total invoiced</a>
+                </li>
+                <li>
+                  <a href="<%= reports_new_patient_path %>">New clients</a>
+                </li>
+                <li>
+                  <a href="<%= reports_patients_without_upcoming_appointments_path %>">Clients without upcoming appointment</a>
+                </li>
+                <li>
+                  <a href="<%= reports_deleted_items_path %>">Deleted items</a>
+                </li>
+                <li>
+                  <a href="<%= reports_patient_duplicates_path %>">Duplicates</a>
+                </li>
+                <li>
+                  <a href="<%= app_patient_bulk_archive_path %>">Bulk archive</a>
+                </li>
+                <li>
+                  <a href="<%= reports_patient_account_statements_path %>">Published account statements</a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Practitioners</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= reports_practitioner_performance_path %>">Practitioner performance</a>
+                </li>
+                <li><a href="<%= reports_summary_path %>"> Practitioner payroll</a></li>
+                <li><a href="<%= reports_employees_roster_path %>"> Practitioner roster</a></li>
+                <li><a href="<%= reports_practitioner_reviews_path %>">Practitioner reviews</a></li>
+                <li><a href="<%= reports_practitioner_documents_path %>">Practitioner documents</a></li>
+                <li><a href="<%= reports_practitioner_travel_path %>">Practitioner travel</a></li>
+                <li><a href="<%= reports_practitioner_availability_path %>">Practitioner availability</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Banking</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= reports_invoices_raised_path %>">Invoice summary</a>
+                </li>
+                <li>
+                  <a href="<%= reports_payment_summary_path %>">Payment summary</a>
+                </li>
+                <li>
+                  <a href="<%= reports_outstanding_invoices_path %>">Outstanding invoices</a>
+                </li>
+                <li>
+                  <a href="<%= reports_unsent_invoices_path %>">Unsent invoices</a>
+                </li>
+                <li>
+                  <a href="<%= reports_voided_invoices_path %>">Voided invoices</a>
+                </li>
+                <li>
+                  <a href="<%= reports_invoices_pdf_exports_path %>">Invoices PDF</a>
+                </li>
+
+                <li>
+                  <a href="<%= reports_product_sales_path %>">Product sales</a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Case reports</div>
+            <div class="box-body">
+              <ul>
+                <li><a href="<%= reports_patient_cases_all_path %>">List all cases</a></li>
+                <li><a href="<%= reports_patient_cases_invoice_total_per_case_path %>"> Invoice total per case </a></li>
+                <li><a href="<%= reports_patient_cases_invoice_without_case_path %>"> Invoices without case </a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Contacts reports</div>
+            <div class="box-body">
+              <ul>
+                <li><a href="<%= reports_referral_source_path %>"> Referral source </a></li>
+                <li><a href="<%= reports_contacts_total_invoice_path %>">Contacts by total invoice </a></li>
+                <li><a href="<%= reports_contacts_total_patients_path %>"> Contacts by total clients </a></li>
+                <li>
+                  <a href="<%= reports_contact_duplicates_path %>">Duplicates</a>
+                </li>
+                <li>
+                  <a href="<%= reports_contact_account_statements_path %>">Published account statements</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Treatment notes</div>
+            <div class="box-body">
+              <ul>
+                <% if can?(:read, :treatment_note_reports) %>
+                  <li><a href="<%= reports_list_all_treatment_notes_path %>"> List all treatment notes</a></li>
+                <% end %>
+                <li><a href="<%= reports_appointments_without_treatment_note_path %>"> Appts without treatment note</a></li>
+                <li><a href="<%= reports_triggers_by_word_path %>">Search treatments for word </a></li>
+                <li><a href="<%= reports_triggers_by_category_path %>">Search treatments for category</a></li>
+
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Bulk claiming</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= reports_eclaims_medicare_path %>">Medicare</a>
+                </li>
+                <li>
+                  <a href="<%= reports_eclaims_dva_path %>">DVA</a>
+                </li>
+                <li>
+                  <a href="<%= reports_eclaims_ndis_path %>">NDIS</a>
+                </li>
+                <li>
+                  <a href="<%= reports_eclaims_proda_path %>">PRODA</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      <% if can?(:export, :all) %>
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Data exports</div>
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-12 col-lg-6">
+                  <ul>
+                    <li>
+                      <a href="<%= app_data_export_patients_path %>">Clients</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_treatment_notes_exports_path %>">Treatment notes PDF</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_patient_attachments_exports_path %>">Client attachments</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_contacts_path %>">Contacts</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_communications_path %>">Messages</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_patient_letters_path %>">Letters</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_patient_letters_exports_path %>">Letters PDF</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_referrals_path %>">Referrals</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_account_statements_exports_path %>">Account statements PDF</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_waiting_list_path %>">Waiting list</a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="col-md-12 col-lg-6">
+                  <ul>
+                    <li>
+                      <a href="<%= app_data_export_appointment_types_path(format: :csv) %>" download>Appointment types</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_billable_items_path(format: :csv) %>" download>Billable items</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_products_path(format: :csv) %>" download>Products</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_users_path(format: :csv) %>">Users</a>
+                    </li>
+                    <li>
+                      <a href="<%= app_data_export_practitioners_timeable_settings_path(format: :csv) %>" download>Practitioners timeable</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <div class="box report_blocks">
+            <div class="box-header">Other reports</div>
+            <div class="box-body">
+              <ul>
+                <li>
+                  <a href="<%= reports_business_leads_path %>">Business leads</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+    </div>
+
+</section>

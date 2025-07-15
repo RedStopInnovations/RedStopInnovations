@@ -1,0 +1,150 @@
+<% content_for :title, 'Clients' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Clients</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a class="btn btn-primary" href="<%= new_patient_path %>">+ Add client</a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= search_form_for @search_query, url: patients_path, enforce_utf8: false do |f| %>
+      <div class="row">
+        <div class="col-lg-4 col-sm-6 col-xs-12">
+          <div class="form-group">
+          <%= f.search_field :first_name_or_last_name_or_full_name_or_email_or_mobile_or_phone_cont, class: 'form-control', placeholder: 'ID, name, email or number' %>
+          </div>
+        </div>
+        <div class="col-lg-4 col-sm-6 col-xs-12">
+          <div class="form-group">
+          <%= f.search_field :city_or_postcode_cont, class: 'form-control', placeholder: 'City or suburb' %>
+          </div>
+        </div>
+
+        <div class="col-lg-1 col-sm-6 col-xs-6">
+          <div class="form-group">
+            <div class="check-box mt-10">
+              <input type="checkbox" name="include_archived" id="cb-include-archived" value="1" <%= 'checked' if params[:include_archived].to_s == '1' %> >
+              <label for="cb-include-archived">Show archived</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-2 col-sm-6 col-xs-6">
+          <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> <span class="hidden-xs">Search</span></button>
+        </div>
+      </div>
+    <% end %>
+
+    <hr class="visible-xs">
+    <div class="table-responsive mt-20">
+      <table class="table table-striped table-layout-fixed">
+        <tbody>
+          <% @patients.each do |patient| %>
+            <tr>
+              <td style="width: 280px">
+                <a href="<%= patient_path(patient) %>"
+                  <% if patient.archived? %>
+                  class="text-muted"
+                  title="Archived"
+                  <% end %>
+
+                ><span class="text-bolder"><%= patient.last_name.try(:upcase) %></span>, <%= patient.first_name %></a>
+                <% if patient.dob.present? %>
+                <br>
+                <span class="text-smaller"><%= patient.dob.strftime(t('date.dob'))%></span>
+                <% end %>
+                <br>
+                <span class="text-smaller"><%= patient.short_address %></span>
+              </td>
+
+              <td style="width: 250px">
+                <% if patient.email.present? %>
+                  <span class="text-smaller">
+                    <span class="contact-label">E:</span> <a href="mailto:<%= patient.email %>" class="contact-details-link" title="<%= patient.email %>">
+                      <%= truncate patient.email, length: 50 %>
+                    </a>
+                  </span>
+                  <br>
+                <% end %>
+
+                <% if patient.phone.present? %>
+                  <span class="text-smaller">
+                    <span class="contact-label">P:</span> <a href="tel:<%= patient.phone %>" class="contact-details-link">
+                      <%= patient.phone %>
+                    </a>
+                  </span>
+                  <br>
+                <% end %>
+
+                <% if patient.mobile.present? %>
+                  <span class="text-smaller">
+                    <span class="contact-label">M:</span> <a href="tel:<%= patient.mobile %>" class="contact-details-link">
+                    <%= patient.mobile %>
+                    </a>
+                  </span>
+                <% end %>
+              </td>
+
+              <td style="width: 120px; text-align: right">
+                <div class="btn-group" style="min-width: 90px">
+                  <a href="<%= patient_path(patient) %>" class="btn btn-white">Details</a>
+                  <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                    <li>
+                      <a href="<%= edit_patient_path(patient) %>">Edit details</a>
+                    </li>
+                    <li>
+                      <a href="<%= new_invoice_path(patient_id: patient.id) %>">Add invoice</a>
+                    </li>
+                    <li>
+                      <a href="<%= new_payment_path(patient_id: patient.id) %>">Add payment</a>
+                    </li>
+                    <li>
+                      <% unless patient.archived? %>
+                        <a href="<%= archive_patient_path(patient) %>"
+                          data-confirm="Are you sure you want to archive this client?" data-method="PUT">Archive</a>
+                      <% end %>
+                    </li>
+                    <li class="divider" role="separator"></li>
+                    <% unless patient.archived? %>
+                    <li>
+                      <a href="<%= calendar_path(_ia: 'schedule_from_patient', patient_id: patient.id) %>">Schedule appointment</a>
+                    </li>
+                    <li>
+                      <a href="<%= calendar_search_appointment_path(patient_id: patient.id) %>">Search availability</a>
+                    </li>
+                    <li>
+                      <a href="<%= calendar_path(_ia: 'add_to_waiting_list', patient_id: patient.id) %>">
+                        Add to waiting list
+                      </a>
+                    </li>
+                    <% end %>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-20">
+      <div class="col-md-6 text-xs-center">
+        <%= page_entries_info @patients, entry_name: 'clients' %>
+      </div>
+
+      <div class="col-md-6 text-right text-xs-center mt-xs-5">
+        <%= paginate @patients, theme: 'app' %>
+      </div>
+    </div>
+
+  </div>
+</section>

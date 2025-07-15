@@ -1,0 +1,40 @@
+<%= simple_nested_form_for outcome_measure_type, url: outcome_measure_type.new_record? ? outcome_measure_types_path : outcome_measure_type_path(outcome_measure_type) do |f| %>
+
+  <div class="box">
+    <div class="box-body">
+      <div class="row">
+        <div class="col-lg-6 col-sm-12">
+          <%= f.input :name %>
+          <%= f.input :description, input_html: { rows: 4 } %>
+          <div class="form-group">
+            <label class="control-label">Type</label>
+            <div>
+              <label class="radio-inline">
+                <input type="radio"
+                       name="outcome_measure_type[outcome_type]"
+                       value="Quantitative"
+                       checked="checked"
+                       readonly="readonly">
+                <span>Quantitative</span>
+              </label>
+              <label class="radio-inline text-muted">
+                <input type="radio"
+                       name="outcome_measure_type[outcome_type]"
+                       value="Qualitative"
+                       disabled="disabled">
+                <span>Qualitative (Coming soon)</span>
+              </label>
+            </div>
+          </div>
+
+          <%= f.input :unit, hint: 'For example: seconds, cms, degrees' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="box-footer">
+      <%= f.submit 'Submit', class: 'btn sitebtn' %>
+      <a href="<%= outcome_measure_type.new_record? ? outcome_measure_types_path : outcome_measure_type_path(outcome_measure_type) %>" class="btn linebtn">Cancel</a>
+    </div>
+  </div>
+<% end %>

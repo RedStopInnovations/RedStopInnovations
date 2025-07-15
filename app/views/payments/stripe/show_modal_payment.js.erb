@@ -1,0 +1,16 @@
+(function() {
+  var modalApp = new Vue({
+    template: '<modal-stripe-payment @complete="onPaymentComplete" @closed="onModalClosed" <% if @target_invoice %> target-invoice-id="<%= @target_invoice.id %>" <% end %> <% if @target_patient %> initial-patient-id="<%= @target_patient.id %>" <% end %>/>',
+    methods: {
+      onModalClosed: function() {
+        this.$destroy();
+      },
+      onPaymentComplete: function(payment) {
+        window.location.href = '/app/payments/' + payment.id;
+      }
+    }
+  });
+
+  modalApp.$mount();
+  $('body').append(modalApp.$el);
+})();

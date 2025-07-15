@@ -1,0 +1,190 @@
+<%= render 'show_layout' do %>
+  <div class="row mb-10">
+    <div class="col-md-6 col-xs-12 col-sm-3">
+      <h4>Appointments</h4>
+    </div>
+
+    <div class="col-md-6 col-sm-9 col-xs-12 text-right">
+      <a href="<%= calendar_path(_ia: 'add_to_waiting_list', patient_id: @patient.id) %>" class="btn btn-white">
+        Add to waiting list
+      </a>
+      <a href="<%= calendar_path(_ia: 'schedule_from_patient', patient_id: @patient.id) %>" class="btn btn-white">
+        Schedule appointment
+      </a>
+    </div>
+  </div>
+
+  <% if @wait_lists.size > 0 %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <strong>Waiting list</strong>
+    </div>
+
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Profession</th>
+            <th>Appointment</th>
+            <th>Practitioner</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @wait_lists.each do |wait_list| %>
+            <tr>
+              <td>
+                <%= wait_list.date.strftime(t('date.common')) %>
+              </td>
+              <td>
+                <%= wait_list.profession.presence || 'N/S' %>
+              </td>
+              <td>
+                <%= wait_list.appointment_type.try(:name).presence || 'N/S' %>
+              </td>
+              <td>
+                <%= wait_list.practitioner.try(:full_name).presence || 'N/S' %>
+              </td>
+              <td>
+                <a href="<%= calendar_path(_ia: 'schedule_waiting_list', id: wait_list.id) %>" title="Schedule" class="btn btn-link"><i class="fa fa-calendar"></i></a>
+                <a href="<%= mark_scheduled_wait_list_path(wait_list) %>" title="Mark scheduled" class="btn btn-link" data-method="PUT" data-confirm="Are you sure?"><i class="fa fa-check"></i></a>
+                <a href="<%= wait_list_path(wait_list) %>" title="Delete" class="btn btn-link" data-method="DELETE" data-confirm="Are you sure want to DELETE this entry?"><i class="fa fa-trash text-danger"></i></a>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <% end %>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Appointment type</th>
+              <th>Practitioner</th>
+              <th>Status</th>
+              <th style="width: 120px"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @appointments.each do |appointment| %>
+              <tr>
+                <td>
+                  <%= appointment.start_time_in_practitioner_timezone.strftime(t('date.common')) %>
+                  <br>
+                  <%= appointment.start_time_in_practitioner_timezone.strftime(t('time.common')) %>
+                  <span class="text-muted"> - </span>
+                  <%= appointment.end_time_in_practitioner_timezone.strftime(t('time.common')) %>
+                  (<%= appointment.start_time_in_practitioner_timezone.strftime('%Z') %>)
+                  <% if appointment.cancelled_at? %>
+                    <span class="label label-default">Cancelled</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= appointment.appointment_type&.name %>
+                </td>
+                <td>
+                  <%= appointment.practitioner.full_name %>
+                </td>
+                <td>
+                  <% if appointment.is_confirmed? %>
+                    <span title="Marked as confirmed" class="appt-status-fa-icon"><i class="fa fa-calendar-check-o"></i></span>
+                  <% end %>
+
+                  <% if appointment.status == Appointment::STATUS_COMPLETED %>
+                    <span title="Marked as completed" class="appt-status-fa-icon"><i class="fa fa-check-square-o"></i></span>
+                  <% end %>
+
+                  <% if appointment.invoice.present? %>
+                    <span title="An invoice issued" class="appt-status-fa-icon"><i class="fa fa-credit-card"></i></span>
+                  <% end %>
+
+                  <% if appointment.treatment.present? %>
+                    <span title="Treatment note created" class="appt-status-fa-icon"><i class="fa fa-file-text-o"></i></span>
+                  <% end %>
+
+                  <% if appointment.attendance_proofs.present? %>
+                    <span title="Proof of attendance uploaded" class="appt-status-fa-icon"><i class="fa fa-photo"></i></span>
+                  <% end %>
+
+                  <% if appointment.status? && appointment.status != Appointment::STATUS_COMPLETED %>
+                    <br>
+                    <span class="label label-default hidden-print"><%= appointment.status.humanize %></span>
+                    <span class="visible-print"><%= appointment.status.humanize %></span>
+                  <% end %>
+                </td>
+                <td>
+                    <div class="btn-group" style="min-width: 90px">
+                      <a href="<%= appointment_path(appointment) %>" class="btn btn-white">Details</a>
+                      <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                        <% if appointment.availability.present? && !appointment.cancelled_at? %>
+                        <li>
+                          <a href="<%= calendar_path(availability_id: appointment.availability.id, practitioner_ids: appointment.availability.practitioner_id) %>"  target="_blank">
+                            View in calendar
+                          </a>
+                        </li>
+                        <% end %>
+
+                        <li>
+                          <% if appointment.is_confirmed? %>
+                            <a
+                              class="btn-form"
+                              data-form-url="<%= mark_unconfirmed_appointment_path(appointment) %>"
+                              data-form-method="POST"
+                              data-form-confirmation="Mark this appointment as UNCONFIRMED?"
+                            >Mark as unconfirmed</a>
+                          <% else %>
+                            <a
+                              class="btn-form"
+                              data-form-url="<%= mark_confirmed_appointment_path(appointment) %>"
+                              data-form-method="POST"
+                              data-form-confirmation="Mark this appointment as CONFIRMED?"
+                            >Mark as confirmed</a>
+                          <% end %>
+                        </li>
+
+                        <li>
+                          <a href="<%= modal_review_request_appointment_path(appointment.id) %>" data-remote="true">Send review request</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                          <a href="<%= appointment_path(appointment) %>"
+                            data-method="DELETE"
+                            data-confirm="Are you sure want to DELETE this appointment?"
+                            >
+                            <span class="text-danger">Delete</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @appointments %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @appointments, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% end %>

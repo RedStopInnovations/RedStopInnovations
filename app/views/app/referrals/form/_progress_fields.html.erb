@@ -1,0 +1,72 @@
+
+<%=
+simple_form_for @referral,
+url: update_progress_app_referral_path(@referral),
+method: 'PUT',
+remote: true do |f| %>
+
+        <%=
+        f.input :receive_referral_date, label: '1. Date received referral', as: :string, input_html: {
+            class: 'flatpickr-datepicker',
+            data: {
+            'alt-format' => 'd M Y',
+            'date-format' => 'Y-m-d'
+            }
+        }
+        %>
+
+        <%=
+        f.input :send_service_agreement_date, label: '2. Date sent service agreement', as: :string, input_html: {
+            class: 'flatpickr-datepicker',
+            data: {
+            'alt-format' => 'd M Y',
+            'date-format' => 'Y-m-d'
+            }
+        }
+        %>
+
+        <%=
+        f.input :contact_referrer_date, label: '3. Date you confirmed the referral', as: :string, input_html: {
+            class: 'flatpickr-datepicker',
+            data: {
+            'alt-format' => 'd M Y',
+            'date-format' => 'Y-m-d'
+            }
+        }
+        %>
+
+        <%= f.input :contact_patient_date, label: '4. Date you contacted the client', as: :string, input_html: {
+            class: 'flatpickr-datepicker',
+            data: {
+            'alt-format' => 'd M Y',
+            'date-format' => 'Y-m-d'
+            }
+        }
+        %>
+
+        <a href="#" class="pull-right js-button-find-first-appointment-date"
+            title="Search the first appointment"
+            data-url="<%= find_first_appointment_app_referral_path(@referral.id) %>"><i class="fa fa-search"></i></a>
+        <%= f.input :first_appoinment_date, label: '5. Date of the first appointment', as: :string, input_html: {
+            class: 'flatpickr-datepicker js-input-first-appointment-date',
+            data: {
+            'alt-format' => 'd M Y',
+            'date-format' => 'Y-m-d'
+            }
+        }
+        %>
+
+        <%= f.input :send_treatment_plan_date, label: '6. Date you sent the treatment plan', as: :string, input_html: {
+            class: 'flatpickr-datepicker',
+            data: {
+            'alt-format' => 'd M Y',
+            'date-format' => 'Y-m-d'
+            }
+        }
+        %>
+
+        <%= f.input :summary_referral, label: 'Summary / Additional information', as: :text, input_html: { rows: 5 }  %>
+    <% if can?(:update, Referral) %>
+        <button class="btn btn-primary">Update progress</button>
+    <% end %>
+<% end %>

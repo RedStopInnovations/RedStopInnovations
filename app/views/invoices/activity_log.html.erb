@@ -1,0 +1,10 @@
+<% @invoice_activities.each do |activity| %>
+  <div>
+    <span><%= activity.date.strftime(t('datetime.common')) %></span> <span class="text-muted"> | </span>
+    <% if activity.author %>
+      <strong><%= activity.author %></strong>
+    <% end %>
+    <span><%= activity.description %></span>
+    <hr>
+  </div>
+<% end %>

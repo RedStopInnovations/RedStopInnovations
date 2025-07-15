@@ -1,0 +1,40 @@
+(function() {
+    var $modal = $('<%= j(render 'modal_review_request_content') %>');
+    $modal.appendTo('body');
+
+    $modal.on('hidden.bs.modal', function() {
+        $(this).remove();
+    });
+
+    var $form = $modal.find('.js-form-submit');
+
+    if ($form.length > 0) {
+        $form.on('submit', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                method: $form.attr('method'),
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                dataType: 'json',
+                success: function(res) {
+                    if (res.message) {
+                        Flash.success(res.message);
+                    } else {
+                        Flash.success('Success');
+                    }
+                    $modal.modal('hide');
+                },
+                error: function(xhr) {
+                    if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                        Flash.error(xhr.responseJSON.message);
+                    } else {
+                        Flash.error('An error has occurred. Could not send review request.');
+                    }
+                }
+            });
+        });
+    }
+
+    $modal.modal('show');
+})();

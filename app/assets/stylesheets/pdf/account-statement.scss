@@ -1,0 +1,140 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "shared/helper";
+@import "pdf/common";
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+a {
+  color: #5ea444;
+  font-weight: 600;
+}
+
+.help-text {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+.section-report {
+  color: #333;
+
+  .report-content {
+    background: #FFF;
+    border-radius: 2px;
+    overflow: hidden;
+
+    h3, h3 {
+      color: #333;
+    }
+
+    .report-head {
+      background: #e6e6e6;
+      padding: 15px;
+      text-align: center;
+
+      h3 {
+        font-size: 29px;
+        margin: 0;
+      }
+    }
+
+    .report-body {
+      padding: 15px;
+      background: #FFF;
+
+      h3 {
+        font-size: 20px;
+        text-transform: uppercase;
+        margin: 10px 0;
+      }
+
+    }
+  }
+}
+.box-table {
+  padding: 15px;
+  background: #FFF;
+  border-radius: 3px;
+  margin: 15px 0px;
+  overflow: hidden;
+
+  ul.pagination {
+    margin: 0px;
+    >li>a {
+      color: #414141;
+      font-weight: 600;
+      font-size: 13px;
+      background: none;
+      border: none;
+      border-radius: 3px;
+      &:hover {
+        background: #d2d6de;
+      }
+    }
+    >li.active>a {
+      background: #44b654;
+      color: #FFF;
+    }
+  }
+}
+.table-flat {
+  width: 100%;
+  margin-bottom: 20px;
+  thead {
+    display: table-row-group;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+  th {
+    text-overflow: ellipsis;
+    font-weight: 700;
+    line-height: 24px;
+    letter-spacing: 0;
+    font-size: 13px;
+    color: rgba(0,0,0,.54);
+    padding-bottom: 8px;
+  }
+  td {
+    font-size: 14px;
+    padding: 8px 0px;
+    border-top: 1px solid rgba(0,0,0,.12);
+    border-bottom: 1px solid rgba(0,0,0,.12);
+    padding-top: 12px;
+    vertical-align: middle;
+    .btn:first-child {
+      padding-left: 0px;
+      margin-left: 0px;
+    }
+    img {
+      width: 50px;
+      float: left;
+      margin-right: 5px;
+      border-radius: 5px;
+    }
+    .sub-text {
+      display: block;
+      font-size: 13px;
+      strong {
+        font-weight: 600;
+        color: #414141;
+      }
+    }
+  }
+  &.align-top {
+    td {
+      vertical-align: top;
+    }
+  }
+}
+
+.business-logo {
+  margin: 0 auto;
+  border-radius: 2px;
+  max-height: 150px;
+  max-width: 400px;
+}

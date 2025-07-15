@@ -1,0 +1,12 @@
+<% if @success %>
+  Flash['success']('User information has been successfully updated.');
+  window.location = "<%= settings_user_url(@user) %>"
+<% else %>
+  var modalHTML = $.parseHTML('<%= j(render template: 'settings/users/edit') %>');
+  $(".new_user, .edit_user").html($(modalHTML).find('form').html());
+  Flash['error']('Failed to update user. Please check for form errors.');
+
+  var offset = $('.wrapper').scrollTop() + $('.has-error.form-group').offset().top - 100;
+  $('.wrapper').animate({ scrollTop: offset + 'px' }, 500);
+
+<% end %>

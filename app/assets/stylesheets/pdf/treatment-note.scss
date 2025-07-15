@@ -1,0 +1,15 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "pdf/common";
+
+.box-title {
+    background-color: #eee;
+    border: 1px solid #f4f4f4;
+    text-align: center;
+    padding: 10px 5px;
+    margin-bottom: 20px;
+
+    .h3 {
+        font-weight: bold;
+    }
+}

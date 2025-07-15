@@ -1,0 +1,153 @@
+<% content_for :title, 'New User' %>
+
+<section class="box-header">
+  <h1>New User</h1>
+</section>
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_users_path %>">
+        Users & Practitioners
+      </a>
+    </li>
+    <li class="active">New</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= simple_nested_form_for @form, as: :user, url: settings_users_path, method: 'POST', wrapper: :vertical_form, html: { autocomplete: 'off' } do |f| %>
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Personal details</h4>
+        <div class="box">
+          <div class="form-group">
+            <label class="control-label">Profile picture</label>
+            <br>
+            <div class="box-avatar-preview"
+              <% if @form.avatar_data_url.present? %>
+                style="background-image: url(<%= @form.avatar_data_url %>)"
+              <% end %>
+            >
+              <span class="btn-edit" id="btn-select-avatar">Select file </span>
+            </div>
+            <%= f.input :avatar_data_url, as: :hidden %>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <%= f.input :first_name, required: true %>
+            </div>
+            <div class="col-md-6">
+              <%= f.input :last_name, required: true %>
+            </div>
+          </div>
+          <%= f.input :email, required: true %>
+          <div class="row">
+            <div class="col-md-6">
+              <%= f.input :timezone, collection: timezone_options, required: true %>
+            </div>
+            <div class="col-md-6">
+              <%= f.input :employee_number %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <h4>Account settings</h4>
+        <div class="box">
+          <div class="form-group">
+            <label>Is this person a practitioner?</label>
+            <br>
+            <%=
+              f.input_field :is_practitioner,
+                            as: :radio_buttons,
+                            collection: SimpleForm::Inputs::CollectionInput.boolean_collection,
+                            item_wrapper_tag: false,
+                            item_label_class: 'radio-inline'
+            %>
+          </div>
+          <%= f.input :role, as: :select, collection: User::ROLES, label_method: :titleize, include_blank: false %>
+
+          <legend class="sub">Password & login</legend>
+          <div class="form-group">
+            <%=
+              f.input_field :send_invitation_email,
+                            as: :radio_buttons,
+                            collection: [["Send invitation email", true], ["Set a password", false]],
+                            item_wrapper_tag: false,
+                            item_label_class: 'radio-inline'
+            %>
+          </div>
+
+          <div id="send-invitation-wrapper" style="<%= 'display: none' unless @form.send_invitation_email? %>">
+            <span class="help-block">The user will receive an email. The email contains a link which the new user can click to enter their own password.</span>
+          </div>
+
+          <div id="set-password-wrapper" style="<%= 'display: none' if @form.send_invitation_email? %>">
+            <span class="help-block">Password must contain at least one number and one uppercase and lowercase letter, and at least 8 characters</span>
+            <%= f.input :password, input_html: { autocomplete: 'off' } %>
+            <%= f.input :password_confirmation %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="practitioner-info-wrapper" style="<%= 'display: none' unless @form.is_practitioner? %>">
+      <div class="panel panel-default">
+        <div class="panel-heading">Practitioner information</div>
+        <div class="panel-body">
+          <%= render 'practitioner_fields', f: f %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <button class="btn btn-primary" type="submit">Create user</button>
+        <a href="<%= settings_users_path %>" class="btn btn-white">Cancel</a>
+      </div>
+    </div>
+  <% end %>
+<section>
+
+<%= render 'modal_crop_avatar' %>
+
+<% content_for :page_js do %>
+
+  <script>
+    $('#btn-select-avatar').click(function() {
+      $("#modal-crop-avatar").modal({
+        backdrop: 'static',
+        keyboard: false
+      })
+      .modal('show');
+
+      // Open file dialog automatically
+      setTimeout(function() {
+        $("#modal-crop-avatar").find('.input-file').click();
+      }, 100);
+    });
+
+    $('#modal-crop-avatar').on('cropped', function(event, file, imageDataUrl) {
+      $('.box-avatar-preview').css('background-image', 'url(' + imageDataUrl + ')');
+      $('[name="user[avatar_data_url]"]').val(imageDataUrl);
+    });
+
+    $('[name="user[send_invitation_email]"]').on('change', function() {
+      var selected = $(this).val() === 'true';
+      if (selected) {
+        $('#send-invitation-wrapper').show();
+        $('#set-password-wrapper').hide();
+      } else {
+        $('#send-invitation-wrapper').hide();
+        $('#set-password-wrapper').show();
+      }
+    });
+  </script>
+  <%= render 'form_js' %>
+<% end %>

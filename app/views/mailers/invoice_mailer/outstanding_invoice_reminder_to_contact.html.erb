@@ -1,0 +1,14 @@
+Hi <%= @contact.full_name.present? ? @contact.full_name : @contact.business_name %>,
+<br>
+<br>
+Just a friendly reminder, we have yet to receive payment of <%= format_money @invoice.outstanding %> in respect of our invoice #<%= @invoice.invoice_number %>, which was due for payment on <%= @invoice.issue_date.strftime(t('date.common')) %>. This invoice is now <%= (Date.current - @invoice.issue_date).to_i %> days overdue.
+<br>
+Please let us know when payment will be made as a matter of urgency. Please ignore this email if you've recently paid for this invoice.
+<br>
+<br>
+Kind regards,
+<br>
+<br>
+<%= @business.name %>
+<br>
+<%= @business.phone %>

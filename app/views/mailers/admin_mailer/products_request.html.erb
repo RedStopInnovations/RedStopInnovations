@@ -1,0 +1,53 @@
+Hi Ben,
+<br><br>
+
+There is a new invoice with products request
+<br><br>
+
+<strong>Patient</strong>
+<br>
+Name: <%= @patient.full_name %><br>
+Phone: <%= @patient.phone %><br>
+Mobile: <%= @patient.mobile %><br>
+Address: <%= @patient.short_address %>
+<br><br>
+
+<% if @practitioner %>
+  <strong>Practitioner</strong>
+  <br>
+  Name: <%= @practitioner.full_name %><br>
+  Phone: <%= @practitioner.phone %><br>
+  Mobile: <%= @practitioner.mobile %><br>
+  Email: <%= @practitioner.email %> <br>
+  Address: <%= @practitioner.short_address %>
+  <br><br>
+<% end %>
+
+<strong>Products</strong>
+<table style="border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid #ddd;">Name</th>
+            <th style="border: 1px solid #ddd;">Quantity</th>
+            <th style="border: 1px solid #ddd;">Unit price</th>
+            <th style="border: 1px solid #ddd;">Price / Cost price</th>
+            <th style="border: 1px solid #ddd;">Supplier</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% @invoice.items.product_item.each do |item| %>
+            <% product = item.invoiceable %>
+            <tr>
+                <td style="border: 1px solid #ddd;"><%= item.unit_name %></td>
+                <td style="border: 1px solid #ddd;"><%= item.quantity %></td>
+                <td style="border: 1px solid #ddd;"><%= item.unit_price %></td>
+                <td style="border: 1px solid #ddd;"><%= product.price %></td>
+
+                <td style="border: 1px solid #ddd;"><%= product.supplier_name %></td>
+            </tr>
+        <% end %>
+    </tbody>
+</table>
+<br>
+<strong>Invoice details: <a href="<%= admin_invoice_url(@invoice) %>">#<%= @invoice.invoice_number %></a></strong>
+

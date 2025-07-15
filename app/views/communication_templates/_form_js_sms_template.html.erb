@@ -1,0 +1,41 @@
+<script type="text/javascript">
+  (function() {
+    var $inputTemplate = $('#input-template-content');
+    var inputContentEl = $inputTemplate[0];
+
+    var insertVariable = function(value) {
+      var insertText = "{{" + value + "}}";
+      // IE
+      if (document.selection) {
+        inputContentEl.focus();
+        sel = document.selection.createRange();
+        sel.text = insertText;
+      } else if (inputContentEl.selectionStart || inputContentEl.selectionStart === 0) {
+        var startPos = inputContentEl.selectionStart;
+        var endPos = inputContentEl.selectionEnd;
+        inputContentEl.value = inputContentEl.value.substring(0, startPos)
+            + insertText
+            + inputContentEl.value.substring(endPos, inputContentEl.value.length);
+        inputContentEl.focus();
+      } else {
+        inputContentEl.value += insertText;
+      }
+    };
+
+    /* Bind selectize to variables dropdowns */
+    $('.js-select-variables').each(
+      function() {
+        var $this = $(this);
+        $this.selectize({
+          placeholder: $this.attr('placeholder'),
+          onChange: function(val) {
+            if (val && val.length > 0) {
+              insertVariable(val);
+            }
+            this.clear();
+          }
+        });
+      }
+    );
+  })();
+</script>

@@ -1,0 +1,27 @@
+New referral received.
+<br>
+<br>
+
+<b>Service:</b><br>
+Professions: <%= @referral.professions.join(', ') %> <br>
+Availability type: <%= @referral.availability_type.try(:name) %>
+<br><br>
+
+<b>Client details:</b> <br>
+Name: <%= @referral.patient_name %> <br>
+DOB: <%= @referral.patient_attrs[:dob] %> <br>
+Address: <%= @referral.patient_address %> <br>
+Phone: <%= @referral.patient_attrs[:phone] %> <br>
+Email: <%= @referral.patient_attrs[:email] %>
+<br><br>
+
+<b>Referrer details:</b><br>
+Business name: <%= @referral.referrer_business_name %> <br>
+Name: <%= @referral.referrer_name %> <br>
+Phone: <%= @referral.referrer_phone %> <br>
+Email: <%= @referral.referrer_email %>
+
+<br>
+<br>
+Submitted: <%= @referral.created_at %> <br><br>
+<a href="<%= admin_referral_url(@referral) %>">View details</a>

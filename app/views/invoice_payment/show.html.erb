@@ -1,0 +1,219 @@
+<% content_for :title, 'Invoice payment' %>
+
+<section class="sptb">
+  <div class="container">
+    <div class="card">
+      <div class="card-header pt-5 pb-5">
+        <h2 class="mt-0">Tracksy</h2>
+      </div>
+
+      <div class="card-body">
+        <% unless flash.empty? %>
+          <div class="notification">
+            <% flash.each do |type, message| %>
+              <%
+                alert_class = {
+                  'alert'   => 'alert-danger',
+                  'error'   => 'alert-danger',
+                  'notice'  => 'alert-primary',
+                }[type]
+              %>
+              <div class="alert <%= alert_class %>">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <%= message %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @invoice %>
+          <div>
+            <div class="row">
+              <div class="col-md-6 col-xs-12">
+                <h3>Invoice #<%= @invoice.invoice_number %></h3>
+                <table class="table table-bordered">
+                  <tbody>
+                    <tr>
+                      <td>Invoice total</td>
+                      <td>
+                        <%= format_money @invoice.amount %>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Outstanding</td>
+                      <td>
+                        <% if @invoice.paid? %>
+                          <span class="text-primary">Paid</span>
+                        <% else %>
+                          <%= format_money @invoice.outstanding %>
+                        <% end %>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Client</td>
+                      <td><%= @invoice.patient.full_name %></td>
+                    </tr>
+
+                    <% if @invoice.appointment %>
+                      <% appointment = @invoice.appointment %>
+                      <tr>
+                        <td>Appointment</td>
+                        <td>
+                          <%= appointment.start_time.strftime('%a, %d %b %Y, %l:%M%P (%Z)') %>
+                          <br>
+                          <%= appointment.appointment_type.name %>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Practitioner</td>
+                        <td><%= appointment.practitioner.full_name %> - <%= appointment.practitioner.profession %></td>
+                      </tr>
+                    <% end %>
+
+                    <tr>
+                      <td>Business</td>
+                      <td><%= @invoice.business.name %></td>
+                    </tr>
+
+                    <% if @invoice.business.mobile? || @invoice.business.phone? %>
+                      <tr>
+                        <td>Contact</td>
+                        <td>
+                          <% if @invoice.business.phone? %>
+                            P: <a href="tel:<%= @invoice.business.phone %>"><%= @invoice.business.phone %></a>
+                          <% end %>
+                          <% if @invoice.business.mobile? %>
+                            <br>
+                            M: <a href="tel:<%= @invoice.business.mobile %>"><%= @invoice.business.mobile %></a>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <% unless @invoice.paid? %>
+                <div class="col-md-6">
+                  <h3>Payment</h3>
+                  <div class="border p-3">
+                    <% if @invoice.business.stripe_payment_available? %>
+                      <div id="js-payment-wrap">
+                        <span>
+                          <img src="https://cdn.brandfolder.io/KGT2DTA4/at/g65qkq94m43qc3c9fqnhh3m/Powered_by_Stripe_-_black.png?width=130&height=24" alt="Powered by Stripe"
+                          class="pull-right">
+                        </span>
+                        <p>Please enter card details:</p>
+                        <div class="p-3 border">
+                          <div id="js-stripe-card-element"></div>
+                        </div>
+
+                        <div id="js-card-errors" class="text-danger mt-3"></div>
+                      </div>
+
+                      <div class="mt-3">
+                        <button class="btn btn-primary btn-lg" id="js-btn-process-payment" type="button" disabled>
+                          Proceed payment
+                          <i class="fa fa-spin fa-spinner d-none" id="js-loading-spinner"></i>
+                        </button>
+                      </div>
+                    <% else %>
+                      <div class="text-warning">
+                        Online payment is not available for the business at this time. Please contact the business if you have any questions.
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <p class="text-warning font-size-bigger">Sorry, the invoice does not exist or has been deleted!</p>
+        <% end %>
+      </div>
+
+      <div class="card-footer">
+        <a href="<%= frontend_home_path %>" class="btn btn-light">Back to Homepage</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<% if @invoice && @invoice.business.stripe_payment_available? && @invoice.payable? %>
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <%= form_tag public_invoice_payment_path(token: @invoice.public_token? ? @invoice.public_token : @invoice.id ), id: 'js-form-invoice-payment', data: { 'stripe-publishable-key': Rails.configuration.stripe[:publishable_key] } do |f| %>
+    <input type="hidden" name="stripe_token" id="js-input-stripe-token">
+  <% end %>
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+      var stripe;
+      var stripeCard;
+      var $cardErrors;
+      var $inputCardToken;
+      var $btnProcessPayment = $('#js-btn-process-payment');
+
+      const $form = $('#js-form-invoice-payment');
+      const stripePublishableKey = $form.data('stripe-publishable-key');
+
+      stripe = Stripe(stripePublishableKey);
+
+      stripeCard = stripe.elements().create("card", {
+        hidePostalCode: true
+      });
+
+      stripeCard.mount('#js-stripe-card-element');
+
+      $cardErrors = $('#js-card-errors');
+      $inputCardToken = $('#js-input-stripe-token');
+
+      stripeCard.on('change', function(e) {
+        if (e.error) {
+          $cardErrors.text(e.error.message);
+        } else {
+          $cardErrors.empty();
+        }
+      });
+
+      stripeCard.on('ready', function() {
+        $btnProcessPayment.removeAttr('disabled');
+      });
+
+      function prepareCardToken() {
+        return new Promise(function(resolve, reject) {
+          stripe.createToken(stripeCard)
+          .then(function(result) {
+            if (result.error) {
+              reject(Error(result.error.message));
+            } else {
+              $inputCardToken.val(result.token.id);
+              resolve();
+            }
+          });
+        });
+      };
+
+      $btnProcessPayment.on('click', function() {
+        $('#js-loading-spinner').removeClass('d-none');
+        $btnProcessPayment.attr('disabled', true);
+        prepareCardToken()
+          .then(function() {
+            $form.submit();
+          }, function(err) {
+            $('#js-loading-spinner').addClass('d-none');
+            $btnProcessPayment.removeAttr('disabled');
+            $cardErrors.text(err.message);
+          })
+          .catch(function(err) {
+            $('#js-loading-spinner').addClass('d-none');
+            $btnProcessPayment.removeAttr('disabled');
+            $cardErrors.text('Can not process your card. Error: ' + err.message);
+          });
+      });
+
+    }, false);
+  </script>
+<% end %>

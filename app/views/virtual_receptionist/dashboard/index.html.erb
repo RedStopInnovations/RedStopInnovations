@@ -1,0 +1,187 @@
+<div>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#tab-1" role="tab" data-toggle="tab">Make an appointment</a></li>
+    <li role="presentation"><a href="#tab-2" role="tab" data-toggle="tab">Cancel an appointment</a></li>
+    <li role="presentation"><a href="#tab-3" role="tab" data-toggle="tab">Practitioner contacts</a></li>
+  </ul>
+
+  <div class="tab-content mt-20">
+    <div role="tabpanel" class="tab-pane active" id="tab-1">
+        <iframe src="#" frameborder="0" style="width: 100%; height: 800px;"></iframe>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="tab-2">
+        <form action="">
+            <div class="form-group mb-5">
+                <label for="">Find client:</label>
+                <select type="text" class="form-control" placeholder="Enter name to search" id="js-input-search-patient"></select>
+            </div>
+        </form>
+        <div id="js-patient-future-appointments-wrap"></div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="tab-3">
+        <%
+          practitioners = current_business.active_practitioners.where(users: {is_practitioner: true}).includes(:user).order('practitioners.first_name ASC')
+        %>
+        <div>
+            <label for="">Find practitioner:</label>
+            <input type="text" class="form-control" placeholder="Enter practitioner name to search" id="js-practitioners-contact-search-input">
+            <div style="max-height: 450px; overflow-y: scroll; overflow-x: hidden;" class="mt-15">
+
+            <div id="js-practitioners-contact-search-list">
+                <% practitioners.each_with_index do |p, index| %>
+                <div data-practitioner-name="<%= p.full_name %>" class="js-practitioner-row pa-5 mb-5 <% if index.odd? %> bg-gray-light <% end %>">
+                    <div class="row">
+                        <div class="col-md-1 col-xs-2 text-center">
+                            <img src="<%= p.user.avatar.url(:thumb) %>" loading="lazy" class="bordered" height="40px" style="border-radius: 50%;">
+                        </div>
+
+                        <div class="col-md-4 col-xs-5">
+                            <span class="text-bolder js-practitioner-name"><%= p.full_name %></span> <br>
+                            <span class="small"><%= p.profession %></span><br>
+                            <span class="text-smaller"><%= p.city %></span>
+                        </div>
+
+                        <div class="col-md-7 col-xs-10 col-xs-offset-2 col-md-offset-0">
+                            <% if p.mobile? %>
+                              <span class="text-smaller"><a href="tel:<%= p.mobile %>" class="normal-link"><%= p.mobile %></a></span>
+                              <span class="text-muted"> | </span>
+                            <% end %>
+                            <span class="text-smaller"><a href="mailto:<%= p.user_email %>" class="normal-link"><%= p.user_email %></a></span>
+                        </div>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+
+            <div id="js-practitioners-contact-search-empty" class="text-muted text-smaller" style="display: none;">No practitioners match</div>
+            </div>
+        </div>
+
+<!--
+        <form action="" class="mt-15">
+            <div class="form-group">
+                <label for="">Search for recipient:</label>
+                <input type="text" class="form-control" placeholder="Search by name">
+            </div>
+
+            <div class="form-group">
+                <label for="">Subject:</label>
+                <input type="text" class="form-control" placeholder="Enter email subject">
+            </div>
+
+            <div class="form-group">
+                <label for="">Content:</label>
+                <textarea class="form-control" placeholder="Enter email content" rows="10"></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Send</button>
+            <button class="btn btn-white" type="button">Clear</button>
+        </form>
+-->
+    </div>
+  </div>
+
+</div>
+
+<% content_for :page_js do %>
+  <script type="text/javascript">
+
+    $(function() {
+      //=== Practitioners contact search
+      var $practitionersSearchList = $('#js-practitioners-contact-search-list');
+      var $practitionersSearchInput = $('#js-practitioners-contact-search-input');
+      var $practitionersSearchEmpty = $('#js-practitioners-contact-search-empty');
+
+      var processSearchPractitioners = function(keyword) {
+        if (keyword && keyword.length > 0) {
+          var matchCount = 0;
+          $practitionersSearchList.find('.js-practitioner-row').each(function(idx, row) {
+            var $row = $(row);
+            var practName = $row.data('practitioner-name');
+            var $practitionerNameEl = $(row).find('.js-practitioner-name');
+
+            var isMatch = practName.toLowerCase().
+              indexOf(keyword.toLowerCase()) !== -1;
+            if (isMatch) {
+              $row.show();
+              matchCount++;
+            } else {
+              $row.hide();
+            }
+
+          });
+
+          if (matchCount === 0) {
+            $practitionersSearchEmpty.show();
+          } else {
+            $practitionersSearchEmpty.hide();
+          }
+        } else {
+          // Reset
+          $practitionersSearchList.find('.js-practitioner-row').show();
+          $practitionersSearchEmpty.hide();
+        }
+      };
+
+      $practitionersSearchInput.on('keyup', function() {
+        var value = $practitionersSearchInput.val().trim();
+        processSearchPractitioners(value);
+      });
+
+      //== End practitioners contact search
+
+      //== Patient search
+      var $patientsSearchInput = $('#js-input-search-patient');
+      var $futureApptsWrap = $('#js-patient-future-appointments-wrap');
+
+      $patientsSearchInput.selectize({
+        valueField: 'id',
+        labelField: 'full_name',
+        searchField: 'full_name',
+        create: false,
+        render: {
+          option: function (item, escape) {
+            return '<div><span class="text-bolder">' + escape(item.full_name) + '</span>' + '<span class="ml-5">(' + (new Date(item.dob)).toLocaleDateString() + ')</span>' + '<span class="ml-5">' + escape(item.city) + '</span>' + '</div>';
+          },
+          item: function (item, escape) {
+            return '<div><span class="text-bolder">' + escape(item.full_name) + '</span>' + '<span class="ml-5">(' + (new Date(item.dob)).toLocaleDateString() + ')</span>' + '<span class="ml-5">' + escape(item.city) + '</span>' + '</div>';
+          }
+        },
+        load: function (query, callback) {
+          if (!query.length) return callback();
+          var self = this;
+
+          $.get(
+            '/app/virtual_receptionist/patients/search?s=' + query,
+            function (res) {
+              if (res.patients.length > 0) {
+                callback(res.patients);
+              } else {
+                // @TODO: show No results text
+              }
+            }
+          );
+        },
+        onChange: function(selected) {
+          const patientId = selected;
+
+          if (patientId) {
+            $futureApptsWrap.loadingOn();
+            $.get(
+              '/app/virtual_receptionist/patients/' + patientId + '/future_appointments_list',
+              function (res) {
+                $futureApptsWrap.html(res);
+                $futureApptsWrap.loadingOff();
+              }
+            );
+          } else {
+            // @TODO: clear appts list
+          }
+        }
+      })
+    });
+  </script>
+<% end %>

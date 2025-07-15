@@ -1,0 +1,19 @@
+<% iframe_url = iframe_referral_url(business: current_business.id) %>
+
+<div class="form-group">
+  <label>Default referral url:</label>
+  <div class="bookings-url-preview">
+    <a href="<%= iframe_url %>" rel="noopener noreferrer" target="_blank"><span class="link-label"><%= iframe_url %></span> <i class="fa fa-external-link"></i></a>
+    <button class="btn btn-sm btn-white js-btn-copy-url" data-copy-text="<%= iframe_url %>"><i class="fa fa-copy"></i></button>
+  </div>
+  <br>
+  <label>Iframe embed code:</label>
+  <div class="bookings-url-preview">
+    <% iframe_code = "<iframe width=\"100%\" height=\"1700\" src=\"#{iframe_url}\" frameborder=\"0\"></iframe>" %>
+    <a class="iframe-link"
+      ><%= iframe_code %></a>
+    <button class="btn btn-sm btn-white js-btn-copy-url"
+      data-copy-text="<%= iframe_code %>"
+      type="button"><i class="fa fa-copy"></i></button>
+  </div>
+</div>

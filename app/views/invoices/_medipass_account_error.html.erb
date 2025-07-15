@@ -1,0 +1,7 @@
+<div class="callout callout-danger">
+  <% if can? :manage, :settings %>
+    This feature is not available because the Medipass integration is not setup yet. Please check the <a href="<%= settings_medipass_integration_path %>">Medipass Integration settings</a>.
+  <% else %>
+    Medipass payment is not available. Please contact business manager for more details.
+  <% end %>
+</div>

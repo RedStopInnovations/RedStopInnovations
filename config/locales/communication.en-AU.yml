@@ -1,0 +1,21 @@
+en-AU:
+  communication:
+    categories:
+      general: 'General'
+      appointment_reminder: 'Appointment reminder'
+      appointment_arrival_time: 'Appointment arrival time'
+      appointment_confirmation: 'Appointment confirmation'
+      letter_send: 'Send letter'
+      account_statement_send: 'Send account statement'
+      invoice_send: 'Send invoice'
+      invoice_outstanding_reminder: 'Outstanding invoice reminder'
+      invoice_payment_remittance: 'Payment remittance'
+      patient_attachment_send: 'Send client attachment'
+      treatment_note_send: 'Send treatment note'
+      practitioner_travelling_notice: 'Send practitioner travelling notice'
+      satisfaction_review_request: 'Satisfaction review request'
+      new_patient_confirmation: 'New client confirmation'
+      practitioner_on_route: 'Practitioner on route'
+      practitioner_sick_leave: 'Practitioner sick leave'
+      uncategorized: 'Uncategorized'
+

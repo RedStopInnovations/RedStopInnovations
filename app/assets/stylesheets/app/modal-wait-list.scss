@@ -1,0 +1,148 @@
+.modal-wait-list {
+  @media (min-width: 992px) {
+    .modal-dialog {
+      width: 990px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .modal-dialog {
+      width: 1024px;
+    }
+  }
+
+  @media (min-width: 1300px) {
+    .modal-dialog {
+      width: 1200px;
+    }
+  }
+
+  .modal-header {
+    .btn-add-new {
+      position: absolute;
+      right: 45px;
+      top: 10px;
+    }
+  }
+
+  ul.pagination {
+    margin-bottom: 0;
+
+    > li > a {
+      color: #414141;
+      font-weight: 600;
+      background: #FFF;
+      &:hover {
+        background: #d2d6de;
+      }
+    }
+
+    > li.active > a {
+      background: #44b654;
+      color: #FFF;
+      border-color: #44b654;
+    }
+  }
+
+  .form-search {
+    .form-control-feedback {
+      color: #CBCBCB;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+  }
+
+  .col-patient {
+    .patient-contact {
+      a {
+        color: #333;
+      }
+    }
+  }
+
+  @media (max-width: 667px) {
+    .col-actions {
+      padding-top: 10px;
+      // Make action dropdown smaller
+      .btn-group {
+
+        > a.btn, .dropdown-toggle {
+          padding: 3px 8px;
+        }
+      }
+    }
+  }
+
+  .wait-list-wrap {
+    margin-top: 10px;
+
+    .wait-list-entry {
+      min-height: 51px;
+      padding: 5px;
+      position: relative;
+      border: 1px solid #eee;
+
+      &:nth-child(even) {
+        background-color: #f8fff4;
+      }
+
+      &:hover {
+        background-color: #f8fff4;
+      }
+
+      &.overdue {
+        background: #ffd7d6;
+        border-color: #deb6b5;
+      }
+
+      .patient-name {
+        font-weight: 600;
+      }
+
+      + .wait-list-entry {
+        margin-top: 10px;
+      }
+
+      .col-actions {
+        text-align: right;
+        margin-top: 10px;
+
+        .icon-action {
+          cursor: pointer;
+          + .icon-action {
+            margin-left: 15px;
+          }
+        }
+      }
+
+      .col-profession {
+        .practitioner {
+          font-weight: 600;
+        }
+      }
+
+      // Action dropdown on xs
+      .btn-group-actions {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+      }
+    }
+
+    .btn-group {
+      // Make Bootstrap dropdowns open from the right
+      ul.dropdown-menu {
+        left: auto;
+        right: 0;
+      }
+    }
+  }
+
+  .empty-message-wrap {
+    text-align: center;
+    font-size: 16px;
+    color: #777777;
+  }
+}

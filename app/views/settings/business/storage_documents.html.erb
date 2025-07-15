@@ -1,0 +1,26 @@
+<% content_for :title, 'Setting - Storage documents' %>
+<section class="box-header">
+  <h1>Storage documents</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_path %>">Integrations</a>
+    </li>
+    <li class="active">Storage Documents</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= simple_form_for @setting, url: settings_business_settings_path, method: 'PUT' do |f| %>
+      <%= f.input :storage_url, label: 'Add Dropbox or Google Drive url' %>
+      <button class="btn sitebtn">Update</button>
+      <a href="<%= settings_path %>" class="btn linebtn">Cancel</a>
+    <% end %>
+  </div>
+</section>

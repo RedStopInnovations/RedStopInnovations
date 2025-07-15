@@ -1,0 +1,82 @@
+<% content_for :title, 'Communication settings' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Communication settings</h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Communication settings</li>
+  </ul>
+</section>
+
+<%
+  communication_templates_explains = get_communication_templates_explains
+%>
+
+<section class="content">
+  <div class="box">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Enabled</th>
+          <th>Last updated</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <% @communication_templates.each do |template| %>
+          <% explain = communication_templates_explains[template.template_id] %>
+          <% next if template.template_id == 'patient_followup' %>
+          <tr>
+            <td>
+              <a href="<%= edit_communication_template_path(template) %>"><%= template.name %></a>
+              <% if explain %>
+                <%
+                  popup_content = explain.map do |key, val|
+                    "<b>#{key.titleize}</b>: #{val}"
+                  end.join("<br>")
+                %>
+                <div class="small">
+                  <%= explain['purpose'] %>
+                  <span
+                    data-toggle="popover"
+                    data-placement="top"
+                    data-trigger="hover"
+                    data-html="true"
+                    title="<%= template.name %>"
+                    data-content="<%= popup_content %>"
+                    ><i class="fa fa-info-circle"></i></span>
+                </div>
+              <% end %>
+            </td>
+            <td>
+              <div class="check-box check-box-readonly">
+                <input type="checkbox" <%= template.enabled? ? "checked" : "" %>>
+                <label>&nbsp;</label>
+              </div>
+            </td>
+            <td>
+              <%= template.updated_at.strftime(t('datetime.common')) %>
+            </td>
+            <td>
+              <a href="<%= edit_communication_template_path(template) %>"
+                class="btn btn-link" title="Edit">
+                <i class="fa fa-pencil"></i>
+              </a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

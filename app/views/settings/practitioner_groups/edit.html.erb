@@ -1,0 +1,20 @@
+<% content_for :title, 'Edit practitioner group' %>
+
+<section class="box-header">
+  <h1>Edit <%= @group.name %> group </h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= settings_practitioner_groups_path %>">Practitioner groups</a></li>
+
+    <li class="active">Edit</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form' %>
+</section>

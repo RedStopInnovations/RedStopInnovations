@@ -1,0 +1,129 @@
+<% content_for :title, 'Online bookings questionnaire' %>
+<section class="box-header">
+  <h1>Online Bookings Questionnaire</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="#">Online Bookings</a></li>
+    <li class="active">Questionnaire</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="row">
+      <div class="col-xs-12">
+        <div id="form-questions-wrap" v-cloak>
+          <p v-show="questions.length === 0" class="text-muted text-i">
+            No questions.
+          </p>
+          <form url="<%= settings_bookings_questions_path %>">
+            <draggable
+              v-model="questions"
+              :options="{ draggable: '.question-wrap', handle: '.btn-sort-question'}"
+              >
+            <div v-for="(question, index) in questions" class="question-wrap">
+                <ul class="list-unstyled text-danger" v-if="question.errors.length > 0">
+                  <li v-for="error in question.errors">{{ error }}</li>
+                </ul>
+                <div class="row">
+                  <div class="col-md-6 col-xs-12">
+                    <div class="form-group">
+                    <label>Question #{{ index + 1 }}</label>
+                    <textarea rows="2"
+                      class="form-control input-question-title"
+                      placeholder="Title"
+                      style="max-width: 100%"
+                      v-model="question.title"></textarea>
+                      </div>
+                  </div>
+
+                  <div class="col-md-2 col-xs-5">
+                    <label class="control-label">Type</label>
+                    <select
+                      class="form-control"
+                      v-model="question.type"
+                      @change="onQuestionTypeChanged(question)">
+                      <option value="Text">Text</option>
+                      <option value="Checkboxes">Checkboxes</option>
+                      <option value="Radiobuttons">Radiobuttons</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-2 col-xs-3">
+                    <label class="control-label"
+                      >Required<br><input type="checkbox" v-model="question.required">
+                    </label>
+                  </div>
+
+                  <div class="col-md-2 col-xs-4 text-right">
+                    <label>&nbsp;</label><br>
+                    <button
+                      class="btn btn-default"
+                      type="button"
+                      @click="removeQuestion(question)"
+                      ><i class="fa fa-trash text-danger"></i></button>
+                    <button
+                      class="btn btn-default text-danger btn-sort-question"
+                      type="button"
+                      ><i class="fa fa-arrows"></i></button>
+                  </div>
+                </div>
+
+                <div class="row" v-if="question.type == 'Checkboxes' || question.type == 'Radiobuttons'">
+                  <div class="col-md-12">
+                    <div class="list-answers-wrap">
+                      <label>Answers:</label>
+                      <div >
+                        <ul>
+                          <li v-for="answer in question.answers" class="answer">
+                            <div class="row">
+                              <div class="col-sm-6 col-xs-10">
+                                <div class="input-group">
+                                  <span class="input-group-addon">
+                                    <input type="checkbox" readonly="true" disabled v-if="question.type == 'Checkboxes'">
+                                    <input type="radio" readonly="true" disabled v-if="question.type == 'Radiobuttons'">
+                                  </span>
+                                  <input type="text"
+                                    class="form-control"
+                                    v-model="answer.content">
+                                </div>
+                              </div>
+                              <div class="col-sm-6 col-xs-2">
+                                <button
+                                  class="btn btn-default"
+                                  type="button"
+                                  @click="removeAnswer(question, answer)"
+                                  ><i class="fa fa-trash text-danger"></i></button>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                      <button class="btn btn-default" type="button" @click="addAnswer(question)">Add answer</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </draggable>
+          </form>
+          <p class="mt-10">
+            <button type="button" class="btn btn-default" @click="addQuestion"><i class="fa fa-plus"></i> Add question</button>
+          </p>
+          <div v-show="(savedQuestionsCount != 0) || (questions.length != 0)">
+            <hr>
+            <button type="button" class="btn sitebtn" @click="submit" :disabled="busy">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'form_js' %>
+<% end %>

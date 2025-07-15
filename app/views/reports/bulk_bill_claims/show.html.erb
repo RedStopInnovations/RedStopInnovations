@@ -1,0 +1,116 @@
+<% content_for :title, 'Bulk Bill claims' %>
+
+<section class="box-header">
+  <h1>DVA claims</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Transactions</a>
+    </li>
+    <li><a href="<%= reports_bulk_bill_claims_path %>">Bulk Bill claims</a></li>
+    <li class="active">Claim details</li>
+  </ul>
+</section>
+
+<%
+  invoice = @claim.invoice
+  patient = invoice.patient
+  appointment = invoice.appointment
+%>
+
+<section class="content">
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Medicare Claim ID</strong>
+          <p><%= @claim.medicare_claim_id %></p>
+        </div>
+        <div class="block-info">
+          <strong>Transaction ID</strong>
+          <p><%= @claim.transaction_id %></p>
+        </div>
+        <div class="block-info">
+          <strong>Created at</strong>
+          <p><%= @claim.created_at.strftime('%d %b, %Y %l:%M%P') %></p>
+        </div>
+        <div class="block-info">
+          <strong>Status</strong>
+          <p><%= @claim.status %></p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Invoice:</strong>
+          <p>
+            <a href="<%= invoice_path(invoice) %>">#<%= invoice.invoice_number %></a>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Issue date:</strong>
+          <p>
+            <%= invoice.issue_date.strftime('%d %b %Y') %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Total:</strong>
+          <p>
+            <%= format_money invoice.amount %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <h4>Client</h4>
+      <div class="box">
+        <div class="block-info">
+          <strong>Name:</strong>
+          <p>
+            <a href="<%= patient_path(@claim.invoice) %>"><%= patient.full_name %></a>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>DOB:</strong>
+          <p>
+            <%= patient.dob.try(:strftime, '%d/%b/%Y') %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <% if appointment %>
+      <div class="col-md-6 col-xs-12">
+        <h4>Appointment</h4>
+        <div class="box">
+          <div class="block-info">
+            <strong>Practitioner:</strong>
+            <p>
+              <%= appointment.practitioner.full_name %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Time:</strong>
+            <p>
+              <%= appointment.start_time.strftime('%d %b, %Y %l:%M%P (%Z)') %>
+            </p>
+          </div>
+          <div class="block-info">
+            <strong>Type:</strong>
+            <p>
+              <%= appointment.appointment_type.name %>
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,105 @@
+<section class="box-header">
+  <h1>Billed items</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_business_invoices_path %>">Subscription invoices</a>
+    </li>
+    <li>
+      <a href="<%= admin_business_invoice_path(@business_invoice) %>">
+        #<%= @business_invoice.invoice_number %>
+      </a>
+    </li>
+    <li class="active">Billed items</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Summary</h3>
+        </div>
+        <div class="panel-body">
+          <table class="table table-flat">
+            <tbody>
+              <tr>
+                <td style="width: 150px">Appointment</td>
+                <td>
+                  <strong><%= @subscription_billings.where(billing_type: 'APPOINTMENT').count %></strong>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  SMS
+                </td>
+                <td>
+                  <strong><%= @subscription_billings.where(billing_type: 'SMS').count %></strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Billed items</h3>
+    </div>
+    <div class="panel-body">
+      <table class="table table-striped" id="table-billed-items">
+        <thead>
+          <tr>
+            <th>Billed date</th>
+            <th>Type</th>
+            <th>Appointment</th>
+            <th>Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @subscription_billings.each do |billed_item| %>
+          <tr>
+            <td><%= billed_item.first_invoice_date.strftime('%d/%b/%Y') %></td>
+            <td>
+              <%= billed_item.billing_type %>
+              <% if billed_item.appointment_id? && billed_item.trigger_type? %>
+                <br>
+                <% billed_item.triggers.each do |trigger_type| %>
+                  <%= appointment_billing_trigger_icon(trigger_type) %>
+                <% end %>
+              <% end %>
+            </td>
+            <td>
+              <% if billed_item.appointment_id? %>
+                <%= billed_item.appointment.start_time.strftime('%d/%b/%Y') %>
+              <% else %>
+                --
+              <% end %>
+            </td>
+            <td><%= format_money billed_item.subscription_price_on_date %></td>
+            <td>
+              <a href="<%= delete_billed_item_admin_business_invoice_path(@business_invoice, item_id: billed_item.id) %>" data-confirm="Are you sure want to DELETE this item?" data-method="DELETE" data-remote="true" class="ml-10"><i class="fa fa-trash text-danger"></i></a>
+            </td>
+          </tr>
+
+          <% end %>
+        </tbody>
+      </table>
+
+      <div class="row mt-15">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @subscription_billings, entry_name: 'items' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @subscription_billings, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

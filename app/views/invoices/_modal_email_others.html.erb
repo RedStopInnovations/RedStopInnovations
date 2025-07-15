@@ -1,0 +1,49 @@
+<div class="modal fade" id="modal-email-others">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Email invoice #<%= invoice.invoice_number %></h4>
+      </div>
+
+      <div class="modal-body">
+        <%= simple_form_for @send_other_form, as: nil, url: send_to_contacts_invoice_path(invoice, redirect: params[:redirect]),
+        method: 'POST', wrapper: :vertical_form do |f| %>
+          <%=
+            f.input :contact_ids,
+                    label: 'Contacts',
+                    collection: contact_options_for_send_email(
+                      current_business.contacts.where("email <> ''").where(id: invoice.patient.patient_contacts.pluck(:contact_id))
+                    ),
+                    include_hidden: false,
+                    input_html: {
+                      placeholder: 'Select contact',
+                      multiple: true,
+                      name: 'contact_ids[]',
+                      id: 'input-contact-ids'
+                    }
+          %>
+          <%=
+            f.input :emails,
+                    label: 'Extra emails',
+                    collection: extra_emails_for_send_to_others(invoice.patient),
+                    include_hidden: false,
+                    input_html: {
+                      placeholder: 'Type to search or add extra emails',
+                      multiple: true,
+                      name: 'emails[]',
+                      id: 'input-extra-emails'
+                    }
+          %>
+          <%= f.input :message, as: :text, input_html: { rows: 7, name: :message, value: default_invoice_email_message_to_contacts(current_business, current_user, invoice) } %>
+          <hr>
+          <div class="text-right">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

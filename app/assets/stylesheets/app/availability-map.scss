@@ -1,0 +1,130 @@
+#availability-map-wrap {
+  .filter-group {
+    .filter-title {
+      text-transform: uppercase;
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    + .filter-group {
+      margin-top: 10px;
+    }
+  }
+
+  .flatpickr-input {
+    background-color: #fff;
+  }
+
+  .flatpickr-calendar {
+    width: 100%;
+
+    &:before, &:after {
+      display: none;
+    }
+    /* Make the flatpickr smaller */
+    .flatpickr-month {
+      height: 35px;
+      background: #FAFAFA;
+      .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg {
+        fill: #44b654;
+      }
+
+      .flatpickr-prev-month, .flatpickr-current-month, .flatpickr-next-month {
+        height: 28px;
+      }
+      .flatpickr-prev-month, .flatpickr-next-month {
+        padding: 12px calc(3.57% - 1.5px);
+      }
+      .flatpickr-current-month {
+        .numInputWrapper .numInput {
+          height: 25px;
+        }
+      }
+    }
+
+    .flatpickr-current-month {
+      font-size: 95%;
+    }
+    .flatpickr-rContainer {
+      width: 100%;
+      .flatpickr-weekdays {
+        background: #FAFAFA;
+        padding: 0 5px;
+
+        .flatpickr-weekday {
+          font-size: 85%;
+          font-weight: 400;
+          background: #FAFAFA;
+        }
+      }
+    }
+    .flatpickr-days {
+      width: 100%;
+      .flatpickr-day {
+        font-size: 90%;
+      }
+    }
+  }
+  .dayContainer {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    padding: 5px;
+
+    .flatpickr-day {
+      height: auto;
+      line-height: inherit;
+    }
+  }
+
+  .info-window {
+    line-height: 21px;
+    .title {
+      width: 70px;
+      display: inline-block;
+    }
+    hr {
+      margin: 0 5px;
+    }
+  }
+
+  .avail-info-window {
+    .pract-info {
+      overflow-y: auto;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+      margin-bottom: 5px;
+
+      .profile-picture {
+        height: 40px;
+        background-size: cover;
+        background-repeat: no-repeat;
+        width: 40px;
+        float: left;
+      }
+
+      .info {
+        padding-left: 45px;
+      }
+
+    }
+
+    .avail-info {
+      clear: both;
+      .fa {
+        width: 15px;
+      }
+    }
+  }
+
+  .appt-info-window {
+    .patient-info {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+      margin-bottom: 5px;
+    }
+  }
+}

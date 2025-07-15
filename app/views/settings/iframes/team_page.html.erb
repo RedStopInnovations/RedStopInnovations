@@ -1,0 +1,237 @@
+<% content_for :title, 'Team page builder' %>
+<%
+  business_slug = current_business.name.downcase.gsub(/\s/, "_")
+  practitioners = current_business.practitioners.active.select('id, full_name, slug, profession, city, state')
+  professions = current_business.practitioners.active.where("profession <> ''").pluck(:profession).uniq
+%>
+
+<section class="box-header">
+  <h1>Team page</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Team page</li>
+  </ul>
+</section>
+
+<section class="content" id="js-team-page-builder-app" v-cloak>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+
+        <div class="form-group">
+          <label>Page type: </label>
+          <div class="form-control">
+            <label class="fw-400"><input type="radio" name="page_type" value="team" v-model="pageType"> Team</label>
+            <label class="fw-400 ml-20"><input type="radio" name="page_type" value="single" v-model="pageType"> Single practitioner</label>
+          </div>
+        </div>
+
+        <div v-show="pageType === 'team'">
+          <label>Filter:</label>
+
+          <div class="bordered pa-10">
+            <div>
+              <label class="fw-400">
+                <input type="radio" name="teamFilterType" :value="null" v-model="teamFilterType"> No filter</label>
+
+              <label class="ml-20 fw-400">
+                <input type="radio" name="teamFilterType" value="profession" v-model="teamFilterType"> Profession</label>
+            </div>
+
+            <div class="form-group mt-5" v-show="teamFilterType === 'profession'">
+              <select name="profession" class="form-control" v-model="teamFilters.profession">
+                <option :value="null">-- Select profession --</option>
+                  <option :value="prof" v-for="prof in allProfessions" :key="prof">
+                    {{ prof }}
+                  </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div v-show="pageType === 'single'" class="form-group">
+            <label>Select practitioner:</label>
+            <v-multiselect
+              :options="allPractitioners"
+              :multiple="false"
+              :close-on-select="true"
+              :hide-selected="true"
+              :options-limit="50"
+              select-label=""
+              deselect-label=""
+              placeholder="Search practitioner"
+              label="full_name"
+              track-by="id"
+              v-model="singleFilters.practitioner">
+
+              <template slot="tag" scope="props">
+                {{ props.option.full_name }} <small v-if="props.option.profession">{{ props.option.profession }}</small>
+              </template>
+
+              <template slot="option" scope="props">
+                <div class="desc">
+                  <span class="text-bolder" v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                  <small v-if="props.option.profession">{{ props.option.profession }}</small>
+                  <br>
+                  <small> {{ props.option.city }}</small>
+                </div>
+              </template>
+
+              <template slot="noResult">
+                <span>No results</span>
+              </template>
+            </v-multiselect>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="mt-20">
+      <button class="btn btn-primary" type="button" @click.prevent="getPageUrl()">Generate</button>
+    </div>
+
+    <div class="panel panel-default mt-20" v-if="pageUrl">
+      <div class="panel-heading">Page</div>
+      <div class="panel-body">
+
+      <div class="form-group">
+        <label>URL:</label>
+        <div class="bookings-url-preview">
+          <a :href="pageUrl"><span class="link-label">{{ pageUrl }}</span></a>
+          <button class="btn btn-sm btn-white js-btn-copy-url" :data-copy-text="pageUrl"><i class="fa fa-copy"></i></button>
+          <a :href="pageUrl" target="_blank" class="btn btn-sm btn-white"><i class="fa fa-external-link"></i></a>
+        </div>
+      </div>
+
+      <div class="row hide">
+        <div class="col-md-6 col-xs-12">
+          <div class="row">
+            <div class="col-md-6 col-xs-6">
+              <div class="form-group">
+                <label>Width (px)</label>
+                <input type="number" class="form-control" id="select-width" min="1">
+              </div>
+            </div>
+
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label>Height (px)</label>
+                <input type="number" class="form-control" id="select-height" min="1" value="800">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="form-group">
+          <label>Iframe embed code:</label>
+          <div class="bookings-url-preview">
+            <a>
+              <span class="link-label">{{ iframeCode }}</span>
+            </a>
+            <button class="btn btn-sm btn-white js-btn-copy-url" :data-copy-text="iframeCode"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 v-if="iframeUrl">Preview</h3>
+  <div class="box preview" v-if="iframeUrl">
+    <iframe width="100%" height="600" :src="iframeUrl" frameborder="0"></iframe>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script id="js-all-practitioners-data" type="application/json">
+  <%= practitioners.to_json.html_safe %>
+</script>
+
+<script id="js-all-professions-data" type="application/json">
+  <%= professions.to_json.html_safe %>
+</script>
+
+
+<script type="text/javascript">
+  const allPractitioners = JSON.parse($('#js-all-practitioners-data').html());
+  const allProfessions = JSON.parse($('#js-all-professions-data').html());
+
+  (function() {
+    new Vue({
+      el: '#js-team-page-builder-app',
+      data: function() {
+        return {
+          pageType: 'team',
+          pageUrl: null,
+          iframeUrl: null,
+          teamFilterType: null,
+          teamFilters: {
+            profession: null
+          },
+          singleFilters: {
+            practitioner: null
+          },
+          allPractitioners: allPractitioners,
+          allProfessions: allProfessions
+        }
+      },
+
+      computed: {
+        iframeCode: function() {
+          if (this.iframeUrl) {
+            return '<iframe width=\"100%\" src="' + this.iframeUrl + '"></iframe>';
+          }
+        }
+      },
+
+      methods: {
+        buildGenerateUrlParams: function() {
+          const params = {
+            page_type: this.pageType
+          };
+          if (this.pageType === 'single') {
+            if (this.singleFilters.practitioner) {
+              params.practitioner_id = this.singleFilters.practitioner.id;
+            }
+          } else if (this.pageType === 'team') {
+            if (this.teamFilterType === 'profession') {
+              params.profession = this.teamFilters.profession;
+            }
+          }
+
+          return params;
+        },
+        getPageUrl: function() {
+          const vm = this;
+          $.ajax({
+            method: 'GET',
+            url: '/app/settings/team_page/generate_url',
+            data: vm.buildGenerateUrlParams(),
+            success: function(res) {
+              vm.pageUrl = res.url;
+              vm.iframeUrl = res.iframe_url;
+            }
+          });
+        }
+      }
+    });
+
+    const clipboard = new Clipboard('.js-btn-copy-url', {
+      text: function(trigger) {
+        return $(trigger).attr('data-copy-text')
+      }
+    });
+
+    clipboard.on('success', function(e) {
+      Flash.success('Copied to clipboard');
+    });
+
+  }) ();
+</script>
+<% end %>

@@ -1,0 +1,86 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @marketplace.name %>'s admin users</h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_admin_marketplace_admin_user_path(@marketplace) %>" class="btn sitebtn">Add Admin User</a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_marketplaces_path %>">Marketplaces</a>
+    </li>
+    <li>
+      <a href="<%= admin_marketplace_path(@marketplace) %>"><%= @marketplace.name %></a>
+    </li>
+    <li class="active">Admin users</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Created date</th>
+          <th>Last sign in</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @admin_users.each do |au| %>
+          <tr>
+            <td>
+              <a href="<%= admin_marketplace_admin_user_path(@marketplace, au) %>"><%= au.full_name %></a>
+            </td>
+            <td>
+              <%= au.email %>
+            </td>
+            <td>
+              <%= au.created_at.strftime('%d %b, %Y') %>
+            </td>
+            <td>
+              <% if au.last_sign_in_at? %>
+                <%= au.last_sign_in_at.strftime('%d %b, %Y %l:%m%P') %>
+              <% else %>
+                <span class="text-muted">Never</span>
+              <% end %>
+            </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-success btn-sm btn-flat dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                  Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a href="<%= admin_marketplace_admin_user_path(@marketplace, au) %>">
+                      View
+                    </a>
+                    <a href="<%= edit_admin_marketplace_admin_user_path(@marketplace, au) %>">Edit</a>
+                    <% if au.has_pending_invitation? %>
+                      <a
+                        href="#"
+                        class="btn-form"
+                        data-form-url="<%= resend_invitation_admin_marketplace_admin_user_path(@marketplace, au) %>"
+                        data-form-method="POST"
+                        data-form-confirmation="Are you sure want to resend invitation email?"
+                      >Resend invitation</a>
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>

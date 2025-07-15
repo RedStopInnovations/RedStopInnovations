@@ -1,0 +1,98 @@
+<%= render 'patients/show_layout' do %>
+  <div class="row">
+    <div class="col-md-6 col-xs-6">
+      <h4>Attachments</h4>
+    </div>
+
+    <div class="col-md-6 col-xs-6 text-right">
+      <a href="<%= new_patient_attachment_path(@patient) %>" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Upload attachment
+      </a>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              File
+            </th>
+            <th>Description</th>
+            <th>Uploaded</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @attachments.each do |atm| %>
+            <tr>
+              <td>
+                <a href="<%= atm.attachment.url %>"
+                  target="_blank"
+                  title="Download <%= atm.attachment_file_name %>">
+                  <i class="fa <%= icon_class_for_attachment_content_type(atm.attachment_content_type) %>"></i>
+                <span><%= atm.attachment_file_name.truncate(30, omission: "...#{atm.attachment_file_name.last(5)}") %></span>
+                <br>
+                <span>(<%= number_to_human_size(atm.attachment_file_size) %>)
+                </span>
+                </a>
+              </td>
+              <td>
+                <%= truncate(atm.description.to_s, length: 100) %>
+              </td>
+              <td>
+                <%= atm.created_at.strftime(t('datetime.common')) %>
+              </td>
+              <td>
+                <div class="btn-group">
+                  <a href="<%= patient_attachment_path(@patient, atm) %>" class="btn btn-white">Details</a>
+                  <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                      <a href="<%= edit_patient_attachment_path(@patient, atm) %>">
+                        Edit
+                      </a>
+                    </li>
+                    <li>
+                      <a href="<%= send_to_patient_patient_attachment_path(atm.patient, atm)%>"
+                        data-confirm="Are you sure?" data-method="POST">
+                        Email to client
+                      </a>
+                    </li>
+
+                    <li>
+                      <a href="<%= modal_email_others_patient_attachment_path(@patient, atm) %>"
+                        data-remote="true">
+                        Email others
+                      </a>
+                    </li>
+
+                    <li>
+                      <a href="<%= patient_attachment_path(@patient, atm) %>"
+                        data-confirm="Are you sure?" data-method="delete">
+                        <span class="text-danger">Delete</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @attachments, entry_name: 'items' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @attachments, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

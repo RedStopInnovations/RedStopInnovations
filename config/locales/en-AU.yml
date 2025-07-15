@@ -1,0 +1,51 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en-AU:
+  hello: "Hello world"
+  attributes:
+    patient_ids: Patients
+    availability_ids: Availabilities
+    contact_ids: Contacts
+    cpd_points: CPD points
+    subscription_price_on_date: Price
+    address1: Street address
+  views:
+    pagination:
+      first: "«"
+      last: "»"
+      next: Next
+      previous: Prev
+  stats_ranges:
+    current_month: Current month
+    last_30_days: Last 30 days
+    last_60_days: Last 60 days
+    last_90_days: Last 90 days
+    month_to_date: Month to date
+    year_to_date: Year to date
+  practitioner_document_types:
+    registration: Registration
+    insurance: Insurance document
+    police_check: Police check
+    covid_vaccination_certificate: COVID vaccination certificate
+    flu_vaccination_certificate: Flu vaccination certificate
+    ndis_worker_screening_card: NDIS worker screening card
+    contract: Contract

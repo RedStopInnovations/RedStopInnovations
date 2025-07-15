@@ -1,0 +1,303 @@
+<% content_for :title, 'New booking' %>
+
+<%
+
+  if params[:practitioner_id].present?
+    practitioner = Practitioner.find_by(id: params[:practitioner_id].to_s)
+    if practitioner
+      content_for :header_logo_url, practitioner.business.avatar.url(:medium)
+    end
+  end
+
+  online_payment_available =  @business.stripe_payment_available?
+%>
+<% content_for :page_id, 'js-page-booking-form' %>
+
+<% if online_payment_available %>
+<script src="https://js.stripe.com/v3/"></script>
+<% end %>
+
+<% if App::RECAPTCHA_ENABLE %>
+  <script src="https://www.google.com/recaptcha/api.js"></script>
+<% end %>
+
+<section class="sptb mt-5">
+  <div class="container booking-form-wrap">
+      <%= render 'frontend/layouts/bookings/flash_messages' %>
+        <div class="row">
+          <div class="col-sm-8">
+            <div class="card">
+              <div class="card-body">
+                <%= simple_form_for @booking_form, url: frontend_bookings_appointments_path, html: { id: 'js-form-booking', novalidate: false, autocomplete: 'off', 'data-online-payment-available': online_payment_available, 'data-stripe-publishable-key' => Rails.configuration.stripe[:publishable_key] } do |f| %>
+                  <% if params[:business_id] %>
+                    <input type="hidden" name="business_id" value="<%= params[:business_id] %>">
+                  <% end %>
+                  <%= f.hidden_field :availability_id, value: params[:availability_id] %>
+
+                  <div class="row mb-20 d-none" id="js-form-errors-wrap">
+                    <div class="col-md-12">
+                      <div class="alert alert-danger"><ul></ul></div>
+                    </div>
+                  </div>
+
+                  <div>
+
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <h4 class="mb-3 fw-600">Select appointment type:</h4>
+                        <%
+                          at_collection = @appointment_types.map do |at|
+                            appointment_type_price = at.billable_items.sum(:price)
+                            price_text =
+                              if appointment_type_price > 0
+                                currency = at.business&.currency || App::DEFAULT_CURRENCY
+                                (Money.from_amount appointment_type_price.to_f, currency).format
+                              else
+                                'N/S'
+                              end
+
+                            [
+                              "#{at.name} / Price: #{price_text} / Duration: #{at.duration} mins",
+                              at.id
+                            ]
+                          end
+                        %>
+
+                        <div>
+                          <select name="booking_form[appointment_type_id]" class="form-control" id="js-input-appointment-type">
+                            <option value="" disabled selected>-- Select one --</option>
+                            <% @appointment_types.each do |at| %>
+                              <%
+                                price = at.billable_items.sum(:price)
+                                price_text =
+                                  if price > 0
+                                    currency = at.business&.currency || App::DEFAULT_CURRENCY
+                                    (Money.from_amount price.to_f, currency).format
+                                  else
+                                    'N/S'
+                                  end
+
+                                label = "#{at.name} / Price: #{price_text} / Duration: #{at.duration} mins"
+                              %>
+                              <option value="<%= at.id %>"
+                                <% if online_payment_available && price > 0 %>
+                                data-prepayment="<%= at.is_online_booking_prepayment? %>"
+                                <% end %>
+                              ><%= label %></option>
+                            <% end %>
+                          </select>
+                        </div>
+
+                        <% if online_payment_available %>
+                        <div class="d-none pl-3 mt-8" id="js-appoitment-type-prepayment-note">
+                          <div id="js-prepayment-info"></div>
+                        </div>
+
+                        <div id="js-payment-wrap" class="pl-3 d-none">
+                          <input type="hidden" name="booking_form[stripe_token]" id="js-input-stripe-token">
+                          <p>Please enter your card details. You will be charged only if the booking is successful.</p>
+                          <div class="p-3 border">
+                            <div id="js-stripe-card-element"></div>
+                            <div id="js-card-errors" class="text-danger mt-1"></div>
+                          </div>
+                        </div>
+
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-5">
+                    <h4 class="border-top pt-3 mb-3 fw-600">About You</h4>
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <%= f.input :first_name, autofocus: true %>
+                      </div>
+                      <div class="col-sm-6">
+                        <%= f.input :last_name %>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-12">
+                        <%= f.input :full_address, label: 'Your address: (E.g. 123 Main Street)', input_html: { id: 'js-input-address', placeholer: '', autocomplete: 'off' } %>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <%= f.input :mobile %>
+                      </div>
+                      <div class="col-sm-6">
+                        <%= f.input :dob, input_html: { placeholder: 'dd/mm/yyyy' } %>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 col-xs-12">
+                        <%= f.input :email %>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-12">
+                        <%= f.input :notes, as: :text, input_html: { rows: 3 }, label: 'How can we help?' %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-5">
+                    <% if @availability.home_visit? && @bookings_questions.size > 0 %>
+                      <div class="booking-questions-wrap">
+                        <h4 class="border-bottom fw-600 pb-3 mb-3">Questions:</h4>
+                        <% @bookings_questions.each_with_index do |question, q_idx| %>
+                          <input
+                            type="hidden"
+                            value="<%= question.id %>"
+                            name="booking_form[bookings_answers][<%= q_idx %>][question_id]">
+                          <div class="form-group">
+                            <label
+                              <% if question.required? %> class="required" <% end %>
+                              ><%= q_idx + 1 %>. <%= question.title %>
+                            </label>
+                            <% case question.type %>
+                            <% when 'Text' %>
+                              <textarea rows="2"
+                                placeholder="Answer"
+                                class="form-control"
+                                maxlength="300"
+                                name="booking_form[bookings_answers][<%= q_idx %>][answer][content]"
+                                style="height: 40px;"></textarea>
+                            <% when 'Checkboxes' %>
+                              <ul>
+                                <% question.answers.each_with_index do |answer, a_idx| %>
+                                  <li>
+                                    <label class="checkbox-inline">
+                                      <input
+                                        type="checkbox"
+                                        name="booking_form[bookings_answers][<%= q_idx %>][answers][][content]"
+                                        value="<%= answer[:content] %>"/>
+                                      <span><%= answer[:content] %></span>
+                                    </label>
+                                  </li>
+                                <% end %>
+                              </ul>
+                            <% when 'Radiobuttons' %>
+                              <ul>
+                                <% question.answers.each_with_index do |answer, a_idx| %>
+                                  <li>
+                                    <label class="radio-inline">
+                                      <input
+                                        type="radio"
+                                        name="booking_form[bookings_answers][<%= q_idx %>][answers][][content]"
+                                        value="<%= answer[:content] %>"/>
+                                      <span><%= answer[:content] %></span>
+                                    </label>
+                                  </li>
+                                <% end %>
+                              </ul>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+
+                    <% end %>
+                  </div>
+
+                  <div class="mt-3">
+                    <h4 class="border-top pt-3 mb-3 fw-600">Privacy policy:</h4>
+                    <ul style="padding-left: 20px">
+                      <% if @business.policy_url? %>
+                        <li>
+                          <a href="<%= @business.policy_url %>" target="_blank"><i class="fa fa-angle-right mr-1"></i> Business privacy policy</a>
+                        </li>
+                      <% end %>
+                      <li>
+                        <a href="<%= frontend_tos_path %>" target="_blank"><i class="fa fa-angle-right mr-1"></i> Software privacy policy</a>
+                      </li>
+                    </ul>
+
+                    <input type="hidden"
+                      name="booking_form[privacy_policy]"
+                      value="0">
+
+                    <div class="mt-3">
+                      <label class="font-size-bigger required">
+                        <input type="checkbox"
+                          name="booking_form[privacy_policy]"
+                          value="1">
+                        <span>I accept privacy policy</span>
+                      </label>
+                    </div>
+                  </div>
+
+                <% if App::RECAPTCHA_ENABLE %>
+                  <div class="mt-3 pt-3 mb-3 border-top">
+                    <span class="fw-600">Please complete the Captcha:</span>
+                    <div class="g-recaptcha mt-3" data-sitekey="<%= ENV['RECAPTCHA_SITE_KEY'] %>" data-theme="light"></div>
+                  </div>
+                <% end %>
+
+                  <div class="border-top mt-3 pt-3">
+                      <p class="text-muted">(*) Mandatory fields</p>
+                      <button class="btn btn-lg btn-primary js-btn-submit" type="submit">
+                        Proceed booking
+                      </button>
+                      <button class="btn btn-light" type="button" onclick="window.history.back()">
+                        Cancel
+                      </button>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="mb-0">Your Booking</h4>
+              </div>
+
+              <div class="card-body">
+                <strong>Practitioner:</strong>
+                <div class="row">
+                  <div class="col-4">
+                    <div class="bg-img w-100 h-100 border rounded" style="background-image: url('<%= @practitioner.profile_picture_url(:thumb) %>');">
+                    </div>
+                  </div>
+                  <div class="col-8">
+                      <h4><%= @practitioner.full_name %></h4>
+                      <span class="badge badge-dark"><%= @practitioner.profession %></span> <br>
+                      <%= [@practitioner.city, @practitioner.state].compact.join(', ') %><br>
+                      <% if @practitioner.business.phone.present? %>
+                        <% phone = @practitioner.business.phone %>
+                        <%= link_to_reveal_contact_info(@practitioner, phone, :phone, class: 'js-rci text-primary') %>
+                      <% end %>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <strong>Type:</strong>
+                  <p><%= @availability.availability_type.name %></p>
+                </div>
+
+                <div class="mt-3">
+                  <strong>Time:</strong>
+                  <% if @availability.home_visit? %>
+                    <p>
+                      <%= @availability.start_time_in_practitioner_timezone.strftime('%A, %d %b') %> <br>
+                      The practitioner will arrive to your home between <b><%= @availability.start_time_in_practitioner_timezone.strftime('%l:%M%P') %></b> - <b><%= @availability.end_time_in_practitioner_timezone.strftime('%l:%M%P (%Z)') %></b>
+                    </p>
+                  <% elsif @availability.facility? %>
+                  <p><%= @availability.start_time_in_practitioner_timezone.strftime('%a, %d %b at %l:%M%P (%Z)') %></p>
+                  <% end %>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+  </div>
+</section>

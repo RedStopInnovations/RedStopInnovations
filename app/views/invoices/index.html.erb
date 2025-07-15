@@ -1,0 +1,196 @@
+<%
+  outstanding_invoice_reminder = current_business.get_communication_template('outstanding_invoice_reminder')
+%>
+
+<% content_for :title, 'Invoices' %>
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Invoices</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a href="<%= new_invoice_path %>" class="btn btn-primary">+ New invoice</a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= search_form_for @search_query, url: invoices_path, enforce_utf8: false do |f| %>
+      <div class="row">
+        <div class="col-md-9 col-xs-7">
+          <%= f.search_field :invoice_number_or_patient_first_name_or_patient_last_name_or_patient_full_name_cont, class: 'form-control', placeholder: 'Enter client name or invoice number' %>
+        </div>
+
+        <div class="col-md-2 col-xs-5">
+          <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
+        </div>
+      </div>
+    <% end %>
+
+    <hr class="visible-xs">
+    <div class="table-responsive mt-20">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Number</th>
+            <th style="width: 220px;">Client</th>
+            <th style="width: 120px;">Amount</th>
+            <th style="width: 120px;">Outstanding</th>
+            <th style="width: 120px;">Service date</th>
+            <th style="width: 120px;">Issue date</th>
+            <th style="width: 120px;">Author</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @invoices.each do |invoice| %>
+            <tr>
+              <td>
+                <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a>
+              </td>
+
+              <td>
+                <a href="<%= patient_path(invoice.patient) %>"><%= invoice.patient.full_name %></a>
+                <% if invoice.invoice_to_contact.present? %>
+                  <br>
+                  <span class="small">@ <a href="<%= contact_path(invoice.invoice_to_contact_id) %>" class="normal-link text-bolder"><%= invoice.invoice_to_contact.business_name %></a></span>
+                <% end %>
+
+                <% if invoice.patient_case.present? %>
+                  <br>
+                  <span class="small">Case: <a href="<%= patient_case_path(invoice.patient_case.patient_id, invoice.patient_case.id) %>" class="normal-link"><%= invoice.patient_case&.case_type&.title %></a></span>
+                <% end %>
+              </td>
+              <td>
+                <%= format_money invoice.amount %>
+              </td>
+              <td>
+                <% if invoice.outstanding > 0 %>
+                  <%= format_money invoice.outstanding %>
+                <% else %>
+                  <span class="label label-success">Paid</span>
+                <% end %>
+              </td>
+              <td><%= invoice.service_date&.strftime(t('date.common')) %></td>
+              <td><%= invoice.issue_date.strftime(t('date.common')) %></td>
+              <td>
+                <% if invoice.created_version && invoice.created_version.author %>
+                  <%= invoice.created_version.author.full_name %>
+                <% end %>
+              </td>
+              <td class="text-right" style="width: 125px; text-align: right">
+                <div class="btn-group" style="min-width: 90px">
+                  <a href="<%= invoice_path(invoice) %>" class="btn btn-white">Details</a>
+                  <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                    <li>
+                      <a href="<%= invoice_path(invoice, format: "pdf") %>" target="_blank">
+                        <i class="fa fa-print" aria-hidden="true"></i> Print
+                      </a>
+                    </li>
+
+                    <% if can?(:edit, invoice) %>
+                    <li>
+                      <a href="<%= edit_invoice_path(invoice) %>">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                      </a>
+                    </li>
+                    <% end %>
+
+                    <% unless invoice.paid? %>
+                      <li>
+                        <a href="<%= new_payment_path(invoice_id: invoice.id) %>" >
+                          <i class="fa fa-credit-card"></i> Add payment
+                        </a>
+                      </li>
+                    <% end %>
+                    <li>
+                      <a href="<%= deliver_invoice_path(invoice, redirect: invoices_path)%>"
+                        <%
+                          send_invoice_confirm = ""
+                          if !invoice.patient.reminder_enable?
+                            send_invoice_confirm << "Warning: #{invoice.patient.full_name} has disabled reminders on their profile.\n\n"
+                          end
+
+                          if invoice.last_send_patient_at.present?
+                            send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                          else
+                            send_invoice_confirm << "Are you sure want to send invoice?"
+                          end
+                        %>
+                        data-confirm="<%= send_invoice_confirm %>"
+                        data-method="POST"
+                        ><i class="fa fa-envelope-o <% if invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
+                    </li>
+
+                    <% if invoice.invoice_to_contact_id? %>
+                      <li>
+                        <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoices_path, contact_ids: [invoice.invoice_to_contact_id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
+                          <i class="fa fa-envelope-o <% if invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
+                        </a>
+                      </li>
+                    <% end %>
+
+                    <li>
+                      <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoices_path) %>" class="btn-send-invoice-others"
+                        href="javascript:void(0)">
+                        <i class="fa fa-send-o"></i> Email others
+                      </a>
+                    </li>
+
+                    <% if !invoice.paid? && outstanding_invoice_reminder && outstanding_invoice_reminder.enabled?%>
+                      <% if invoice.outstanding_reminder_enable? %>
+                        <li>
+                          <a href="<%= disable_outstanding_reminder_invoice_path(invoice) %>"
+                            data-method="PUT"
+                            data-confirm="Are you sure you want to DISABLE outstanding reminder on this invoice?"
+                            ><i class="fa fa-bell"></i> Disable outstanding reminder</a>
+                        </li>
+                      <% else %>
+                        <li>
+                          <a href="<%= enable_outstanding_reminder_invoice_path(invoice) %>"
+                            data-method="PUT"
+                            data-confirm="Are you sure you want to ENABLE outstanding reminder on this invoice?"
+                            ><i class="fa fa-bell"></i> Enable outstanding reminder</a>
+                        </li>
+                      <% end %>
+                    <% end %>
+
+                    <% if !invoice.paid? && can?(:destroy, invoice) %>
+                      <li>
+                        <a href="<%= invoice_path(invoice) %>"
+                          data-confirm="Are you sure want to void this invoice?" data-method="delete">
+                          <i class="fa fa-times" aria-hidden="true"></i> Void
+                        </a>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-20">
+      <div class="col-md-6 text-xs-center">
+        <%= page_entries_info @invoices %>
+      </div>
+
+      <div class="col-md-6 text-right text-xs-center mt-xs-5">
+        <%= paginate @invoices, theme: 'app' %>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'modal_email_others_js' %>
+<% end %>

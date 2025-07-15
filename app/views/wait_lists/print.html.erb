@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Waiting list</title>
+    <%= stylesheet_link_tag 'wait-list-pdf', media: 'all' %>
+  </head>
+  <body>
+    <div class="container">
+      <h3 class="page-title">Waiting list</h3>
+      <% if @filter.profession.present? %>
+        <b>Profession</b>: <%= @filter.profession %>
+        <br>
+      <% end %>
+      <table class="table table-bordered" style="margin-top: 20px">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th style="width: 120px">Date</th>
+            <th>Profession</th>
+            <th>Appointment</th>
+            <th>Practitioner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @wait_lists.each do |wait_list| %>
+            <%
+              patient = wait_list.patient
+            %>
+            <tr>
+              <td>
+                <b><%= patient.full_name %></b>
+                <br>
+                <%= patient.short_address %>
+                <br>
+                <% if patient.mobile? %>
+                  M: <%= patient.mobile %>
+                <% end %>
+                <% if patient.phone? %>
+                  <% if patient.mobile? %> | <% end %>
+                  P: <%= patient.phone %>
+                <% end %>
+              </td>
+              <td><%= wait_list.date.strftime('%d %b, %Y') %></td>
+              <td><%= wait_list.profession.presence || '--'%></td>
+              <td>
+                <% if wait_list.appointment_type %>
+                  <%= wait_list.appointment_type.name %>
+                <% else %>
+                  --
+                <% end %>
+              </td>
+              <td>
+                <% if wait_list.practitioner %>
+                  <%= wait_list.practitioner.full_name %>
+                <% else %>
+                  --
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <script type="text/javascript">
+      window.print();
+      setTimeout(window.close, 0);
+    </script>
+  </body>
+</html>

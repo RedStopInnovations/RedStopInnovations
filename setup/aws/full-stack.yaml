@@ -1,0 +1,507 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Full infrastructure stack on AWS
+
+Parameters:
+  StackResourcesPrefix:
+    Type: String
+    Description: "Prefix for all resource names (e.g., tracksy-production, tracksy-staging)"
+    Default: "tracksy-production"
+  VpcCidr:
+    Type: String
+    Default: "10.0.0.0/16"
+  PublicSubnetCidr:
+    Type: String
+    Default: "10.0.0.0/24"
+  PrivateAppSubnetCidr:
+    Type: String
+    Default: "10.0.1.0/24"
+  PrivateDbSubnetCidr:
+    Type: String
+    Default: "10.0.2.0/24"
+  PublicSubnet2Cidr:
+    Type: String
+    Default: "10.0.3.0/24"
+  PrivateDbSubnet2Cidr:
+    Type: String
+    Default: "10.0.4.0/24"
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: SSH key for EC2 instances
+  EBInstanceProfile:
+    Type: String
+    Default: "aws-elasticbeanstalk-ec2-role"
+    Description: Existing Elastic Beanstalk EC2 instance profile
+  DBMasterUsername:
+    Type: String
+    Default: "postgres"
+    Description: Master username for the RDS instance
+  DBMasterPassword:
+    Type: String
+    NoEcho: true
+    Description: Master password for the RDS instance (minimum 8 characters) - Leave empty to auto-generate
+  DBName:
+    Type: String
+    Default: "tracksy"
+    Description: Database name
+  SecretKeyBase:
+    Type: String
+    NoEcho: true
+    Description: Rails secret key base for sessions
+  AppBaseUrl:
+    Type: String
+    Description: Base url for the app (e.g., https://example.com)
+Conditions:
+  UseGeneratedPassword: !Equals [!Ref DBMasterPassword, ""]
+
+Resources:
+
+  DBPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: UseGeneratedPassword
+    Properties:
+      Name: !Sub "${StackResourcesPrefix}-DB-Password"
+      Description: "RDS Master Password"
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "postgres"}'
+        GenerateStringKey: "password"
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\'
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-VPC"
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-IGW"
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetCidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Public-Subnet"
+
+  PrivateAppSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateAppSubnetCidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Private-App-Subnet"
+
+  PrivateDbSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateDbSubnetCidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Private-DB-Subnet"
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet2Cidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Public-Subnet-2"
+
+  PrivateDbSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateDbSubnet2Cidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Private-DB-Subnet-2"
+
+  NATGatewayEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachGateway
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-NAT-Gateway-EIP"
+
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnet
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-NAT-Gateway"
+
+  # Route Tables
+  PublicRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRT
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicRTAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRT
+
+  PublicRTAssoc2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRT
+
+  PrivateRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRT
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
+
+  PrivateAppRTAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateAppSubnet
+      RouteTableId: !Ref PrivateRT
+
+  PrivateDbRTAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateDbSubnet
+      RouteTableId: !Ref PrivateRT
+
+  PrivateDbRTAssoc2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateDbSubnet2
+      RouteTableId: !Ref PrivateRT
+
+  AppSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow ALB to EB instances and SSH from bastion
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: "HTTP from anywhere"
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: "HTTPS from anywhere"
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !Ref BastionSG
+          Description: "SSH access from bastion host"
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-App-SG"
+
+  DbSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref AppSG
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-DB-SG"
+
+  RedisSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Redis
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          SourceSecurityGroupId: !Ref AppSG
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Redis-SG"
+
+  BastionSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH to bastion host
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: "SSH access from anywhere"
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Bastion-SG"
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Subnet group for RDS"
+      SubnetIds:
+        - !Ref PrivateDbSubnet
+        - !Ref PrivateDbSubnet2
+      DBSubnetGroupName: !Sub "${StackResourcesPrefix}-DB-Subnet"
+
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    # DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      DBInstanceIdentifier: !Sub "${StackResourcesPrefix}-postgres-db"
+      DBInstanceClass: db.t3.small
+      Engine: postgres
+      EngineVersion: "15.7"
+      DBName: !Ref DBName
+      MasterUsername: !Ref DBMasterUsername
+      MasterUserPassword: !If
+        - UseGeneratedPassword
+        - !Sub "{{resolve:secretsmanager:${DBPasswordSecret}:SecretString:password}}"
+        - !Ref DBMasterPassword
+      AllocatedStorage: 20
+      StorageType: gp2
+      StorageEncrypted: true
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - !Ref DbSG
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MultiAZ: false
+      BackupRetentionPeriod: 7
+      # DeletionProtection: true
+
+  RedisSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: "Subnet group for Redis"
+      SubnetIds:
+        - !Ref PrivateDbSubnet
+        - !Ref PrivateDbSubnet2
+      CacheSubnetGroupName: !Sub "${StackResourcesPrefix}-redis-subnet"
+
+  RedisCluster:
+    Type: AWS::ElastiCache::CacheCluster
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
+    Properties:
+      ClusterName: !Sub "${StackResourcesPrefix}-redis"
+      Engine: redis
+      CacheNodeType: cache.t3.micro
+      NumCacheNodes: 1
+      VpcSecurityGroupIds:
+        - !Ref RedisSG
+      CacheSubnetGroupName: !Ref RedisSubnetGroup
+      SnapshotRetentionLimit: 5
+      SnapshotWindow: "03:00-05:00"
+
+  BastionHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-078772dab3242ee11  # Amazon Linux 2023 AMI (Sydney)
+      InstanceType: t3.micro
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref BastionSG
+      SubnetId: !Ref PublicSubnet
+      Tags:
+        - Key: Name
+          Value: !Sub "${StackResourcesPrefix}-Bastion"
+
+  EBApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: !Sub "${StackResourcesPrefix}-App"
+
+  EBWebServerEnv:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      EnvironmentName: !Sub "${StackResourcesPrefix}-WebServer"
+      ApplicationName: !Ref EBApplication
+      SolutionStackName: "64bit Amazon Linux 2023 v4.6.0 running Ruby 3.2"
+      Tier:
+        Name: WebServer
+        Type: Standard
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: !Ref EBInstanceProfile
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t4g.medium
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref KeyName
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value: !Ref AppSG
+        - Namespace: aws:ec2:vpc
+          OptionName: VpcId
+          Value: !Ref VPC
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value: !Ref PrivateAppSubnet
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value: !Join [",", [!Ref PublicSubnet, !Ref PublicSubnet2]]
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value: "aws-elasticbeanstalk-service-role"
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: LoadBalancerType
+          Value: "application"
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: HealthCheckPath
+          Value: /health-check
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: "80"
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RAILS_MASTER_KEY
+          Value: ""
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SECRET_KEY_BASE
+          Value: !Ref SecretKeyBase
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: BASE_URL
+          Value: !Ref AppBaseUrl
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RAILS_ENV
+          Value: "production"
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: REDIS_URL
+          Value: !Sub "redis://${RedisCluster.RedisEndpoint.Address}:6379/0"
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_HOST
+          Value: !GetAtt RDSInstance.Endpoint.Address
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_NAME
+          Value: !Ref DBName
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_PORT
+          Value: "5432"
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_USERNAME
+          Value: !Ref DBMasterUsername
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_PASSWORD
+          Value: !If
+            - UseGeneratedPassword
+            - !Sub "{{resolve:secretsmanager:${DBPasswordSecret}:SecretString:password}}"
+            - !Ref DBMasterPassword
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_REGION
+          Value: "us-southeast-2"
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_ACCESS_KEY_ID
+          Value: ""
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_SECRET_ACCESS_KEY
+          Value: ""
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: S3_BUCKET_NAME
+          Value: "tracksy"
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: "1"
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: "1"
+
+  NginxAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/elasticbeanstalk/${StackResourcesPrefix}-WebServer/var/log/nginx/access.log"
+      RetentionInDays: 7
+
+  NginxErrorLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/elasticbeanstalk/${StackResourcesPrefix}-WebServer/var/log/nginx/error.log"
+      RetentionInDays: 7
+
+Outputs:
+
+  VpcId:
+    Description: VPC ID
+    Value: !Ref VPC
+
+  PublicSubnetId:
+    Description: Public Subnet ID
+    Value: !Ref PublicSubnet
+
+  PrivateAppSubnetId:
+    Description: Private App Subnet ID
+    Value: !Ref PrivateAppSubnet
+
+  PrivateDbSubnetId:
+    Description: Private DB Subnet ID
+    Value: !Ref PrivateDbSubnet
+
+  ALBDNSName:
+    Description: ALB DNS Name (Managed by Elastic Beanstalk)
+    Value: !GetAtt EBWebServerEnv.EndpointURL
+
+  RDSInstanceEndpoint:
+    Description: RDS PostgreSQL Endpoint
+    Value: !GetAtt RDSInstance.Endpoint.Address
+
+  RedisEndpoint:
+    Description: Redis Endpoint
+    Value: !GetAtt RedisCluster.RedisEndpoint.Address
+
+  BastionHostIP:
+    Description: Bastion Host Public IP
+    Value: !GetAtt BastionHost.PublicIp
+
+  BastionHostDNS:
+    Description: Bastion Host Public DNS
+    Value: !GetAtt BastionHost.PublicDnsName

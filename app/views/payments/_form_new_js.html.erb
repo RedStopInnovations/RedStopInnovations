@@ -1,0 +1,316 @@
+<script type="text/javascript">
+  (function() {
+    var PAYMENT_SOURCE_FIELDS = [
+      'cash', 'medicare', 'workcover',
+      'dva', 'direct_deposit', 'cheque', 'other'
+    ];
+
+    new Vue({
+      el: '#form-new-payment',
+      data: function() {
+        return {
+          totalOutstanding: 0,
+          totalApplied: 0,
+          totalRemaining: 0,
+          busy: false,
+          targetInvoice: null,
+          paymentId: null,
+          payment: {
+            payment_date: moment().format('YYYY-MM-DD'),
+            cash: null,
+            medicare: null,
+            workcover: null,
+            dva: null,
+            direct_deposit: null,
+            cheque: null,
+            other: null
+          },
+          patientOptions: [],
+          isSearchingPatients: false,
+          selectedPatient: null,
+          business_id: window.session.user.business_id,
+          payment_allocations: [],
+          outstanding_invoices: []
+        };
+      },
+      mounted: function() {
+        this.init();
+      },
+      computed: {
+        paymentTotal: function() {
+          var total = 0;
+
+          for (var i in PAYMENT_SOURCE_FIELDS) {
+            if (this.payment[PAYMENT_SOURCE_FIELDS[i]]) {
+              total += this.payment[PAYMENT_SOURCE_FIELDS[i]];
+            }
+          }
+          return Math.round(total * 100) / 100;
+        }
+      },
+      methods: {
+        init: function() {
+          $('#input-payment-date').flatpickr({
+            altFormat: 'd M Y',
+            dateFormat: 'Y-m-d',
+            altInput: true
+          });
+
+          var that = this;
+          var targetInvoiceId = Utils.getQueryParameter('invoice_id');
+          var targetApptId = Utils.getQueryParameter('appointment_id');
+          var targetPatientId = Utils.getQueryParameter('patient_id');
+          if (targetInvoiceId) {
+            // Load invoice
+            $.ajax({
+              url: '/app/invoices/' + targetInvoiceId + '.json',
+              beforeSend: function() {
+                that.busy = true;
+              },
+              success: function(res) {
+                var invoice = res.invoice;
+                that.targetInvoice = invoice;
+                that.payment_allocations.push({
+                  invoice: invoice,
+                  selected: true
+                });
+
+                $.ajax({
+                  url: '/app/patients/' + invoice.patient_id + '.json',
+                  beforeSend: function() {
+                    that.busy = true;
+                  },
+                  success: function(res) {
+                    that.selectedPatient = res.patient;
+                    that.$nextTick(function() {
+                      that.loadPatientOutstandingInvoices();
+                    });
+                  },
+                  complete: function() {
+                    that.busy = false;
+                  }
+
+                });
+              },
+              complete: function() {
+                that.busy = false;
+              }
+            });
+          } else if (targetApptId) {
+            // Load appointment
+            $.ajax({
+              url: '/app/appointments/' + targetApptId + '.json',
+              beforeSend: function() {
+                that.busy = true;
+              },
+              success: function(res) {
+                that.selectedPatient = res.appointment.patient;
+                that.$nextTick(function() {
+                  that.loadPatientOutstandingInvoices();
+                });
+              },
+              complete: function() {
+                that.busy = false;
+              }
+            });
+          } else if (targetPatientId) {
+            $.ajax({
+              url: '/app/patients/' + targetPatientId + '.json',
+              beforeSend: function() {
+                that.busy = true;
+              },
+              success: function(res) {
+                that.selectedPatient = res.patient;
+                that.$nextTick(function() {
+                  that.loadPatientOutstandingInvoices();
+                });
+              },
+              complete: function() {
+                that.busy = false;
+              }
+            });
+          }
+        },
+        loadPatientOutstandingInvoices: function() {
+          var that = this;
+          $.ajax({
+            url: '/app/patients/' + that.selectedPatient.id + '/outstanding_invoices.json?' + '_time=' + (new Date).getTime(),
+            beforeSend: function() {
+              that.busy = true;
+            },
+            success: function(res) {
+              that.outstanding_invoices = res.invoices;
+              for (var i = 0; i < res.invoices.length; i++) {
+                var invoice = res.invoices[i];
+                if ((that.targetInvoice == null) || (invoice.id != that.targetInvoice.id)) {
+                  that.payment_allocations.push({
+                    invoice: invoice,
+                    selected: false
+                  });
+                }
+              }
+
+              that.refreshSummary();
+            },
+            complete: function() {
+              that.busy = false;
+            }
+          });
+        },
+        buildFormData: function() {
+          var data = {};
+          if (this.selectedPatient) {
+            data.patient_id = this.selectedPatient.id;
+          }
+          data.amount = this.payment.amount;
+          data.payment_date = this.payment.payment_date;
+          data.payment_allocations = [];
+
+          for (var i in PAYMENT_SOURCE_FIELDS) {
+            var source = PAYMENT_SOURCE_FIELDS[i];
+            if (this.payment[source]) {
+              data[source] = this.payment[source];
+            }
+          }
+
+          for (var i = this.payment_allocations.length - 1; i >= 0; i--) {
+            var alloc = this.payment_allocations[i];
+            if (alloc.selected) {
+              data.payment_allocations.push({
+                invoice_id: alloc.invoice.id,
+                amount: alloc.amount
+              });
+            }
+          }
+          return {
+            payment: data
+          };
+        },
+        submitForm: function() {
+          var that = this;
+          $.ajax({
+            method: 'POST',
+            url: '/app/payments',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(that.buildFormData()),
+            beforeSend: function() {
+              that.busy = true;
+            },
+            success: function(res) {
+              location.href = '/app/invoices';
+            },
+            error: function(xhr) {
+              if (xhr.status === 422 && xhr.responseJSON) {
+                var res = xhr.responseJSON;
+                if (res.errors) {
+                  Flash.error('Form errors: \n' + res.errors.join('\n'));
+                }
+              } else {
+                Flash.error('An error has occurred. Sorry for the inconvenience.');
+              }
+            },
+            complete: function() {
+              that.busy = false;
+            }
+          });
+        },
+        refreshSummary: function() {
+          var outstanding = 0;
+          for (var i = this.outstanding_invoices.length - 1; i >= 0; i--) {
+            outstanding += parseFloat(this.outstanding_invoices[i].outstanding);
+          }
+          this.totalOutstanding = Math.round(outstanding * 100) / 100;
+
+          var applied = 0;
+          for (var i = this.payment_allocations.length - 1; i >= 0; i--) {
+            var alloc = this.payment_allocations[i];
+            if (alloc.selected && alloc.amount) {
+              applied += alloc.amount;
+            }
+          }
+          this.totalApplied = Math.round(applied * 100) / 100;
+
+          var remaining = 0;
+          if (this.totalApplied > this.totalOutstanding) {
+            remaining = 0;
+          } else {
+            remaining = this.totalOutstanding - this.totalApplied;
+          }
+          this.totalRemaining = Math.round(remaining * 100) / 100;
+        },
+        onPaidAmountChanged: function() {
+          var paymentTotal = parseFloat(this.paymentTotal);
+          restAmount = paymentTotal;
+
+          for (var i = 0; i < this.payment_allocations.length; i++) {
+            var allocation = this.payment_allocations[i];
+            if (allocation.selected) {
+              var allocate_amount = 0;
+              if (restAmount >= allocation.invoice.outstanding) {
+                allocate_amount = allocation.invoice.outstanding;
+              } else {
+                allocate_amount = restAmount;
+              }
+
+              if (restAmount > 0) {
+                allocation.amount = allocate_amount;
+              } else {
+                allocation.amount = null;
+              }
+
+              restAmount -= allocate_amount;
+            } else if (restAmount > 0) {
+              allocation.selected = true;
+              var allocAmnt = 0;
+              if (restAmount <= allocation.invoice.outstanding) {
+                allocAmnt = restAmount;
+              } else {
+                allocAmnt = allocation.invoice.outstanding;
+              }
+
+              allocation.amount = allocAmnt;
+              if (restAmount > allocAmnt) {
+                restAmount -= allocAmnt;
+              } else {
+                restAmount = 0;
+              }
+            } else {
+              allocation.selected = false;
+            }
+          }
+
+          this.refreshSummary();
+        },
+        onPatientChanged: function() {
+          if (this.selectedPatient) {
+            this.payment_allocations = [];
+            this.outstanding_invoices = [];
+            this.loadPatientOutstandingInvoices();
+          } else {
+            this.payment_allocations = [];
+            this.outstanding_invoices = [];
+            this.refreshSummary();
+          }
+        },
+        onSearchPatientChanged: debounce(function(query) {
+          var that = this;
+
+          if (query.trim().length > 0) {
+            that.isSearchingPatients = true;
+            $.ajax({
+              method: 'GET',
+              url: '/api/patients/search?business_id=' + that.business_id + '&s=' + query,
+              success: function(res) {
+                that.patientOptions = res.patients;
+              },
+              complete: function() {
+                that.isSearchingPatients = false;
+              }
+            });
+          }
+        }, 300),
+      }
+    });
+  })();
+</script>

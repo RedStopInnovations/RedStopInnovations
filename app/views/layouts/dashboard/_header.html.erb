@@ -1,0 +1,169 @@
+<% if Rails.env.production? %>
+  <%= render 'layouts/dashboard/banner' %>
+<% end %>
+
+<header class="main-header">
+  <div class="visible-xs mobile-sidebar-toggle-wrap">
+    <a href="#" data-toggle="offcanvas" role="button"><i class="fa fa-bars"></i> </a>
+  </div>
+
+  <a href="#" class="btn-toggle-quick-search-header-mobile visible-xs" id="js-btn-toggle-quick-search-header-mobile"><i class="fa fa-search"></i></a>
+
+  <span class="logo">
+    <span class="logo-mini">
+      <span>O</span>
+      <span class="text-green">H</span>
+    </span>
+    <span class="logo-text">TRACKSY</span>
+  </span>
+
+  <div class="box-user">
+    <img src="<%= current_user.avatar.url(:thumb) %>" class="user-image" alt="">
+    <ul>
+      <li>
+        <a href="<%= tasks_path %>">
+          Tasks
+        </a>
+      </li>
+      <% if current_business.setting&.storage_url.present? %>
+      <li>
+        <a href="<%= current_business.setting.storage_url %>" target="_blank">
+          Documents
+        </a>
+      </li>
+      <% end %>
+      <li>
+        <a href="<%= app_account_settings_profile_path %>">
+          Profile & settings
+        </a>
+      </li>
+      <!--
+      <li>
+        <a href="#" target="_blank">
+          <i class="fa fa-question-circle"></i> Help
+        </a>
+      </li>
+      -->
+      <li>
+        <a href="<%= destroy_user_session_path %>">
+          Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Header Navbar: style can be found in header.less -->
+  <nav class="navbar navbar-static-top">
+    <!-- Sidebar toggle button-->
+    <a href="#" class="hidden-xs btn-toggle" data-toggle="offcanvas" role="button">
+      <i class="fa fa-bars"></i>
+    </a>
+
+    <% if user_signed_in? && (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
+      <div class="form-quick-search-header" id="js-form-quick-search-header">
+        <span class="search-icon"><i class="bi bi-search"></i></span>
+        <span class="placeholder">Search</span>
+        <span class="hotkey-icon" title="Press / to open search">/</span>
+      </div>
+      <!-- <a href="#" class="btn-toggle-quick-search-header" id="js-btn-toggle-quick-search-header"><i class="fa fa-search"></i></a> -->
+    <% end %>
+
+
+    <div class="navbar-custom-menu">
+      <ul class="nav navbar-nav">
+        <%
+          open_tasks_query = current_business
+            .tasks
+            .includes(task_users: :user)
+            .where(task_users: {user_id: current_user.id})
+            .where(task_users: { status: TaskUser::STATUS_OPEN })
+
+          open_tasks_count = open_tasks_query.count
+        %>
+
+        <li class="header-tasks dropdown">
+          <% if open_tasks_count > 0 %>
+            <span class="tasks-counter"><%= open_tasks_count %></span>
+          <% end %>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-list-ul"></i> Tasks
+          </a>
+
+          <ul class="dropdown-menu text-smaller">
+            <li>
+              <div class="pl-15 pr-15 pt-10 pb-10">
+                <% if open_tasks_count > 0 %>
+                  You have <span class="text-bolder"><%= open_tasks_count %></span> open tasks:
+                  <span class="pull-right"><a href="<%= mine_tasks_path %>">View all my tasks</a></span>
+                <% else %>
+                  <span class="text-muted">No open tasks assigned to you</span>
+                <% end %>
+              </div>
+            </li>
+
+            <% if open_tasks_count > 0 %>
+              <% last_5_open_tasks = open_tasks_query.order(:priority, due_on: :desc).limit(5) %>
+              <% last_5_open_tasks.each do |task| %>
+                <li>
+                  <a href="<%= task_path(task) %>" data-remote="true">
+                    <strong><%= truncate task.name, length: 100 %></strong>
+                    <div class="text-smaller">
+                      <% if task.due_on? %>
+                        <span><i class="fa fa-calendar"></i> <%= task.due_on&.strftime(t('date.common')) %></span>
+                      <% end %>
+                      <% if task.priority === Task::PRIORITY_HIGHT %>
+                      <span class="label <%= get_priority_class(task.priority) %>"><%= task.priority %></span> <br>
+                      <% end %>
+                    </div>
+                  </a>
+                </li>
+              <% end %>
+            <% end %>
+
+            <% if can?(:manage, Task) %>
+              <li>
+                <div class="pl-15 pr-15 pt-10 pb-10">
+                  <a href="<%= new_task_path %>" class="pl-0" data-remote="true"><span class="btn btn-white"><i class="fa fa-plus"></i> Add new task</span></a>
+                  <a href="<%= tasks_path %>" class="ml-5"><span class="btn btn-white"><i class="fa fa-list"></i> Manage tasks</span></a>
+                </div>
+              </li>
+            <% else %>
+              <li>
+                <a href="<%= mine_tasks_path %>"><span class="btn btn-white"><i class="fa fa-list"></i> View my tasks</span></a>
+              </li>
+            <% end %>
+
+            <li>
+              <a href="<%= new_completed_tasks_path %>" data-remote="true"><span class="btn btn-primary"><i class="fa fa-check"></i> Add completed task</span></a>
+            </li>
+
+          </ul>
+        </li>
+
+        <% if current_business.setting&.storage_url.present? %>
+        <li>
+          <a href="<%= current_business.setting.storage_url %>" target="_blank">
+            <i class="fa fa-folder-o"></i> Docs
+          </a>
+        </li>
+        <% end %>
+
+        <li class="dropdown user user-menu">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <img src="<%= current_user.avatar.url(:thumb) %>" class="user-image" alt="">
+            <span class="hidden-sm hidden-xs user-name"><%= current_user.full_name %></span>
+            <i class="fa fa-angle-down arrow-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="<%= app_account_settings_profile_path %>">Profile & settings</a>
+            </li>
+            <li>
+              <a href="<%= destroy_user_session_path %>">Logout</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>

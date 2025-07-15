@@ -1,0 +1,70 @@
+<% content_for :title, 'Practitioner group details' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @group.name %></h1>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <div class="btn-group">
+        <a href="<%= edit_settings_practitioner_group_path(@group) %>" class="btn btn-white">Edit details</a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a href="<%= settings_practitioner_group_path(@group) %>" data-method="DELETE"
+              data-confirm="Are you sure?">
+              <span class="text-danger">Delete</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= settings_practitioner_groups_path %>">Practitioner groups</a></li>
+    <li class="active">Details</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Group name:</strong>
+            <p><%= @group.name %></p>
+          </div>
+          <div class="block-info">
+            <strong>Description:</strong>
+            <p><%= @group.description %></p>
+          </div>
+          <div class="block-info">
+            <strong>Practitioners: (<%= @group.practitioners.count %>)</strong>
+            <p>
+              <ul style="padding-left: 20px;">
+                <% @group.practitioners.order(full_name: :asc).each do |practitioner| %>
+                  <li>
+                    <strong><%= practitioner.full_name %></strong>, <span class="text-smaller"><%= practitioner.profession %>, <%= practitioner.city %></span>
+                  </li>
+                <% end %>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <a href="<%= settings_practitioner_groups_path %>" class="btn btn-white">Back to list</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

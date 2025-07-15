@@ -1,0 +1,1016 @@
+b, strong {
+  font-weight: 600;
+}
+/* Custom CSS for dashboard only */
+.margin-bottom-15{
+  margin:0 !important;
+  margin-bottom: 15px !important;
+}
+.margin-left-15{
+  margin-left:15px;
+}
+.textarea-noresize{
+  resize:none;
+}
+.bg-white{
+  background-color: white !important;
+}
+
+.patient-sidebar {
+  border-right: 1px solid #d2d6de;
+  padding-right: 5px;
+  nav {
+    li.active {
+      a {
+        text-decoration: none;
+        color: #444;
+        background: #f7f7f7;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.content {
+  .page-title {
+    font-size: 25px;
+  }
+}
+
+/* Table pagination */
+ul.pagination {
+  margin-top: 0;
+}
+
+/* Table with panel-info style */
+ table.table-info {
+   border-color: #bce8f1;
+
+   thead {
+     color: #31708f;
+     background-color: #d9edf7;
+     border-color: #bce8f1;
+
+      th {
+       border-color: #bce8f1;
+     }
+   }
+
+   tbody {
+     border-color: #bce8f1;
+
+     td:first-child {
+       border-left-color: #bce8f1;
+     }
+
+     td:last-child {
+       border-right-color: #bce8f1;
+     }
+
+     tr:last-child {
+       td {
+         border-bottom-color: #bce8f1;
+       }
+     }
+   }
+ }
+
+/* Vue cloak directive */
+[v-cloak] {
+  display:none;
+}
+
+/* Highlight search matched */
+mark, .mark {
+  padding: 0;
+}
+
+.form-group .datepicker {
+  width: 100%;
+}
+
+/* Bootstrap button white style */
+.btn-white {
+  background-color: #fff;
+  border-color: #ddd;
+  color: #333 !important;
+  &:hover, &:active, &:focus {
+    background-color: #f4f4f4;
+    color: #333;
+  }
+}
+
+/* Online bookings url builder form */
+.bookings-url-preview {
+  background-color: #f8f8f8;
+  border: 1px dashed #e5e5e5;
+  padding: 10px 50px 10px 5px;
+  min-height: 50px;
+  position: relative;
+
+  .btn-copy-url {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+}
+
+/* Charts */
+.chart-container {
+  position: relative;
+
+  canvas {
+    user-select: none;
+  }
+}
+
+.panel-setting
+{
+  border-color: rgba(68, 182, 84, 0.26);
+  .box-icon
+  {
+    text-align: center;
+    padding: 20px 0px;
+    background: rgba(68, 182, 84, .26);
+    color: #44b654;
+    i.fa
+    {
+      font-size: 60px;
+    }
+  }
+  .box-menu
+  {
+    min-height: 261px;
+    padding: 15px;
+    ul
+    {
+      list-style: circle;
+      li a
+      {
+        display: block;
+        padding: 3px 0px;
+      }
+
+    }
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .panel-setting{
+    .box-menu{
+      min-height: 0;
+    }
+  }
+}
+
+.panel-detail
+{
+  min-height: 225px;
+  strong
+  {
+    display: inline-block;
+    font-size: 13px;
+    min-width: 110px;
+  }
+}
+
+.invoice-page {
+  .table {
+    tr {
+      td {
+        border-top: 1px solid #ccc !important;
+      }
+    }
+  }
+}
+
+$backgroundColor: rgba(68, 182, 84, 0.26);
+$headingColor: #44b654;
+
+table.table-success {
+  background: #FFF;
+  border-color: $backgroundColor;
+  thead {
+    color: $headingColor;
+    background-color: $backgroundColor;
+    border-color: $backgroundColor;
+    th {
+      border-color: $backgroundColor;
+    }
+  }
+  tbody {
+    border-color: $backgroundColor;
+    td:first-child {
+      border-left-color: $backgroundColor;
+    }
+    td:last-child {
+      border-right-color: $backgroundColor;
+    }
+    tr:last-child {
+      td {
+        border-bottom-color: $backgroundColor;
+      }
+    }
+  }
+}
+
+/* Fix conflicts with selectize input */
+.selectize-dropdown.form-control {
+  height: auto !important;
+}
+
+.multiple-list {
+  strong {
+    display: block;
+    margin-bottom: 5px;
+  }
+  li {
+    padding: 5px 0px;
+    ol {
+      list-style-type: none;
+    }
+  }
+}
+
+/* Checkbox label */
+.checkbox-label {
+  position: absolute;
+  top: 12px;
+  margin-left: 25px;
+}
+
+@media (max-width: 464px) {
+  .checkbox-label {
+    top: 2px;
+  }
+}
+
+/* Fix scroll issue with stacked Boostrap modals */
+.content-wrapper .modal {
+  overflow: auto !important;
+}
+.font-30{font-size: 30px;}
+.bold{font-weight: 700;}
+.mb-none{margin-bottom: 0px;}
+.invoice_upper-txt{margin-left: 15px;margin-top: 15px;}
+.invoice_upper-date{margin-left: 30px;margin-top: 23px;}
+.font-21{font-size: 21px;}
+.mt-5{margin-top: 5px;}
+
+.setting_block{-webkit-box-shadow: 0px 0px 10px 1px rgba(204,204,204,1);
+-moz-box-shadow: 0px 0px 10px 1px rgba(204,204,204,1);
+box-shadow: 0px 0px 10px 1px rgba(204,204,204,1);
+padding: 30px 15px 15px 15px;
+margin-bottom: 30px;
+border-radius:15px;
+background: #ffffff;
+}
+
+.setting_block ul,
+.setting_block ul li{
+    position: relative;
+    list-style: none;
+    margin-bottom: 10px;
+}
+
+.setting_block {
+  min-height: 385px;
+  ul {
+    padding-left: 20px;
+  }
+}
+
+.setting_block li:before,.report_blocks li:before{
+    content: "\f105";
+    font-family: 'FontAwesome';
+    display: inline-block;
+    position: absolute;
+    width: 10px;
+    height: 9px;
+    left: -20px;
+}
+
+.setting_block li a,.report_blocks li a{color: #535353;}
+.setting_block li a:hover,.report_blocks li a:hover{color: #44b653;}
+
+.report_blocks {
+  min-height: 335px;
+  margin-bottom: 20px;
+
+  .box-header {
+    font-size: 20px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 10px;
+    min-height: 40px;
+  }
+  .box-body {
+    ul {
+      padding-left: 30px;
+      margin-top: 15px;
+      li {
+        position: relative;
+        list-style: none;
+        margin-bottom: 10px;
+      }
+    }
+  }
+}
+.pl-20{padding-left: 20px;}
+.no-pad{padding: 0;}
+
+@media (max-width: 767px) {
+.no-pad-xs{padding: 0px !important;}
+.letter_right_icon .btn{padding: 6px 9px !important;}
+
+  .setting_block {
+    min-height: initial;
+  }
+}
+
+.selectize-dropdown {
+  .option-create-contact {
+    padding: 10px 12px;
+
+    &:hover, &.active {
+      background-color: #E4F5FB;
+    }
+  }
+}
+
+.selectize-control {
+  .selectize-input {
+    // Limit the height incase too many selected options
+    &:not(.focus) {
+      max-height: 70px;
+    }
+
+    > div.item {
+      // Increase margin as the parent height fixed to 40px;
+      margin: 4px 3px 4px 0px;
+
+      // Remove active highlight background color
+      &.active {
+        background: #efefef;
+        color: #333333;
+        border: 0 solid rgba(0, 0, 0, 0);
+      }
+    }
+  }
+}
+
+.section-report {
+  color: #333;
+
+  .report-content {
+    background: #FFF;
+    border-radius: 2px;
+    overflow: hidden;
+
+    h3, h3 {
+      color: #333;
+    }
+
+    .report-head {
+      background: #e6e6e6;
+      padding: 15px;
+      text-align: center;
+
+      h3 {
+        font-size: 29px;
+        margin: 0;
+      }
+    }
+
+    .report-body {
+      padding: 15px;
+      background: #FFF;
+
+      h3 {
+        font-size: 20px;
+        text-transform: uppercase;
+        margin: 10px 0;
+      }
+
+    }
+  }
+}
+
+.print-head {
+  display: none;
+}
+
+.signature-pad {
+  border-radius: 1px;
+  box-shadow: 0px 0px 2px #ccc;
+  display: block;
+}
+
+.box-avatar-preview {
+  border: 2px solid #eee;
+  width: 100px;
+  height: 100px;
+  position: relative;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+
+  .btn-edit {
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    margin: 0;
+    @media screen and (max-width: 1024px) {
+      opacity: 1;
+    }
+  }
+
+  &:hover {
+    .label-edit {
+      opacity: 1;
+    }
+  }
+}
+
+#modal-crop-avatar.in {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 100%;
+    max-width: 100%;
+  }
+  .cropper-container {
+    margin: 0 auto;
+  }
+}
+
+.modal-show-referral {
+  @media (min-width: 1024px) {
+    .modal-dialog {
+      width: 80%;
+    }
+  }
+}
+
+@media screen and (max-width: 917px) {
+  .navbar-custom-menu {
+    .search_input {
+      display: none;
+    }
+  }
+}
+.auth-layout {
+  height: 100% !important;
+  .login-page, .register-page {
+    height: 100% !important;
+    .wrapper {
+      height: 100% !important;
+    }
+  }
+}
+
+.box-search {
+  background: #FFF;
+  border-bottom: 1px solid #cccccc;
+  padding: 10px 0px;
+  .form-control {
+    height: 35px !important;
+    min-height: initial !important;
+  }
+}
+
+.business-logo
+{
+  margin:0 auto;
+  border-radius: 2px;
+  max-height: 80px;
+  max-width: 200px;
+  margin: 15px 0px;
+}
+
+@media screen and (max-width: 992px) {
+  form.new_invoice, form.edit_invoice {
+    #invoice-items {
+      .box-title
+      {
+        display: none;
+      }
+      .invoice-item-wrap {
+        border-bottom: 1px solid #d2d2d2;
+        padding-bottom: 15px;
+        label {
+          font-size: 13px;
+        }
+        .form-control {
+          margin-bottom: 10px;
+          height: auto;
+        }
+      }
+    }
+  }
+}
+@media screen and (min-width: 993px) {
+  form.new_invoice, form.edit_invoice {
+    #invoice-items {
+      .invoice-item-wrap {
+        label {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+/* Improve file input style */
+.bs-file-input {
+  border: 1px solid #cccccc;
+  padding: 6px 12px;
+}
+
+blockquote {
+  font-size: 100%;
+}
+
+.input-group {
+  .form-control + .input-group-btn {
+    .btn {
+      height: 40px;
+    }
+  }
+}
+
+.text-muted {
+  color: #b9b9b9;
+}
+
+.flatpickr-datepicker {
+  background: #fff !important;
+}
+.sitebtn {
+  min-width: 110px;
+  &.lg {
+    height: 45px;
+    font-size: 130%;
+  }
+}
+
+#important-notif-wrap {
+  .notif-content-wrap {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #a94442;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+    font-weight: 600;
+    position: relative;
+    padding-right: 30px;
+
+    .btn-edit {
+      position: absolute;
+      top: 13px;
+      right: 15px;
+      color: #565656;
+    }
+  }
+
+}
+
+.text-bolder {
+  font-weight: 600;
+}
+
+.text-smaller {
+  font-size: 95%;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table {
+  th {
+    font-weight: 600;
+  }
+}
+
+.input-group-btn .dropdown-menu > li > a {
+  padding: 5px 20px;
+}
+
+legend.sub {
+  font-size: 18px;
+}
+
+#modal-update-avatar {
+  .crop-area-wrap {
+    max-height: 400px;
+  }
+  .img-crop {
+    max-width: 100%;
+  }
+}
+
+.dashboard-box {
+  display: block;
+  background: #fff;
+  width: 100%;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  -webkit-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.15);
+  box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+
+  .box-heading {
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+
+    .title {
+      font-size: 16px;
+    }
+  }
+
+  .box-body {
+    margin-top: 10px;
+
+    ul {
+      padding-left: 0;
+      list-style: none;
+    }
+  }
+}
+
+.business-contact-card {
+  border: 1px solid #eee;
+  padding: 5px 10px;
+
+  .business-name {
+  }
+  .contact-full-name {
+    font-size: 90%;
+    font-weight: 600;
+  }
+
+  .contact-details {
+    font-size: 90%;
+    line-height: 20px;
+  }
+
+  + .business-contact-card {
+    margin-top: 10px;
+  }
+}
+
+a.contact-details-link {
+  color: #333;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.contact-label {
+  width: 14px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.StripeElement {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 10px 12px;
+  border: 1px solid #cfcfcf;
+  border-radius: 0px;
+  background-color: white;
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+
+  &.StripeElement--complete {
+    border-color: #44b653;
+  }
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #a94442;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
+
+.fw-normal {
+  font-weight: normal;
+}
+
+.signature-pad-wrap {
+  width: 100%;
+  min-height: 200px;
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.visual-print-wrap {
+  .header {
+    border-bottom: 1px solid #f4f4f4;
+    margin-bottom: 25px;
+    padding-bottom: 5px;
+
+    .box-logo {
+      text-align: right;
+
+      .logo {
+        max-width: 100%;
+        max-height: 120px;
+      }
+    }
+
+    .box-info {
+      text-align: left;
+
+      .business-name {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.modal-footer {
+  background-color: #fff;
+}
+
+.dropdown-menu.custom-dropdown li > a {
+  padding: 8px 20px;
+}
+
+.selectize-input{
+  min-height: 40px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.content-wrapper > .breadcrumb {
+  margin-bottom: 0;
+}
+
+.modal-header.modal-header-gray {
+  background-color: #f7f7f7;
+  color: #333;
+
+  .close {
+    color: #333;
+  }
+}
+
+.normal-link {
+  color: #333;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (min-width: 1300px) {
+  .modal-merge-contacts .modal-dialog {
+    width: 1200px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .modal-merge-contacts .modal-dialog {
+    width: 1024px;
+  }
+}
+
+@media (min-width: 992px) {
+  .modal-merge-contacts .modal-dialog {
+    width: 990px;
+  }
+}
+
+/* Prevent flatpickr caledar selection when clicking continuously on the calendar buttons */
+.flatpickr-calendar {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.panel-default {
+  .panel-heading, .panel-footer {
+    background-color: #f9f9f9;
+  }
+}
+
+.rounded-0 {
+  border-radius: 0 !important;
+}
+
+.rounded-3 {
+  border-radius: 3px;
+}
+
+.panel {
+  border-radius: 3px;
+}
+
+.table-invoice-items {
+  tbody td {
+    vertical-align: middle !important;
+  }
+
+}
+
+.table-invoice-items-wrap {
+  @media screen and (max-width: 767px) {
+    overflow-x: auto;
+  }
+}
+
+.multiselect__tags {
+  border-radius: 3px !important;
+}
+
+.multiselect__option--highlight {
+  background: #ecf0f5 !important;
+  color: #333;
+
+  &.multiselect__option--selected {
+    color: #333 !important;
+  }
+}
+
+.multiselect__option--selected {
+  font-weight: 600;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+@media screen and (max-width: 767px) {
+  .height-auto-sm {
+    height: auto !important;
+  }
+}
+
+.link-visually-visited {
+  color: purple !important;
+}
+
+section.sidebar {
+  li {
+    a > span {
+      margin-left: 24px;
+    }
+
+    &.ead-item {
+      a > span {
+        font-size: 95%;
+        color: #C3E6C4;
+        line-height: 25px;
+        margin-left: 21px;
+        font-style: italic;
+      }
+    }
+
+    .label {
+      margin-left: 7px;
+      background-color: #C3E6C4;
+    }
+  }
+}
+
+.sidebar-collapse {
+  .sidebar .ead-item {
+    display: none;
+  }
+}
+
+.main-header {
+  .header-tasks {
+    .tasks-counter {
+      background: #969ca8;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      text-align: center;
+      color: #FFF;
+      position: absolute;
+      top: 10px;
+      right: 5px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .dropdown-menu {
+      width: 350px !important;
+
+      > li > a {
+        white-space: inherit;
+      }
+    }
+  }
+}
+
+.badge-task-user {
+  padding: 5px 8px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.btn-toggle-advanced-form-filters {
+  color: #6b6b6b;
+  border-bottom: 1px dashed;
+  font-size: 90%;
+}
+
+.bg-gray-light {
+  background-color: #f7f7f7 !important;
+}
+
+/* Addon text middle of two inputs */
+.input-group-addon-middle {
+  border-right: 0;
+  border-left: 0;
+}
+
+.visible-hover-container {
+  .visible-hover-item {
+    visibility: hidden;
+  }
+
+  &:hover {
+    .visible-hover-item {
+      visibility: visible;
+    }
+  }
+}
+
+.text-copyable {
+  cursor: pointer;
+  border-bottom: 1px dashed;
+
+  &:hover {
+    border-bottom-color: #444;
+    color: #444;
+  }
+}
+
+.modal-bulk-create-from-uninvoiced-appointments {
+  @media (max-width: 1180px) {
+    .modal-dialog {
+      width: 90%;
+    }
+  }
+
+  @media (min-width: 1181px) {
+    .modal-dialog {
+      width: 90%;
+    }
+  }
+}
+
+.form-control-sm {
+  height: 35px !important;
+  padding: 5px 10px;
+}
+
+/* flatpickr extending */
+.flatpickr-calendar {
+  &.flatpickr-calendar-responsive {
+    width: 100%;
+
+    .flatpickr-rContainer {
+      width: 100%;
+    }
+
+    .flatpickr-days {
+      width: 100%;
+    }
+  }
+}
+
+/* Hide warning from CKEditor 4 */
+.cke_notifications_area {
+  display: none;
+}

@@ -1,0 +1,1 @@
+var CalendarEventBus = new Vue();

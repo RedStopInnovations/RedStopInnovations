@@ -1,0 +1,13 @@
+(function() {
+  var $modal = $('#modal-preview-medipass-payment-request');
+  var $modalBody = $modal.find('.modal-body');
+
+  <% if @error %>
+    $modalBody.prepend('<%= j (render 'medipass_error', error: @error) %>');
+  <% else %>
+    $modal.modal('hide');
+    location.href = '<%= invoice_path(@invoice) %>';
+  <% end %>
+
+  $modalBody.loadingOff();
+})();

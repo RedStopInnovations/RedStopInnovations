@@ -1,0 +1,220 @@
+<%= render 'show_layout' do %>
+  <div class="row mb-10">
+    <div class="col-xs-4">
+      <h4>Invoices</h4>
+    </div>
+
+    <div class="col-xs-8 text-right">
+      <a href="<%= new_invoice_path(patient_id: @patient.id) %>" class="btn btn-primary">
+        <i class="fa fa-plus"></i> New invoice
+      </a>
+      <% if can?(:read, :reports) %>
+      <a href="<%= reports_invoices_pdf_exports_path(patient_ids: [@patient.id]) %>" class="btn btn-white">
+        Export PDF
+      </a>
+      <% end %>
+    </div>
+  </div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Summary</strong></div>
+      <div class="panel-body">
+        <table class="table table-borderless">
+          <tbody>
+            <tr>
+              <td>No. invoices:</td>
+              <td>
+                <%= @patient.invoices.count %>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Total amount:</td>
+              <td>
+                <%= format_money @patient.invoices.sum(:amount) %>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Outstanding amount:</td>
+              <td>
+                <%= format_money @patient.invoices.sum(:outstanding) %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <div class="panel panel-default mt-15 mb-15">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: invoices_patient_path(@patient) do |f| %>
+        <div class="row">
+          <div class="col-md-6 col-xs-7">
+            <%= f.search_field :invoice_number_cont, class: 'form-control', placeholder: 'Search by number' %>
+          </div>
+
+          <div class="col-md-2 col-xs-5">
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
+        </div>
+      <% end %>
+
+      <hr>
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Appointment</th>
+              <th>Issue date</th>
+              <th>Service date</th>
+              <th>Amount</th>
+              <th>Outstanding</th>
+              <th>Invoice to</th>
+              <th>Case</th>
+              <th style="width: 120px;"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @invoices.each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a>
+                </td>
+                <td>
+                  <% if invoice.appointment %>
+                    <%= invoice.appointment.start_time.strftime(t('date.common')) %><br>
+                    <span class="text-smaller"><%= invoice.appointment.appointment_type&.name %></span>
+                    <br>
+                    <a href="<%= appointment_path(invoice.appointment) %>">View</a>
+                  <% end %>
+                </td>
+                <td>
+                  <%= invoice.issue_date.strftime t('date.common') %>
+                </td>
+                <td><%= invoice.service_date&.strftime t('date.common') %></td>
+
+                <td>
+                  <%= format_money invoice.amount %>
+                </td>
+
+                <td>
+                  <% if invoice.outstanding > 0 %>
+                    <%= format_money invoice.outstanding %>
+                  <% else %>
+                    <span class="label label-success">Paid</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.invoice_to_contact.present? %>
+                    <a href="<%= contact_path(invoice.invoice_to_contact_id) %>"><%= invoice.invoice_to_contact.business_name %></a>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.patient_case.present? %>
+                    <a href="<%= patient_case_path(@patient, invoice.patient_case.id) %>"><%= invoice.patient_case&.case_type&.title %></a>
+                  <% end %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <a href="<%= invoice_path(invoice) %>" class="btn btn-white">Details</a>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+                      <li>
+                        <a href="<%= edit_invoice_path(invoice) %>">
+                          <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                        </a>
+                      </li>
+                      <% unless invoice.paid? %>
+                        <li>
+                          <a href="<%= new_payment_path(invoice_id: invoice.id) %>" title="Add payment">
+                            <i class="fa fa-credit-card"></i> Add payment
+                          </a>
+                        </li>
+                      <% end %>
+                      <li>
+                        <a href="<%= deliver_invoice_path(invoice, redirect: invoices_patient_path(@patient)) %>"
+                          <%
+                            send_invoice_confirm = ""
+                            if !@patient.reminder_enable?
+                              send_invoice_confirm << "Warning: #{@patient.full_name} has disabled reminders on their profile.\n\n"
+                            end
+
+                            if invoice.last_send_patient_at.present?
+                              send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                            else
+                              send_invoice_confirm << "Are you sure want to send invoice?"
+                            end
+                          %>
+                          data-confirm="<%= send_invoice_confirm %>"
+                          data-method="POST"
+                          ><i class="fa fa-envelope-o <% if invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
+
+                      </li>
+                      <li>
+                        <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoices_patient_path(@patient)) %>"
+                          href="javascript:void(0)" class="send-invoice-others">
+                          <i class="fa fa-send"></i> Email others
+                        </a>
+                      </li>
+                      <% if !invoice.paid? && can?(:destroy, invoice)%>
+                      <li>
+                        <a href="<%= invoice_path(invoice) %>" data-confirm="Are you sure?"
+                          data-method="delete">
+                          <i class="fa fa-trash" aria-hidden="true"></i> Void
+                        </a>
+                      </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @invoices %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @invoices, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% end %>
+
+<% content_for :page_js do %>
+<script type="text/javascript">
+  $('body').on('click', '.send-invoice-others', function(event) {
+    var self = $(this);
+    $.ajax({
+      url: self.attr('data-href'),
+      type: 'GET',
+      success: function(res) {
+        $('#modal-email-others').remove();
+        $('body').append(res);
+        $('#modal-email-others select').selectize();
+        $('#modal-email-others').modal('show');
+      },
+      error: function() {
+        Flash['error']('Somethings was wrong. Please try again!');
+      }
+    });
+  });
+</script>
+<% end %>

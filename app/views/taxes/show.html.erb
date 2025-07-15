@@ -1,0 +1,41 @@
+<% content_for :title, 'Tax details' %>
+
+<section class="box-header">
+  <div class="col-md-6 col-xs-8">
+    <h1>
+      <%= @tax.name %>
+    </h1>
+  </div>
+  <div class="col-md-6 text-right col-xs-4">
+    <a href="<%= edit_tax_path(@tax) %>" class="btn btn-primary">Edit details</a>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a></li>
+    <li>
+      <a href="<%= taxes_path %>">Taxes</a>
+    </li>
+    <li class="active">Details</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="box">
+        <div class="block-info">
+          <strong>Name:</strong>
+          <p><%= @tax.name %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Rate:</strong>
+          <p><%= @tax.rate %>%</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

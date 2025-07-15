@@ -1,0 +1,123 @@
+<%= simple_nested_form_for business_invoice, url: business_invoice.new_record? ? admin_business_invoices_path : admin_business_invoice_path(business_invoice) , html: { id: 'form-business-invoice' } do |f| %>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label class="control-label">Issue date</label>: <%= business_invoice.issue_date.strftime('%d %B %Y') %>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label">Business</label>: <%= business_invoice.business.name %>
+      </div>
+
+      <div class="row col-md-6 col-xs-12">
+        <%= f.input :payment_status, as: :select, collection: BusinessInvoice::PAYMENT_STATUS_TYPES, label_method: :titleize, value_method: :to_s, label: "Status" %>
+        <%= f.input :notes %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <legend>Invoice items</legend>
+      <div class="clearfix">
+        <div id="business-invoice-items">
+          <div class="clearfix row">
+            <div class="col-sm-3">
+              <label>Item</label>
+            </div>
+            <div class="col-sm-3">
+              <label> Unit price </label>
+            </div>
+            <div class="col-sm-2">
+              <label> Quantity </label>
+            </div>
+            <div class="col-sm-2">
+              <label> Amount </label>
+            </div>
+          </div>
+
+          <%= f.fields_for :items do |f_item| %>
+            <div class="invoice-item-wrap clearfix row mb-10">
+              <div class="col-sm-3">
+                <%= f_item.collection_select(:unit_name, BusinessInvoice::UNIT_NAME_TYPES, :to_s, :to_s, {  }, { class: 'input-item-id form-control' }) %>
+              </div>
+              <div class="col-sm-3">
+                <%= f_item.number_field :unit_price, class: 'input-unit-price form-control', min: 0, value: number_with_precision(f_item.object.unit_price, precision: 2) %>
+              </div>
+              <div class="col-sm-2">
+                <%= f_item.number_field :quantity, class: 'input-quantity form-control', min: 0, step: 1 %>
+              </div>
+              <div class="col-sm-2">
+                <%= f_item.number_field :amount, class: 'item-total form-control', readonly: true, value: number_with_precision(f_item.object.amount, precision: 2) %>
+              </div>
+              <div class="col-sm-1">
+                <%= f_item.link_to_remove class: 'btn btn-white' do %>
+                  <i class="fa fa-trash text-danger"></i>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <hr>
+        <div class="row">
+          <div class="col-md-6 col-xs-6">
+            <%= f.link_to_add :items, class: 'btn btn-white', data: { target: "#business-invoice-items" } do %>
+              <i class="fa fa-plus"></i> Add item
+            <% end %>
+          </div>
+          <div class="col-md-6 col-xs-6">
+            <table class="table">
+              <tr>
+                <td><h5>Subtotal</h5></td>
+                <td>
+                  <h5>
+                    $<span id="invoice-subtotal">0</span>
+                  </h5>
+                </td>
+              </tr>
+              <tr>
+                <td><h5>GST(10%)</h5></td>
+                <td>
+                  $<span id="tax-amount"></span>
+                </td>
+              </tr>
+              <tr>
+                <td><h5>Discount</h5></td>
+                <td>
+                  <div class="input-group">
+                    <span class="input-group-addon">$</span>
+                    <%= f.input_field :discount, class: 'form-control', min: 0 %>
+                  </div>
+                  <% if business_invoice.errors.key?(:discount) %>
+                    <p class="text-danger"><%= business_invoice.errors[:discount].first %></p>
+                  <% end %>
+                </td>
+              </tr>
+              <tr>
+                <td><h4>Total</h4></td>
+                <td>
+                  <h4>
+                    $<span id="invoice-total">0</span>
+                  </h4>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <hr>
+    <div class="col-md-12">
+      <%= f.submit 'Update invoice', class: 'btn btn-primary' %>
+      <a href="<%= admin_business_invoice_path(business_invoice) %>" class="btn btn-white">Cancel</a>
+    </div>
+  </div>
+<% end %>
+<% content_for :page_js do %>
+  <%= render 'form_js' %>
+<% end %>

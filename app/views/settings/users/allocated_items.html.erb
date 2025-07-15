@@ -1,0 +1,301 @@
+<% content_for :title, 'Allocated items' %>
+
+<section class="box-header">
+  <h1>Allocated items</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_users_path %>">
+        Users & Practitioners
+      </a>
+    </li>
+    <li>
+      <a href="<%= settings_user_path(@user) %>"><%= @user.full_name %></a>
+    </li>
+    <li class="active">Allocated items</li>
+  </ul>
+</section>
+<style>
+    .table-allocate-items-wrap {
+        max-height: 400px;
+        overflow: auto;
+    }
+</style>
+<section class="content">
+    <div class="box">
+        <%= render 'user_tabs', active_tab: 'allocated_items' %>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active">
+
+                <% if @user.is_practitioner? %>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Appointment types</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-8 col-xs-12">
+                                    <!-- Need search if more than 10 items -->
+                                    <% if @appointment_types.count > 10 %>
+                                        <div class="form-group has-feedback has-clear">
+                                            <input type="text" class="form-control js-input-simple-search" placeholder="Search appointment types">
+                                            <a class="fa fa-remove form-control-feedback form-control-clear js-btn-clear-input-search"
+                                            style="pointer-events: auto; text-decoration: none; cursor: pointer; color: #333333"></a>
+                                        </div>
+                                    <% end %>
+
+                                    <div class="table-allocate-items-wrap">
+                                        <table class="table table-hover" id="js-table-appointment-types">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th style="width: 200px;">
+                                                        Allow <br>
+                                                        <span class="small">
+                                                            <span class="text-green cursor-pointer js-btn-check-all">Check all</span> | <span class="text-green cursor-pointer js-btn-uncheck-all">Uncheck all</span>
+                                                        </span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% @appointment_types.each do |at| %>
+                                                    <tr>
+                                                        <td><%= at.name %></td>
+                                                        <td>
+                                                            <div class="check-box">
+                                                                <input type="checkbox" class="js-cb-allocate-item" id="cb-at-<%= at.id %>" value="<%= at.id %>"
+                                                                    <% if @allocated_appointment_type_ids.include?(at.id) %>
+                                                                    checked
+                                                                    <% end %>
+                                                                >
+                                                                <label for="cb-at-<%= at.id %>">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <% end %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary js-btn-submit-allocate-items" type="button" data-url="<%= update_allocated_appointment_types_settings_user_path(@user)%>">Save changes</button>
+                        </div>
+                    </div>
+                <% end %>
+
+                <% if @user.is_practitioner? %>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Billable items</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-8 col-xs-12">
+                                    <!-- Need search if more than 10 items -->
+                                    <% if @billable_items.count > 10 %>
+                                        <div class="form-group has-feedback has-clear">
+                                            <input type="text" class="form-control js-input-simple-search" placeholder="Search billable items">
+                                            <a class="fa fa-remove form-control-feedback form-control-clear js-btn-clear-input-search"
+                                            style="pointer-events: auto; text-decoration: none; cursor: pointer; color: #333333"></a>
+                                        </div>
+                                    <% end %>
+
+                                    <div class="table-allocate-items-wrap">
+                                        <table class="table table-hover" id="js-table-billable-items">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th style="width: 200px;">
+                                                        Allow <br>
+                                                        <span class="small">
+                                                            <span class="text-green cursor-pointer js-btn-check-all">Check all</span> | <span class="text-green cursor-pointer js-btn-uncheck-all">Uncheck all</span>
+                                                        </span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% @billable_items.each do |bi| %>
+                                                    <tr>
+                                                        <td><%= bi.name %></td>
+                                                        <td>
+                                                            <div class="check-box">
+                                                                <input type="checkbox" class="js-cb-allocate-item" id="cb-billable-item-<%= bi.id %>" value="<%= bi.id %>"
+                                                                    <% if @allocated_billable_item_ids.include?(bi.id) %>
+                                                                    checked
+                                                                    <% end %>
+                                                                >
+                                                                <label for="cb-billable-item-<%= bi.id %>">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <% end %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary js-btn-submit-allocate-items" type="button" data-url="<%= update_allocated_billable_items_settings_user_path(@user) %>">Save changes</button>
+                        </div>
+                    </div>
+                <% end %>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Treatment note templates</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8 col-xs-12">
+                                <!-- Need search if more than 10 items -->
+                                <% if @treatment_templates.count > 10 %>
+                                    <div class="form-group has-feedback has-clear">
+                                        <input type="text" class="form-control js-input-simple-search" placeholder="Search templates">
+                                        <a class="fa fa-remove form-control-feedback form-control-clear js-btn-clear-input-search"
+                                        style="pointer-events: auto; text-decoration: none; cursor: pointer; color: #333333"></a>
+                                    </div>
+                                <% end %>
+
+                                <div class="table-allocate-items-wrap">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th style="width: 200px;">
+                                                    Allow <br>
+                                                    <span class="small">
+                                                        <span class="text-green cursor-pointer js-btn-check-all">Check all</span> | <span class="text-green cursor-pointer js-btn-uncheck-all">Uncheck all</span>
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% @treatment_templates.each do |tt| %>
+                                                <tr>
+                                                    <td><%= tt.name %></td>
+                                                    <td>
+                                                        <div class="check-box">
+                                                            <input type="checkbox" class="js-cb-allocate-item" id="cb-treatment-template-<%= tt.id %>" value="<%= tt.id %>"
+                                                                <% if @allocated_treatment_template_ids.include?(tt.id) %>
+                                                                checked
+                                                                <% end %>
+                                                            >
+                                                            <label for="cb-treatment-template-<%= tt.id %>">&nbsp;</label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <% end %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary js-btn-submit-allocate-items" type="button" data-url="<%= update_allocated_treatment_templates_settings_user_path(@user) %>">Save changes</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<% content_for :page_js do %>
+<script>
+    $(document).ready(function() {
+        //=== Simple search boxes
+        $('.js-input-simple-search').each(function() {
+            var $input = $(this);
+            var $table = $input.closest('.panel').find('.table-allocate-items-wrap table');
+
+            $input.on('keyup', debounce(function(evt) {
+                var searchTerm = $input.val().trim().toLowerCase();
+
+                if (searchTerm.length > 0) {
+                    $table.find('tbody tr').each(function() {
+                        var $row = $(this);
+                        var rowText = $row.find('td:first-child').text().toLowerCase();
+
+                        if ((rowText).search(searchTerm) == -1) {
+                            $row.addClass('hide');
+                        } else {
+                            $row.removeClass('hide');
+                        }
+                    });
+                } else {
+                    $table.find('tbody tr.hide').removeClass('hide');
+                }
+            }, 300));
+
+            $input.siblings('.js-btn-clear-input-search').on('click', function(evt) {
+                evt.preventDefault();
+                $input.val('');
+                $table.find('tbody tr.hide').removeClass('hide');
+            });
+        });
+
+        $('.js-btn-check-all').on('click', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var $table = $btn.closest('.table-allocate-items-wrap table');
+            $table.find('tr td [type=checkbox]').prop('checked', true);
+        });
+
+        $('.js-btn-uncheck-all').on('click', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var $table = $btn.closest('table');
+            $table.find('tr td [type=checkbox]').prop('checked', false);
+        });
+
+        //=== Submit allocated appointment types
+        $('.js-btn-submit-allocate-items').on('click', function() {
+            var $btn = $(this);
+            var $table = $btn.closest('.panel').find('.table-allocate-items-wrap table');
+            var selectedIds = [];
+
+            $table.find('.js-cb-allocate-item:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            $table.loadingOn();
+            $btn.attr('disabled', true);
+            var data = {ids: selectedIds};
+
+            $.ajax({
+                method: 'POST',
+                url: $btn.data('url'),
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(res) {
+                    Flash.success('Allocated items successfully updated.');
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        Flash.error(xhr.responseJSON.message);
+                    } else {
+                        Flash.error('Could not save changes. An error has occurred.');
+                    }
+                },
+                complete: function() {
+                    $table.loadingOff();
+                    $btn.removeAttr('disabled');
+                }
+            });
+        });
+    });
+</script>
+<% end %>
+

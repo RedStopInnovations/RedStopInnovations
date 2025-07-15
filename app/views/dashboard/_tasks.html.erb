@@ -1,0 +1,109 @@
+<div class="dashboard-box">
+    <div class="box-heading">
+        <span class="title">Tasks</span>
+        <a href="<%= can?(:manage, Task) ? tasks_path : mine_tasks_path %>" class="pull-right">View all</a>
+    </div>
+
+    <div class="box-body">
+        <% if current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor? %>
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#tab-all-tasks" data-toggle="tab">All</a></li>
+                <li role="presentation"><a href="#tab-assigned-tasks" data-toggle="tab">Assigned to me</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tab-all-tasks">
+                    <% if @dashboard.recent_open_tasks.present? %>
+                        <ul>
+                            <% @dashboard.recent_open_tasks.each_with_index do |task, idx| %>
+                            <li class="mt-5 pa-5 <%= 'bg-gray-light' if idx.odd? %>">
+                                <div class="pull-right text-smaller">
+                                    <a href="<%= task_path(task) %>" data-remote="true" title="Complete task" class="normal-link">Details</a>
+                                </div>
+                                <span class="text-bolder"><%= task.name %></span>
+                                <% if task.priority == Task::PRIORITY_HIGHT %>
+                                    <span class="label label-danger">High</span>
+                                <% end %>
+
+                                <div class="text-smaller mt-5">
+                                    <% if task.description.present? %>
+                                        <span><%= truncate task.description, length: 80 %></span> <br>
+                                    <% end %>
+                                    Assignees: <span class="text-bolder"><%= task.task_users.map(&:user).map(&:full_name).join(', ') %></span><br>
+                                    Due: <span><%= task.due_on&.strftime(t('date.common')) %></span>
+                                </div>
+                            </li>
+                            <% end %>
+                        </ul>
+                    <% else %>
+                        <p class="text-muted text-smaller mt-10">No tasks found</p>
+                    <% end %>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="tab-assigned-tasks">
+                    <% if @dashboard.recent_assigned_open_tasks.present? %>
+                        <ul>
+                            <% @dashboard.recent_assigned_open_tasks.each_with_index do |task, idx| %>
+                            <li class="mt-5 pa-5 <%= 'bg-gray-light' if idx.odd? %>">
+                                <div class="pull-right text-smaller">
+                                    <a href="<%= task_path(task) %>" data-remote="true" title="Complete task" class="normal-link">Details</a>
+                                    <span class="text-muted"> | </span>
+                                    <a href="<%= modal_update_completion_task_path(task) %>" title="Complete task" class="normal-link"
+                                    data-remote="true">Complete</a>
+                                </div>
+                                <span class="text-bolder"><%= task.name %></span>
+                                <% if task.priority == Task::PRIORITY_HIGHT %>
+                                    <span class="label label-danger">High</span>
+                                <% end %>
+
+                                <div class="text-smaller mt-5">
+                                    <% if task.description.present? %>
+                                        <span><%= truncate task.description, length: 80 %></span> <br>
+                                    <% end %>
+                                    Due: <span><%= task.due_on&.strftime(t('date.common')) %></span>
+                                </div>
+                            </li>
+                            <% end %>
+                        </ul>
+                    <% else %>
+                        <p class="text-muted text-smaller mt-10">No tasks found</p>
+                    <% end %>
+                </div>
+            </div>
+
+        <% else %>
+            <% if @dashboard.recent_assigned_open_tasks.present? %>
+                <ul>
+                    <% @dashboard.recent_assigned_open_tasks.each_with_index do |task, idx| %>
+                    <li class="mt-5 pa-5 <%= 'bg-gray-light' if idx.odd? %>">
+                        <div class="pull-right text-smaller">
+                            <a href="<%= task_path(task) %>" data-remote="true" title="Complete task" class="normal-link">Details</a>
+                            <span class="text-muted"> | </span>
+                            <a href="<%= modal_update_completion_task_path(task) %>" title="Complete task" class="normal-link" data-remote="true">Complete</a>
+                        </div>
+                        <span class="text-bolder"><%= task.name %></span>
+                        <% if task.priority == Task::PRIORITY_HIGHT %>
+                            <span class="label label-danger">High</span>
+                        <% end %>
+
+                        <div class="text-smaller mt-5">
+                            <% if task.description.present? %>
+                                <span><%= truncate task.description, length: 80 %></span> <br>
+                            <% end %>
+                            Due: <span><%= task.due_on&.strftime(t('date.common')) %></span>
+                        </div>
+                    </li>
+                    <% end %>
+                </ul>
+            <% else %>
+                <p class="text-muted text-smaller">No tasks found</p>
+            <% end %>
+        <% end %>
+    </div>
+
+    <div class="box-footer">
+        <div class="text-right">
+            <a href="<%= new_completed_tasks_path %>" data-remote="true"><i class="fa fa-plus"></i> Add completed task</span></a>
+        </div>
+    </div>
+</div>

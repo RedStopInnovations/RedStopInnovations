@@ -1,0 +1,14 @@
+en-GB:
+  datetime:
+    common: '%d %B %Y %l:%M%P'    # 03 January 2017 02:00pm
+    short_12h: '%d %B %Y %l:%M%P' # 03 January 2017 02:00pm
+    short_12h_z: '%d %B %Y %l:%M%P' # 03 January 2017 02:00pm EST
+    short_24h: '%d %B %Y %H:%M'   # 03 January 2017 14:00
+  date:
+    common: '%d %B %Y'            # 03 January 2017
+    short: '%d %B %Y'             # 03 January 2017
+    short_dow: '%a, %d %B, %Y'     # Mon, 03 January 2017
+    dob: '%d %B %Y'                # 03 January 2017
+  time:
+    12h: '%l:%M%P'                 # 02:00pm
+    24h: '%M:%M'                   # 14:00

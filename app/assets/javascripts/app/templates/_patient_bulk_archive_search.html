@@ -1,0 +1,372 @@
+<script type="text/template" id="patient-bulk-archive-search-tmpl">
+  <div :class="{loading: loading}">
+    <div class="loading-backdrop" v-if="loading"></div>
+    <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+    <div class="row">
+      <div class="col-md-3">
+        <label>Create date</label>
+        <div class="input-group">
+          <v-flatpickr
+            name="start_date"
+            v-model="filter.create_date_from"
+            :config="createdDateFromDatepickerFilterConfig"
+            @input="onCreateDateFromChanged"
+            placeholder="Any"
+            >
+          </v-flatpickr>
+          <span class="input-group-addon">to</span>
+          <v-flatpickr
+            name="end_date"
+            v-model="filter.create_date_to"
+            :config="createdDateToDatepickerFilterConfig"
+            @input="onCreateDateToChanged"
+            placeholder="Any"
+            >
+          </v-flatpickr>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label>Contact</label>
+        <v-multiselect
+          v-model="filter.selectedContact"
+          :options="contactOptions"
+          :multiple="false"
+          :close-on-select="true"
+          :clear-on-select="true"
+          :options-limit="100"
+          :searchable="true"
+          :hide-selected="true"
+          :loading="isSearchingContacts"
+          :internal-search="false"
+          select-label="Select"
+          deselect-label="Unselect"
+          placeholder="Search by associated contact"
+          label="business_name"
+          open-direction="bottom"
+          track-by="id"
+          @search-change="onSearchContactChanged"
+          @input="onContactChanged">
+          <template slot="noResult" v-hide="isSearchingContacts">
+            <span>No contacts match!</span>
+          </template>
+          <template slot="option" scope="props">
+            <div class="desc">
+            <span>
+              <span v-if="props.option.full_name" v-html="$options.filters.highlight(props.option.business_name + ' | ' + props.option.full_name, props.search)"></span>
+              <span v-if="!props.option.full_name" v-html="$options.filters.highlight(props.option.business_name, props.search)"></span><br>
+              <span>{{ props.option.short_address }}</span>
+            </span>
+            </div>
+          </template>
+        </v-multiselect>
+      </div>
+    </div>
+
+    <div class="row mt-15">
+      <div class="col-md-3 col-sm-4 col-xs-6">
+        <label>No appointment for</label>
+        <select class="form-control" v-model="filter.no_appointment_period" @change="onClickSubmitSearch">
+          <option :value="null">-- Not selected --</option>
+          <option value="ALL">All the time</option>
+          <option value="6m">6 months</option>
+          <option value="9m">9 months</option>
+          <option value="1y">1 year</option>
+          <option value="2y">2 years</option>
+          <option value="3y">3 years</option>
+        </select>
+        <!-- <span class="small text-muted text-i">(Base on create date)</span> -->
+      </div>
+
+      <div class="col-md-3 col-sm-4 col-xs-6">
+        <label>No invoice for</label>
+        <select class="form-control" v-model="filter.no_invoice_period" @change="onClickSubmitSearch">
+          <option :value="null">-- Not selected --</option>
+          <option value="ALL">All the time</option>
+          <option value="6m">6 months</option>
+          <option value="9m">9 months</option>
+          <option value="1y">1 year</option>
+          <option value="2y">2 years</option>
+          <option value="3y">3 years</option>
+        </select>
+        <!-- <span class="small text-muted text-i">(Base on create date)</span> -->
+      </div>
+
+      <div class="col-md-3 col-sm-4 col-xs-6">
+        <label>No treatment note for</label>
+        <select class="form-control" v-model="filter.no_treatment_note_period" @change="onClickSubmitSearch">
+          <option :value="null">-- Not selected --</option>
+          <option value="ALL">All the time</option>
+          <option value="6m">6 months</option>
+          <option value="9m">9 months</option>
+          <option value="1y">1 year</option>
+          <option value="2y">2 years</option>
+          <option value="3y">3 years</option>
+        </select>
+        <!-- <span class="small text-muted text-i">(Base on create date)</span> -->
+      </div>
+    </div>
+
+    <div class="row mt-15">
+      <div class="col-md-6 col-sm-6 col-xs-12">
+        <button type="button" class="btn btn-primary" @click.prevent="onClickSubmitSearch" :disabled="loading || isNoFilters">Search clients</button>
+        <button type="button" :disabled="loading || isNoFilters || pagination.total_entries === 0" class="btn btn-warning" @click.prevent="onClickCreateBulkArchiveRequest">Create bulk archive request</button>
+      </div>
+    </div>
+
+    <hr>
+
+    <div v-if="isNoFilters">
+      Please select at least one search criteria
+    </div>
+
+    <div class="table-responsive mt-20" v-show="!isNoFilters">
+      <table class="table table-striped table-bordered table-hover table-layout-fixed table-clients">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width: 250px">Client</th>
+            <th style="width: 220px" colspan="2">Appointments</th>
+            <th style="width: 300px" colspan="3">Invoices</th>
+            <th style="width: 230px" colspan="2">Treatment notes</th>
+            <th rowspan="2">Creation</th>
+            <th rowspan="2"></th>
+          </tr>
+          <tr>
+            <th>
+              Total
+            </th>
+            <th>
+              Last
+            </th>
+            <th>
+              Total
+            </th>
+            <th>
+              Outstanding
+            </th>
+            <th>
+              Last
+            </th>
+            <th>
+              Total
+            </th>
+            <th>
+              Last
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(patient, index) in result.patients" :key="patient.id">
+              <td style="width: 300px">
+                <a :href="'/app/patients/' + patient.id"
+                  :class="{'text-muted': !!patient.archived_at}"
+                >
+                <span class="text-bolder text-uppercase">{{ patient.last_name }}</span>, {{ patient.first_name }}</a>
+
+                <div v-if="patient.dob" class="text-smaller">
+                  {{ patient.dob | dob }}
+                </div>
+
+                <div v-if="patient.dob" class="text-smaller">
+                  {{ patient.short_address }}
+                </div>
+              </td>
+
+              <td>
+                <span v-if="patient.appointments_count > 0">
+                  {{ patient.appointments_count }}
+                </span>
+
+                <span v-if="patient.appointments_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                <span title="Last appointment date" v-if="patient.appointments_count > 0" class="text-smaller">
+                  {{ patient.last_appointment_at | shortDate }}
+                </span>
+
+                <span v-if="patient.appointments_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                <span v-if="patient.invoices_count > 0">
+                  <span>{{ patient.invoices_count }}</span>
+                </span>
+
+                <span v-if="patient.invoices_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                <span v-if="patient.invoices_outstanding_count > 0">
+                  <span>{{ patient.invoices_outstanding_count }}</span>
+                </span>
+
+                <span v-if="patient.invoices_outstanding_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                <span v-if="patient.invoices_count > 0">
+                  <span title="Last invoice issue date" class="text-smaller">{{ patient.last_invoice_issue_date | shortDate }}</span>
+                </span>
+
+                <span v-if="patient.invoices_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                <span v-if="patient.treatment_notes_count > 0">
+                  <span>{{ patient.treatment_notes_count }}</span>
+                </span>
+
+                <span v-if="patient.treatment_notes_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                <span v-if="patient.treatment_notes_count > 0">
+                  <span title="Last treatment note" class="text-smaller">{{ patient.last_treatment_note_created_at | shortDate }}</span>
+                </span>
+
+                <span v-if="patient.treatment_notes_count == 0">
+                  <span class="text-muted">--</span>
+                </span>
+              </td>
+
+              <td>
+                {{ patient.created_at | shortDate }}
+              </td>
+
+              <td style="width: 120px; text-align: right">
+                <a :href="'/app/patients/' + patient.id" class="btn btn-white">Details</a>
+                <a href="#" @click.prevent="onClickArchive(patient)" class="btn btn-warning">Archive</a>
+              </td>
+            </tr>
+
+            <tr v-if="pagination.total_entries == 0 && !loading">
+              <td class="text-muted" colspan="10">No clients found!</td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-show="pagination.total_entries > 0 && !isNoFilters">
+      <div class="row">
+        <div class="col-sm-6 col-xs-12">
+          Displaying <b>{{ result.patients.length }}</b> records of <b>{{ pagination.total_entries }}</b> in total.
+          <br>
+        </div>
+        <div class="col-sm-6 col-xs-12 text-right"
+          v-show="pagination.total_entries > pagination.per_page">
+          <app-pagination
+            :total="pagination.total_entries"
+            :page-size="pagination.per_page"
+            :options="pagination.paginator_options"
+            :currentPage="pagination.page"
+            :callback="onPageChanged"
+            ul-class="pagination-sm"></app-pagination>
+        </div>
+      </div>
+    </div>
+
+    <modal :value="isShowModalCreateRequest">
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="isShowModalCreateRequest = false"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Bulk archive clients</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body" v-bind:class="{ isSubmittingBulkArchiveRequest: loading }">
+        <p>Please review the search criteria and confirm:</p>
+
+          <ul class="pl-20">
+            <li v-if="filter.create_date_from || filter.create_date_to">
+              <span>
+                Create date:
+              </span>
+              <span>
+                <span>From: </span>
+                <span v-if="filter.create_date_from">
+                  {{ filter.create_date_from | moment('DD MMM YYYY') }}
+                </span>
+
+                <span v-if="!filter.create_date_from" class="text-muted">--</span>
+
+                <span> to </span>
+
+                <span v-if="filter.create_date_to">
+                  {{ filter.create_date_to | moment('DD MMM YYYY') }}
+                </span>
+
+                <span v-if="!filter.create_date_to" class="text-muted">--</span>
+              </span>
+            </li>
+
+            <li v-if="filter.selectedContact">
+              <span>
+                Associated to contact:
+              </span>
+              <span>
+                {{ filter.selectedContact.business_name }}
+              </span>
+            </li>
+
+            <li v-if="filter.no_appointment_period">
+              <span>
+                No appointments for:
+              <span>
+              </span>
+                {{ filter.no_appointment_period | humanizePeriod }}
+              </span>
+            </li>
+
+            <li v-if="filter.no_invoice_period">
+              <span>
+                No invoices for:
+              </span>
+              <span>
+                {{ filter.no_invoice_period | humanizePeriod }}
+              </span>
+            </li>
+
+            <li v-if="filter.no_treatment_note_period">
+              <span>
+                No treatment notes for:
+              </span>
+              <span>
+                {{ filter.no_treatment_note_period | humanizePeriod }}
+              </span>
+            </li>
+          </ul>
+
+        <div class="form-group mt-20">
+          <label class="control-label">Description:</label>
+          <input type="text" v-model="bulkRequestDescription" class="form-control" placeholder="Enter a description or note">
+        </div>
+
+        <div class="mt-5 text-warning">
+          Notes:
+          <ul>
+            <li>The request will be processed in background. You can find the status in the <b>History</b> tab</li>
+            <li>Allows only one request at a time</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div slot="modal-footer" class="modal-footer">
+        <button class="btn btn-primary" type="button" @click.prevent="onClickSubmitBulkArchiveRequest" :disabled="isNoFilters || isSubmittingBulkArchiveRequest">Submit bulk archive</button>
+        <button class="btn btn-white" type="button" @click="isShowModalCreateRequest = false" :disabled="isSubmittingBulkArchiveRequest">Cancel</button>
+      </div>
+    </modal>
+
+  </div>
+</script>

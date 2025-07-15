@@ -1,0 +1,19 @@
+<% form_path = outcome_measure.new_record? ? patient_outcome_measures_path(patient) : patient_outcome_measure_path(patient, outcome_measure) %>
+<%= simple_nested_form_for outcome_measure, url: form_path do |f| %>
+
+  <div class="box">
+    <div class="box-body">
+      <div class="row">
+        <div class="col-lg-6 col-sm-12">
+          <%= f.association :outcome_measure_type, as: :select, collection: current_business.outcome_measure_types, label_method: :name %>
+          <%= f.association :practitioner, as: :select, collection: current_business.practitioners, label_method: :full_name, input_html: { class: 'selectize' } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="box-footer">
+      <%= f.submit 'Submit', class: 'btn sitebtn' %>
+      <a href="<%= form_path %>" class="btn linebtn">Cancel</a>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,134 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-md-6 col-xs-6">
+      <h1><%= @subscription.business.name %></h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_subscriptions_path %>">Subscriptions</a>
+    </li>
+    <li><%= @subscription.business.name %> - Info</li>
+  </ul>
+</section>
+
+<section class="content pb-none">
+  <div class="box">
+    <div role="tabpanel">
+      <ul class="nav nav-tabs">
+        <li class="active">
+          <a href="#subscription-info" data-toggle="tab">Subscription info</a>
+        </li>
+        <li>
+          <a href="<%= invoices_admin_subscription_path(@subscription) %>">Issued invoices (<%= @subscription.business.business_invoices.count %>)</a>
+        </li>
+        <li>
+          <a href="<%= payments_admin_subscription_path(@subscription) %>">Payment history</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="subscription-info">
+          <div class="row mt-15">
+            <div class="col-md-6">
+              <table class="table table-bordered mt-10">
+                <tbody>
+                  <tr>
+                    <td>
+                      Business
+                    </td>
+                    <td>
+                      <a href="<%= admin_business_path(@subscription.business) %>"><%= @subscription.business.name %></a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      Status
+                    </td>
+                    <td>
+                      <% if @subscription.business.in_trial_period? %>
+                        <span class="text-warning">In-trial</span>
+                      <% else %>
+                        <span class="text-success">Active</span>
+                      <% end %>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Plan</td>
+                    <td><%= @subscription.subscription_plan.name.titleize %></td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      Trial period
+                    </td>
+                    <td>
+                      <%= @subscription.trial_start.strftime('%d %b, %Y') %> - <%= @subscription.trial_end.strftime('%d %b, %Y') %>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      Current billing period
+                    </td>
+                    <td>
+                      <%= @subscription.billing_start.strftime('%d %b, %Y') %> - <%= @subscription.billing_end.strftime('%d %b, %Y') %>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      Payment method
+                    </td>
+                    <td>
+                      <% if @subscription.stripe_customer_id.nil? %>
+                        <span class="text-muted">Not added</span>
+                      <% else %>
+                        ****-<%= @subscription.card_last4 %>
+                      <% end %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">Admin settings</div>
+                <div class="panel-body">
+                  <%= simple_form_for @admin_settings_form, as: :settings, url: update_settings_admin_subscription_path(@subscription), method: 'PUT', remote: true do |f| %>
+                    <%= f.input :email, hint: 'The subscription\'s email will receive invoices. Leave blank to use business\'s email.' %>
+                    <%= f.input :auto_send_invoice, as: :boolean, hint: 'Send the invoice automatically after created.' %>
+                    <div class="row">
+                      <div class="col-xs-6">
+                        <%= f.input :auto_payment, label: 'Auto payment', as: :boolean, hint: 'Automatically charge a payment after create invoice.' %>
+                      </div>
+                      <div class="col-xs-6">
+                        <%= f.input :auto_payment_delay, label: 'Auto payment delay(hours): ', as: :integer, placeholder: 'The delay before auto charge. Default is 24 hours.' %>
+                      </div>
+                    </div>
+
+                    <%= f.input :notify_new_invoice, label: 'Notify new invoice', as: :boolean, hint: 'Receive notify for new invoices' %>
+                    <hr>
+                    <button class="btn btn-primary">Save settings</button>
+                  <% end %>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

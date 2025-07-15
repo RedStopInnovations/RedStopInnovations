@@ -1,0 +1,278 @@
+<% content_for :title, 'Online bookings page' %>
+
+<%
+  business_slug = current_business.name.downcase.gsub(/\s/, "_")
+  practitioners = current_business.practitioners.active.select('id, full_name, slug, profession, city, state')
+  groups = current_business.groups
+%>
+
+
+<section class="box-header">
+  <h1>Online bookings page</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Online bookings page</li>
+  </ul>
+</section>
+
+<section class="content" id="js-online-bookings-page-builder-app" v-cloak>
+  <p>Use the filters below to generate a web address that will link to a version of online bookings</p>
+  <div class="row">
+    <div class="col-md-6">
+
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Home visit</strong></div>
+        <div class="panel-body">
+          <label>Page type: </label>
+          <div class="bordered pa-10">
+            <div>
+              <label class="fw-400">
+                <input type="radio" name="pageType" value="default" v-model="pageType" @change="onPageTypeChange"> Default</label>
+
+              <label class="ml-20 fw-400">
+                <input type="radio" name="pageType" value="practitioner" v-model="pageType" @change="onPageTypeChange"> Single practitioner</label>
+
+              <label class="ml-20 fw-400">
+                <input type="radio" name="pageType" value="group" v-model="pageType" @change="onPageTypeChange"> Practitioner group</label>
+
+            </div>
+
+            <div class="form-group mt-10" v-show="pageType === 'group'">
+              <label>Select group:</label>
+              <select name="group" class="form-control" v-model="filters.group" @change="onGroupChange">
+                <option :value="null">-- Select a group --</option>
+                  <option :value="group" v-for="group in allGroups" :key="group.id">
+                    {{ group.name }}
+                  </option>
+              </select>
+            </div>
+
+            <div class="form-group mt-10" v-show="pageType === 'practitioner'">
+                <label>Select practitioner:</label>
+                <v-multiselect
+                  :options="allPractitioners"
+                  :multiple="false"
+                  :close-on-select="true"
+                  :hide-selected="true"
+                  :options-limit="50"
+                  select-label=""
+                  deselect-label=""
+                  placeholder="Search practitioner"
+                  label="full_name"
+                  track-by="id"
+                  v-model="filters.practitioner"
+                  @input="onPractitionerChange">
+
+                  <template slot="tag" scope="props">
+                    {{ props.option.full_name }} <small v-if="props.option.profession">{{ props.option.profession }}</small>
+                  </template>
+
+                  <template slot="option" scope="props">
+                    <div class="desc">
+                      <span class="text-bolder" v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                      <small v-if="props.option.profession">{{ props.option.profession }}</small>
+                      <br>
+                      <small> {{ props.option.city }}</small>
+                    </div>
+                  </template>
+
+                  <template slot="noResult">
+                    <span>No results</span>
+                  </template>
+                </v-multiselect>
+            </div>
+
+          </div>
+
+          <div class="form-group mt-20">
+            <label>URL:</label>
+            <div class="bookings-url-preview">
+              <a :href="pageUrl" target="_blank" rel="noopener noreferrer"><span class="link-label">{{ pageUrl }}</span></a>
+              <button class="btn btn-sm btn-white js-btn-copy-url" :data-copy-text="pageUrl"><i class="fa fa-copy"></i></button>
+              <a :href="pageUrl" target="_blank" class="btn btn-sm btn-white" rel="noopener noreferrer"><i class="fa fa-external-link"></i></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Facility bookings</strong></div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label>Select contact:</label>
+            <select id="js-select-contact-id" class="form-control selectize">
+              <option disabled value="" selected>-- Select a contact --</option>
+              <%= options_for_select current_business.contacts.pluck(:business_name, :id) %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>URL:</label>
+            <div class="bookings-url-preview">
+              <%
+                initial_url = frontend_facility_bookings_url(business_id: current_business.id)
+              %>
+              <a href="<%= initial_url %>" id="js-facility-bookings-url-link">
+                <span class="link-label" rel="noopener noreferrer"><%= initial_url %></span>
+              </a>
+              <button class="btn btn-sm btn-white js-btn-copy-url" data-copy-text="<%= initial_url %>"><i class="fa fa-copy"></i></button>
+              <a href="<%= initial_url %>" target="_blank" class="btn btn-sm btn-white js-external-link" rel="noopener noreferrer"><i class="fa fa-external-link"></i></a>
+            </div>
+
+          </div>
+        </div>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+<script id="js-all-practitioners-data" type="application/json">
+  <%= practitioners.to_json.html_safe %>
+</script>
+
+<script id="js-all-groups-data" type="application/json">
+  <%= groups.to_json.html_safe %>
+</script>
+
+  <script type="text/javascript">
+    const allPractitioners = JSON.parse($('#js-all-practitioners-data').html());
+    const allGroups = JSON.parse($('#js-all-groups-data').html());
+
+    (function() {
+      new Vue({
+        el: '#js-online-bookings-page-builder-app',
+        data: function() {
+          return {
+            pageType: 'default',
+            pageUrl: null,
+            iframeUrl: null,
+            filters: {
+              practitioner: null,
+              group: null
+            },
+            isBusy: false,
+            allPractitioners: allPractitioners,
+            allGroups: allGroups,
+          }
+        },
+
+        computed: {
+          isFormValid: function() {
+            switch(this.pageType) {
+              case 'default':
+                return true;
+                break;
+              case 'practitioner':
+                return !!this.filters.practitioner;
+                break;
+              case 'group':
+                return !!this.filters.group;
+                break;
+            }
+          }
+        },
+
+        created: function() {
+          this.getPageUrl();
+        },
+
+        methods: {
+          buildGenerateUrlParams: function() {
+            const params = {
+              page_type: this.pageType
+            };
+
+            if (this.pageType === 'practitioner') {
+              params.practitioner_id = this.filters.practitioner.id;
+            } else if (this.pageType === 'group') {
+              params.group_id = this.filters.group.id;
+            }
+
+            return params;
+          },
+
+          getPageUrl: function() {
+            const vm = this;
+            vm.isBusy = true;
+
+            $.ajax({
+              method: 'GET',
+              url: '/app/settings/online_bookings/generate_url',
+              data: vm.buildGenerateUrlParams(),
+              success: function(res) {
+                vm.pageUrl = res.url;
+              },
+              complete: function() {
+                vm.isBusy = false;
+              }
+            });
+          },
+
+          onPageTypeChange: function() {
+            if (this.isFormValid) {
+              this.getPageUrl();
+            }
+          },
+
+          onPractitionerChange: function() {
+            if (this.isFormValid) {
+              this.getPageUrl();
+            }
+          },
+
+          onGroupChange: function() {
+            if (this.isFormValid) {
+              this.getPageUrl();
+            }
+          }
+        }
+      });
+
+      const clipboard = new Clipboard('.js-btn-copy-url', {
+        text: function(trigger) {
+          return $(trigger).attr('data-copy-text')
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        Flash.success('Copied to clipboard');
+      });
+    }) ();
+  </script>
+
+ <script type="text/javascript">
+  (function() {
+    var facilityBookingsBaseURL = '<%= frontend_facility_bookings_url %>';
+    var businessId = '<%= current_business.id %>';
+    var $selectContactId = $('#js-select-contact-id');
+    var $facilityBookingsUrlLink = $('#js-facility-bookings-url-link');
+
+    function updateFacilityBookingsURL() {
+      var params = {};
+      params.business_id = businessId;
+
+      if ($selectContactId.val().trim().length) {
+        params.contact_id = $selectContactId.val().trim();
+      }
+      var bookingsUrl = facilityBookingsBaseURL + '?' + $.param(params);
+      $facilityBookingsUrlLink
+        .attr('href', bookingsUrl)
+        .find('.link-label').text(bookingsUrl);
+
+      $facilityBookingsUrlLink.siblings('.js-btn-copy-url').attr('data-copy-text', bookingsUrl);
+      $facilityBookingsUrlLink.siblings('.js-external-link').attr('href', bookingsUrl);
+    }
+
+    $selectContactId.on('change', updateFacilityBookingsURL);
+  })();
+ </script>
+<% end %>

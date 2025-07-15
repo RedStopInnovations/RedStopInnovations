@@ -1,0 +1,164 @@
+<% content_for :title, 'New referral' %>
+
+<section class="box-header">
+  <h1>New referral</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li><a href="<%= app_referrals_path %>">Referrals</a></li>
+    <li class="active">New referral</li>
+  </ul>
+</section>
+
+<section class="content">
+    <%= simple_nested_form_for @referral_form, as: :referral, url: app_referrals_url, html: {id: 'js-form-referral', multipart: true, novalidate: 'novalidate', autocomplete: "off" } do |f| %>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Referral type</strong></div>
+      <div class="panel-body">
+        <div class="form-group mb-0">
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_GENERAL %>" checked name="referral[type]" class="js-cb-referral-type" required> General
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_SELF_REFERRAL %>" name="referral[type]" class="js-cb-referral-type" required> Self-referral
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_DVA %>" name="referral[type]" class="js-cb-referral-type" required> DVA
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_MEDICARE %>" name="referral[type]" class="js-cb-referral-type"required> Medicare
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_NDIS %>" name="referral[type]" class="js-cb-referral-type"required> NDIS
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_HCP %>" name="referral[type]" class="js-cb-referral-type"required> Home care package
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_HIH %>" name="referral[type]" class="js-cb-referral-type"required> Hospital in home
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_PRIVATE %>" name="referral[type]" class="js-cb-referral-type" required> Private
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_STRC %>" name="referral[type]" class="js-cb-referral-type" required> STRC
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Service info</strong></div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <%=
+                f.input :professions,
+                        as: :select,
+                        required: true,
+                        collection: current_business.practitioners.active.pluck(Arel.sql('DISTINCT profession')).select(&:present?),
+                        include_blank: "-- Select professions --",
+                        include_hidden: false,
+                        input_html: {
+                          class: 'selectize',
+                          multiple: true
+                        }
+              %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <%= f.input :availability_type_id, as: :select, required: true, collection: [['Home visit', AvailabilityType::TYPE_HOME_VISIT_ID], ['Facility', AvailabilityType::TYPE_FACILITY_ID]],
+                include_blank: "-- Select availability type --" %>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <%= f.input :practitioner_id, as: :select, collection: current_business.practitioners.active.collect {|p| [p.full_name, p.id]},
+                include_blank: "--  Select practitioner  --",
+                input_html: {
+                  class: 'selectize'
+                }
+              %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= f.input :priority, as: :select, label: 'Referral urgency', collection: [["Urgent priority", 'Urgent'], ["Normal priority", 'Normal']],
+                include_blank: "-- Select priority --" %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <%= f.input :referral_reason, as: :text, label: 'Reason for referral', input_html: { rows: 3 } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Client info</strong></div>
+      <div class="panel-body">
+        <%= render 'app/referrals/form/client_fields', f: f %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+          <div class="panel-heading"><strong>Attach referral documents</strong></div>
+          <div class="panel-body">
+              <div class="form-group">
+                <span class="help-block">PDF and images only. Maximum by 5MB.</span>
+
+                <input type="file" accept="image/jpeg,image/png,application/pdf"
+                  class="bs-file-input"
+                  multiple="true"
+                  name="referral[attachments][]">
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% Referral::THIRD_PARTY_REFERRAL_TYPES.each do |referral_type| %>
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= referral_type %>">
+        <%= render "app/referrals/form/#{referral_type}_fields", f: f %>
+      </div>
+    <% end %>
+
+    <div class="panel panel-default" id="js-referrer-info-wrap">
+      <div class="panel-heading"><strong>Referrer info</strong></div>
+      <div class="panel-body">
+        <%= render 'app/referrals/form/referrer_fields', f: f %>
+      </div>
+    </div>
+
+    <div id="js-form-error-wrap" class="box hidden"></div>
+
+    <div>
+      <button type="submit" class="btn btn-primary">Create referral</button>
+      <a href="<%= app_referrals_path %>" class="btn btn-white">Cancel</a>
+    </div>
+  <% end %>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'app/referrals/form/form_js' %>
+<% end %>

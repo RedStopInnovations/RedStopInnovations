@@ -1,0 +1,119 @@
+<div class="dashboard-box dashboard-calendar-wrap">
+    <div class="box-heading">
+        <span class="title">My appointments</span>
+        <a href="<%= calendar_path %>" class="pull-right">View full calendar</a>
+    </div>
+
+    <div class="box-body">
+        <div class="dashboard-calendar-wrap-body">
+            <div id="js-datepicker-wrap" class="datepicker-wrap">
+                <div id="js-appointments-mini-calendar"></div>
+            </div>
+
+            <div id="js-appointments-list-wrap" class="appointments-list-wrap">
+                <%
+                    selected_date = Time.current.to_date
+                    appointments = Appointment.where(practitioner_id: current_user.practitioner.id)
+                        .where(start_time: selected_date.beginning_of_day..selected_date.end_of_day)
+                        .order(Arel.sql('start_time ASC, "order" ASC'))
+                        .where(cancelled_at: nil)
+                %>
+                <%= render 'calendar_appointments_list', appointments: appointments, selected_date: selected_date %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% content_for :page_js do %>
+<script type="text/javascript">
+
+    $(function() {
+      var $apptsMiniCalendar = $('#js-appointments-mini-calendar');
+      var $apptsListWrap = $('#js-appointments-list-wrap');
+      var $datepickerWrap = $('#js-datepicker-wrap');
+      var dailyAppointmentsCount = {};
+      var defaultDate = new Date;
+      var lastSelectedDate = defaultDate;
+      var flatpickrInstance;
+
+      var fetchAppointmentsList = function(date) {
+        $.ajax({
+            method: 'GET',
+            url: '<%= list_by_date_appointments_path %>',
+            beforeSend: function() {
+                $apptsListWrap.loadingOn();
+            },
+            data: {
+                date: moment(date).format('YYYY-MM-DD')
+            },
+            success: function(res) {
+                $apptsListWrap.html(res);
+            },
+            complete: function() {
+                $apptsListWrap.loadingOff();
+            }
+        });
+      };
+
+      var updateDailyAppointmentsCount = function() {
+        var date = moment().year(flatpickrInstance.currentYear).month(flatpickrInstance.currentMonth).date(1);
+
+        $.ajax({
+            method: 'GET',
+            url: '<%= appointments_count_daily_appointments_path %>',
+            beforeSend: function() {
+                $datepickerWrap.loadingOn();
+            },
+            data: {
+                date: date.format('YYYY-MM-DD')
+            },
+            success: function(res) {
+                dailyAppointmentsCount = res.data;
+                flatpickrInstance.redraw();
+            },
+            complete: function() {
+                $datepickerWrap.loadingOff();
+            }
+        });
+      };
+
+      $apptsMiniCalendar.flatpickr({
+        inline: true,
+        disableMobile: true,
+        defaultDate: defaultDate,
+
+        onDayCreate: function(selectedDates, selectedDateStr, fpInstance, dayElem){
+            var dateObj = dayElem.dateObj;
+
+            var dayStr = moment(dateObj).format('YYYY-MM-DD');
+            var apptsCount = dailyAppointmentsCount[dayStr];
+
+            if (apptsCount && apptsCount > 0) {
+                dayElem.className += ' has-availability-day';
+                dayElem.innerHTML += '<span class="appointments-count">' + apptsCount + '</span>';
+            }
+        },
+
+        onMonthChange: function() {
+            updateDailyAppointmentsCount();
+            ahoy.track("Use dashboard appointments calendar", { tags: "dashboard appointment calendar" });
+        },
+
+        onYearChange: function() {
+            updateDailyAppointmentsCount();
+        },
+
+        onReady: function(selectedDates, selectedDateStr, fpInstance) {
+            flatpickrInstance = fpInstance;
+            updateDailyAppointmentsCount();
+        },
+
+        onChange: function(selectedDates, selectedDateStr, fpInstance) {
+            lastSelectedDate = selectedDateStr;
+            fetchAppointmentsList(selectedDateStr);
+            ahoy.track("Use dashboard appointments calendar", { tags: "dashboard appointment calendar" });
+        }
+      });
+    });
+</script>
+<% end %>

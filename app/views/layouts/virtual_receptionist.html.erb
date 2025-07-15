@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tracksy <%= " | #{ yield(:title) }" if content_for?(:title) %></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <%= yield :head %>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag    'application-vendors', media: 'all' %>
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application-vendors' %>
+    <%= javascript_include_tag 'application' %>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body class="virtual-receptionist-page">
+    <div class="container">
+
+      <div class="header">
+        <% if current_business.avatar.exists? %>
+          <img src="<%= current_business.avatar.url %>" class="logo">
+        <% end %>
+        <h4><%= current_business.name %> <small class="text-gray">Virtual receptionist</small></h4>
+      </div>
+
+      <div class="main">
+        <div class="row">
+          <div class="col-md-6">
+          </div>
+
+          <div class="col-md-6 text-right">
+            Hi <span class="text-bolder"><%= current_user.first_name %></span>
+            <span class="text-muted"> | </span>
+            <a href="<%= destroy_user_session_path %>">Log out</a>
+          </div>
+        </div>
+
+        <%= render 'layouts/shared/flash_messages' %>
+        <%= yield %>
+      </div>
+    </div>
+
+    <%= yield :page_js %>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+User:
+
+ID: <%= @user.id %> <br>
+Business ID: <%= @user.business_id %> <br>
+Email: <%= @user.email %> <br>
+Timezone: <%= @user.timezone %> <br>
+Country: <%= @user.business&.country %> <br>
+<br>
+<% if @practitioner %>
+Practitioner:
+<br>
+ID: <%= @practitioner.id %> <br>
+First name: <%= @practitioner.first_name %>  <br>
+Last name: <%= @practitioner.last_name %>  <br>
+Profession: <%= @practitioner.profession %>  <br>
+Email: <%= @practitioner.email %> <br>
+Website: <%= @practitioner.website %>  <br>
+Phone: <%= @practitioner.phone %>  <br>
+Mobile: <%= @practitioner.mobile %>  <br>
+<% end %>

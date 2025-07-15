@@ -1,0 +1,42 @@
+<%= simple_form_for appointment_type, url: appointment_type.new_record? ? appointment_types_path : appointment_type_path(appointment_type) do |f| %>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :name %>
+        <%= f.input :duration, label: "Duration (minutes)" %>
+        <%= f.input :availability_type_id, as: :select, collection: [['Home Visit', AvailabilityType::TYPE_HOME_VISIT_ID], ['Facility', AvailabilityType::TYPE_FACILITY_ID], ['Group appointment', AvailabilityType::TYPE_GROUP_APPOINTMENT_ID]], prompt: '-- Select one --', disabled: appointment_type.persisted? %>
+        <% if appointment_type.new_record? %>
+          <div class="text-muted text-smaller">Cannot change the availability type after creating.</div>
+        <% end %>
+        <%= f.input :description, input_html: { rows: 3 }, wrapper_html: { class: 'mt-10' } %>
+
+        <%= f.input :reminder_enable %>
+        <%= f.input :display_on_online_bookings %>
+
+        <% if current_business.stripe_payment_available? %>
+          <%= f.input :is_online_booking_prepayment, label: 'Online bookings pre-payment', label_html: {title: 'Payment will be required when clients book online. An invoice will be issued with the default billable items.' } %>
+        <% end %>
+
+      </div>
+
+      <div class="col-md-6">
+        <%= f.association :default_treatment_template, as: :select, collection: current_business.treatment_templates.select(:id, :name), label_method: :name,
+          include_blank: true, prompt: '-- Select one --', input_html: { class: 'selectize' } %>
+
+        <%
+          billable_item_options = current_business.billable_items.not_deleted.or(current_business.billable_items.where(id: appointment_type.billable_item_ids)).select(:id, :name).to_a
+        %>
+
+        <%= f.input :billable_item_ids, as: :select, collection: billable_item_options, label_method: :name, label: 'Default billable items', input_html: { class: 'selectize', multiple: true } %>
+
+        <%= f.input :practitioner_ids, as: :select, collection: current_business.practitioners.active.pluck(:full_name, :id), label: 'Practitioners', hint: 'Practitioners who provide this service', input_html: { class: 'selectize', multiple: true } %>
+      </div>
+    </div>
+
+    <hr>
+    <button type="submit" class="btn btn-primary">
+      Save
+    </button>
+    <a href="<%= appointment_type.new_record? ? appointment_types_path : appointment_type_path(appointment_type) %>" class="btn btn-white">Cancel</a>
+  </div>
+<% end %>

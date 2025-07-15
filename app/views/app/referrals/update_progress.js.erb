@@ -1,0 +1,7 @@
+(function() {
+  <% if @referral.errors.empty? %>
+    Flash.success('The referral progress has been successfully updated.');
+  <% else %>
+    Flash.error('Please check for form errors: ' + '<%= @referral.errors.full_messages.first %>');
+  <% end %>
+})();

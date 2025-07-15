@@ -1,0 +1,85 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>HIH details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Hospital:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_hospital].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Procedure:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_procedure].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Discharge date:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_discharge_date].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Surgery date:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_surgery_date].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Doctor name:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_doctor_name].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Doctor phone:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_doctor_phone].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Doctor email:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hih_doctor_email].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+        <div class="block-info">
+          <strong>Company:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hi_company_name].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Number:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hi_number].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Manager name:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hi_manager_name].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Manager email:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hi_manager_email].presence || 'N/A' %>
+          </p>
+        </div>
+        <div class="block-info">
+          <strong>Manager phone:</strong>
+          <p>
+            <%= @referral.patient_attrs[:hi_manager_phone].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

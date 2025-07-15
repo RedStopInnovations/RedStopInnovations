@@ -1,0 +1,61 @@
+<section class="box-header">
+  <h1><%= @patient.full_name %>'s appointments</h1>
+</section>
+
+<div class="patient-page">
+  <div class="clearfix patient-content">
+    <div class="col-lg-2 col-md-3 col-sm-3 content-sidenav">
+      <%= render 'patient_sidebar' %>
+    </div>
+    <div class="col-lg-10 col-md-9 col-sm-9 col-xs-15 bdr-lft box-primary">
+      <div class="box-table">
+        <table class="table-flat">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Practitioner</th>
+              <th>Business</th>
+              <th style="width: 170px">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @appointments.each do |appointment| %>
+              <tr>
+                <td>
+                  <%= appointment.start_time.strftime('%d %b, %Y') %>
+                  <span class="text-muted"> / </span>
+                  <%= appointment.start_time.strftime('%l:%M%P') %>
+                  <span class="text-muted"> - </span>
+                  <%= appointment.end_time.strftime('%l:%M%P') %>
+                  <% if appointment.cancelled_at? %>
+                    <span class="label label-default">Cancelled</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= appointment.practitioner.full_name %>
+                </td>
+                <td>
+                  <a href="<%= admin_business_path(appointment.availability.business) %>" target="_blank">
+                    <%= appointment.availability.business.name %>
+                  </a>
+                </td>
+                <td>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <div class="row">
+          <div class="col-md-6 text-left">
+            <%= page_entries_info @appointments %>
+          </div>
+          <div class="col-md-6 text-right">
+            <%= paginate @appointments %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

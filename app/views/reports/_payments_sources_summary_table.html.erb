@@ -1,0 +1,52 @@
+<div class="box-table">
+  <table class="table-flat">
+    <thead>
+      <tr>
+        <th style="width: 200px">Source</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>EFTPOS</b></td>
+        <td><%= format_money payments.sum(:eftpos) %></td>
+      </tr>
+      <tr>
+        <td><b>HICAPS</b></td>
+        <td><%= format_money payments.sum(:hicaps) %></td>
+      </tr>
+      <tr>
+        <td><b>Cash</b></td>
+        <td><%= format_money payments.sum(:cash) %></td>
+      </tr>
+      <tr>
+        <td><b>Medicare</b></td>
+        <td><%= format_money payments.sum(:medicare) %></td>
+      </tr>
+      <tr>
+        <td><b>Workcover</b></td>
+        <td><%= format_money payments.sum(:workcover) %></td>
+      </tr>
+      <tr>
+        <td><b>DVA</b></td>
+        <td><%= format_money payments.sum(:dva) %></td>
+      </tr>
+      <tr>
+        <td><b>Direct deposit:</b></td>
+        <td><%= format_money payments.sum(:direct_deposit) %></td>
+      </tr>
+      <tr>
+        <td><b>Stripe</b></td>
+        <td><%= format_money payments.sum(&:stripe_charge_amount) %></td>
+      </tr>
+      <tr>
+        <td><b>Cheque</b></td>
+        <td><%= format_money payments.sum(&:chequq) %></td>
+      </tr>
+      <tr>
+        <td><b>Other</b></td>
+        <td><%= format_money payments.sum(:other) %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

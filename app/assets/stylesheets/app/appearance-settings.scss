@@ -1,0 +1,41 @@
+.modal-calendar-appearance-settings {
+  .color-picker-wrap {
+    padding: 0px;
+    border-left: none;
+
+    .one-colorpanel {
+      z-index: 3;
+    }
+  }
+
+  .one-colorpicker {
+    .color-block {
+      width: 50px;
+      height: 38px;
+    }
+  }
+
+  .appointment-type-search {
+    &.multiselect--active {
+      z-index: 3;
+    }
+  }
+
+  .input-group-addon {
+    background-color: #fff;
+  }
+
+  #appointment-types-color-wrap {
+    max-height: 420px;
+    overflow-y: scroll;
+
+    .row-appointment-type {
+      margin-bottom: 15px;
+
+      + .row-appointment-type {
+        border-top: 1px solid #eee;
+        padding-top: 5px;
+      }
+    }
+  }
+}

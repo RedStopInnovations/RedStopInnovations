@@ -1,0 +1,17 @@
+<% content_for :title, 'New payment' %>
+<section class="box-header">
+  <h1>New payment</h1>
+</section>
+
+<section class="content">
+  <div class="mb-10">
+    <a href="<%= bulk_payments_path %>" class="btn btn-white">Bulk create payments</a>
+  </div>
+  <div id="form-new-payment">
+    <%= render 'form', payment: @payment %>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'form_new_js', payment: @payment %>
+<% end %>

@@ -1,0 +1,19 @@
+<% content_for :title, 'Add case type' %>
+
+<section class="box-header">
+  <h1>Add case type</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= case_types_path %>">Case types</a></li>
+    <li class="active">Add</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', object: @case %>
+</section>

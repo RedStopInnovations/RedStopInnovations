@@ -1,0 +1,250 @@
+<% content_for :title, 'Client case details' %>
+
+<%= render 'patients/show_layout' do %>
+
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>Client case details <% if @patient_case.archived? %><span class="label label-default">Archived</span><% end %></h4>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <% if @patient_case.archived? %>
+        <a href="#" class="btn btn-white btn-form" data-form-url="<%= unarchive_patient_case_path(@patient, @patient_case) %>" data-form-method="PUT" data-form-confirmation="Are you sure you want to UNARCHIVE this case?">Unarchive</a>
+      <% else %>
+        <div class="btn-group">
+          <a href="<%= edit_patient_case_path(@patient,@patient_case) %>" class="btn btn-white">Edit details</a>
+          <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+          <ul class="dropdown-menu dropdown-menu-right custom-dropdown">
+            <% if @patient_case.status_open? %>
+              <li>
+                <a href="#" class="btn-form" data-form-url="<%= discharge_patient_case_path(@patient, @patient_case) %>" data-form-method="PUT" data-form-confirmation="Are you sure you want to DISCHARGE this case?"><span class="text-danger">Discharge</span></a>
+              </li>
+            <% else %>
+              <li>
+                <a href="#" class="btn-form" data-form-url="<%= open_patient_case_path(@patient, @patient_case) %>" data-form-method="PUT" data-form-confirmation="Are you sure you want to RE-OPEN this case?">Re-open</a>
+              </li>
+            <% end %>
+
+            <li>
+              <a href="#" class="btn-form" data-form-url="<%= archive_patient_case_path(@patient, @patient_case) %>" data-form-method="PUT" data-form-confirmation="Are you sure you want to ARCHIVE this case?">Archive</a>
+            </li>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row mt-10">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Details</strong>
+        </div>
+
+        <div class="panel-body">
+          <table class="table table-borderless">
+            <tbody>
+              <tr>
+                <td style="width: 180px">Created:</td>
+                <td>
+                  <%= @patient_case.created_at.strftime(t('date.common')) %>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Lead practitioner:</td>
+                <td>
+                  <% if @patient_case.practitioner.present? %>
+                    <%= @patient_case.practitioner.full_name %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Case type:</td>
+                <td><%= @patient_case.case_type.try(:title) %></td>
+              </tr>
+
+              <tr>
+                <td>Case type description:</td>
+                <td><%= @patient_case.case_type.try(:description) %></td>
+              </tr>
+
+              <tr>
+                <td>Status:</td>
+                <td><strong><%= @patient_case.status.upcase %></strong></td>
+              </tr>
+
+              <tr>
+                <td>End date:</td>
+                <td>
+                  <% if @patient_case.end_date? %>
+                    <%= @patient_case.end_date.strftime(t('date.common')) %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Case notes:</td>
+                <td>
+                  <% if @patient_case.notes.present? %>
+                    <%= simple_format @patient_case.notes %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <%
+      total_invoiced_amount = @patient_case.invoices.sum(&:amount).round(2)
+    %>
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Budget</strong>
+        </div>
+
+        <div class="panel-body">
+          <table class="table table-borderless">
+            <tbody>
+              <tr>
+                <td style="width: 180px;">Total invoiced amount:</td>
+                <td>
+                  <%= format_money total_invoiced_amount %>
+                </td>
+              </tr>
+              <tr>
+                <td>Max invoice total:</td>
+                <td>
+                  <% if @patient_case.invoice_total? %>
+                    <%= format_money @patient_case.invoice_total %>
+                  <% else %>
+                    <span class="text-muted" title="Not limited">--</span>
+                  <% end %>
+                </td>
+              </tr>
+              <tr>
+                <td>Remaining:</td>
+                <td>
+                  <% if @patient_case.invoice_total? %>
+                    <% remaining_invoice_total = @patient_case.invoice_total - total_invoiced_amount %>
+                    <% if remaining_invoice_total > 0 %>
+                      <span><%= format_money remaining_invoice_total.round(2) %> (<%= (remaining_invoice_total / @patient_case.invoice_total * 100).round %>%)</span>
+                    <% else %>
+                      <span><%= format_money 0 %></span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-muted" title="Not limited">--</span>
+                  <% end %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <strong>Case items</strong>
+    </div>
+
+    <div class="panel-body">
+      <% if @case_associates.blank? %>
+        <span class="text-muted">No items found</span>
+      <% else %>
+        <span>Attachments: <%= @patient_case.attachments.count %></span>
+        |
+        <span>Appointments: <%= @patient_case.appointments.count %></span>
+        |
+        <span>Treatment notes: <%= @patient_case.treatments.count %></span>
+        |
+        <span>Invoices: <%= @patient_case.invoices.count %></span>
+
+        <table class="table table-bordered mt-10">
+          <thead>
+            <tr>
+              <th style="width: 450px">Item</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @case_associates.each do |associate| %>
+            <% obj = associate[:object] %>
+            <tr>
+              <td style="width: 300px">
+                <% case obj %>
+                <% when Invoice %>
+                  Invoice: <a href="<%= associate[:link] %>"> #<%= obj.invoice_number %> </a>
+                <% when PatientAttachment %>
+                  Attachment: <a href="<%= associate[:link] %>"><%= obj.attachment_file_name %> </a>
+                <% when Treatment %>
+                  Treatment note: <a href="<%= associate[:link] %>"><%= obj.name %> </a>
+                <% when Appointment %>
+                  Appointment: <a href="<%= associate[:link] %>"><%= obj.start_time.strftime(t('date.common')) %> - <%= obj.appointment_type&.name %> </a>
+                <% else %>
+                <% end %>
+              </td>
+              <td><%= obj.created_at.strftime(t('datetime.common')) %></td>
+            </tr>
+            <% end %>
+            <tr></tr>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <strong>Statement</strong>
+    </div>
+
+    <div class="panel-body">
+      <% if @patient_case.invoices.count > 0 %>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Invoice number</th>
+                <th>Issue date</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @patient_case.invoices.each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a>
+                </td>
+                <td><%= invoice.issue_date.strftime(t('date.common')) %></td>
+                <td>
+                  <%= format_money invoice.amount %>
+                </td>
+              </tr>
+              <% end %>
+              <tr>
+                <td class="text-right" colspan="2" style="padding-right: 15px;">Total</td>
+                <td>
+                  <strong><%= format_money @patient_case.invoices.sum(&:amount) %></strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      <% else %>
+        <span class="text-muted">No invoices found</span>
+      <% end %>
+    </div>
+  </div>
+
+<% end %>

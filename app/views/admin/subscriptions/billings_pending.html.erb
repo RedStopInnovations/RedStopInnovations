@@ -1,0 +1,54 @@
+<section class="box-header">
+  <h1>Admin / Pending Billings </h1>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Price</th>
+          <th>Appointment ID</th>
+          <th>Discount</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @billings.each do |billing| %>
+          <tr>
+            <td>
+              <%= billing.id %>
+            </td>
+            <td><%= billing.billing_type %></td>
+            <td><%= billing.first_invoice_date %></td>
+            <td><%= billing.subscription_price_on_date %></td>
+            <td><%= billing.appointment_id %></td>
+            <td><%= billing.discount_applied %></td>
+            <td>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @billings %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @billings %>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 text-right">
+      <% unless @billings.blank? %>
+        <%= link_to 'Generate Invoice of Pending Billings', new_admin_business_invoice_path(business_id: @subscription.business_id), class: "btn btn-primary" %>
+      <% end %>
+      
+    </div>
+  </div>
+</section>

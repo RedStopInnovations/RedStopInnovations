@@ -1,0 +1,94 @@
+<% content_for :title, 'Login activity' %>
+
+<section class="box-header">
+  <h1>Login activity</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= settings_users_path %>">
+        Users & Practitioners
+      </a>
+    </li>
+    <li>
+      <a href="<%= settings_user_path(@user) %>"><%= @user.full_name %></a>
+    </li>
+    <li class="active">Login activity</li>
+  </ul>
+</section>
+
+<section class="content">
+
+  <div class="box">
+    <%= render 'user_tabs', active_tab: 'security' %>
+
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Login activity</h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>IP Address</th>
+                            <th>Browser / Device</th>
+                            <th>Location</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% @login_activity.each do |la| %>
+                            <tr>
+                            <td><%= la.created_at.in_time_zone(current_user.timezone).strftime(t('datetime.short_12h_z')) %></td>
+                            <td><%= la.ip %></td>
+                            <td>
+                                <% if la.user_agent.present? %>
+                                <span title="<%= la.user_agent %>">
+                                    <% client = DeviceDetector.new(la.user_agent) %>
+                                    <%= client.name %> <span> on </span>
+                                    <%= client.os_name %>
+                                    <%= client.device_name %>
+                                </span>
+                                <% end %>
+                            </td>
+                            <td>
+                                <% if la.latitude.present? && la.longitude.present? %>
+                                <% if la.country? %>
+                                    <%= [la.city, la.region, la.country].map(&:presence).compact.join(', ') %>
+                                <% end %>
+                                (<%= la.latitude %>, <%= la.longitude %>)
+                                <% else %>
+                                Unknown
+                                <% end %>
+                            </td>
+                            </tr>
+                        <% end %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                <div class="col-md-6 col-xs-12 text-left text-center-xs">
+                    <%= page_entries_info @login_activity, entry_name: 'records' %>
+                </div>
+                <div class="col-md-6 col-xs-12 text-right text-center-xs">
+                    <br class="visible-xs">
+                    <%= paginate @login_activity, theme: 'app' %>
+                </div>
+                </div>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>

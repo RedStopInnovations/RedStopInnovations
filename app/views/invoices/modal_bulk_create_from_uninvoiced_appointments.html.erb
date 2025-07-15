@@ -1,0 +1,197 @@
+<div class="modal fade modal-bulk-create-from-uninvoiced-appointments" id="js-modal-bulk-create-from-uninvoiced-appointments">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Bulk create invoices</h4>
+      </div>
+
+      <div class="modal-body">
+        <div class="text-warning">
+          Notes:
+          <ul>
+            <li>Appointment types without a default billable item will be automatically omitted.</li>
+            <li>Invoice emails will be automatically skipped for clients who have reminders disabled.</li>
+            <li>Variable pricing for contacts will be automatically applied.</li>
+            <li>After creation, invoice numbers will be displayed in the <strong>Invoice created</strong> column.</li>
+          </ul>
+        </div>
+
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Appointment</th>
+              <th>Invoice items</th>
+              <th>Invoice to contact</th>
+              <th>Last invoice</th>
+              <th>Case</th>
+              <th>
+                Email after create
+                <!-- <br> -->
+                <!-- <span class="text-smaller"><a href="#">Select all</a> | <a href="#">Deselect all</a></span> -->
+              </th>
+              <th>Invoice created</th>
+            </tr>
+            <tbody>
+              <%
+                invoices_count = 0
+                total_invoices_amount = 0
+                index = 0
+              %>
+
+              <% @appointments.each do |appointment| %>
+                <%
+                  has_invoiced_already = appointment.invoice.present?
+                  has_not_default_billable_items = appointment.appointment_type.billable_items.count == 0
+                  if has_invoiced_already || has_not_default_billable_items
+                    next
+                  end
+                  patient = appointment.patient
+                  appointment_type = appointment.appointment_type
+                  default_billable_items = appointment_type.billable_items
+                  invoice_to_contact = patient.primary_invoice_to_contact
+                  invoice_amount = 0
+
+                  invoices_count += 1
+                  index += 1
+                %>
+
+                <tr>
+                  <td>
+                    <%= index %>
+                    <% # @NOTE: this checkbox is preparation for ability to remove an selected appointment from previous step %>
+                    <input type="checkbox" class="hide" js-input-appointment-id value="<%= appointment.id %>" checked>
+                  </td>
+                  <td>
+                    Client: <a href="<%= patient_path(patient) %>"><%= patient.full_name %></a>
+                    <% if patient.important_notification.present? %>
+                      <span
+                        data-toggle="popover"
+                        data-trigger="hover" title="Important notification"
+                        data-content="<%= patient.important_notification %>"
+                        ><i class="fa fa-bullhorn text-yellow"></i></span>
+                    <% end %>
+                    <br>
+                    <%= appointment.start_time.strftime(t('date.common')) %> <br>
+                    Type: <strong><%= appointment_type.name %></strong>
+                  </td>
+
+                  <td>
+                    <table class="table table-bordered" style="background-color: inherit;">
+                      <tbody>
+                      <% default_billable_items.each do |billable_item| %>
+                        <%
+                          unit_price = billable_item.price
+
+                          if invoice_to_contact
+                            pricing_for_this_contact = billable_item.pricing_contacts.where(contact_id: invoice_to_contact.id).first
+                            if pricing_for_this_contact
+                              unit_price = pricing_for_this_contact.price
+                            end
+                          end
+
+                          item_amount = unit_price * 1
+
+                          if billable_item.tax
+                            item_amount += (item_amount * billable_item.tax.rate) / 100
+                          end
+
+                          invoice_amount += item_amount
+
+                          total_invoices_amount += invoice_amount
+                        %>
+                        <tr>
+                          <td>
+                            <strong><%= billable_item.name %></strong>
+                          </td>
+                          <td><%= format_money item_amount %></td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </td>
+
+                  <td>
+                    <% if invoice_to_contact %>
+                      <strong><%= invoice_to_contact.business_name %></strong>
+                    <% else %>
+                      <span>--</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% last_invoice = patient.invoices.order(issue_date: :desc).first %>
+                    <% if last_invoice %>
+                      <a href="<%= invoice_path(last_invoice) %>"><%= last_invoice.invoice_number %></a>
+                      <%= last_invoice.issue_date.strftime t('date.common') %> <br>
+                      <div class="text-smaller">
+                        <span><%= format_money last_invoice.amount %></span>
+                      </div>
+
+                    <% else %>
+                      <span class="text-muted">--</span>
+                    <% end %>
+                  </td>
+
+                  <td>
+                    <%
+                      open_cases = patient.patient_cases.status_open.not_archived.order(id: :desc)
+                      current_active_case = open_cases.first
+                    %>
+                    <select id="js-input-patient-case-appointment-<%= appointment.id %>" class="form-control">
+                      <option value="">-- Not selected --</option>
+                      <% open_cases.each do |kase| %>
+                        <option value="<%= kase.id %>"
+                          <% if current_active_case.id == kase.id %>
+                            selected
+                          <% end %>
+                          ><%= kase.case_type&.title %></option>
+                      <% end %>
+                    </select>
+                  </td>
+
+                  <td>
+                    <input type="checkbox" id="cb-send-after-create-appointment-<%= appointment.id %>" checked>
+                  </td>
+
+                  <td>
+                    <a href="#" js-link-created-invoice data-appointment-id="<%= appointment.id %>"></a>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </thead>
+        </table>
+
+        <div class="row">
+          <div class="col-md-4 col-md-offset-8 col-xs-12">
+            <table class="table text-left table-bordered">
+              <tbody>
+                <tr>
+                  <td>Invoices:</td>
+                  <td>
+                    <strong><%= invoices_count %></strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Total amount: </td>
+                  <td>
+                    <strong><%= format_money total_invoices_amount %></strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-gray-light">
+        <input type="hidden" value="">
+        <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary js-btn-submit-bulk-create-invoices">Create invoices</button>
+      </div>
+    </div>
+  </div>
+</div>

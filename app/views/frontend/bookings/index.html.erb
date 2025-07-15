@@ -1,0 +1,156 @@
+<% content_for :title, 'Online Booking for Mobile Physiotherapist & Podiatrists' %>
+
+<% content_for :page_id, 'js-page-bookings' %>
+
+<section class="sptb <%= 'mt-5' unless @business.present? %>">
+  <div class="container bookings-wrap">
+    <%= render 'frontend/layouts/bookings/flash_messages' %>
+    <div class="card">
+      <div class="card-body">
+        <%= render 'frontend/bookings/search/form' %>
+      </div>
+    </div>
+
+    <div class="booking-content">
+      <div class="results-wrap">
+
+        <% if @near_practitioners.present? %>
+          <div class="card" id="near-practitioners-wrap">
+            <div class="card-header">
+              <h4 class="card-title fs-16 fw-600">Practitioners near your location within a 50 km radius</h4>
+            </div>
+
+            <div class="card-body p-md-4">
+              <div class="row">
+                <div class="col-md-8">
+                  <div id="map-near-practitioners-wrap" style="height: 450px;" class="w-100 border"></div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="list-near-practitioners-wrap">
+                      <% @near_practitioners.each do |pract| %>
+                        <div class="practitioner-card">
+
+                          <div class="profile-picture border position-relative" style="background-image: url(<%= pract.profile_picture_url(:thumb) %>)">
+                            <a
+                              class="position-absolute h-100 w-100 js-btn-modal-practitioner-profile"
+                              style="z-index: 1"
+                              href="<%= frontend_team_profile_path(slug: pract.slug) %>"
+                              data-url="<%= frontend_team_modal_profile_path(slug: pract.slug) %>"
+                              ></a>
+                          </div>
+
+                          <div class="info">
+                            <a
+                              href="<%= frontend_team_profile_path(slug: pract.slug) %>"
+                              class="js-btn-modal-practitioner-profile"
+                              data-url="<%= frontend_team_modal_profile_path(slug: pract.slug) %>"
+                              ><span class="practitioner-name"><%= pract.full_name %></span></a>
+                            <br>
+                            <span class="text-smaller"><%= pract.profession %></span>
+                            <br>
+                            <span class="text-smaller"><%= [pract.city, pract.state].compact.join(', ') %></span>
+
+
+                              <div class="contact-info">
+                                <span title="Approximate distance from your location"><i class="icon fa fa-car"></i> <span class="text-primary"><%= pract.distance.to_f.round(1) %> km</span></span>
+                                <br>
+                                <% if pract.business.phone.present? %>
+                                  <% phone = pract.business.phone %>
+                                  <i class="icon fe fe-phone"></i> <%= link_to_reveal_contact_info(pract, phone, :phone, max_length: 12) %>
+
+                                <% end %>
+                                <% if pract.business.email.present? %>
+                                  <br>
+                                  <% email = pract.business.email %>
+                                    <i class="icon fe fe-mail"></i> <%= link_to_reveal_contact_info(pract, email, :email, max_length: 12) %>
+                                <% end %>
+                              </div>
+
+                          </div>
+                        </div>
+                      <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="card-footer">
+              button reset map
+            </div> -->
+          </div>
+        <% end %>
+
+        <% if @result[:results].size == 0 %>
+          <div class="card">
+            <div class="card-body p-md-4">
+              <h4 class="text-warning">No appointments found!</h4>
+              <% if @business %>
+                <p>
+                  Unfortunately, no appointments are available in your location between the dates you've selected.
+                  <br>
+                  You could try contact <b><%= @business.name %></b> directly by email or phone; they might add more availability:
+                  <br>
+                  <br>
+                  <% if @business.phone? %>
+                    Phone: <a href="tel:<%= @business.phone %>" class="text-primary"><%= @business.phone %></a> <br>
+                  <% end %>
+
+                  <% if @business.mobile? %>
+                    Mobile: <a href="tel:<%= @business.mobile %>" class="text-primary"><%= @business.mobile %></a> <br>
+                  <% end %>
+
+                  <% if @business.email? %>
+                    Email: <a href="mailto:<%= @business.email %>" class="text-primary"><%= @business.email %></a>
+                  <% end %>
+
+                  <% if @search_filters.practitioner_id %>
+                  <br>
+                    Or:
+                    <a href="<%= frontend_referrals_path(practitioner_id: @search_filters.practitioner_id) %>" class="text-primary">Send a referral</a>
+                  <% end %>
+
+                  <% if !params[:business_id] %>
+                  <hr>
+                  <div>
+                    <a href="#" class="btn btn-outline-primary btn-lg">Search other practitioners availability</a>
+                  </div>
+                  <% end %>
+                </p>
+                <% else %>
+                <p>
+                Unfortunately, no appointments are available in your location between the dates you've selected. You could try contacting a practitioner directly by email or phone.
+                <br>
+                <br>
+                Or send us a referral here:
+                <a href="<%= frontend_referrals_path(profession: params[:profession]) %>" class="btn btn-primary btn-lg">Send a referral</a>
+                </p>
+                <% end %>
+
+            </div>
+          </div>
+
+        <% else %>
+          <div class="row">
+            <!-- <div class="col-md-4">
+              <div id="results-filter-wrap">
+                <input id="input-datepicker-calendar" class="d-none"/>
+              </div>
+            </div> -->
+            <div class="col-md-12">
+              <%= render 'frontend/bookings/search/results', search_result: @result %>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<% content_for :page_js do %>
+  <% if @near_practitioners.present? %>
+    <%= render 'frontend/bookings/search/map_js', search_filters: @search_filters, near_practitioners: @near_practitioners %>
+  <% end %>
+<% end %>

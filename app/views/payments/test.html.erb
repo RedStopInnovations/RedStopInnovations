@@ -1,0 +1,29 @@
+<!-- Show page header -->
+
+<section class="content-header">
+  <h1>
+    <%= @payment.patient.try :full_name %>
+  </h1>
+</section>
+
+<!-- Show page edit button -->
+
+<section class="content">
+  <div class="box">
+    <div class="box-body">
+      <div class="row">
+        <div class="col-md-12 text-right">
+          <%= link_to "Edit Payment", edit_payment_path(@payment), class: "btn btn-primary pull-left" %>
+        </div>
+      </div>
+
+<!-- Show page box header & border -->
+
+<div class="panel panel-info">
+    <div class="panel-heading">Appointment Types</div>
+
+<!-- Show page body -->
+
+<div class="panel-body">
+
+  INPUT 

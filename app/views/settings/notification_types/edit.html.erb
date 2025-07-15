@@ -1,0 +1,159 @@
+<% content_for :title, 'Practitioner notifications' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @notification_type_setting.notification_type.name %> <span class="small">notification</span></h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+
+    <li>
+        <a href="<%= settings_notification_types_path %>">Practitioner notifications</a>
+    </li>
+
+    <li class="active">
+        <%= @notification_type_setting.notification_type.name %>
+    </li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <%= simple_nested_form_for @notification_type_setting, as: :setting, url: settings_notification_type_path(@notification_type_setting), html: { autocomplete: "off" } do |f| %>
+
+        <div class="callout callout-default">
+            <p><i class="fa fa-info-circle"></i> <%= @notification_type_setting.notification_type.description %></p>
+        </div>
+
+        <%= f.error_notification %>
+
+        <div class="form-group">
+            <%= f.input :enabled %>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Send methods:</label>
+            <div class="mt-5">
+                <div class="check-box inline">
+                    <input type="checkbox" id="input-delivery-method-email"
+                        name="setting[enabled_delivery_methods][]"
+                        value="<%= NotificationType::DELIVERY_METHOD__EMAIL %>"
+                        <% if @notification_type_setting.enabled_delivery_methods.include?(NotificationType::DELIVERY_METHOD__EMAIL) %>
+                            checked
+                        <% end %>
+                        >
+                    <label for="input-delivery-method-email" class="fw-normal">Email</label>
+                </div>
+
+                <div class="check-box inline ml-15">
+                    <input type="checkbox" id="input-delivery-method-sms"
+                        name="setting[enabled_delivery_methods][]"
+                        value="<%= NotificationType::DELIVERY_METHOD__SMS %>"
+                        <% if @notification_type_setting.enabled_delivery_methods.include?(NotificationType::DELIVERY_METHOD__SMS) %>
+                            checked
+                        <% end %>
+                        >
+                    <label for="input-delivery-method-sms" class="fw-normal">SMS</label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Email template</strong></div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" class="form-control" name="setting[template][email_subject]"
+                        maxlength="150"
+                        value="<%= @notification_type_setting.template['email_subject'] %>">
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Content:</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="js-select-email-body-variables" autocomplete="off" placeholder="Search for variables">
+                                <option selected disabled></option>
+                                <optgroup label="Business info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Business::VARIABLES %>
+                                </optgroup>
+                                <optgroup label="Practitioner info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Practitioner::VARIABLES %>
+                                </optgroup>
+                                <optgroup label="Appointment info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Appointment::VARIABLES %>
+                                </optgroup>
+
+                                <optgroup label="Client info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Patient::VARIABLES %>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <textarea rows="10" class="form-control"
+                            name="setting[template][email_body]"
+                            id="js-input-email-body-template"><%= @notification_type_setting.template['email_body'] %></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>SMS template</strong></div>
+            <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Content:</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="js-select-sms-content-variables" placeholder="Search for variables">
+                                <option selected disabled></option>
+                                <optgroup label="Business info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Business::VARIABLES %>
+                                </optgroup>
+                                <optgroup label="Practitioner info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Practitioner::VARIABLES %>
+                                </optgroup>
+                                <optgroup label="Appointment info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Appointment::VARIABLES %>
+                                </optgroup>
+
+                                <optgroup label="Client info">
+                                    <%= options_for_select NotificationTemplate::Embeddable::Patient::VARIABLES %>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <textarea rows="5" class="form-control"
+                            name="setting[template][sms_content]"
+                            id="js-input-sms-content-template"><%= @notification_type_setting.template['sms_content'] %></textarea>
+                    </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <button type="submit" class="btn btn-primary">Save settings</button>
+        <a href="<%= settings_notification_types_path %>" class="btn btn-white">Cancel</a>
+    <% end %>
+</div>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'form_js' %>
+<% end %>

@@ -1,0 +1,8 @@
+<p>
+  You are about send a claim to BulkBill for invoice <a href="<%= invoice_path(invoice) %>">#<%= invoice.invoice_number %></a>
+  <br>
+  Are you sure want to continue?
+</p>
+<%= form_tag send_bulk_bill_payment_invoice_path(invoice), method: 'POST' do %>
+ <button class="btn btn-primary" type="submit">Confirm</button>
+<% end %>

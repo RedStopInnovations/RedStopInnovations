@@ -1,0 +1,69 @@
+<% content_for :title, 'Export waiting list' %>
+
+<section class="box-header">
+  <h1>Export waiting list</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>">Data export</a>
+    </li>
+    <li class="active">Waiting list</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <form action="<%= app_data_export_waiting_list_path(format: :csv) %>">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Date:</label>
+              <div class="input-group">
+                <input
+                  name="date_start"
+                  placeholder="From"
+                  class="form-control flatpickr-datepicker"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  >
+                <span class="input-group-addon"></span>
+                <input
+                  name="date_end"
+                  placeholder="to"
+                  class="form-control flatpickr-datepicker"
+                  data-alt-format="d M Y"
+                  data-date-format="Y-m-d"
+                  >
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Profession:</label>
+              <select name="professions[]" class="form-control selectize" multiple>
+                <option value="">All</option>
+                <%=
+                    options_for_select(Practitioner::PROFESSIONS)
+                %>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary">Export</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</section>

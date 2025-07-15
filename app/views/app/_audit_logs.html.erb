@@ -1,0 +1,52 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><span class="panel-title"> Audit logs</span></div>
+  <div class="panel-body">
+    <% versions = object.versions.includes(:author).to_a %>
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>User</th>
+          <th>Event</th>
+          <th>Changes set</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% versions.each do |version| %>
+        <tr>
+          <td><%= version.created_at.strftime(t('datetime.common'))%></td>
+          <td>
+            <%= version.author&.full_name %>
+          </td>
+          <td>
+            <%= version.event.humanize %>
+          </td>
+          <td>
+            <% if version.object_changes.present? %>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Old value</th>
+                    <th>New value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% version.object_changes.each do |field, changes| %>
+                    <tr>
+                      <td><%= field.humanize %></td>
+                      <td><%= changes[0] %></td>
+                      <td><%= changes[1] %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            <% end %>
+          </td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

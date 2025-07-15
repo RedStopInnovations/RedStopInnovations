@@ -1,0 +1,158 @@
+<% content_for :title, 'Referral' %>
+
+<div class="referral-page">
+  <div class="container">
+    <% if @business.avatar.exists? %>
+      <div class="text-center">
+        <img src="<%= @business.avatar.url(:medium) %>" alt="<%= @business.name %> logo" class="business-logo">
+      </div>
+    <% end %>
+
+    <%= simple_nested_form_for @referral_form, as: :referral, url: iframe_create_referral_url, html: { id: 'js-form-referral', multipart: true, novalidate: 'novalidate', autocomplete: "off" } do |f| %>
+      <%= f.input :type, as: :hidden %>
+      <input type="hidden" name="business" value="<%= @business.id %>">
+
+      <h3>Referral type<abbr title="required">*</abbr></h3>
+      <div class="box">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_DVA %>" name="referral[type]" class="js-cb-payment-type" required> DVA
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_MEDICARE %>" name="referral[type]" class="js-cb-payment-type"required> Medicare
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_NDIS %>" name="referral[type]" class="js-cb-payment-type"required> NDIS
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_HCP %>" name="referral[type]" class="js-cb-payment-type"required> Home care package
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_HIH %>" name="referral[type]" class="js-cb-payment-type"required> Hospital in home
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_PRIVATE %>" name="referral[type]" class="js-cb-payment-type" required> Private
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="<%= Referral::TYPE_STRC %>" name="referral[type]" class="js-cb-payment-type" required> STRC
+          </label>
+
+          <label class="radio-inline label-payment-referral">
+            <input type="radio" value="" name="referral[type]" class="js-cb-payment-type" required> Other
+          </label>
+        </div>
+      </div>
+
+      <h3>Service</h3>
+      <div class="box">
+        <div class="row">
+          <div class="col-md-6">
+            <%=
+              f.input :professions,
+                      as: :select,
+                      required: true,
+                      collection: @available_professions,
+                      include_blank: "-- Select professions --",
+                      include_hidden: false,
+                      input_html: {
+                        id: 'input-professions',
+                        multiple: true
+                      }
+            %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :availability_type_id, as: :select, required: true, collection: [['Home visit', AvailabilityType::TYPE_HOME_VISIT_ID], ['Facility', AvailabilityType::TYPE_FACILITY_ID]],
+              include_blank: "-- Select availability type --" %>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <%= f.input :practitioner_id, as: :select, collection: @business.practitioners.active.collect {|p| [p.full_name, p.id]},
+              include_blank: "-- Select practitioner --" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= f.input :priority, as: :select, label: 'Referral urgency', collection: [["Urgent priority", 'Urgent'], ["Normal priority", 'Normal']],
+                include_blank: "-- Select priority --" %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <%= f.input :referral_reason, as: :text, label: 'Reason for referral', input_html: { rows: 3 } %>
+          </div>
+        </div>
+      </div>
+
+      <h3>Client</h3>
+      <div class="box">
+        <%= render 'client_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_DVA %>">
+        <%= render 'iframe/referrals/dva_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_MEDICARE %>">
+        <%= render 'iframe/referrals/medicare_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_NDIS %>">
+        <%= render 'iframe/referrals/ndis_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_HCP %>">
+        <%= render 'iframe/referrals/hcp_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_HIH %>">
+        <%= render 'iframe/referrals/hih_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_PRIVATE %>">
+        <%= render 'iframe/referrals/private_fields', f: f %>
+      </div>
+
+      <div class="js-payment-referral-wrap hidden" data-payment-type="<%= Referral::TYPE_STRC %>">
+        <%= render 'iframe/referrals/strc_fields', f: f %>
+      </div>
+
+      <h3>Referrer</h3>
+      <div class="box">
+        <%= render 'referrer_fields', f: f %>
+      </div>
+
+      <div id="js-form-error-wrap" class="box hidden"></div>
+
+      <% if App::RECAPTCHA_ENABLE %>
+        <div class="form-group">
+          <label class="control-label"><span class="text-smaller">Please complete the Captcha:</span></label>
+          <div class="g-recaptcha" data-sitekey="<%= ENV['RECAPTCHA_SITE_KEY'] %>" data-theme="light"></div>
+        </div>
+      <% end %>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-default btn-lg">Submit</button>
+      </div>
+    <% end %>
+
+    <div id="js-success-notification" class="box text-center hidden">
+      <h3>The referral was successfully submitted. We will contact you soon.</h3>
+      <a href="<%= request.fullpath %>"
+        class="btn btn-default">Create another referral</a>
+    </div>
+  </div>
+</div>
+
+<%= content_for :page_js do %>
+  <% if App::RECAPTCHA_ENABLE %>
+    <script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>
+  <% end %>
+  <%= render 'form_js' %>
+<% end %>

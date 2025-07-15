@@ -1,0 +1,19 @@
+<section class="box-header">
+  <h1><%= @post.title_was %></h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Admin Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_posts_path %>">Blog posts</a>
+    </li>
+    <li><%= @post.title %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= render 'form', post: @post %>
+</section>

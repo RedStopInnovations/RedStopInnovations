@@ -1,0 +1,47 @@
+<script type="text/javascript">
+  $('body').on('click', '.btn-email-others', function(event) {
+    var self = $(this);
+    $.ajax({
+      url: self.attr('data-href'),
+      type: 'GET',
+      beforeSend: function() {
+        $('body').loadingOn();
+      },
+      success: function(res) {
+        $('#modal-send-to-others').remove();
+        $('body').append(res);
+        $('#modal-send-to-others #input-contact-ids').selectize({
+          plugins: ['remove_button', 'no_results']
+        });
+        $('#modal-send-to-others #input-extra-emails').selectize({
+          plugins: ['remove_button'],
+          createFilter: function(input) {
+            return Utils.isValidEmail(input);
+          },
+          create: true,
+          onEnterKeypress: function() {
+            return false;
+          },
+          onEnter: function() {
+            return false;
+          }
+        });
+        $('#modal-send-to-others').modal('show');
+        $('#modal-send-to-others form').on('submit', function(e) {
+          if (confirm('Are you sure you want to send this treatment note?')) {
+            return true;
+          } else {
+            e.preventDefault();
+            return false;
+          }
+        });
+      },
+      error: function() {
+        Flash.error('Somethings was wrong. Please try again!');
+      },
+      complete: function() {
+        $('body').loadingOff();
+      }
+    });
+  });
+</script>

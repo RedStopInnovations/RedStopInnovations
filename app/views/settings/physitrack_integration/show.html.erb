@@ -1,0 +1,33 @@
+<% content_for :title, 'Physitrack integration' %>
+<section class="box-header">
+  <h1>Physitrack integration</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Physitrack integration</li>
+  </ul>
+</section>
+
+<section class="content">
+ <div class="row">
+    <div class="col-sm-8 col-xs-12">
+      <div class="box">
+        <div class="row">
+            <div class="col-sm-6 col-xs-12">
+              Physitrack is a platform for healthcare practitioners to design high-quality home exercise programs and track patient adherence.
+            </div>
+        </div>
+        <hr>
+        <%= simple_form_for @physitrack_integration, url: settings_physitrack_integration_path, method: 'PUT' do |f| %>
+          <%= f.input :enabled, label: 'Enable integration' %>
+          <button class="btn sitebtn">Save</button>
+        <% end %>
+      </div>
+    </div>
+ </div>
+
+</section>

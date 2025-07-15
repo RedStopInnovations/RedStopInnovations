@@ -1,0 +1,108 @@
+<div class="modal fade" id="modal-update-avatar">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Please update your photo</h4>
+      </div>
+      <div class="modal-body">
+        <div class="step-select-file-wrap form-group">
+          <label>Select a file:</label>
+          <input type="file" class="bs-file-input input-file"/>
+        </div>
+
+        <div class="step-crop-wrap hide form-group">
+          <label>Crop your new photo:</label>
+          <img class="img-crop">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn sitebtn btn-save hide">Update</button>
+        <button type="button" data-dismiss="modal" class="btn linebtn">Later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js" integrity="sha512-ooSWpxJsiXe6t4+PPjCgYmVfr1NS5QXJACcR/FPpsdm6kqG1FmQ2SVyg2RXeVuCRBLr0lWHnWJP6Zs1Efvxzww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" integrity="sha512-0SPWAwpC/17yYyZ/4HSllgaK7/gg9OlVozq8K7rf3J8LvCjYEEIfzzpnA2/SSjpGIunCSD18r3UhvDcu/xncWA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<script>
+  $(document).ready(function() {
+    var $modal = $('#modal-update-avatar');
+    var reader = new FileReader();
+    var cropper = null;
+
+    $imgCrop              = $modal.find('.img-crop');
+    $inputFile            = $modal.find('.input-file');
+    $btnCancel            = $modal.find('.btn-cancel');
+    $btnSave              = $modal.find('.btn-save');
+    $stepCropWrap         = $modal.find('.step-crop-wrap');
+
+    reader.onload = function(e) {
+      if (cropper) {
+        cropper.destroy();
+      }
+
+      $imgCrop.attr('src', e.target.result);
+
+      cropper = new Cropper($imgCrop.get(0), {
+        minContainerWidth: 320,
+        minContainerHeight: 320,
+        minCropBoxHeight: 150,
+        minCropBoxWidth: 150,
+        responsive: true,
+        zoomable: false,
+        background: false,
+        viewMode: 2,
+        autoCropArea: 0.5,
+        aspectRatio: 1
+      });
+    };
+
+    $inputFile.on('change', function(e) {
+      if (e.target.files.length) {
+        reader.readAsDataURL(e.target.files[0]);
+        $btnSave.removeClass('hide');
+        $stepCropWrap.removeClass('hide');
+      }
+    });
+
+    var getCroppedAvatarDataUrl = function() {
+      return cropper.getCroppedCanvas().toDataURL('image/jpeg');
+    };
+
+    $btnSave.on('click', function(e) {
+      e.preventDefault();
+      var selectedFile = $inputFile.get(0).files[0];
+      $.ajax({
+        url: '<%= app_account_settings_profile_update_avatar_path %>',
+        method: 'PUT',
+        beforeSend: function() {
+          $btnSave.text('Processing ...')
+            .attr('disabled', true);
+        },
+        data: {
+          avatar_data_url: getCroppedAvatarDataUrl()
+        },
+        success: function(res) {
+          $modal.modal('hide');
+          Flash.success('Your photo has been successfully updated.');
+          $('.user-image').attr('src', res.avatar.thumb);
+        },
+        error: function(xhr) {
+          var errorMsg = 'An error has occured. Sorry for the inconvenience.';
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMsg = xhr.responseJSON.message;
+          }
+          Flash.error(errorMsg);
+        },
+        complete: function() {
+          $btnSave.text('Update').removeAttr('disabled', true);
+        }
+      });
+    });
+
+    $modal.modal('show');
+  });
+</script>

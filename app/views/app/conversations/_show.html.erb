@@ -1,0 +1,56 @@
+<div class="conversation-container">
+  <% room = current_business.conversations.find_by url: request.path %>
+  <div class="list-messages">
+    <% if room && room.messages.present? %>
+      <% room.messages.each do |message| %>
+      <div class="box-message">
+        <div class="message">
+          <div class="user">
+            <% if message.user %>
+              <img src="<%= message.user.avatar.url(:thumb) %>">
+            <% end %>
+          </div>
+          <div class="msg-detail">
+            <div class="msg-content">
+              <strong><%= message.user&.full_name %></strong>
+              <span class="small"><%= message.created_at.try(:strftime, t('datetime.short_12h_z')) %></span>
+              <div>
+                <%= message.content %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% end %>
+    <% else %>
+      <div class="text-muted">No comments yet</div>
+    <% end %>
+  </div>
+
+  <%= simple_form_for :comment, url: app_conversations_path do |f| %>
+    <input type="hidden" name="url" value="<%= request.path %>">
+    <div class="new-message">
+      <div class="input">
+        <textarea name="content" rows="2" class="form-control" placeholder="Message ..."></textarea>
+      </div>
+      <button class="btn submit" disabled="true">
+        <i class="fa fa-send"></i>
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :page_js do %>
+<script type="text/javascript">
+  (function() {
+    $submitElement = $('.conversation-container .new-message .submit');
+    $('.conversation-container .new-message textarea').keyup(function(event) {
+      if($(this).val().trim() != "") {
+        $submitElement.prop('disabled', false);
+      }else {
+        $submitElement.prop('disabled', true);
+      }
+    });
+  })();
+</script>
+<% end %>

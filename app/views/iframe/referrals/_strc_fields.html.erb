@@ -1,0 +1,19 @@
+<h3>Short-Term Restorative Care details</h3>
+<div class="box">
+  <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :strc_company_name, label: 'Company name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :strc_company_phone, label: 'Company phone', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :strc_invoice_to_name, label: 'Invoice to name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :strc_invoice_to_email, label: 'Invoice to email', required: true %>
+      </div>
+    </div>
+  <% end %>
+</div>

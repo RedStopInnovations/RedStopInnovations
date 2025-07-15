@@ -1,0 +1,150 @@
+<% content_for :title, 'Voided invoices' %>
+
+<section class="box-header">
+  <h1>Voided invoices</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Transactions</a>
+    </li>
+    <li class="active">Voided invoices</li>
+  </ul>
+</section>
+
+<section class="content">
+
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+      <form action="<%= reports_voided_invoices_path %>">
+        <div class="row">
+
+          <div class="col-md-3 col-xs-12">
+            <label>Issue date:</label>
+            <div class="input-group">
+              <input name="start_date"
+                class="form-control flatpickr-datepicker"
+                value="<%= @report.options.start_date.try(:strftime, '%Y-%m-%d') %>"
+                data-alt-format="d M Y"
+                data-date-format="Y-m-d"
+                >
+              <span class="input-group-addon input-group-addon-middle">to</span>
+              <input name="end_date"
+                class="form-control flatpickr-datepicker"
+                value="<%= @report.options.end_date.try(:strftime, '%Y-%m-%d') %>"
+                data-alt-format="d M Y"
+                data-date-format="Y-m-d"
+                >
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="text-right hidden-print mb-20">
+    <a href="<%= reports_voided_invoices_path(@report.options.to_param.merge(format: :csv)) %>"
+      class="btn btn-white">
+      <i class="fa fa-download"></i> CSV
+    </a>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Issue date</th>
+              <th>Client</th>
+              <th>Service date</th>
+              <th>Practitioner</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Voided at</th>
+              <th>Voided by</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @report.result[:paginated_invoices].each do |invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a>
+                </td>
+                <td>
+                  <%= invoice.issue_date.try(:strftime, t('date.common')) %>
+                </td>
+                <td>
+                  <% if invoice.patient %>
+                    <a href="<%= patient_path(invoice.patient) %>">
+                      <%= invoice.patient&.full_name %>
+                    </a>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.service_date %>
+                    <%= invoice.service_date.strftime t('date.common') %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if invoice.practitioner %>
+                    <%= invoice.practitioner.full_name %>
+                  <% end %>
+                </td>
+                <td style="vertical-align: top;">
+                  <% invoice.items.each do |item| %>
+                    [<%= item.item_number %>] <span title="<%= item.unit_name %>"><%= truncate(item.unit_name, length: 40) %></span>
+                  <% end %>
+                </td>
+                <td style="vertical-align: top;">
+                  <%= format_money invoice.amount %>
+                </td>
+                <td>
+                  <%= invoice.deleted_at.strftime(t('datetime.common')) %>
+                </td>
+                <td>
+                  <%
+                    deleted_by = invoice.deleted_version&.author&.full_name
+                  %>
+                  <% if deleted_by %>
+                    <%= deleted_by %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+
+            <% if @report.result[:invoices_count] == 0 %>
+              <tr>
+                <td colspan="9" class="text-muted">Not found any invoices</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @report.result[:invoices_count] > 0 %>
+        <div class="row hidden-print">
+          <div class="col-md-6 text-left">
+            <%= page_entries_info @report.result[:paginated_invoices] %>
+          </div>
+          <div class="col-md-6 text-right">
+            <%= paginate @report.result[:paginated_invoices], theme: 'app' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

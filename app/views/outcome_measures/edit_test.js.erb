@@ -1,0 +1,6 @@
+(function() {
+  $('#modal-edit-outcome-measure-test').remove();
+  $('body').append('<%= j render('modal_edit_test', patient: @patient, outcome_measure: @outcome_measure, outcome_measure_test: @outcome_measure_test) %>');
+  var $modalEditTest = $('#modal-edit-outcome-measure-test');
+  $modalEditTest.modal('show');
+})();

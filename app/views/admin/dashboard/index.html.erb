@@ -1,0 +1,214 @@
+<% content_for :title, 'Dashboard' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Dashboard</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title">Users</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>All</td>
+                <td><%= number_with_delimiter @report.all_users_count %></td>
+              </tr>
+              <tr>
+                <td>Active</td>
+                <td><%= number_with_delimiter @report.active_users_count %></td>
+              </tr>
+              <tr>
+                <td>Practitioners (active)</td>
+                <td><%= number_with_delimiter @report.active_practitioners_count %></td>
+              </tr>
+              <tr>
+                <td>Activity last 30 days</td>
+                <td>
+                  <%= number_with_delimiter @report.activity_last_30_days_users_count %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="panel panel-warning">
+        <div class="panel-heading">
+          <h3 class="panel-title">Appointments</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>All</td>
+                <td><%= number_with_delimiter Appointment.count %></td>
+              </tr>
+
+              <tr>
+                <td>Home visit</td>
+                <td><%= number_with_delimiter Appointment.joins(:availability).where(availability: {availability_type_id: AvailabilityType::TYPE_HOME_VISIT_ID}).count %></td>
+              </tr>
+
+              <tr>
+                <td>Facility</td>
+                <td><%= number_with_delimiter Appointment.joins(:availability).where(availability: {availability_type_id: AvailabilityType::TYPE_FACILITY_ID}).count %></td>
+              </tr>
+
+              <tr>
+                <td>Group</td>
+                <td><%= number_with_delimiter Availability.group_appointment.count %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title">Invoices</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>All</td>
+                <td><%= number_with_delimiter Invoice.with_deleted.count %></td>
+              </tr>
+
+              <tr>
+                <td>Amount</td>
+                <td><%= format_money Invoice.sum(:amount).to_f.round(2), '$', ',' %></td>
+              </tr>
+
+              <tr>
+                <td>Payments</td>
+                <td><%= format_money Payment.sum(:amount).to_f.round(2), '$', ',' %></td>
+              </tr>
+
+              <tr>
+                <td>Last 30 days</td>
+                <td><%= number_with_delimiter Invoice.where('created_at >= ?', 30.days.ago).count %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h3 class="panel-title">Clients</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>All</td>
+                <td><%= number_with_delimiter Patient.with_deleted.count %></td>
+              </tr>
+
+              <tr>
+                <td>Last 30 days</td>
+                <td><%= number_with_delimiter Patient.where('created_at >= ?', 30.days.ago).count %></td>
+              </tr>
+              <tr>
+                <td>--</td>
+                <td>--</td>
+              </tr>
+              <tr>
+                <td>--</td>
+                <td>--</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Businesses</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>All</td>
+                <td><%= number_with_delimiter Business.count %></td>
+              </tr>
+              <tr>
+                <td>Approved</td>
+                <td><%= Business.active.count %></td>
+              </tr>
+              <tr>
+                <td>Partner</td>
+                <td><%= Business.where(is_partner: true).count %></td>
+              </tr>
+              <tr>
+                <td>Credit card added</td>
+                <td>
+                  <%= Business.joins(:subscription).where('subscriptions.stripe_customer_id IS NOT NULL').count %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Referrals</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>All</td>
+                <td><%= number_with_delimiter Referral.count %></td>
+              </tr>
+              <tr>
+                <td>Last 30 days</td>
+                <td><%= number_with_delimiter Referral.where('created_at >= ?', 30.days.ago).count %></td>
+              </tr>
+              <tr>
+                <td>--</td>
+                <td>--</td>
+              </tr>
+              <tr>
+                <td>--</td>
+                <td>--</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

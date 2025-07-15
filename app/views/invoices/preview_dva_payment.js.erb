@@ -1,0 +1,16 @@
+(function() {
+  var $modal = $('#modal-preview-dva-payment');
+  var $modalBody = $modal.find('.modal-body');
+  $modalBody.empty();
+
+  <% if !Rails.env.production? %>
+    <% if @payment_availability.errors.any? %>
+      $modalBody.append('<%= j (render 'invoices/claiming/payment_availability_errors', payment_availability: @payment_availability) %>')
+    <% else %>
+      $modalBody.append('<%= j (render 'invoices/claiming/dva/form_confirm_send_request', invoice: @invoice) %>')
+    <% end %>
+  <% else %>
+    $modalBody.append('Sorry, this feature is not yet finished.');
+  <% end %>
+  $modalBody.loadingOff();
+})();

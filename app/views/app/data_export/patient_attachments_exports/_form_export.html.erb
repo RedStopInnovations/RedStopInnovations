@@ -1,0 +1,107 @@
+
+<form action="<%= app_data_export_patient_attachments_exports_path %>" method="POST" id="js-form-create-export">
+  <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+
+
+      <div class="form-group">
+        <label>Date range: <abbr title="required">*</abbr></label>
+        <div class="input-group">
+
+          <input name="start_date" placeholder="Select date" class="form-control js-create-date-input" required
+            data-allow-input="true" data-alt-format="d M Y" data-date-format="Y-m-d">
+          <span class="input-group-addon input-group-addon-middle">to</span>
+          <input name="end_date" placeholder="Select date" class="form-control js-create-date-input" required
+            data-allow-input="true" data-alt-format="d M Y" data-date-format="Y-m-d">
+        </div>
+        <div class="help-block small">Allow up to 12 months</div>
+      </div>
+
+      <div class="form-group">
+        <label>Clients</label>
+        <select class="form-control selectize-patients-ajax" name="patient_ids[]"
+          multiple="true"
+          placeholder="All">
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="control-label">Export description: <abbr title="required">*</abbr></label>
+            <input name="description" class="form-control" required>
+        </div>
+    </div>
+  </div>
+
+  <div class="mt-5">
+      <div class="text-smaller text-warning">Notes:
+          <ul>
+              <li>You will be notified via email when the export is ready to download.</li>
+              <li>You can create up to 10 exports within 24 hours</li>
+          </ul>
+      </div>
+      <button class="btn btn-primary" type="submit">Create export</button>
+  </div>
+
+</form>
+
+<% content_for :page_js do %>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+<script>
+  $(document).ready(function() {
+
+    $('.js-create-date-input').bindFlatpickr();
+    var formValidator = $('#js-form-create-export').validate({
+      rules: {
+        start_date: {
+          required: true
+        },
+        end_date: {
+          required: true
+        }
+      },
+      errorElement: 'div',
+      errorClass: 'text-danger',
+      ignore: '.ignore',
+      submitHandler: function(form) {
+        var $form = $(form);
+        $form.find('[type="submit"]').attr('disabled', true);
+        $.ajax({
+            url: $form.attr('action'),
+            method: $form.attr('method'),
+            data: $form.serialize(),
+            success: function(res) {
+                location.reload();
+            },
+            error: function(xhr) {
+                if (xhr.status == 422) {
+                    Flash.warning('Please check for form errors!');
+                    if (xhr.responseJSON.errors) {
+                        var remoteErrors = xhr.responseJSON.errors;
+                        formValidator.showErrors(remoteErrors);
+                    }
+                } else {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        Flash.warning(xhr.responseJSON.message);
+                    } else {
+                        Flash.error('An error has occurred. Sorry for the inconvenience.');
+                    }
+                }
+            },
+            complete: function() {
+                $form.find('[type="submit"]').removeAttr('disabled');
+            }
+        });
+      }
+    });
+  });
+</script>
+<% end %>

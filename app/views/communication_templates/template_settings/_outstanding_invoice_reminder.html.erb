@@ -1,0 +1,89 @@
+<div class="row">
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Automatic reminder settings</strong></div>
+            <div class="panel-body">
+                <% if template.errors.key?(:settings) %>
+                    <p class="text-danger">
+                        <%= template.errors[:settings].join('. ') %>
+                    </p>
+                <% end %>
+
+                <div class="form-group">
+                    <label class="required"><abbr title="required">*</abbr> Minimum days outstanding</label>
+                    <input type="number"
+                        class="form-control"
+                        value="<%= template.settings['outstanding_days'] %>"
+                        name="communication_template[settings][outstanding_days]"
+                        required
+                        >
+                    <span class="text-smaller">The minimum number of outstanding days to trigger the first reminder</span>
+                </div>
+
+                <div class="form-group">
+                    <div class="check-box">
+                        <input name="communication_template[settings][repeat]" type="hidden" value="0">
+                        <input id="js-input-repeat-enable" type="checkbox" value="1" name="communication_template[settings][repeat]"
+                            <% if template.settings['repeat'] %>
+                            checked
+                            <% end %>
+                            >
+                        <label for="js-input-repeat-enable">Repeat reminder</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-6 js-hidden-ui-if-repeat-none <%= 'hide' unless template.settings['repeat'] %>">
+                        <div class="form-group">
+                            <label><abbr title="required">*</abbr> Repeat every (days):</label>
+                            <input type="number"
+                                class="form-control"
+                                value="<%= template.settings['repeat_interval_days'] %>"
+                                name="communication_template[settings][repeat_interval_days]"
+                                required
+                                >
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 js-hidden-ui-if-repeat-none <%= 'hide' unless template.settings['repeat'] %>">
+                        <div class="form-group">
+                            <label><abbr title="required">*</abbr> Maximum repeat occurences:</label>
+                            <input type="number"
+                                class="form-control"
+                                value="<%= template.settings['repeat_occurences'] %>"
+                                name="communication_template[settings][repeat_occurences]"
+                                required
+                                >
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<% content_for :page_js do %>
+<script>
+  (function() {
+    var $inputRepeatEnable = $('#js-input-repeat-enable');
+
+    var updateRepeatInputsUI = function() {
+      if ($inputRepeatEnable.is(':checked')) {
+        $('.js-hidden-ui-if-repeat-none').removeClass('hide');
+        $('.js-hidden-ui-if-repeat-none').find('input').removeAttr('disabled');
+      } else {
+        $('.js-hidden-ui-if-repeat-none').addClass('hide');
+        $('.js-hidden-ui-if-repeat-none').find('input').attr('disabled', true);
+      }
+    };
+
+    $inputRepeatEnable.on('change', function() {
+      console.log('change inputRepeatEnable')
+      updateRepeatInputsUI();
+    });
+  })();
+</script>
+<% end %>

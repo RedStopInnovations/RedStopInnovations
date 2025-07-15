@@ -1,0 +1,36 @@
+<% if @error.nil? %>
+  <html>
+    <body>
+      <form
+         action="https://au.physitrack.com/pmsapi/owner_healthcare/v1/patients?<%= u @query.to_query.html_safe %>"
+         method="POST"
+         id="form-sso">
+      </form>
+      <script>
+        document.getElementById('form-sso').submit();
+      </script>
+    </body>
+  </html>
+
+<% else %>
+  <%= render 'show_layout' do %>
+    <div class="box mt-15">
+      <h3 class="text-danger">Error</h3>
+      <% if !current_business.physitrack_integration_enabled? %>
+        <p>The Physitrack integration is not enabled for your account.
+        <% if current_user.role_administrator? %>
+          Please check settings <a href="<%= settings_physitrack_integration_path %>">here</a>.
+        <% else %>
+          Please contact business manager for any questions.
+        <% end %>
+        </p>
+      <% elsif @api_key.nil? %>
+        <p>
+          There is no API key created for your account. You can create one <a href="<%= app_account_settings_api_keys_path %>">here</a>.
+          <br>
+          Please make sure you have added Tracksy API key in your Physitrack account also.
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

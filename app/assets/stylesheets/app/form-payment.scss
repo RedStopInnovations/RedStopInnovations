@@ -1,0 +1,17 @@
+.form-payment-wrap {
+  .table-allocations {
+    tbody tr {
+      height: 47px;
+
+      &.selected {
+        td {
+          background-color: #e1fbd6;
+        }
+      }
+    }
+
+    .input-allocate-amount {
+      height: 30px !important;
+    }
+  }
+}

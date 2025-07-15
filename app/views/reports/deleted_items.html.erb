@@ -1,0 +1,173 @@
+<% content_for :title, 'Deleted items' %>
+
+<section class="box-header">
+  <h1>Deleted items</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li class="active">Deleted items</li>
+  </ul>
+</section>
+
+<section class="print-head">
+  <h3 class="text-center">Deleted items</h3>
+  <div class="date-range text-center">
+    <%= @report.options[:start_date].strftime("%d %b, %Y") %> -
+    <%= @report.options[:end_date].strftime("%d %b, %Y") %>
+  </div>
+</section>
+
+<section class="content">
+<div class="panel panel-default hidden-print">
+  <div class="panel-body">
+    <form action="<%= reports_deleted_items_path %>">
+      <div class="row">
+
+        <div class="col-md-3 col-xs-12">
+          <label>Delete date:</label>
+          <div class="input-group">
+            <input name="start_date"
+              class="form-control flatpickr-datepicker"
+              value="<%= @report.options[:start_date].try(:strftime, "%Y-%m-%d") %>"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d"
+              >
+            <span class="input-group-addon input-group-addon-middle">to</span>
+            <input name="end_date"
+              class="form-control flatpickr-datepicker"
+              value="<%= @report.options[:end_date].try(:strftime, "%Y-%m-%d") %>"
+              data-alt-format="d M Y"
+              data-date-format="Y-m-d"
+              >
+          </div>
+        </div>
+
+        <div class="col-md-3 col-xs-12">
+          <div class="form-group">
+            <label>Resource type:</label>
+            <select class="form-control selectize" name="resource_types[]" multiple="true">
+              <option value="">All</option>
+              <%= options_for_select(resource_types_options_for_select, params[:resource_types]) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-3 col-xs-12">
+          <div class="form-group">
+            <label>&nbsp;</label><br>
+            <button type="submit" class="btn btn-primary">Report</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <div class="text-right hidden-print mb-20">
+    <a href="<%= reports_deleted_items_path(start_date: @report.options[:start_date].strftime("%Y-%m-%d"),
+      end_date: @report.options[:end_date].strftime("%Y-%m-%d"), resource_types: params[:resource_types], format: :csv) %>"
+      class="btn btn-white">
+      <i class="fa fa-download"></i> CSV
+    </a>
+    <button type="button" class="btn btn-white" onclick="print()"><i class="fa fa-print"></i> Print</button>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Resource details</th>
+              <th>Associated client</th>
+              <th>Deleted by</th>
+              <th>Deleted on</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @report.results[:paginated_deleted_resources].each do |dr| %>
+              <% resource = dr.resource %>
+              <tr>
+                <td>
+                  <%= deleted_resource_type_display_name(dr.resource_type) %> <br>
+                  ID: <%= dr.resource_id %>
+                </td>
+                <td>
+                  <% #FIXME: N + 1 query %>
+                  <div class="text-smaller">
+                    <% case resource %>
+                    <% when Invoice %>
+                      Number: <%= resource.invoice_number %> <br>
+                      Issue date: <%= resource.issue_date.strftime(t('date.common')) %>
+                    <% when Appointment %>
+                    <span class="text-smaller">
+                      Date: <%= resource.start_time.strftime(t('date.common')) %> <br>
+                      Practitioner: <%= resource.practitioner&.full_name %> <br>
+                      Type: <%= resource.appointment_type&.name %> <br>
+                      <a href="<%= appointment_path(resource.id) %>">More details</a>
+                    </span>
+                    <% when AccountStatement %>
+                      Number: <%= resource.number %>
+                    <% when Patient %>
+                      Name: <%= resource.full_name %> <br>
+                      DOB: <%= resource.dob.try(:strftime, I18n.t('date.dob')) %>
+                    <% when Contact %>
+                      Name: <%= resource.business_name %>
+                    <% when AppointmentType %>
+                      Name: <%= resource.name %>
+                    <% when TreatmentTemplate %>
+                      Name: <%= resource.name %>
+                    <% when Product %>
+                      Name: <%= resource.name %> <br>
+                      Code: <%= resource.item_code %>
+                    <% when BillableItem %>
+                      Name: <%= resource.name %> <br>
+                      Number: <%= resource.item_number %>
+                    <% when Payment %>
+                      Payment date: <%= resource.payment_date.strftime(t('date.common')) %> <br>
+                      Amount: <%= resource.amount %> <br>
+                    <% end %>
+                  </div>
+                </td>
+                <td>
+                  <% if dr.associated_patient %>
+                    <a href="<%= patient_path(dr.associated_patient.id) %>"><%= dr.associated_patient.full_name %></a>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if dr.author %>
+                    <% case dr.author_type %>
+                    <% when 'User' %>
+                      <%= dr.author&.full_name %>
+                    <% when 'AdminUser' %>
+                      <span class="label label-default">System admin</span>
+                    <% else %>
+                      <span class="text-muted">--</span>
+                    <% end %>
+                  <% end %>
+                </td>
+                <td><%= dr.deleted_at.strftime(t('datetime.common')) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row hidden-print">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @report.results[:paginated_deleted_resources], entry_name: 'items' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @report.results[:paginated_deleted_resources], theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

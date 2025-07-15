@@ -1,0 +1,30 @@
+<div class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Send message to practitioner</h4>
+      </div>
+      <%= form_tag app_internal_communication_send_email_path, method: 'POST', id: 'js-form-send-email' do %>
+        <input type="hidden" name="user_id" value="<%= @appointment.practitioner.user.id %>">
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" name="subject" class="form-control" value="Client follow-up reminder">
+          </div>
+
+          <div class="form-group">
+            <label>Content</label>
+            <textarea name="body" rows="15" class="form-control"><%= patient_follow_up_reminder_email_to_practitioner_body(@appointment.patient, @appointment.practitioner) %></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Send</button>
+            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

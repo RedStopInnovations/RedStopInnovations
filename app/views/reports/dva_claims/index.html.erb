@@ -1,0 +1,63 @@
+<% content_for :title, 'DVA claims' %>
+
+<section class="box-header">
+  <h1>DVA claims</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Transactions</a>
+    </li>
+    <li class="active">DVA claims</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box-table">
+    <table class="table-flat">
+      <thead>
+        <tr>
+          <th>Medicare ID</th>
+          <th>Invoice</th>
+          <th>Status</th>
+          <th>Details</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @claims.each do |claim| %>
+          <tr>
+            <td>
+              <%= claim.medicare_claim_id %>
+            </td>
+            <td>
+              <a href="<%= invoice_path(claim.invoice) %>">#<%= claim.invoice.invoice_number %></a>
+            </td>
+            <td>
+              <%= claim.status %>
+            </td>
+            <td>
+              <%= claim.created_at.strftime('%d %b, %Y %l:%M%P') %>
+            </td>
+            <td>
+            <a href="<%= reports_dva_claim_path(claim) %>">Details</a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <%= page_entries_info @claims, entry_name: 'claim' %>
+      </div>
+      <div class="col-md-6 text-right">
+        <%= paginate @claims %>
+      </div>
+    </div>
+  </div>
+</section>

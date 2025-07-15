@@ -1,0 +1,779 @@
+.fc-time-grid-event .fc-time {
+  background-color: rgba(148, 137, 137, 0.27);
+  font-size: 1em;
+  padding: 1px 0;
+}
+
+// Fix overlaped names with many practioners
+.fc-resource-cell {
+  overflow: hidden;
+  font-size: 13px;
+}
+// Short event
+.fc-time-grid-event.fc-short .fc-title {
+  line-height: 20px;
+}
+
+// Make non-business hours background color darker
+.fc-nonbusiness {
+  background: #9c9c9c;
+}
+
+.fc-resource-cell {
+  font-weight: 400;
+}
+
+.fc-view-container {
+  position: relative;
+}
+
+.fc-view {
+  overflow-x: auto;
+}
+
+.fc-event-facility-appt, .fc-event-home-visit-appt {
+  .fc-time {
+    display: none !important;
+  }
+}
+
+.fc-event .fc-content {
+  .fc-desc {
+    .desc-line {
+      display: block;
+      white-space: nowrap;
+      span > .fa {
+        font-size: 0.85em;
+      }
+      span + span {
+        margin-left: 2px;
+      }
+    }
+
+    span.arrival-time {
+      font-size: 0.95em;
+    }
+  }
+}
+
+.fc-event-appoinment {
+  .patient-name {
+    display: block;
+    white-space: nowrap;
+  }
+  .appointment-type {
+    white-space: nowrap;
+  }
+
+  &.fc-short {
+    .fc-time {
+      font-size: 0.9em;
+      line-height: 16px;
+      max-width: 45px;
+
+      &::after {
+        display: none;
+      }
+    }
+    .fc-title {
+      margin-left: 3px;
+    }
+  }
+}
+/* Styles for list view */
+.fc-list-table td {
+  padding: 8px;
+}
+
+.fc-list-view {
+  .fc-scroller {
+    height: auto !important;
+    min-height: 100px;
+  }
+}
+.fc-list-heading {
+  > td {
+    border-left: 3px solid #ddd !important;
+    font-weight: 600;
+  }
+}
+.fc-list-item {
+  .fc-list-item-time, .fc-list-item-marker {
+    display: none;
+  }
+
+  &:hover > td {
+    background-color: #fff;
+  }
+
+  .fc-list-item-title {
+    padding: 0;
+    position: relative;
+    border-top: none;
+  }
+}
+
+.fc-list-view {
+  background: #ecf0f5;
+
+  .fc-list-item:hover > td {
+    background-color: unset !important;
+  }
+
+  .fc-list-heading {
+    .fc-widget-header {
+      border-bottom: 1px solid #c5c5c5;
+    }
+  }
+}
+
+.calendar-wrap {
+  height: 100%;
+}
+
+@media (min-width: 767px) {
+  .calendar-wrap {
+    border-left: 1px solid #ddd;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebar-col {
+    width: 245px;
+    padding: 0 15px;
+    float: left;
+  }
+  .calendar-col {
+    float: none;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 992px) {
+  .calendar-sidebar {
+    padding-right: 0;
+  }
+}
+.calendar-sidebar, #modal-calendar-filters {
+  .flatpickr-input {
+    display: none;
+  }
+}
+.business-calendar-wrap {
+  .flatpickr-calendar {
+    width: 100%;
+    box-shadow: none;
+
+    &:before, &:after {
+      display: none;
+    }
+
+    /* Make the flatpickr smaller */
+    .flatpickr-month {
+      height: 35px;
+
+      .flatpickr-prev-month, .flatpickr-current-month, .flatpickr-next-month {
+        height: 28px;
+      }
+
+      .flatpickr-prev-month, .flatpickr-next-month {
+        padding: 12px calc(3.57% - 1.5px);
+      }
+
+      .flatpickr-current-month {
+        .numInputWrapper .numInput {
+          height: 25px;
+        }
+      }
+    }
+    .flatpickr-innerContainer {
+      border: none;
+    }
+    .flatpickr-current-month {
+      font-size: 95%;
+    }
+    .flatpickr-rContainer {
+      width: 100%;
+      .flatpickr-weekdays {
+        background: #FAFAFA;
+        padding: 0 5px;
+
+        .flatpickr-weekday {
+          font-size: 85%;
+          font-weight: 400;
+          background: #FAFAFA;
+        }
+      }
+    }
+    .flatpickr-days {
+      width: 100%;
+      border: none;
+      .flatpickr-day {
+        font-size: 90%;
+      }
+    }
+  }
+  .dayContainer {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    padding: 5px;
+
+    .flatpickr-day {
+      height: auto;
+      line-height: inherit;
+    }
+  }
+}
+#sidebar-toggle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+#calendar-filter-toggle, #calendar-actions-toggle {
+  width: 40px;
+  height: 40px;
+  right: 10px;
+
+  position: fixed;
+  background: #44b653;
+  border-radius: 50%;
+  color: #fff;
+  z-index: 1000;
+  line-height: 40px;
+  text-align: center;
+}
+
+#calendar-filter-toggle {
+  bottom: 10px;
+}
+
+#calendar-actions-toggle {
+  bottom: 60px;
+}
+
+@media (min-width: 1025px) {
+  #calendar-filter-toggle {
+    visibility: hidden;
+  }
+  #calendar-actions-toggle {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 300px) {
+  .calendar-sidebar {
+    display: none;
+  }
+
+}
+
+.filter-group {
+
+  .filter-title {
+    text-transform: uppercase;
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #b9b9b9;
+    padding-bottom: 5px;
+  }
+
+  .filter-tools {
+    display: block;
+    margin-bottom: 10px;
+
+    a {
+      padding: 0 5px;
+
+      + a {
+        border-left: 1px solid #b9b9b9;
+      }
+    }
+
+    a:first-child {
+      padding-left: 0;
+    }
+  }
+}
+.calendar-sidebar {
+  .filter-practitioners {
+    .multiselect__content-wrapper {
+      overflow-x: hidden;
+      -webkit-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.15);
+      -moz-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.15);
+      box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+.filter-practitioners {
+  .search-wrap {
+    margin-bottom: 10px;
+  }
+
+  .multiselect__option {
+    .practitioner-option {
+      img {
+        width: 20px;
+        height: 20px;
+        padding: 1px;
+        border: 1px solid #d2d6de;
+      }
+    }
+    .group-option {
+      .desc {
+        .group-name {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+.filter-group + .filter-group {
+  margin-top: 10px;
+}
+
+.list-practitioners-wrap {
+  overflow-y: auto;
+  max-height: 350px;
+}
+
+.list-practitioners {
+  > div {
+    padding: 5px 0 5px 5px;
+    height: 35px;
+
+    &:hover {
+      background: #f7f7f7;
+    }
+
+    img {
+      width: 20px;
+      height: 20px;
+      padding: 2px;
+      border: 1px solid #d2d6de;
+      float: left;
+    }
+
+    .name {
+      margin-left: 5px;
+      font-weight: 600;
+
+      @media (min-width: 1024px) {
+        max-width: 125px;
+        display: inline-block;
+        white-space: pre;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .btn-remove {
+      float: right;
+      text-align: center;
+      cursor: pointer;
+      width: 30px;
+      height: 20px;
+
+      &:hover {
+        color: #a94442;
+      }
+
+      @media (min-width: 1024px) {
+        opacity: 0.5;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+.calendar-filters-popup {
+  .list-practitioners {
+    .btn-remove {
+      font-size: 14px;
+    }
+  }
+}
+/* Make all buttons in fc-toolbar stay on same line */
+@media (max-width: 450px) {
+  .fc-toolbar {
+    padding: 5px;
+
+    .fc-today-button {
+      margin-left: 5px;
+    }
+
+    .fc-center {
+      margin-top: 10px;
+      h2 {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+
+    > * > * {
+      float: none !important;
+    }
+    .fc-left {
+      float: none !important;
+    }
+
+    .fc-right {
+      float: none !important;
+    }
+  }
+
+  .calendar-wrap {
+    .fc-view {
+      overflow-x: auto !important;
+      .fc-time-grid-container{
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+    }
+    .fc-view {
+      -webkit-overflow-scrolling: touch !important;
+    }
+  }
+}
+  .fc-time-grid .fc-slats table {
+    td.fc-axis.fc-time {
+      opacity: 0;
+    }
+  }
+
+  .table-axis-times-fixed {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    z-index: 2;
+
+    tr td {
+      width: 39px;
+      text-align: right;
+      padding: 0 4px;
+      height: 1.5em;
+      border-left: none;
+      background: #fafafa;
+    }
+
+    tr:first-child {
+      > td {
+        border-top: none;
+      }
+    }
+
+    tr:last-child {
+      > td {
+        border-bottom: none;
+      }
+    }
+  }
+
+.calendar-settings-wrap {
+  .name {
+    display: inline-block;
+    width: 100px;
+  }
+
+  .controls {
+    display: inline-block;
+  }
+
+  .setting-row {
+    .form-control {
+      height: 30px;
+      line-height: 30px;
+      padding: 3px 5px;
+    }
+  }
+
+  .setting-row.timezone-option-wrap {
+    display: flex;
+    margin-top: 5px;
+
+    span:first-child {
+      width: 120px;
+      line-height: 30px;
+    }
+
+    select.form-control {
+      padding: 3px;
+      height: 33px;
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  // Remove left/right padding on section area
+  #business-calendar section.content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .calendar-wrap {
+    padding: 0 2px;
+  }
+}
+
+/* Optimization for calendar in mobile */
+.calendar-mobile-header {
+  margin-bottom: 10px;
+  display: block;
+  overflow: visible;
+  padding: 0 5px;
+
+  .col-navigator {
+    .btn:focus, .btn:active, .btn:hover {
+      outline: none;
+      color: #333;
+    }
+  }
+
+  .col-title {
+    text-align: center;
+    line-height: 30px;
+
+     > span {
+      font-weight: 600;
+      font-size: 18px;
+     }
+  }
+
+  .col-views {
+    select.form-control {
+      display: inline-block;
+      height: 34px;
+
+      &:active, &:focus {
+        outline: none;
+        border-color: #ddd;
+      }
+    }
+  }
+
+  .col-actions {
+    text-align: right;
+  }
+
+  @media (min-width: 992px) {
+    .col-actions {
+      padding-left: 0;
+    }
+  }
+
+  @media (max-width: 450px) {
+    padding: 0;
+
+    .form-control {
+      height: 30px !important;
+      font-size: 12px;
+    }
+
+    .btn-today {
+      padding-left: 5px !important;
+      padding-right: 5px !important;
+    }
+
+    .col-navigator {
+      padding-right: 0;
+
+      .btn-group > .btn {
+        padding: 5px 8px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+      }
+    }
+
+    .col-title {
+      padding-right: 0;
+      > span {
+        font-weight: 600;
+        font-size: 14px;
+      }
+    }
+
+    .col-views {
+
+      select.form-control {
+        width: 100%;
+        padding: 5px
+      }
+    }
+  }
+}
+
+/* Day header lighter */
+th.fc-day-header.fc-widget-header {
+  span {
+    font-weight: 600;
+  }
+}
+
+#mobile-calendar-actions-dropdown {
+  position: fixed;
+  right: 45px;
+  bottom: 100px;
+  width: 200px;
+  z-index: 2000;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: #fff;
+
+  ul {
+    padding-left: 5px;
+
+    list-style: none;
+
+    li {
+      line-height: 40px;
+      a {
+        color: #333333;
+      }
+    }
+  }
+}
+
+.fc-time {
+  .attending-stats {
+    margin-right: 3px;
+  }
+}
+
+.appointment-list-agendar-wrap {
+
+  .appointment {
+    min-height: 35px;
+    padding: 1px;
+
+    .appointment-stats {
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .patient-name {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  }
+
+  .appointment + .appointment {
+    border-top: 1px solid rgba(0, 0, 0, 0.075);
+  }
+}
+
+
+.availability-listview {
+  margin: 10px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ddd;
+  border-left-width: 3px;
+  background-color: #fff;
+
+  &:hover {
+    border-color: #c5c5c5;
+    -webkit-box-shadow: 0 3px 13px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 13px rgba(0, 0, 0, 0.08);
+  }
+
+  .avail-heading {
+    padding: 5px;
+    line-height: 18px;
+    cursor: pointer;
+
+    .practitioner-info {
+      display: block;
+
+      img {
+        float: left;
+        padding: 3px;
+      }
+
+      .name {
+        font-weight: 600;
+        margin-left: 3px;
+        display: block;
+      }
+    }
+  }
+
+  .avail-body {
+    clear: both;
+    padding: 10px;
+  }
+}
+
+.fc-event, .fc-event-dot {
+	border-color: #ccc;
+	background-color: #eceef1; /* default BACKGROUND color */
+  border-width: 1px;
+  color: #333;
+  padding: 0;
+  border-radius: 2px;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.fc-list-item.fc-list-item-task {
+  background: #fff;
+
+  .fc-list-item-title {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    > a {
+      border: 1px solid #ccc;
+      background-color: #eceef1;
+      border-width: 1px;
+      color: #333;
+      padding: 2px;
+      border-radius: 2px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+  }
+}
+
+.appointments-map-marker-label {
+  padding: 3px 5px;
+  border-radius: 3px;
+  background-color: rgba(231, 248, 221, 80%);
+}
+
+.modal-appointments-map {
+  .info-window {
+    line-height: 21px;
+
+    .title {
+      width: 50px;
+      display: inline-block;
+    }
+
+    hr {
+      margin: 0 5px;
+    }
+  }
+
+  .appt-info-window {
+    .patient-info {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+      margin-bottom: 5px;
+
+      .name {
+        font-size: 14px;
+      }
+    }
+  }
+}

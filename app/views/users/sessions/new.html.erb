@@ -1,0 +1,41 @@
+<% content_for :title, 'Login' %>
+
+<% content_for :body_class, 'login-page' %>
+
+<div class="login-box">
+  <div class="row">
+    <div class="col-sm-6 col-xs-12">
+      <img src="<%= asset_pack_path 'static/images/tracksy-logo.jpeg' %>" alt="Tracksy" height="55px">
+    </div>
+    <div class="col-sm-6 text-right hidden-xs">
+      <span style="font-size: 21px">LOGIN</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h3 class="visible-xs">
+    LOGIN
+  </h3>
+
+  <div class="login-box-body ">
+    <%= simple_form_for resource, as: resource_name, url: session_path(resource_name), wrapper: :vertical_form do |f| %>
+      <%= f.input :email, placeholder: "Enter your email" %>
+      <%= f.input :password, placeholder: "Enter your password" %>
+
+      <div class="row mt-10">
+        <div class="col-sm-6 col-xs-12">
+          <button type="submit" class="btn btn-lg sitebtn btn-block">Login</button>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row mt-10">
+        <div class="col-sm-6 col-xs-12">
+          <a href="<%= new_user_password_path %>">Forgot password?</a>
+        </div>
+    <% end %>
+
+  </div>
+</div>

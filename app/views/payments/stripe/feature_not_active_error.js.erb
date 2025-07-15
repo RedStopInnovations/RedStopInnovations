@@ -1,0 +1,5 @@
+(function() {
+  $('#modal-stripe-payment-error').remove();
+  $('body').append('<%= j (render 'payments/stripe/modal_feature_not_active_error') %>');
+  $('#modal-stripe-payment-error').modal('show');
+})();

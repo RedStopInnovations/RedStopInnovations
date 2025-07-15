@@ -1,0 +1,57 @@
+<%
+  versions = @payment.versions.order(created_at: :asc)
+%>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong>History</strong>
+  </div>
+  <div class="panel-body">
+    <% versions.each do |v| %>
+      <%
+        author = User.find_by(id: v.whodunnit)
+        if author
+          author_display_text = author.full_name
+        else
+          author_display_text = '<System>'
+        end
+
+        event_text_class = {
+          'create'  => 'text-success',
+          'update'  => 'text-warning',
+          'destroy' => 'text-danger'
+        }[v.event]
+
+        event_display_text = {
+          'create'  => 'created',
+          'update'  => 'updated',
+          'destroy' => 'voided'
+        }[v.event]
+
+        case v.event
+        when 'create'
+          amount_at_version = v.changeset['amount'].try(:[], 1)
+        when 'update'
+          if v.changeset.key?('amount')
+            amount_at_version = v.changeset['amount'].try(:[], 1)
+          else
+            amount_at_version = v.reify.try(&:amount)
+          end
+        else
+          amount_at_version = v.reify.try(&:amount)
+        end
+
+      %>
+      <div>
+        <strong><%= author_display_text %></strong>
+        <span class="<%= event_text_class %>"><%= event_display_text %></span>
+        <span> the payment </span> <span class="small"><%= v.created_at.strftime(t('datetime.short_12h_z')) %></span>
+        <div class="mt-5 pl-10">
+          <% if amount_at_version %>
+            Amount: <span><%= format_money amount_at_version %></span>
+          <% end %>
+        </div>
+        <hr>
+      </div>
+    <% end %>
+  </div>
+</div>

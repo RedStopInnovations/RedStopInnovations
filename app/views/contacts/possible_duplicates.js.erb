@@ -1,0 +1,15 @@
+(function() {
+  $('#modal-merge-contacts').remove();
+  $('body').append("<%= escape_javascript (render 'modal_merge_contacts', contacts: @contacts) %>");
+  $('#modal-merge-contacts').modal('show');
+
+  /* Toggle submit button */
+  $('[name="contact_ids[]"]').on('change', function() {
+    var $btnSubmit = $('#modal-merge-contacts').find('button[type=submit]');
+    if ($('[name="contact_ids[]"]:checked').length === 0) {
+      $btnSubmit.attr('disabled', 'disabled')
+    } else {
+      $btnSubmit.removeAttr('disabled');
+    }
+  });
+})();

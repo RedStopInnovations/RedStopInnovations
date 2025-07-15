@@ -1,0 +1,52 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>DVA details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>File number:</strong>
+          <p>
+            <%= @referral.patient_attrs[:dva_file_number].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Card type:</strong>
+          <p>
+            <%= @referral.patient_attrs[:dva_card_type].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Referrer name:</strong>
+          <p>
+            <%= @referral.patient_attrs[:dva_referrer_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Provider number:</strong>
+          <p>
+            <%= @referral.patient_attrs[:dva_referrer_provider_number].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Referral date:</strong>
+          <p>
+            <%= @referral.patient_attrs[:dva_referral_date].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+en-AU:
+  referral_types:
+    general: 'General'
+    hcp: 'HCP'
+    dva: 'DVA'
+    ndis: 'NDIS'
+    medicare: 'Medicare'
+    hih: 'HIH'
+    strc: 'STRC'
+    private: 'Private'
+    hi: 'HI'
+    self_referral: 'Self-referral'

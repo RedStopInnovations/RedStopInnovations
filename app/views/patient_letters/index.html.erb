@@ -1,0 +1,57 @@
+<% content_for :title, ' Letters' %>
+
+<%= render 'patients/show_layout' do %>
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>Letters</h4>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <a href="<%= new_patient_letter_path(@patient) %>" class="btn btn-primary">
+        <i class="fa fa-plus"></i> New letter
+      </a>
+    </div>
+  </div>
+
+  <div class="panel panel-default mt-10">
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Author</th>
+            <th>Last updated</th>
+            <th width="20%" class="text-center"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @patient_letters.each do |patient_letter| %>
+            <tr>
+              <td>
+                <a href="<%= patient_letter_path(@patient, patient_letter) %>">
+                  <%= truncate(patient_letter.description, length: 100) %>
+                </a>
+              </td>
+              <td><%= patient_letter.author.try(:full_name) %></td>
+              <td><%= patient_letter.updated_at.strftime(t('datetime.common')) %></td>
+              <td>
+                <a href="<%= patient_letter_path(@patient, patient_letter) %>" class="btn btn-link" title="show"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                <a href="<%= edit_patient_letter_path(@patient, patient_letter) %>" class="btn btn-link" title="edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                <a href="<%= patient_letter_path(@patient, patient_letter) %>" title="delete" rel="nofollow" data-confirm="Are you sure?" data-method="delete" class="btn btn-link"><i class="fa fa-trash" aria-hidden="true"></i></a>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @patient_letters, entry_name: 'letter' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @patient_letters, theme: 'app' %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

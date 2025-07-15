@@ -1,0 +1,67 @@
+<section class="content-header">
+  <h1>
+    Admin / Invoiced Billings 
+  </h1>
+
+  <ol class="breadcrumb">
+    <li>
+      <a href="<%= admin_dashboard_path %>"><i class="fa fa-dashboard"></i> Dashboard</a>
+    </li>
+    <li><a href="<%= admin_subscriptions_path %>">Subscriptions</a></li>
+    <li class="active">Invoiced Billings</li>
+  </ol>
+
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="box-body">
+
+      <div class="table-responsive mt-20">
+        <table class="table table-bordered table-striped table-info">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Price</th>
+              <th>Appointment ID</th>
+              <th>Discount</th>
+              <th>Invoice ID</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @billings.each do |billing| %>
+              <tr>
+                <td>
+                  <%= billing.id %>
+                </td>
+                <td><%= billing.billing_type %></td>
+                <td><%= billing.first_invoice_date %></td>
+                <td><%= billing.subscription_price_on_date %></td>
+                <td><%= billing.appointment_id %></td>
+                <td><%= billing.discount_applied %></td>
+                <td><%= billing.business_invoice_id %></td>
+                <td>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @billings %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @billings %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

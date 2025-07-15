@@ -1,0 +1,63 @@
+<script id="modal-show-task-tmpl" type="text/template">
+  <div>
+    <modal :value="show" v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Task details</h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body">
+        <div v-if="task">
+          <div>
+              <span class="pull-right label">{{ task.priority }}</span>
+              <strong>{{ task.name }}</strong>
+              <p class="text-smaller mt-10">
+                {{ task.description }}
+              </p>
+          </div>
+
+          <hr>
+
+          <div class="block-info">
+              <strong>Client:</strong>
+              <p>
+                <a v-if="task.patient" href="#" @click.prevent="onClickViewPatient">{{ task.patient.full_name }}</a>
+                <span v-if="!task.patient" class="text-muted">--</span>
+              </p>
+          </div>
+
+          <div class="block-info">
+              <strong>Due date:</strong>
+              <p>
+                {{ task.due_on | shortDate }}
+              </p>
+          </div>
+
+          <div class="block-info">
+              <strong>Assignees:</strong>
+              <ul class="pl-20 mt-5">
+                <li v-for="assignment in task.task_users">
+                  <strong>{{ assignment.user.full_name }}</strong>
+
+                  <span v-if="assignment.status == 'Complete'">
+                    <span class="text-success">completed</span> the task <span  v-if="assignment.complete_at">on {{ assignment.complete_at | shortDate }}</span><span v-if="assignment.completion_duration">. Duration is {{ assignment.completion_duration }} minutes.</span>
+                  </span>
+                </li>
+              </ul>
+          </div>
+
+          <div class="block-info">
+              <strong>Created:</strong>
+              <p>
+                <strong>{{ task.owner.full_name }}</strong> <span>on {{ task.created_at | shortDate }}</span>
+              </p>
+          </div>
+        </div>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer">
+        <button class="btn btn-white" type="button" @click="close">Close</button>
+      </div>
+    </modal>
+  </div>
+</script>

@@ -1,0 +1,28 @@
+<section class="box-header clearfix">
+  <h1>Medipass integration</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li><a href="<%= settings_medipass_integration_path %>">Medipass integration</a></li>
+    <li class="active">Setup</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <div class="col-md-6 col-xs-12">
+      <%= simple_form_for @medipass_account, as: :medipass_account, url: settings_medipass_integration_update_account_path, method: 'POST', wrapper: :vertical_form do |f| %>
+        <%= f.input :api_key, label: 'API key', autofocus: true %>
+
+        <div class="form-group">
+          <%= f.submit 'Save', class: 'btn sitebtn' %>
+          <a href="<%= settings_medipass_integration_path %>" class="btn linebtn">Cancel</a>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,7 @@
+(function() {
+  $('#js-modal-disable-2fa-authentication').remove();
+  $('body').append('<%= j(render 'modal_disable') %>');
+
+  var $modal = $('#js-modal-disable-2fa-authentication');
+  $modal.modal('show');
+})();

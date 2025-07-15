@@ -1,0 +1,9 @@
+<%= simple_form_for attachment,
+    url: (attachment.new_record? ? patient_attachments_path(patient) : patient_attachment_path(patient, attachment)),
+    wrapper: :vertical_form do |f| %>
+  <%= f.input :attachment, as: :file, label: 'File', hint: 'Allowed file types: PDF, images, document, excel and texts. Maximum for 20MB.' %>
+  <%= f.input :description, input_html: { rows: 5 } %>
+  <%= f.submit 'Submit', class: 'btn btn-primary' %>
+    <a href="<%= attachment.new_record? ? patient_attachments_path(patient) : patient_attachment_path(patient, attachment) %>"
+      class="btn btn-white">Cancel</a>
+<% end %>

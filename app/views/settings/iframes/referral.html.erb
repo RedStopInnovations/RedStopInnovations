@@ -1,0 +1,139 @@
+<% content_for :title, 'Referral iframe' %>
+
+<section class="box-header">
+  <h1>Referral forms</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Referral forms</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <% if current_business.country == App::COUNTRY_AUSTRALIA %>
+      <div class="panel-group" id="templates-accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#templates-accordion" href="#template-default" aria-expanded="false" style="display: block;">
+                Default
+              </a>
+            </h4>
+          </div>
+          <div id="template-default" class="panel-collapse collapse in" role="tabpanel">
+            <div class="panel-body">
+              <%= render 'settings/iframes/referral_templates/default' %>
+            </div>
+          </div>
+        </div>
+
+          <%
+            {
+              Referral::TYPE_EXPANDED => 'Expanded referral',
+              Referral::TYPE_SELF_REFERRAL => 'Client self-referral',
+              Referral::TYPE_HCP => 'Home Care Package',
+              Referral::TYPE_DVA => 'DVA',
+              Referral::TYPE_MEDICARE => 'Medicare',
+              Referral::TYPE_NDIS => 'NDIS',
+              Referral::TYPE_PRIVATE => 'Private',
+              Referral::TYPE_HIH => 'Hospital in home',
+              Referral::TYPE_STRC => 'STRC',
+            }.each do |type, name|
+          %>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab">
+              <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#templates-accordion" href="#template-<%= type %>" aria-expanded="false" style="display: block;">
+                  <%= name %>
+                </a>
+              </h4>
+            </div>
+            <div id="template-<%= type %>" class="panel-collapse collapse" role="tabpanel">
+              <div class="panel-body">
+                <% iframe_url = iframe_referral_url(business: current_business.id, template: type) %>
+
+                  <div class="form-group">
+                    <label>Referral url:</label>
+                    <div class="bookings-url-preview">
+                      <a href="<%= iframe_url %>" rel="noopener noreferrer" target="_blank"><span class="link-label"><%= iframe_url %></span> <i class="fa fa-external-link"></i></a>
+                      <button class="btn btn-sm btn-white js-btn-copy-url" data-copy-text="<%= iframe_url %>" id="btn-copy-business-bookings-url"><i class="fa fa-copy"></i></button>
+                    </div>
+                    <br>
+                    <label>Iframe embed code:</label>
+                    <% iframe_code = "<iframe width=\"100%\" height=\"1700\" src=\"#{iframe_url}\" frameborder=\"0\"></iframe>" %>
+                    <div class="bookings-url-preview">
+                      <a class="iframe-link"
+                        ><%= iframe_code %></a>
+                      <button class="btn btn-sm btn-white js-btn-copy-url"
+                        data-copy-text="<%= iframe_code %>" type="button"><i class="fa fa-copy"></i></button>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#templates-accordion" href="#template-dpr" aria-expanded="false" style="display: block;">
+                Dynamic payment referral
+              </a>
+            </h4>
+          </div>
+          <div id="template-dpr" class="panel-collapse collapse" role="tabpanel">
+            <div class="panel-body">
+              <% iframe_url = iframe_referral_url(business: current_business.id, template: 'dpr') %>
+
+                <div class="form-group">
+                  <label>Referral url:</label>
+                  <div class="bookings-url-preview">
+                    <a href="<%= iframe_url %>" rel="noopener noreferrer" target="_blank"><span class="link-label"><%= iframe_url %></span> <i class="fa fa-external-link"></i></a>
+                    <button class="btn btn-sm btn-white js-btn-copy-url" data-copy-text="<%= iframe_url %>" id="btn-copy-business-bookings-url"><i class="fa fa-copy"></i></button>
+                  </div>
+                  <br>
+                  <label>Iframe embed code:</label>
+                  <% iframe_code = "<iframe width=\"100%\" height=\"1700\" src=\"#{iframe_url}\" frameborder=\"0\"></iframe>" %>
+                  <div class="bookings-url-preview">
+                    <a class="iframe-link"
+                      ><%= iframe_code %></a>
+                    <button class="btn btn-sm btn-white js-btn-copy-url"
+                      data-copy-text="<%= iframe_code %>" type="button"><i class="fa fa-copy"></i></button>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <%= render 'settings/iframes/referral_templates/default' %>
+    <% end %>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+ <script type="text/javascript">
+    var clipboard = new Clipboard('.js-btn-copy-url', {
+      text: function(trigger) {
+        return $(trigger).data('copy-text')
+      }
+    });
+
+    clipboard.on('success', function(e) {
+      Flash.success('Copied to clipboard');
+    });
+
+    // Load iframe only when the panel is open
+    $('.collapse').on('show.bs.collapse', function () {
+      var $iframe = $(this).find('iframe');
+      if (!$iframe.attr('src')) {
+        $iframe.attr('src', $iframe.attr('isrc'));
+      }
+    });
+  </script>
+<% end %>

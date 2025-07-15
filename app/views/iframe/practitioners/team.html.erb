@@ -1,0 +1,39 @@
+<%= content_for :body_class, 'white'%>
+
+<div class="page-team">
+  <% if @business.nil? %>
+    <div class="alert">
+      Not found any practitioners
+    </div>
+  <% else %>
+    <% if @practitioners.blank? %>
+      <div class="alert">
+        Not found any practitioners
+      </div>
+    <% end %>
+    <% @practitioners.each do |practitioner| %>
+      <a href="<%= iframe_practitioner_url(id: practitioner.id, slug: practitioner.slug) %>" class="box-item">
+        <figure class="ourteam">
+          <div style="height: 300px; overflow: hidden;
+              background-size: cover;
+              background-position: top;
+              background-image: url(<%= practitioner.profile_picture_url(:medium) %>);">
+          </div>
+          <div class="thumbnail-desc">
+              <h5 ><%= practitioner.full_name %></h5>
+              <strong><%= practitioner.profession %></strong>
+              <p>
+              <%= [practitioner.city, practitioner.state, practitioner.postcode].compact.join(', ') %><br>
+              </p>
+              <p>
+              <%= practitioner.business.name %><br>
+              </p>
+          </div>
+        </figure>
+      </a>
+    <% end %>
+    <% if @pagination %>
+      <%= paginate @practitioners %>
+    <% end %>
+  <% end %>
+</div>

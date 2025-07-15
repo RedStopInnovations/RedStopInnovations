@@ -1,0 +1,189 @@
+<% content_for :title, 'Employees roster' %>
+
+<section class="box-header">
+  <h1>Employees roster</h1>
+</section>
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Practitioner</a>
+    </li>
+    <li class="active">Employees roster</li>
+  </ul>
+</section>
+
+<section class="content">
+
+  <div class="panel panel-default hidden-print">
+    <div class="panel-body">
+      <form action="<%= reports_employees_roster_path %>">
+        <div class="row">
+
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Date:</label>
+              <div class="input-group">
+                <input type="text"
+                    class="form-control flatpickr-datepicker"
+                    name="start_date"
+                    value="<%= @report.options[:start_date].strftime("%Y-%m-%d") %>"
+                    data-alt-format="d M Y"
+                    data-date-format="Y-m-d"
+                    data-allow-input="true"
+                    />
+                <span class="input-group-addon input-group-addon-middle">to</span>
+
+                <input type="text"
+                    class="form-control flatpickr-datepicker"
+                    name="end_date"
+                    value="<%= @report.options[:end_date].strftime("%Y-%m-%d") %>"
+                    data-alt-format="d M Y"
+                    data-date-format="Y-m-d"
+                    data-allow-input="true"
+                    >
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label>Practitioners:</label>
+            <select class="form-control selectize" name="practitioner_id">
+              <option value="">All</option>
+              <%=
+                options_for_select(
+                  pracititioner_options_for_select(current_business),
+                  params[:practitioner_id]
+                )
+              %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>&nbsp;</label><br>
+              <button type="submit" class="btn btn-primary">Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if @report.options[:practitioner_id].blank? && !@report.result[:practitioners].empty? %>
+    <div class="text-right mb-15">
+      <button class="btn btn-white btn-form"
+        data-form-url="<%= reports_employees_send_all_rosters_path(start_date: @report.options[:start_date].strftime('%Y-%m-%d'), end_date: @report.options[:end_date].strftime('%Y-%m-%d')) %>"
+        data-form-method="POST"
+        type="button"
+        data-form-confirmation="Are you sure want to send all rosters?"
+        >Send all rosters</button>
+    </div>
+  <% end %>
+
+  <% if @report.result[:practitioners].empty? %>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <p class="text-muted">Not found any availability</p>
+      </div>
+    </div>
+  <% end %>
+
+  <% @report.result[:practitioners].each do |practitioner| %>
+    <div class="panel panel-default mb-10">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-6">
+            <h4 class="nm text-bolder"><%= practitioner.full_name %></h4>
+            <%= practitioner.profession %> <br/>
+            <span class="text-smaller"><%= practitioner.city %></span>
+          </div>
+
+          <div class="col-xs-6 text-right">
+            <div class="btn-group">
+              <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                Action <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li>
+                  <a href="<%= reports_employees_roster_path(practitioner_id: practitioner.id, format: :pdf,
+                    start_date: @report.options[:start_date].strftime('%Y-%m-%d'), end_date: @report.options[:end_date].strftime('%Y-%m-%d')) %>"
+                    target="_blank">
+                    Print
+                  </a>
+                </li>
+                <li>
+                  <a href="<%= reports_employees_roster_deliver_path(practitioner_id: practitioner.id,
+                    start_date: @report.options[:start_date].strftime('%Y-%m-%d'), end_date: @report.options[:end_date].strftime('%Y-%m-%d')) %>"
+                    data-confirm="Are you sure?"
+                    data-method="POST">
+                    Email to employee
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive mt-10">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Service area</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% practitioner.availabilities.each do |availability| %>
+                <%
+                  start_time = availability.start_time_in_practitioner_timezone
+                  end_time = availability.end_time_in_practitioner_timezone
+                %>
+                <tr>
+                  <td><%= start_time.strftime(t('date.common')) %></td>
+                  <td>
+                    <%= start_time.strftime(t('time.common')) %> - <%= end_time.strftime(t('time.common')) %> (<%= start_time.strftime('%Z') %>)
+                  </td>
+                  <td>
+                    <% if availability.home_visit? %>
+                      Home visit
+                    <% elsif availability.facility? %>
+                      Facility
+                    <% elsif availability.non_billable? %>
+                      Non-billable
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if availability.home_visit? %>
+                      <%= availability.city %>, <%= availability.state %> (<%= availability.service_radius %> kms)
+                    <% elsif availability.facility? %>
+                      <%= availability.city %>, <%= availability.state %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <a href="<%= calendar_path(availability_id: availability.id, practitioner_ids: availability.practitioner_id) %>"
+                      class="btn btn-link" title="View on calendar" target="_blank">
+                      <i class="fa fa-calendar"></i>
+                    </a>
+                  </td>
+                </tr>
+              <% end %>
+
+                <% if practitioner.availabilities.blank? %>
+                  <tr>
+                    <td colspan="5">Not found any availability</td>
+                  </tr>
+                <% end %>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+</section>

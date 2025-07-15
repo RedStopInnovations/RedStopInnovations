@@ -1,0 +1,66 @@
+#modal-availability-schedule {
+  ::-webkit-input-placeholder {
+    font-size: 12px;
+  }
+
+  input[type="text"] {
+    border: 1px solid #d2d6de;
+  }
+
+  .input-max-appointments-wrap, .input-max-distance-wrap, .input-address-wrap {
+    display: inline-block;
+    position: relative;
+    &:before {
+      font-family: 'FontAwesome';
+      position: absolute;
+      color: #8c8c8c;
+      left: 3px;
+      top: 3px;
+      font-size: 11px;
+    }
+    input {
+      padding-left: 20px;
+    }
+  }
+
+  .input-max-appointments-wrap:before {
+    content: "\f0c0";
+  }
+
+  .input-max-distance-wrap:before {
+    content: "\f1b9";
+  }
+
+  .input-address-wrap {
+    margin-top: 5px;
+    &:before {
+      content: "\f041";
+    }
+  }
+
+  .input-time {
+    width: 45px;
+    text-align: center;
+  }
+
+  .input-max-distance {
+   width: 65px;
+  }
+
+  .input-max-appointments {
+    width: 65px;
+  }
+
+  .input-address {
+    width: 271px;
+    height: 30px;
+  }
+}
+
+@media (min-width: 1024px) {
+  #modal-availability-schedule {
+    .modal-dialog {
+      width: 1024px;
+    }
+  }
+}

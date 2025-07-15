@@ -1,0 +1,108 @@
+<script id="modal-show-appointment-tmpl" type="text/template">
+  <div>
+    <modal :value="show" large v-cloak @closed="onModalClosed">
+      <div slot="modal-header" class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Appointment details <span v-if="appointment">#{{ appointment.id }}</span> </h4>
+      </div>
+
+      <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+        <div class="loading-backdrop" v-if="loading"></div>
+        <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+
+        <div v-if="appointment">
+          <div class="row">
+            <div class="col-md-6 col-xs-12">
+              <div class="block-info">
+                <strong>Client:</strong>
+                <p>
+                  {{ appointment.patient.full_name }}
+                  <span v-if="appointment.patient.dob">({{ appointment.patient.dob | dob }})</span>
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Appointment type:</strong>
+                <p>
+                  <span>{{ appointment.appointment_type.name }}</span>
+                  ({{ appointment.appointment_type.duration }} minutes)
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Date:</strong>
+                <p>
+                  Availability: <strong>{{ appointment.start_time | availabilityDate }}</strong> /
+                  {{ appointment.start_time | hour }} - {{ appointment.end_time | hour }} ({{ appointment.start_time | tz }})
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Note:</strong>
+                <p>
+                  {{ appointment.notes }}
+                  <span v-if="!appointment.notes" class="text-muted">--</span>
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Created:</strong>
+                <p>
+                  {{ appointment.created_at | shortDateTime }}
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Confirmed:</strong>
+                <p>
+                  <span v-if="appointment.is_confirmed" class="text-bolder">Yes</span>
+                  &nbsp;
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Status:</strong>
+                <p>
+                  <template v-if="appointment.status">
+                    <span style="text-transform: capitalize;">{{ appointment.status }}</span>
+                  </template>
+
+                  <template v-if="appointment.cancelled_at">
+                    <br>
+                    <span>Cancelled on {{ appointment.cancelled_at | shortDate }}</span>
+                  </template>
+                </p>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+
+              <div class="block-info">
+                <strong>Invoice created:</strong>
+                <p>
+                  <span v-if="!appointment.invoice">No</span>
+                </p>
+              </div>
+
+              <div class="block-info">
+                <strong>Treatement note created:</strong>
+                <p>
+                  <span v-if="appointment.treatment" class="text-bolder">Yes</span>
+                  <span v-if="!appointment.treatment">No</span>
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+
+      <div slot="modal-footer" class="modal-footer bg-gray-light">
+        <button class="btn btn-white" type="button" @click="close">Close</button>
+      </div>
+    </modal>
+  </div>
+</script>

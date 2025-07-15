@@ -1,0 +1,129 @@
+<% outcome_measure_type = @outcome_measure.outcome_measure_type %>
+<%= render 'patients/show_layout' do %>
+  <div class="row no-print">
+    <div class="col-xs-6 col-lg-4">
+      <h4 class="page-title"><%= outcome_measure_type.name %></h4>
+    </div>
+    <div class="col-xs-6 col-lg-8 text-right">
+      <% if false %>
+      <a href="<%= edit_patient_outcome_measure_path(@patient, @outcome_measure) %>"
+         class="btn sitebtn">
+        <i class="fa fa-pencil"></i> Edit details
+      </a>
+      <% end %>
+      <% if @outcome_measure_tests.size > 0 %>
+        <a onclick="print()" href="#" class="btn linebtn">
+           <i class="fa fa-print"></i> Print</a>
+        <a href="<%= send_to_patient_patient_outcome_measure_path(@patient, @outcome_measure) %>"
+           class="btn linebtn ml-5"
+           data-remote="true"
+           data-confirm="Are you sure you want to send it to the client?">
+           <i class="fa fa-send"></i> Send to client</a>
+      <% end %>
+      <button
+        class="btn sitebtn ml-5"
+        data-toggle="modal"
+        data-target="#modal-add-outcome-measure-test">
+        <i class="fa fa-plus"></i>Record new test
+      </button>
+    </div>
+  </div>
+
+  <section>
+    <div class="box mt-10">
+      <div class="row">
+        <div class="col-md-12">
+          <% if @outcome_measure_tests.size > 0 %>
+            <h4 class="page-title visible-print"><%= outcome_measure_type.name %></h4>
+            <p class="visible-print">
+              <b>Practitioner:</b> <%= @outcome_measure.practitioner.full_name %>
+              <br>
+              <b>Client:</b> <%= @patient.full_name %>
+            </p>
+            <div id="chart-outcome-measure"
+                 class="chart-container"
+                 style="min-height: 300px;"></div>
+          <% else %>
+            <p class="text-center text-muted">No tests recorded yet.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @outcome_measure_tests.size > 0 %>
+        <hr>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive pa-10">
+              <table class="table-flat">
+                <thead>
+                  <tr>
+                    <th>Date performed</th>
+                    <th>Result</th>
+                    <th class="no-print">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @outcome_measure_tests.each do |test| %>
+                    <tr>
+                      <td><%= test.date_performed.strftime('%d %b %Y') %></td>
+                      <td><%= test.result_formatted  %> <%= outcome_measure_type.unit %></td>
+                      <td class="no-print">
+                        <a href="<%= edit_test_patient_outcome_measure_path(@patient, @outcome_measure, test) %>"
+                          data-remote="true"
+                          title="Edit"
+                          class="btn btn-link"><i class="fa fa-pencil" aria-hidden="true"></i>
+                        </a>
+                        <a href="<%= delete_test_patient_outcome_measure_path(@patient, @outcome_measure, test) %>"
+                          title="Delete"
+                          data-confirm="Are you sure want to delete this record?"
+                          data-method="Delete"
+                          class="btn btn-link"><i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+
+    <div class="box no-print">
+      <div class="block-info">
+        <strong>Outcome measure info</strong>
+        <p><%= outcome_measure_type.description %></p>
+      </div>
+      <div class="block-info">
+        <strong>Practitioner</strong>
+        <p><%= @outcome_measure.practitioner.full_name %></p>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<% content_for :page_additional_html do %>
+  <% render 'modal_add_test', outcome_measure: @outcome_measure, patient: @patient %>
+<% end %>
+
+<% content_for :page_js do %>
+  <%= render 'chart_js' %>
+<% end %>
+
+<% if @chart %>
+  <% content_for :page_js do %>
+    <script type="text/javascript">
+      var measureUnit = '<%= @outcome_measure.outcome_measure_type.unit %>';
+      var data = <%= @chart.data.to_json.html_safe %>;
+      var chartTitle = '<%= @outcome_measure.outcome_measure_type.name %>';
+      renderOutcomeMeasureChart(
+        '#chart-outcome-measure',
+        chartTitle,
+        data,
+        measureUnit
+      );
+    </script>
+  <% end %>
+<% end %>

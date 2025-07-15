@@ -1,0 +1,42 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Home care package details</strong></div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Company name</strong>
+          <p>
+            <%= @referral.patient_attrs[:hcp_company_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Manager name</strong>
+          <p>
+            <%= @referral.patient_attrs[:hcp_manager_name].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Manager phone</strong>
+          <p>
+            <%= @referral.patient_attrs[:hcp_manager_phone].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="block-info">
+          <strong>Manager email</strong>
+          <p>
+            <%= @referral.patient_attrs[:hcp_manager_email].presence || 'N/A' %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

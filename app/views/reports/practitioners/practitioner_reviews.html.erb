@@ -1,0 +1,62 @@
+<% content_for :title, 'Practitioner reviews' %>
+
+<section class="box-header">
+  <h1>Practitioner reviews</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Practitioner</a>
+    </li>
+    <li class="active">Practitioner reviews</li>
+  </ul>
+</section>
+
+<section class="content">
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 150px">Practitioner</th>
+              <th style="width: 150px">Client</th>
+              <th style="width: 80px">Rating</th>
+              <th>Comment</th>
+              <th style="width: 160px">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @reviews.each do |review| %>
+              <tr>
+                <td>
+                  <%= review.practitioner.full_name %>
+                  <span class="text-smaller"><%= review.practitioner.profession %></span>
+                </td>
+                <td><%= review.patient_name %></td>
+                <td><%= review.rating %></td>
+                <td><p><%= review.comment %></p></td>
+                <td><%= review.created_at.strftime(t('date.common')) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @reviews %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @reviews %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

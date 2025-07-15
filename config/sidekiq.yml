@@ -1,0 +1,10 @@
+---
+:verbose: false
+:max_retries: 1
+:concurrency: 3
+:pidfile: ./tmp/pids/sidekiq.pid
+:queues:
+  - default
+  - mailers
+  - cron
+  - data_export

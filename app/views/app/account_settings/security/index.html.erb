@@ -1,0 +1,85 @@
+<% content_for :title, 'Account settings - Security' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Security</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="box">
+
+    <%= render 'app/account_settings/tabs', { active_tab: 'security' }  %>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Two-Factor Authentication
+        </div>
+
+        <div class="panel-body">
+            <div class="callout callout-default">
+              <p>Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to sign in.</p>
+            </div>
+            <% if current_user.enable_google_authenticator %>
+                Status: <span class="text-success">Enabled</span>
+                <a href="<%= app_account_settings_tfa_authentication_modal_disable_path %>" class="btn btn-warning" data-remote="true">Disable</a>
+            <% else %>
+                Status: <span class="text-muted">Not enabled</span>
+                <a href="<%= app_account_settings_tfa_authentication_setup_path %>" class="btn btn-white">Enable</a>
+            <% end %>
+        </div>
+    </div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+    Recent login activity
+    </div>
+
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-borderless">
+            <thead>
+                <tr>
+                <th>Time</th>
+                <th>IP Address</th>
+                <th>Browser / Device</th>
+                <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @login_activity.each do |la| %>
+                <tr>
+                    <td><%= la.created_at.in_time_zone(current_user.timezone).strftime(t('datetime.short_12h_z')) %></td>
+                    <td><%= la.ip %></td>
+                    <td>
+                    <% if la.user_agent.present? %>
+                        <span title="<%= la.user_agent %>">
+                        <% client = DeviceDetector.new(la.user_agent) %>
+                        <%= client.name %> <span> on </span>
+                        <%= client.os_name %>
+                        <%= client.device_name %>
+                        </span>
+                    <% end %>
+                    </td>
+                    <td>
+                    <% if la.latitude.present? && la.longitude.present? %>
+                        <% if la.country? %>
+                        <%= [la.city, la.region, la.country].map(&:presence).compact.join(', ') %>
+                        <% end %>
+                        (<%= la.latitude %>, <%= la.longitude %>)
+                    <% else %>
+                        Unknown
+                    <% end %>
+                    </td>
+                </tr>
+                <% end %>
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+  </div>
+</section>

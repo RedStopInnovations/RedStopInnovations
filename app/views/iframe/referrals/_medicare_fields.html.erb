@@ -1,0 +1,27 @@
+<h3>Client medicare</h3>
+<div class="box">
+  <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_card_number, label: 'Client Medicare Card number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_card_irn, label: 'Client Medicare Card Reference Number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_referrer_name, label: 'Doctor name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_referrer_provider_number, label: 'Doctor provider number', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :medicare_referral_date, required: true, as: :string, wrapper: :vertical_input_group, label: 'Referral date' do %>
+          <%= ff.input_field :medicare_referral_date, class: "form-control daterpicker", placeholder: 'dd/mm/yyyy' %>
+          <div class="input-group-btn">
+            <button class="btn btn-default btn-trigger-datepicker" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

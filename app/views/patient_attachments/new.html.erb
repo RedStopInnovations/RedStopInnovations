@@ -1,0 +1,108 @@
+
+<%= render 'patients/show_layout' do %>
+  <h4>Upload attachments</h4>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <form action="<%= patient_attachments_path(@patient) %>" method="POST" id="new_patient_attachment"
+        enctype="multipart/form-data">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <div class="box-attachments">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width: 40%;">File</th>
+                <th style="width: 40%">Description</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-index="0">
+                <td style="padding-right: 15px;">
+                  <input type="file" name="attachments[0][attachment]" class="form-control">
+                </td>
+                <td style="padding-right: 15px;vertical-align:top;">
+                  <textarea name="attachments[0][description]" rows="2" class="form-control"></textarea>
+                </td>
+                <td style="vertical-align: top;">
+                  <button class="btn btn-sm btn-danger" style="height: 40px;padding-left: 10px;display:none;"
+                    type="button">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="btn btn-white btn-sm mb-15 add-attachment" type="button">
+            <i class="fa fa-plus"></i> More files
+          </button>
+        </div>
+
+        <div class="mb-20 clearfix">
+          <button class="btn btn-primary btn-submit" type="button">
+            Upload
+          </button>
+          <a href="<%= patient_attachments_path(@patient) %>" class="btn btn-white">Cancel</a>
+        </div>
+        </form>
+    </div>
+  </div>
+
+<% end %>
+
+<% content_for :page_js do %>
+  <script type="text/javascript">
+    (function() {
+      var index = 1;
+      $('.box-attachments .add-attachment').click(function(event) {
+        $('.box-attachments .btn-danger').slideDown(0);
+
+        $('.box-attachments table tbody').append(
+          '<tr data-index="' + index + '"> \
+            <td style="padding-right: 15px;"> \
+              <input type="file" name="attachments[' + index + '][attachment]" class="form-control"> \
+            </td> \
+            <td style="padding-right: 15px;vertical-align:top;"> \
+              <textarea name="attachments[' + index + '][description]" rows="2" class="form-control"></textarea> \
+            </td> \
+            <td style="vertical-align: top;"> \
+              <button class="btn btn-sm btn-danger" style="height: 40px;padding-left: 10px;" \
+                type="button"> \
+                <i class="fa fa-trash"></i> \
+              </button> \
+            </td> \
+          </tr>'
+        );
+
+        index += 1;
+      });
+
+      $('.box-attachments').on('click', '.btn-danger', function(event) {
+        $(this).parents('tr').remove();
+        if($('.box-attachments table tbody tr').length <= 1) {
+          $('.box-attachments .btn-danger').slideUp(0);
+        }
+      });
+
+      $('#new_patient_attachment .btn-submit').click(function(event) {
+        $('.box-attachments tbody tr td.has-error .help-block').remove();
+        $('.box-attachments tbody tr td').removeClass('has-error');
+
+        self = $(this);
+        var attachmentForm = $(this).parents('form');
+        self.prop('disabled', true);
+        self.text("Processing...");
+
+        var attachmentFormData = new FormData(attachmentForm[0]);
+
+        $.ajax({
+          url: attachmentForm.attr('action'),
+          type: 'POST',
+          data: attachmentFormData,
+          processData: false,
+          contentType: false
+        });
+      });
+    })()
+  </script>
+<% end %>

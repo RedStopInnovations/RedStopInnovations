@@ -1,0 +1,48 @@
+<div class="modal fade" id="js-modal-show-task">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Task details</h4>
+      </div>
+
+      <div class="modal-body">
+        <%= render 'task_details' %>
+      </div>
+
+      <div class="modal-footer">
+        <div class="row">
+          <div class="col-xs-6 text-left">
+            <% if @task.owner.id === current_user.id %>
+              <button type="button" class="btn btn-white btn-form"
+                data-form-url="<%= task_path(@task) %>"
+                data-form-method="DELETE"
+                data-form-confirmation="Are you sure you want to DELETE this task?"
+                ><i class="fa fa-trash text-danger"></i></button>
+              <a href="<%= edit_task_path(@task) %>" class="btn btn-white" title="Edit" data-remote="true">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </a>
+            <% end %>
+
+          </div>
+            <div class="col-xs-6">
+              <%
+                is_open_and_assigned_to_current_user =
+                  @task.task_users.any? do |task_user|
+                    task_user.user_id == current_user.id && task_user.status != TaskUser::STATUS_COMPLETE
+                  end
+              %>
+
+              <% if is_open_and_assigned_to_current_user %>
+                  <a href="<%= modal_update_completion_task_path(@task) %>" class="btn btn-primary" title="Mark complete" data-remote="true">
+                      <i class="fa fa-check"></i> Complete
+                  </a>
+              <% end %>
+
+              <button class="btn btn-white" type="button" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>

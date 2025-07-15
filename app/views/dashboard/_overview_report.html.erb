@@ -1,0 +1,670 @@
+<%
+  report_ranges = [
+      'current_month',
+      'last_30_days',
+      'last_60_days',
+      'last_90_days',
+      'month_to_date',
+      'year_to_date',
+    ]
+
+  default_report_range = current_user.preferences.find_by(key: 'dashboard_overview_report_date_range').try(:value) || report_ranges.first
+
+  default_view_scope = current_user.preferences.find_by(key: 'dashboard_overview_report_scope').try(:value)
+
+  default_view_scope =
+    if current_user.role_administrator? || current_user.role_supervisor?
+      default_view_scope || 'business'
+    else
+      'self'
+    end
+
+  is_registered_more_than_1_month = current_business.created_at < 30.days.ago
+%>
+
+<div class="dashboard-box">
+
+    <div class="box-heading">
+        <span class="title">Overview report</span>
+        <select class="text-smaller ml-5" id="js-overview-report-range-input" style="width: 120px;">
+            <% report_ranges.each do |range| %>
+            <option value="<%= range %>" <% if default_report_range == range %> selected <% end %> ><%= t("stats_ranges.#{range}") %></option>
+            <% end %>
+        </select>
+
+        <% if (current_user.role_administrator? || current_user.role_supervisor?) && current_user.is_practitioner? %>
+            <div class="pull-right">
+                <div class="check-box">
+                    <input type="checkbox" id="js-cb-report-view-scope"
+                        <% if default_view_scope == 'self' %>
+                            checked
+                        <% end %>
+                        />
+                    <label for="js-cb-report-view-scope">My stats</label>
+                </div>
+            </div>
+        <% end %>
+    </div>
+
+    <div class="box-body">
+
+        <% if current_user.role_administrator? || current_user.role_supervisor? %>
+            <!-- Start business overview report -->
+            <div id="js-business-overview-report-wrap" style="<%= 'display: none;' unless default_view_scope == 'business' %>">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Appointments</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 200px;">Total appointments:</td>
+                                            <td>
+                                                <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                                <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:appointments_count] %></span>
+                                                <% end %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total clients:</td>
+                                            <td>
+                                                <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                                <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:patients_count] %></span>
+                                                <% end %>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                        <tr>
+                                        <td style="width: 200px;">Referrals:</td>
+                                        <td>
+                                            <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:referrals_count] %></span>
+                                            <% end %>
+                                        </td>
+                                        </tr>
+                                        <tr>
+                                        <td>Online bookings:</td>
+                                        <td>
+                                            <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:booked_online_count] %></span>
+                                            <% end %>
+                                        </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                    <tr>
+                                        <td style="width: 200px;">Availability:</td>
+                                        <td>
+                                        <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:total_availability_time] %> hrs</span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Visit average:</td>
+                                        <td>
+                                        <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= stats[:visit_average] %></span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cancellations:</td>
+                                        <td>
+                                        <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= stats[:cancellations_count] %></span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-xs-12 col-md-6">
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                    <tr>
+                                        <td style="width: 200px;">Occupancy:</td>
+                                        <td>
+                                        <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= stats[:occupancy] %>%</span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Travel distance:</td>
+                                        <td>
+                                        <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:total_driving_distance] %> kms</span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Travel time:</td>
+                                        <td>
+                                        <% @business_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:total_driving_duration] %> hrs</span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <% if is_registered_more_than_1_month %>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr class="mt-5 mb-5">
+                                    <div class="chart-container" id="js-chart-appointments-summary" style="height: 120px;"
+                                        data-chart-data="<%= @business_overview_report.appointments_last_12_months_chart_data.to_json %>"
+                                        ></div>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Transactions</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                            <table class="table table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 200px;">Total invoices:</td>
+                                        <td>
+                                            <% @business_overview_report.transaction_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"><%= number_with_delimiter stats[:created_invoices_count] %></span>
+                                            <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Average invoice amount:</td>
+                                        <td>
+                                            <% @business_overview_report.transaction_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                ><%= format_money(stats[:average_invoice_amount], nil, ',') %></span>
+                                            <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product sales:</td>
+                                        <td>
+                                        <% @business_overview_report.transaction_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                ><%= stats[:product_sales_count] %></span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+
+                            <div class="col-xs-12 col-md-6">
+                            <table class="table table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 200px;">Total invoices amount:</td>
+                                        <td>
+                                        <% @business_overview_report.transaction_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                ><%= format_money( stats[:total_invoices_amount], nil, ',') %></span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total payments amount:</td>
+                                        <td>
+                                        <% @business_overview_report.transaction_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                ><%= format_money(stats[:total_payment_amount], nil, ',') %></span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product sales amount:</td>
+                                        <td>
+                                        <% @business_overview_report.transaction_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                ><%= format_money(stats[:product_sales_amount], nil, ',') %></span>
+                                        <% end %>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+
+                        <% if is_registered_more_than_1_month %>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr class="mt-5 mb-5">
+                                    <div class="chart-container" id="js-chart-invoices-summary" style="height: 120px;"
+                                        data-chart-data="<%= @business_overview_report.invoices_total_last_12_months_chart_data.to_json %>"
+                                        ></div>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+            <!-- End business overview report -->
+        <% end %>
+
+        <% if current_user.is_practitioner? %>
+            <div id="js-practitioner-overview-report-wrap" style="<%= 'display: none;' unless default_view_scope == 'self' %>">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Appointments</strong>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 200px;">Total appointments:</td>
+                                            <td>
+                                                <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                                <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:appointments_count] %></span>
+                                                <% end %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total clients:</td>
+                                            <td>
+                                                <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                                <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:patients_count] %></span>
+                                                <% end %>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-6">
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                        <tr>
+                                        <td style="width: 200px;">Referrals:</td>
+                                        <td>
+                                            <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:referrals_count] %></span>
+                                            <% end %>
+                                        </td>
+                                        </tr>
+                                        <tr>
+                                        <td>Online bookings:</td>
+                                        <td>
+                                            <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                            <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:booked_online_count] %></span>
+                                            <% end %>
+                                        </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                            <table class="table table-borderless mb-0">
+                                <tbody>
+                                <tr>
+                                    <td style="width: 200px;">Availability:</td>
+                                    <td>
+                                    <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                        <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:total_availability_time] %> hrs</span>
+                                    <% end %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Visit average:</td>
+                                    <td>
+                                    <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                        <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= stats[:visit_average] %></span>
+                                    <% end %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vacant time:</td>
+                                    <td>
+                                    <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                        <span style="<%= 'display: none;' unless default_report_range == range %>"
+                                            data-toggle="popover" data-trigger="hover" data-placement="top"
+                                            data-content="Availability time minus travel and appointment time"
+                                            data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:total_vacant_time] %> hrs</span>
+                                    <% end %>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                            <div class="col-md-6">
+                            <table class="table table-borderless mb-0">
+                                <tbody>
+                                <tr style="width: 200px;">
+                                    <td>Occupancy:</td>
+                                    <td>
+                                    <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                        <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= stats[:occupancy] %>%</span>
+                                    <% end %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Travel distance:</td>
+                                    <td>
+                                    <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                        <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:total_driving_distance] %> kms</span>
+                                    <% end %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Travel time:</td>
+                                    <td>
+                                    <% @practitioner_overview_report.appointment_stats.each do |range, stats| %>
+                                        <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>" data-self-stats><%= number_with_delimiter stats[:total_driving_duration] %> hrs</span>
+                                    <% end %>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+
+                        <% if is_registered_more_than_1_month %>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr class="mt-5 mb-5">
+                                    <div class="chart-container" id="js-chart-self-appointments-summary" style="height: 120px;"
+                                        data-chart-data="<%= @practitioner_overview_report.appointments_last_12_months_chart_data.to_json %>"
+                                        ></div>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+
+                <% if !current_user.role_restricted_practitioner? %>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Transactions</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td style="width: 200px;">Total invoices:</td>
+                                                <td>
+                                                    <% @practitioner_overview_report.transaction_stats.each do |range, stats| %>
+                                                    <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                        data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                        ><%= number_with_delimiter stats[:created_invoices_count] %></span>
+                                                    <% end %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Average invoice amount:</td>
+                                                <td>
+                                                    <% @practitioner_overview_report.transaction_stats.each do |range, stats| %>
+                                                    <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                        data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                        ><%= format_money(stats[:average_invoice_amount], nil, ',') %></span>
+                                                    <% end %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Product sales:</td>
+                                                <td>
+                                                <% @practitioner_overview_report.transaction_stats.each do |range, stats| %>
+                                                    <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                        ><%= stats[:product_sales_count] %></span>
+                                                <% end %>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="col-xs-12 col-md-6">
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                        <tr>
+                                            <td style="width: 200px;">Total invoices amount:</td>
+                                            <td>
+                                            <% @practitioner_overview_report.transaction_stats.each do |range, stats| %>
+                                                <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                    data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                    ><%= format_money( stats[:total_invoices_amount], nil, ',') %></span>
+                                            <% end %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                &nbsp;
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Product sales amount:</td>
+                                            <td>
+                                            <% @practitioner_overview_report.transaction_stats.each do |range, stats| %>
+                                                <span style="<%= 'display: none;' unless default_report_range == range %>" data-stats-range="<%= range %>"
+                                                    data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Taxes inclusive"
+                                                    ><%= format_money(stats[:product_sales_amount], nil, ',') %></span>
+                                            <% end %>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <% if is_registered_more_than_1_month %>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <hr class="mt-5 mb-5">
+                                        <div class="chart-container" id="js-chart-self-invoices-summary" style="height: 120px;"
+                                            data-chart-data="<%= @practitioner_overview_report.invoices_total_last_12_months_chart_data.to_json %>"
+                                            ></div>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    </div>
+                <% end %>
+
+            </div>
+
+        <% end %>
+
+    </div>
+
+    <p class="text-right small text-i">* This report is updated daily</p>
+</div>
+
+<script type="text/javascript">
+$('[data-toggle="popover"]').popover();
+
+(function() {
+    //== Stats range filter
+    $('#js-overview-report-range-input').on('change', function() {
+        var $input = $(this);
+        var selectedRange = $input.val();
+
+        $('[data-stats-range="' + selectedRange + '"]').show();
+        $('[data-stats-range]').not('[data-stats-range="' + selectedRange + '"]').hide();
+
+        $.ajax({
+            method: 'PUT',
+            url: '/app/my_preferences/update',
+            data: {
+                key: 'dashboard_overview_report_date_range',
+                value: selectedRange
+            }
+        });
+    });
+
+    //== Appointments chart
+    if ($('#js-chart-appointments-summary').length) {
+    (function() {
+        var $container = $('#js-chart-appointments-summary');
+        var chartData = $container.data('chart-data');
+        var canvas = $('<canvas>').appendTo($container);
+        var chartOptions = $.extend(true, {}, App.DEFAULT_LINE_CHART_OPTIONS, {
+        title: {
+            display: false,
+        }
+        });
+
+        new Chart(
+        canvas,
+        {
+            type: 'bar',
+            data: chartData,
+            options: chartOptions
+        }
+        );
+
+    })();
+    }
+    //== End appointments chart
+
+    //== Self appointments stats chart
+    if ($('#js-chart-self-appointments-summary').length) {
+    (function() {
+        var $container = $('#js-chart-self-appointments-summary');
+        var chartData = $container.data('chart-data');
+        var canvas = $('<canvas>').appendTo($container);
+        var chartOptions = $.extend(true, {}, App.DEFAULT_LINE_CHART_OPTIONS, {
+        title: {
+            display: false,
+        }
+        });
+
+        new Chart(
+        canvas,
+        {
+            type: 'bar',
+            data: chartData,
+            options: chartOptions
+        }
+        );
+
+    })();
+    }
+    //== End self appointments stats chart
+
+    //== Invoices chart
+    if ($('#js-chart-invoices-summary').length) {
+    (function() {
+        var $container = $('#js-chart-invoices-summary');
+        var chartData = $container.data('chart-data');
+        var canvas = $('<canvas>').appendTo($container);
+        var chartOptions = $.extend(true, {}, App.DEFAULT_LINE_CHART_OPTIONS, {
+        title: {
+            display: false
+        }
+        });
+
+
+        new Chart(
+        canvas,
+        {
+            type: 'bar',
+            data: chartData,
+            options: chartOptions
+        }
+        );
+
+    })();
+    }
+
+    //== End invoices chart
+
+    //== Self invoices chart
+    if ($('#js-chart-self-invoices-summary').length) {
+    (function() {
+        var $container = $('#js-chart-self-invoices-summary');
+        var chartData = $container.data('chart-data');
+        var canvas = $('<canvas>').appendTo($container);
+        var chartOptions = $.extend(true, {}, App.DEFAULT_LINE_CHART_OPTIONS, {
+        title: {
+            display: false,
+        }
+        });
+
+        new Chart(
+        canvas,
+        {
+            type: 'bar',
+            data: chartData,
+            options: chartOptions
+        }
+        );
+
+    })();
+    }
+
+    //== End self invoices chart
+
+    //== Handle toggle stats view scope
+    var $cbReportViewScope = $('#js-cb-report-view-scope');
+    var $businessStatsWrap = $('#js-business-overview-report-wrap');
+    var $practitionerStatsWrap = $('#js-practitioner-overview-report-wrap');
+
+    $cbReportViewScope.on('change', function() {
+    var isChecked = $cbReportViewScope.is(':checked');
+    var viewScope;
+
+    if (isChecked) {
+        viewScope = 'self';
+        $businessStatsWrap.hide();
+        $practitionerStatsWrap.show();
+    } else {
+        viewScope = 'business';
+        $practitionerStatsWrap.hide();
+        $businessStatsWrap.show();
+    }
+
+    $.ajax({
+        method: 'PUT',
+        url: '/app/my_preferences/update',
+        data: {
+            key: 'dashboard_overview_report_scope',
+            value: viewScope
+        }
+    });
+
+    });
+
+})();
+</script>

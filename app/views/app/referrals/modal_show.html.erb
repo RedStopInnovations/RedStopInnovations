@@ -1,0 +1,368 @@
+<%
+    patient_attrs = @referral.patient_attrs
+%>
+<div class="modal fade modal-show-referral" id="js-modal-show-referral">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">
+            Referral details #<%= @referral.id %>
+            <% if @referral.archived? %><small> | Archived at: <%= @referral.archived_at.strftime(t('datetime.common')) %></small><% end %>
+        </h4>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="row mb-10">
+            <div class="col-md-8 col-xs-12">
+                <% if can?(:update, Referral) %>
+                <div class="input-group">
+                    <span class="input-group-addon">Note:</span>
+                    <input type="text" class="form-control" id="js-input-referral-note" placeholder="Add note (for internal use only)" name="note"
+                        value="<%= @referral.internal_note %>">
+                    <span class="input-group-btn">
+                        <button class="btn btn-white" style="height: 34px;" id="js-btn-save-referral-note" data-url="<%= update_internal_note_app_referral_path(@referral.id) %>"><i class="fa fa-save"></i> </button>
+                    </span>
+                </div>
+                <% end %>
+            </div>
+
+            <% if can?(:update, Referral) %>
+                <div class="col-md-4 col-xs-12 text-right">
+                    <% if @referral.pending? || @referral.pending_multiple? || @referral.rejected? %>
+                        <a href="<%= approve_app_referral_path(@referral, redirect_url: app_referrals_path(referral_id: @referral.id)) %>" class="btn btn-primary" data-method="PUT" data-confirm="Are you sure you want to APPROVE this referral?">
+                            Approve
+                        </a>
+                    <% end %>
+
+                    <% if @referral.pending? || @referral.pending_multiple? %>
+                        <a href="#" class="btn btn-warning js-btn-reject-referral" data-url="<%= modal_reject_confirmation_app_referral_path(@referral.id) %>">Reject</a>
+                    <% end %>
+
+                    <div class="btn-group">
+                    <a href="<%= edit_app_referral_path(@referral) %>" class="btn btn-white"><i class="fa fa-pencil"></i> Edit</a>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                        Action <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li>
+                            <a href="#" class="js-btn-find-practitioners" data-url="<%= modal_find_practitioners_app_referral_path(@referral.id) %>">Find practitioners</a>
+                        </li>
+
+                        <li>
+                            <a
+                                <% if @referral.approved? && @referral.patient_id %>
+                                href="<%= calendar_search_appointment_path(patient_id: @referral.patient_id) %>"
+                                <% else %>
+                                href="<%= calendar_search_appointment_path(location: @referral.patient_address) %>"
+                                <% end %>
+                            >Search availability</a>
+                        </li>
+
+                        <% if @referral.approved? %>
+                            <li>
+                                <a href="<%= calendar_path(_ia: 'schedule_from_referral', referral_id: @referral.id) %>">Schedule appointment</a>
+                            </li>
+                        <% end %>
+
+                        <% if !@referral.pending? %>
+                        <li>
+                            <% if @referral.archived? %>
+                            <a href="#" class="btn-form"
+                                data-form-url="<%= unarchive_app_referral_path(@referral) %>"
+                                data-form-method="PUT"
+                                data-form-confirmation="Are you sure you want to unarchive this referral?">Unarchive</a>
+                            <% else %>
+                            <a href="#" class="btn-form"
+                                data-form-url="<%= archive_app_referral_path(@referral) %>"
+                                data-form-method="PUT"
+                                data-form-confirmation="Are you sure you want to archive this referral?">Archive</a>
+                            <% end %>
+                        </li>
+                        <% end %>
+                    </ul>
+                    </div>
+
+                </div>
+            <% end %>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Referral type: </strong>
+                                    <p>
+                                        <% if @referral.type.present? %>
+                                            <%= t("referral_types.#{@referral.type}") %>
+                                        <% else %>
+                                            <%= ::Referral::TYPE_GENERAL %>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Status: </strong>
+                                    <p>
+                                        <% if @referral.approved? %>
+                                            <span class="label bg-green">Approved</span>
+                                            <% if @referral.approved_at? %>
+                                                <span class="text-smaller"><%= @referral.approved_at.strftime t('datetime.common') %></span>
+                                            <% end %>
+                                        <% elsif @referral.pending? || @referral.pending_multiple? %>
+                                            <span class="label bg-yellow">Pending</span>
+                                        <% elsif @referral.rejected? %>
+                                            <span class="label bg-red">Rejected</span>
+                                            <% if @referral.rejected_at? %>
+                                                <span class="text-smaller"><%= @referral.rejected_at.strftime t('datetime.common') %></span>
+                                            <% end %>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                <strong>Creation: </strong>
+                                <p>
+                                    <%= @referral.created_at.strftime(t('datetime.common')) %>
+                                </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Professions: </strong>
+                                    <p>
+                                        <% if @referral.professions.present? %>
+                                            <%= @referral.professions.join(', ') %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Availability type: </strong>
+                                    <p>
+                                        <% if @referral.availability_type_id.present? %>
+                                            <%= @referral.availability_type.name %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Practitioner: </strong>
+                                    <p>
+                                        <% if @referral.practitioner %>
+                                            <%= @referral.practitioner.full_name %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                <strong>Priority: </strong>
+                                <p>
+                                    <% if @referral.priority.present? %>
+                                        <%
+                                        priority_label_class = {
+                                            Referral::PRIORITY_URGENT => 'label-danger',
+                                            Referral::PRIORITY_NORMAL => 'label-default'
+                                        }[@referral.priority]
+                                        %>
+                                        <span class="label <%= priority_label_class %>"><%= @referral.priority %></span>
+
+                                    <% else %>
+                                        <span class="text-muted">N/A</span>
+                                    <% end %>
+                                </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="block-info">
+                                <strong>Reason for referral: </strong>
+                                <p>
+                                    <% if @referral.referral_reason.present? %>
+                                        <%= simple_format @referral.referral_reason %>
+                                    <% else %>
+                                        <span class="text-muted">N/A</span>
+                                    <% end %>
+                                </p>
+                                </div>
+                            </div>
+
+                            <% if @referral.rejected? %>
+                                <div class="col-md-6">
+                                    <div class="block-info">
+                                    <strong>Reject reason: </strong>
+                                    <p>
+                                        <% if @referral.reject_reason.present? %>
+                                            <%= @referral.reject_reason %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Client</strong></div>
+                    <div class="panel-body">
+                        <%= render 'client_details', referral: @referral %>
+
+                        <% if @referral.approved? && @referral.patient_id && @referral.business_id == current_business.id %>
+                            <div class="row">
+                                <div class="col-md-12">
+                                <a href="<%= patient_path(@referral.patient_id) %>">View full client file</a>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+
+                <% if @referral.type.present? %>
+                    <% case @referral.type %>
+                    <% when Referral::TYPE_HCP %>
+                    <%= render 'hcp_details' %>
+                    <% when Referral::TYPE_DVA %>
+                    <%= render 'dva_details' %>
+                    <% when Referral::TYPE_MEDICARE %>
+                    <%= render 'medicare_details' %>
+                    <% when Referral::TYPE_NDIS %>
+                    <%= render 'ndis_details' %>
+                    <% when Referral::TYPE_PRIVATE %>
+                    <%= render 'private_details' %>
+                    <% when Referral::TYPE_HIH %>
+                    <%= render 'hih_details' %>
+                    <% when Referral::TYPE_STRC %>
+                    <%= render 'strc_details' %>
+                    <% end %>
+                <% end %>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Attachments</strong></div>
+                    <div class="panel-body">
+                        <% if @referral.attachments.size > 0 %>
+                            <ul class="list-unstyled">
+                                <% @referral.attachments.each do |ref_attm| %>
+                                <li>
+                                    <a href="<%= ref_attm.attachment.url %>" target="_blank">
+                                    <%= ref_attm.attachment.original_filename %>
+                                    </a>
+                                </li>
+                                <% end %>
+                            </ul>
+                        <% else %>
+                            <span class="text-muted">N/A</span>
+                        <% end %>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Referrer</strong></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Business name: </strong>
+                                    <p>
+                                        <% if @referral.referrer_business_name.present? %>
+                                            <%= @referral.referrer_business_name %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Name: </strong>
+                                    <p>
+                                        <% if @referral.referrer_name.present? %>
+                                            <%= @referral.referrer_name %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Email:</strong>
+                                    <p>
+                                        <% if @referral.referrer_email.present? %>
+                                            <%= @referral.referrer_email %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="block-info">
+                                    <strong>Phone: </strong>
+                                    <p>
+                                        <% if @referral.referrer_phone.present? %>
+                                            <%= @referral.referrer_phone %>
+                                        <% else %>
+                                            <span class="text-muted">N/A</span>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <% if @referral.linked_contact %>
+                            <a href="<%= contact_path(@referral.linked_contact) %>">View contact info</a>
+                        <% else %>
+                            <a href="<%= new_contact_path(referral_id: @referral.id) %>" class="btn btn-white">Add new contact</a>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Progress</strong></div>
+                    <div class="panel-body">
+                        <%= render 'app/referrals/form/progress_fields' %>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

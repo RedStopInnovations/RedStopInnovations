@@ -1,0 +1,197 @@
+<% content_for :title, 'Proof of attendance export' %>
+
+<section class="box-header">
+  <h1>Proof of attendance export</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Appointments</a>
+    </li>
+    <li class="active">Proof of attendance export</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= form_tag reports_attendance_proof_exports_path, method: 'POST' do %>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Invoice</label>
+              <input type="text" name="invoice_id" class="form-control" id="js-input-invoice-id" value="<%= params[:invoice_id] %>"/>
+            </div>
+
+            <div class="form-group">
+              <label>Account statement</label>
+              <input type="text" name="account_statement_id" class="form-control" id="js-input-account-statement-id" value="<%= params[:account_statement_id] %>"/>
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="control-label">Export description: <abbr title="required">*</abbr></label>
+              <input name="description" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5">
+            <div class="text-smaller text-warning mb-5">Note: You will be notified via email when the export is ready to download</div>
+            <button class="btn btn-primary" type="submit">Create export</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table table">
+          <thead>
+            <tr>
+              <th style="width: 150px">Description</th>
+              <th>Created by</th>
+              <th>Created at</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @exports.each do |export| %>
+              <tr>
+                <td>
+                  <%= truncate(export.description, length: 50) %>
+                </td>
+                <td>
+                  <%= export.author.full_name %>
+                </td>
+                <td>
+                  <%= export.created_at.strftime(t('datetime.common')) %>
+                </td>
+                <td>
+                  <%= export.status.titleize %>
+                </td>
+                <td>
+                  <a href="<%= reports_attendance_proof_export_path(export.id) %>" class="btn btn-link">Details</a>
+                  <% if export.status_completed? %>
+                    <a href="<%= download_reports_attendance_proof_export_path(export.id) %>">Download</a>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+      </table>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @exports, entry_name: 'exports' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @exports %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<% content_for :page_js do %>
+<script>
+  var invoiceOptions = [];
+
+  <% if params[:invoice_id] %>
+    var selectedInvoice = JSON.parse('<%= raw current_business.invoices.find_by(id: params[:invoice_id]).to_json(include: :patient) %>');
+    invoiceOptions.push(selectedInvoice);
+  <% end %>
+
+  $('#js-input-invoice-id').selectize({
+    plugins: ['no_results'],
+    valueField: 'id',
+    labelField: 'invoice_number',
+    searchField: ['invoice_number'],
+    maxItems: 1,
+    create: false,
+    placeholder: "Enter invoice number",
+    options: invoiceOptions,
+    render: {
+      option: function(item, escape) {
+        var text = '#' + item.invoice_number + ' | Client: ' + item.patient.full_name + ' | Amount: $' + item.amount;
+        return '<div>' + escape(text) + '</div>';
+      }
+    },
+    load: function(query, callback) {
+      if (!query.length) return callback();
+      if (query.length < 2) return callback();
+      var self = this;
+
+      $.get(
+        '/api/invoices/search?s=' + query,
+        function(res) {
+          self.clearOptions();
+          if (res.invoices.length > 0) {
+            callback(res.invoices);
+          } else {
+            self.$empty_results_container.show();
+          }
+        }
+      );
+    }
+  });
+
+  var accountStatementOptions = [];
+  <% if params[:account_statement_id] %>
+    var selectedAs = JSON.parse('<%= raw j(current_business.account_statements.find_by(id: params[:account_statement_id]).to_json(include: :source)) %>');
+    accountStatementOptions.push(selectedAs);
+  <% end %>
+
+  $('#js-input-account-statement-id').selectize({
+    plugins: ['no_results'],
+    valueField: 'id',
+    labelField: 'number',
+    searchField: ['number'],
+    maxItems: 1,
+    create: false,
+    placeholder: "Enter account statement ID",
+    options: accountStatementOptions,
+    render: {
+      option: function(item, escape) {
+        var text = item.number;
+        if (item.source_type == 'Contact') {
+          text += ' | Contact: ' + item.source.business_name;
+        } else if (item.source_type == 'Patient') {
+          text += ' | Client: ' + item.source.full_name;
+        }
+        return '<div>' + escape(text) + '</div>';
+      }
+    },
+    load: function(query, callback) {
+      if (!query.length) return callback();
+      if (query.length < 2) return callback();
+      var self = this;
+
+      $.get(
+        '/api/account_statements/search?s=' + query,
+        function(res) {
+          self.clearOptions();
+          if (res.account_statements.length > 0) {
+            callback(res.account_statements);
+          } else {
+            self.$empty_results_container.show();
+          }
+        }
+      );
+    }
+  });
+
+</script>
+<% end %>

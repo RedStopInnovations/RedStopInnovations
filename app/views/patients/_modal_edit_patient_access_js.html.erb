@@ -1,0 +1,26 @@
+<script type="text/javascript">
+  (function() {
+    $('body').on('keyup', '#modal-edit-patient-access .input-search', debounce(function(evt) {
+      var searchTerm = $(this).val().trim().toLowerCase();
+      if (searchTerm.length > 0) {
+        $('#modal-edit-patient-access tbody tr').each(function() {
+          var $row = $(this);
+          var userName = $row.find('td:first-child').text().toLowerCase();
+          if ((userName).search(searchTerm) == -1) {
+            $row.addClass('hide');
+          } else {
+            $row.removeClass('hide');
+          }
+        });
+      } else {
+        $('#modal-edit-patient-access tbody tr.hide').removeClass('hide');
+      }
+    }, 300));
+
+    $('body').on('click', '#modal-edit-patient-access .btn-clear-input-search', function(evt) {
+      evt.preventDefault();
+      $('#modal-edit-patient-access .input-search').val('');
+      $('#modal-edit-patient-access tbody tr.hide').removeClass('hide');
+    });
+  })();
+</script>

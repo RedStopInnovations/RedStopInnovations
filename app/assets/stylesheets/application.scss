@@ -1,0 +1,36 @@
+/* Theme and customize */
+@import "admin-lte";
+@import "admin-lte-all-skins";
+@import "admin-lte-overrides";
+
+/* Shared, common */
+@import "shared/helper";
+
+/* Partials */
+@import "custom";
+@import "app/loading-indicator";
+@import "app/multiselect";
+@import "app/modal-availability";
+@import "app/calendar";
+@import "app/table-business-hours";
+@import "app/modal-availability-schedule";
+@import "app/modal-appointment";
+@import "app/treatment";
+@import "app/google-autocomplete";
+@import "app/form-payment";
+@import "app/modal-edit-patient-access";
+@import "app/modal-wait-list";
+@import "app/banner";
+@import "app/flatpickr";
+@import "app/form-bookings-questions";
+@import "app/conversation";
+@import "app/search-availability";
+@import "app/availability-map";
+@import "app/pagination";
+@import "app/modal-schedule-appointments";
+@import "app/patient-bulk-archive";
+@import "app/appearance-settings";
+@import "app/global-search";
+@import "app/invoice-print";
+@import "app/dashboard-calendar";
+@import "app/virtual-receptionist";

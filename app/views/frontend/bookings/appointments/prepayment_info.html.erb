@@ -1,0 +1,33 @@
+<p class="text-warning">This appointment type requires pre-payment.</p>
+<table class="table table-sm table-bordered">
+    <tbody>
+        <tr>
+            <td>Item</td>
+            <td>Price</td>
+            <td>Tax</td>
+            <td>Total</td>
+        </tr>
+        <% @info[:items].each do |item| %>
+            <tr>
+                <td>
+                    <%= item[:name] %>
+                </td>
+                <td>
+                    <%= format_money item[:price] %>
+                </td>
+                <td>
+                    <% if item[:tax_name] %>
+                        <%= item[:tax_name] %> <%= item[:tax_rate] %>%
+                    <% end %>
+                </td>
+                <td><%= format_money item[:amount] %></td>
+            </tr>
+        <% end %>
+        <tr>
+            <td colspan="3" class="text-right font-size-bigger">
+                Total due now:
+            </td>
+            <td class="font-size-bigger"><strong><%= format_money @info[:total_amount] %></strong></td>
+        </tr>
+    </tbody>
+</table>

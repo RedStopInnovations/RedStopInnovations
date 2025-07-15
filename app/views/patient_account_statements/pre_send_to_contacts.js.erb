@@ -1,0 +1,16 @@
+(function() {
+  $('body #modal-send-to-contacts').remove();
+  $('body').append('<%= j(render 'modal_send_to_contacts', patient: @patient, account_statement: @account_statement) %>');
+  $('#modal-send-to-contacts #input-contact-ids').selectize({
+    plugins: ['remove_button']
+  });
+
+  $('#modal-send-to-contacts #input-extra-emails').selectize({
+    plugins: ['remove_button'],
+    createFilter: function(input) {
+      return Utils.isValidEmail(input);
+    },
+    create: true,
+  });
+  $('#modal-send-to-contacts').modal('show');
+})();

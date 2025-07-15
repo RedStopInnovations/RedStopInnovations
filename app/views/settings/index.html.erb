@@ -1,0 +1,182 @@
+<% content_for :title, "Settings" %>
+
+<section class="box-header">
+  <h1>Settings</h1>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-3 col-sm-6">
+      <div class="box report_blocks">
+        <div class="box-header">Important setup</div>
+        <div class="box-body">
+          <ul>
+            <% if can? :edit, :business_profile %>
+              <li>
+                <a href="<%= edit_business_profile_path %>">Business profile</a>
+              </li>
+            <% end %>
+
+            <% if can? :manage, User %>
+              <li>
+                <a href="<%= settings_users_path %>">Users & practitioners</a>
+              </li>
+            <% end %>
+            <li>
+              <a href="<%= billable_items_path %>">Billable items</a>
+            </li>
+            <li>
+              <a href="<%= appointment_types_path %>">Appointment types</a>
+            </li>
+            <li>
+              <a href="<%= taxes_path %>">Taxes</a>
+            </li>
+            <% if can? :manage, Product %>
+              <li>
+                <a href="<%= products_path %>">Products</a>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="box report_blocks">
+        <div class="box-header">Notifications</div>
+        <div class="box-body">
+          <ul>
+            <li>
+              <a href="<%= settings_notification_types_path %>">Send to practitioner</a>
+            </li>
+            <li>
+              <a href="<%= communication_templates_path %>">Sent to clients</a>
+            </li>
+            <li>
+              <a href="<%= settings_sms_sender_id_path %>">SMS sender ID</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="box report_blocks">
+        <div class="box-header">Clinical setup</div>
+        <div class="box-body">
+          <ul>
+            <li>
+              <a href="<%= treatment_templates_path %>">Treatment note templates</a>
+            </li>
+            <li>
+              <a href="<%= letter_templates_path %>">Letter templates</a>
+            </li>
+            <li>
+              <a href="<%= case_types_path %>">Case types</a>
+            </li>
+            <li>
+              <a href="<%= settings_treatment_shortcuts_path %>">Treatment note shortcuts</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <% if false %>
+      <div class="col-md-3 col-sm-6">
+        <div class="box report_blocks">
+          <div class="box-header">Your website</div>
+          <div class="box-body">
+            <ul>
+              <li><a href="<%= settings_online_bookings_path %>">Online booking page</a></li>
+              <li><a href="<%= settings_team_page_iframe_path %>">Team page</a></li>
+              <li>
+                <a href="<%= settings_referral_iframe_path %>">
+                  Referral forms
+                </a>
+              </li>
+              <li>
+                <a href="<%= settings_bookings_questions_path %>">Online booking questions</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="box report_blocks">
+        <div class="box-header">Advanced setup</div>
+        <div class="box-body">
+          <ul>
+            <li>
+              <a href="<%= settings_invoice_path %>">Invoice settings</a>
+            </li>
+            <li>
+              <a href="<%= settings_practitioner_groups_path %>">Practitioner groups</a>
+            </li>
+            <li>
+              <a href="<%= settings_patient_access_path %>">Restrict client access</a>
+            </li>
+            <li>
+              <a href="<%= settings_trigger_categories_path %>">Search treatment data</a>
+            </li>
+            <li>
+              <a href="<%= settings_availability_subtypes_path %>">Non-billable subtypes</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="box report_blocks">
+        <div class="box-header">Integrations</div>
+        <div class="box-body">
+          <ul>
+            <li>
+              <a href="<%= settings_medipass_integration_path %>">Medipass</a>
+            </li>
+            <li>
+              <a href="<%= settings_stripe_integration_path %>">Stripe</a>
+            </li>
+            <li>
+              <a href="<%= settings_mailchimps_path %>">Mailchimp</a>
+            </li>
+            <li>
+              <a href="<%= settings_storage_documents_path %>">
+                Dropbox & Google drive
+              </a>
+            </li>
+            <li>
+              <a href="<%= settings_physitrack_integration_path %>">
+                Physitrack
+              </a>
+            </li>
+            <li>
+              <a href="<%= settings_marketing_tracking_path %>">Marketing & tracking</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <% if current_user.role_administrator? && false %>
+      <div class="col-md-3 col-sm-6">
+        <div class="box report_blocks">
+          <div class="box-header">Subscription setup</div>
+          <div class="box-body">
+            <ul>
+              <li>
+                <a href="<%= settings_subscriptions_path %>">Subscription</a>
+              </li>
+              <li>
+                <a href="<%= settings_subscriptions_invoices_path %>">Subscription invoices</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<% content_for :title, mask_human_name(@patient.full_name) %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-12 col-md-6">
+      <h1>
+        <%= @patient.full_name %>
+        <small>| CRN: <span class="text-copyable" js-click-to-copy="<%= @patient.id %>"><%= @patient.id %></span></small>
+        <% if @patient.archived? %>
+          <small>| Archived: <%= @patient.archived_at.strftime(t('date.common')) %></small>
+        <% end %>
+      </h1>
+    </div>
+
+  <div class="col-xs-12 col-md-6 text-right">
+    <% if controller_name == 'patients' && ['show', 'edit'].include?(action_name) %>
+    <div class="btn-group">
+      <a href="<%= edit_patient_path(@patient) %>" class="btn btn-white"><i class="fa fa-pencil"></i> Edit details</a>
+      <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <% if can?(:manage_access, @patient) && current_business.patient_access_enable? %>
+          <li>
+            <a href="<%= edit_access_patient_path(@patient) %>" data-remote="true">Manage access</a>
+          </li>
+        <% end %>
+        <% if can?(:merge, @patient) %>
+          <li>
+            <a href="<%= possible_duplicates_patient_path(@patient) %>" data-remote="true" id="btn-check-duplicates">Merge</a>
+          </li>
+        <% end %>
+        <% unless @patient.archived? %>
+          <li>
+            <a href="<%= archive_patient_path(@patient) %>" data-confirm="Are you sure you want to ARCHIVE this client?" data-method="PUT">Archive</a>
+          </li>
+          <li class="divider"></li>
+          <li>
+            <a href="<%= calendar_path(_ia: 'schedule_from_patient', patient_id: @patient.id) %>">
+              Schedule appointment
+            </a>
+          </li>
+          <li>
+            <a href="<%= calendar_search_appointment_path(patient_id: @patient.id) %>">Search availability</a>
+          </li>
+          <li>
+            <a href="<%= calendar_path(_ia: 'add_to_waiting_list', patient_id: @patient.id) %>">
+              Add to waiting list
+            </a>
+          </li>
+        <% end %>
+        <% if @patient.archived? %>
+          <li>
+            <a href="<%= unarchive_patient_path(@patient) %>" data-confirm="Are you sure?"
+              data-method="PUT">Active</a>
+          </li>
+          <% if can? :destroy, @patient %>
+            <li>
+              <a data-toggle="modal" data-target="#modal-confirm-delete-patient"><span class="text-danger">Delete permanently</span></a>
+            </li>
+          <% end %>
+        <% end%>
+      </ul>
+    </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-sm-3 col-md-3 col-lg-2 col-xs-12">
+      <%= render 'patients/patient_sidebar' %>
+    </div>
+
+    <div class="col-sm-9 col-md-9 col-lg-10 col-xs-12">
+      <%= yield %>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="modal-confirm-delete-patient">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title"><i class="icon fa fa-warning"></i> Delete confirmation</h4>
+      </div>
+      <%= form_tag patient_path(@patient), method: 'DELETE' do %>
+        <div class="modal-body">
+          <div class="callout callout-warning">
+            <p>
+              This will permanently delete the client record, their appointments, treatment notes, attachments, letters, invoices and payments. Only do this if you no longer require any record of these details, this is not reversable.
+            </p>
+          </div>
+          <p>Are you sure you want to continue?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger"><i class="fa fa-trash"></i> Yes, delete this client</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

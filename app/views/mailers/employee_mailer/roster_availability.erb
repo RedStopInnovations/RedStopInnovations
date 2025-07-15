@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    Dear <%= @practitioner.full_name %>,
+    <br>
+    <br>
+    Please find attached your current roster availability with <b><%= @business.name %></b> for the periods between <b><%= @report.options[:start_date].strftime(t('date.common')) %></b> and <b><%= @report.options[:end_date].strftime(t('date.common')) %></b>. If you have any issues please contact your manager immediately to adjust your availability.
+    <br>
+    <br>
+    Kind regards,
+    <br>
+    <%= @business.name %>
+    <br>
+    <%= @business.phone %>
+  </body>
+</html>

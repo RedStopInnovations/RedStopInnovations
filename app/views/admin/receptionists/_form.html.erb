@@ -1,0 +1,39 @@
+<%= simple_form_for receptionist, url: receptionist.new_record? ? admin_receptionists_path : admin_receptionist_path(receptionist) do |f| %>
+  <div class="box">
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :first_name %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :last_name %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :email %>
+      </div>
+      <div class="col-md-6">
+        <label>&nbsp;</label>
+        <%= f.input :active %>
+      </div>
+    </div>
+  
+    <% unless receptionist.new_record? %>
+    <div class="row">
+      <div class="col-md-6">
+        <%= f.input :password %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :password_confirmation %>
+      </div>
+    </div>
+    <% end %>
+  </div>
+  <div class="text-center">
+    <div class="switch-button">
+      <a href="<%= admin_receptionists_path %>">Cancel</a>
+      <button><%= receptionist.new_record? ? "Create" : "Update" %></button>
+    </div>
+  </div>
+
+<% end %>

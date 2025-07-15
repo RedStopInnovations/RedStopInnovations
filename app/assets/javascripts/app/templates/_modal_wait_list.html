@@ -1,0 +1,253 @@
+<script id="modal-wait-list-tmpl" type="text/template">
+  <modal :value="show" effect="fade" v-cloak @closed="onModalClosed" class="modal-wait-list">
+    <div slot="modal-header" class="modal-header bg-gray-light">
+      <button class="btn btn-primary btn-add-new" @click="addEntry"><i class="fa fa-plus"></i> Add<span class="hidden-xs"> to waiting list</span></button>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="close"><span aria-hidden="true">×</span></button>
+      <h4 class="modal-title">Waiting list</h4>
+    </div>
+
+    <div slot="modal-body" class="modal-body" v-bind:class="{ loading: loading }">
+      <div class="loading-backdrop" v-if="loading"></div>
+      <div class="loading-indicator" v-if="loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+      <div class="row form-search">
+        <div class="col-xs-12 col-sm-6 col-md-2">
+          <div class="form-group">
+            <label>Client:</label>
+            <input
+              type="text"
+              class="form-control"
+              v-model.trim="filters.patient_search"
+              placeholder="Search by name"
+              @input="onSearchPatientChanged">
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+          <div class="form-group">
+            <label>Client location:</label>
+            <input
+              type="text"
+              class="form-control"
+              ref="inputLocation"
+              @input="onSearchLocationChanged"
+              placeholder="Search by postcode, state"
+              v-model.trim="filters.location_search"
+              >
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-2">
+          <div class="form-group">
+            <label>Practitioner:</label>
+            <v-multiselect
+              v-model="selectedPractitioner"
+              :options="practitioners"
+              :multiple="false"
+              :close-on-select="true"
+              :options-limit="50"
+              :searchable="business.practitioners.length > 10"
+              :hide-selected="true"
+              select-label=""
+              placeholder="Select practitioner"
+              label="full_name"
+              track-by="id"
+              @input="onPractitionerChanged">
+              <template slot="noResult">
+                <span>No practitioners found!</span>
+              </template>
+              <template slot="option" scope="props">
+                <div class="desc">
+                  <span v-html="$options.filters.highlight(props.option.full_name, props.search)"></span>
+                </div>
+              </template>
+            </v-multiselect>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-2">
+          <div class="form-group">
+            <label>Profession:</label>
+            <select
+              name="profession"
+              class="form-control"
+              v-model="filters.profession"
+              v-profession-select="business.professions"
+              @change="onProfessionChanged">
+              <option value="">Any</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-3">
+          <div class="form-group">
+            <label>Appointment type:</label>
+            <v-multiselect
+              v-model="selectedAppointmentType"
+              :options="appointmentTypeOptions"
+              :multiple="false"
+              :close-on-select="true"
+              :options-limit="50"
+              :searchable="appointmentTypeOptions.length > 5"
+              :hide-selected="true"
+              :allow-empty="true"
+              select-label=""
+              placeholder="Any"
+              label="name"
+              track-by="id"
+              @input="onAppointmentTypeChanged">
+              <template slot="noResult">
+                <span>No appointment types found!</span>
+              </template>
+              <template slot="option" scope="props">
+                <div class="desc">
+                  <div>
+                    <span v-html="$options.filters.highlight(props.option.name, props.search)"></span>
+                    <span v-if="props.option.duration">
+                      <br>
+                      <span class="text-smaller">{{ props.option.duration }} mins</span>
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </v-multiselect>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12 text-right">
+          <button class="btn btn-white" v-show="isAnyFilterSet()" title="Clear filters" @click="clearFiltersAndFetch" :disabled="loading">Clear filters</button>
+        </div>
+      </div>
+
+      <div class="row" v-show="pagination.total_entries > 0">
+        <div class="col-sm-12">
+          <div class="wait-list-wrap">
+            <div v-for="waitList in waitLists" class="wait-list-entry" :key="waitList.id"
+              v-bind:class="{overdue: isOverdue(waitList) }">
+              <div class="row">
+                <div class="col-xs-12 col-sm-4 col-patient">
+                  <span class="patient-name">
+                    <a :href="'/app/patients/' + waitList.patient_id" @click.prevent="showPatientInfo(waitList)">{{ waitList.patient.full_name }}</a>
+                    <template v-if="waitList.notes && waitList.notes.length > 0">
+                      <popover effect="fade" placement="bottom" title="Notes" :content="waitList.notes" trigger="hover"><i class="fa fa-sticky-note-o"></i></popover>
+                    </template>
+                  </span><br>
+                  <span class="text-smaller">
+                    {{ waitList.patient.short_address }}
+                  </span>
+                  <span class="text-smaller patient-contact">
+                    <br>
+                    <span class="text-bolder">DOB:</span> {{ waitList.patient.dob | dob }}
+                    <span class="text-muted">|</span>
+                    <span class="text-bolder">M:</span> <a :href="'tel:' + waitList.patient.mobile" title="Click to call">{{ waitList.patient.mobile | naIfEmpty }}</a>
+                    <span class="text-muted">|</span>
+                    <span class="text-bolder">P:</span> <a :href="'tel:' + waitList.patient.phone" title="Click to call">{{ waitList.patient.phone | naIfEmpty }}</a>
+                  </span>
+                </div>
+
+                <div class="col-xs-6 col-sm-2 col-date">
+                  <span class="date">{{ waitList.date | shortDate }}</span>
+                </div>
+
+                <div class="col-xs-6 col-sm-2 col-profession">
+                  <span v-if="waitList.practitioner">
+                    <span class="text-bolder">{{ waitList.practitioner.full_name }}</span>
+                    <br>
+                  </span>
+                  <span v-if="waitList.profession">{{ waitList.profession }}</span>
+                </div>
+
+                <div class="col-xs-6 col-sm-2">
+                  <span v-if="waitList.appointment_type">{{ waitList.appointment_type.name }}</span>
+                </div>
+
+                <div class="col-xs-6 col-sm-2 col-actions">
+                  <div class="input-group-btn hidden-xs">
+                    <button class="btn btn-white" type="button"
+                      title="Search appointment"
+                      @click="scheduleAppointment(waitList)">Schedule</button>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li><a href="#" @click.prevent="editEntry(waitList)">Edit</a></li>
+                      <li><a href="#" @click.prevent="markScheduledEntry(waitList)">Mark as scheduled</a></li>
+                      <li><a href="#" @click.prevent="deleteEntry(waitList)"><span class="text-danger">Delete</span></a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="btn-group visible-xs btn-group-actions">
+                <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a title="Search appointment"
+                      class="icon-action"
+                      @click.prevent="scheduleAppointment(waitList)"
+                      ><i class="fa fa-calendar"></i> Schedule appointment
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" @click.prevent="editEntry(waitList)">
+                      <i class="fa fa-pencil"></i> Edit
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" @click.prevent="markScheduledEntry(waitList)">
+                      <i class="fa fa-check"></i> Mark scheduled
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" @click.prevent="deleteEntry(waitList)">
+                      <i class="fa fa-trash text-danger"></i> <span class="text-danger">Delete</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-show="pagination.total_entries > 0">
+        <hr>
+        <div class="row">
+          <div class="col-sm-6 col-xs-12">
+            Displaying <b>{{ waitLists.length }}</b> entries of <b>{{ pagination.total_entries }}</b> in total.
+            <br>
+          </div>
+          <div class="col-sm-6 col-xs-12 text-right"
+            v-show="pagination.total_entries > pagination.per_page">
+            <app-pagination
+              :total="pagination.total_entries"
+              :page-size="pagination.per_page"
+              :options="pagination.paginator_options"
+              :currentPage="pagination.page"
+              :callback="onPageChanged"
+              ul-class="pagination-sm"></app-pagination>
+          </div>
+        </div>
+
+      </div>
+      <div v-show="isAnyFilterSet() && !loading && pagination.total_entries == 0"
+        class="empty-message-wrap">
+        <p>There are no clients matched.</p>
+      </div>
+      <div v-show="!isAnyFilterSet() && !loading && pagination.total_entries == 0"
+        class="empty-message-wrap">
+        There are no clients waiting for appointments.
+      </div>
+    </div>
+
+    <div slot="modal-footer" class="modal-footer bg-gray-light">
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <a href="/app/data_export/exports/waiting_list" class="btn btn-white"><i class="fa fa-download"></i> Export</a>
+        </div>
+
+        <div class="col-md-6 text-right">
+          <button class="btn btn-primary" type="button" @click="print" v-show="pagination.total_entries > 0"><i class="fa fa-print"></i> Print</button>
+          <button class="btn btn-white" type="button" @click="close">Close</button>
+        </div>
+      </div>
+    </div>
+  </modal>
+</script>

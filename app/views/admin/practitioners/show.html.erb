@@ -1,0 +1,209 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1><%= @practitioner.full_name %></h1>
+    </div>
+    <div class="col-xs-6 text-right">
+      <div class="btn-group">
+        <a href="<%= edit_admin_practitioner_path(@practitioner) %>" class="btn btn-primary">Edit details</a>
+        <button type="button" class="btn btn-success btn-flat dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a href="<%= approval_admin_practitioner_path(@practitioner) %>"
+              data-method="PUT" data-confirm="Are you sure?">
+              <% if @practitioner.approved? %>
+                Unapprove
+              <% else %>
+                Approve
+              <% end %>
+            </a>
+          </li>
+          <% if @practitioner.user.avatar_file_name? %>
+          <li>
+            <a href="<%= delete_avatar_admin_practitioner_path(@practitioner) %>" data-method="POST" data-confirm="Are you sure you want to delete the profile photo?">Delete profile photo</a>
+          </li>
+          <% end %>
+          <% if @practitioner.active? %>
+            <li>
+              <a href="<%= login_as_admin_user_path(@practitioner.user_id) %>" target="_blank">
+                Login as this user
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li>
+      <a href="<%= admin_practitioners_path %>">Practitioners</a>
+    </li>
+    <li><%= @practitioner.full_name %></li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="box">
+        <div>
+          <img src="<%= @practitioner.user.avatar.url(:medium) %>" width="100">
+        </div>
+
+        <div class="block-info">
+          <div class="block-info">
+            <strong>Name:</strong>
+            <p><%= @practitioner.full_name %></p>
+          </div>
+          <strong>Phone:</strong>
+          <p><%= @practitioner.phone %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Mobile:</strong>
+          <p><%= @practitioner.mobile %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Email:</strong>
+          <p><%= @practitioner.user_email %></p>
+        </div>
+        <div class="block-info">
+          <strong>Full address:</strong>
+          <p><%= @practitioner.full_address %></p>
+        </div>
+        <div class="block-info">
+          <strong>Business:</strong>
+          <p>
+            <a href="<%= admin_business_path(@practitioner.business) %>"><%= @practitioner.business.name %></a> [#<%= @practitioner.business.id %>]
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="box">
+        <div class="block-info">
+          <strong>Profession:</strong>
+          <p><%= @practitioner.profession %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Education:</strong>
+          <p><%= @practitioner.education %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Provider number:</strong>
+          <p><%= @practitioner.medicare %></p>
+        </div>
+
+        <div class="block-info">
+          <strong>Profile:</strong>
+          <% if @practitioner.summary %>
+            <p><%= simple_format @practitioner.summary %></p>
+          <% else %>
+            <span class="text-muted">N/A</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Documents</h3>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="box">
+        <table class="table table-borderless">
+          <thead>
+            <th>Type</th>
+            <th>File</th>
+            <th>Expiry</th>
+          </thead>
+          <tbody>
+            <% documents = @practitioner.documents.to_a %>
+            <% PractitionerDocument::TYPES.each do |type| %>
+              <% doc = documents.find { |doc| doc.type == type } %>
+              <% next unless doc.present? %>
+              <tr>
+                <td>
+                  <%= t("practitioner_document_types.#{type}") %>:
+                </td>
+                <td>
+                  <a href="<%= doc.document_url %>" target="_blank" class="normal-link"><i class="fa fa-download"></i></a>
+                </td>
+                <td>
+                  <% if doc.expiry_date? %>
+                    <%= doc.expiry_date.strftime(t('date.common')) %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+
+            <% if documents.empty? %>
+              <tr>
+                <td colspan="3"><span class="text-muted">No document uploaded</span></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="box">
+        <div class="block-info">
+          <strong>Profile approved:</strong>
+          <p>
+          <% if @practitioner.approved? %>
+            Yes
+          <% else %>
+            No
+          <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Profile public:</strong>
+          <p>
+          <% if @practitioner.public_profile? %>
+            Yes
+          <% else %>
+            No
+          <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>Allow online bookings:</strong>
+          <p>
+          <% if @practitioner.allow_online_bookings? %>
+            Yes
+          <% else %>
+            No
+          <% end %>
+          </p>
+        </div>
+
+        <div class="block-info">
+          <strong>SMS reminder enabled:</strong>
+          <p>
+          <% if @practitioner.sms_reminder_enabled? %>
+            Yes
+          <% else %>
+            No
+          <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

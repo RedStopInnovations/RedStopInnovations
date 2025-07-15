@@ -1,0 +1,112 @@
+<% content_for :title, 'Bulk archive clients - History' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Bulk archive clients</h1>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="panel">
+    <div class="panel-body">
+
+      <ul class="nav nav-tabs mb-15">
+        <li><a href="<%= app_patient_bulk_archive_path %>">Search</a></li>
+        <li class="active"><a href="#">Bulk archive history</a></li>
+      </ul>
+
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Criteria</th>
+                <th>Author</th>
+                <th>Created at</th>
+                <th>Archived clients</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @requests.each do |request| %>
+                <tr>
+                  <td><%= request.description %></td>
+                  <td>
+                    <ul class="pl-20">
+                      <% if request.filters['contact_id'] %>
+                        <li>
+                          Associated contact:
+                          <% contact = current_business.contacts.with_deleted.find_by(id: request.filters['contact_id']) %>
+                          <% if contact %>
+                          <strong><%= contact.business_name %></strong>
+                          <% end %>
+                        </li>
+                      <% end %>
+
+                      <% if request.filters['create_date_from'] || request.filters['create_date_to'] %>
+                        <li>
+                          Create date: <span>From</span>
+                          <% if request.filters['create_date_from'] %>
+                            <%= request.filters['create_date_from'].to_date.strftime(t('date.common')) %>
+                          <% else %>
+                            <span class="text-muted">--</span>
+                          <% end %>
+
+                          <span> to </span>
+
+                          <% if request.filters['create_date_to'] %>
+                            <%= request.filters['create_date_to'].to_date.strftime(t('date.common')) %>
+                          <% else %>
+                            <span class="text-muted">--</span>
+                          <% end %>
+                        </li>
+                      <% end %>
+
+                      <% if request.filters['no_appointment_period'] %>
+                        <li>
+                          No appointment for: <%= humanize_period(request.filters['no_appointment_period']) %>
+                        </li>
+                      <% end %>
+
+                      <% if request.filters['no_invoice_period'] %>
+                        <li>
+                          No invoice for: <%= humanize_period(request.filters['no_invoice_period']) %>
+                        </li>
+                      <% end %>
+
+                      <% if request.filters['no_treatment_note_period'] %>
+                        <li>
+                          No treatment note for: <%= humanize_period(request.filters['no_treatment_note_period']) %>
+                        </li>
+                      <% end %>
+                    </ul>
+
+                  </td>
+                  <td><%= request.author.full_name %></td>
+                  <td><%= request.created_at.strftime(t('datetime.common')) %></td>
+                  <td>
+                    <% if request.status_completed? %>
+                      <%= request.archived_patients_count %>
+                    <% else %>
+                      <span class="text-muted">--</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <%= request.status.titleize %>
+                  </td>
+                </tr>
+              <% end %>
+
+              <% if @requests.count == 0 %>
+                <tr>
+                  <td colspan="5" class="text-muted">No records found</td>
+                </tr>
+              <% end %>
+            </tbody>
+
+          </table>
+    </div>
+  </div>
+</section>

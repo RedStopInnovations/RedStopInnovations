@@ -1,0 +1,23 @@
+<% content_for :title, 'Edit blog post' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Edit blog post</h1>
+    </div>
+
+    <div class="col-xs-6 text-right">
+      <% if @post.published? %>
+        <a href="<%= frontend_blog_post_path(slug: @post.slug) %>" class="btn btn-white" target="_blank">View live page</a>
+      <% end %>
+
+      <% if can?(:destroy, @post) %>
+        <a href="<%= app_post_path(@post) %>" data-method="DELETE" data-confirm="Are you sure?" class="btn btn-danger">Delete</a>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <%= render 'form', post: @post %>
+</section>

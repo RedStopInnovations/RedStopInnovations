@@ -1,0 +1,124 @@
+<section class="box-header">
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <h1>Invoice <span class="text-copyable" js-click-to-copy="<%= @invoice.invoice_number %>">#<%= @invoice.invoice_number %></span>
+        <% if @invoice.paid? %>
+          <span class="small label label-success ml-10">Paid</span>
+        <% end %>
+        <% if @invoice.deleted_at? %>
+          <small class="small label label-default ml-10">Voided</small>
+        <% end %>
+      </h1>
+    </div>
+    <% unless @invoice.deleted_at? %>
+    <div class="col-md-6 col-xs-12 text-right">
+      <div class="btn-group">
+        <% if can?(:edit, @invoice) %>
+        <a href="<%= edit_invoice_path(@invoice) %>" class="btn btn-white">
+          <i class="fa fa-pencil"></i> Edit
+        </a>
+        <% end %>
+
+        <a href="<%= invoice_path(@invoice, format: "pdf") %>" class="btn btn-white">
+          <i class="fa fa-print"></i> Print
+        </a>
+        <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+          Action <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <% if !@invoice.paid? && can?(:create, Payment) %>
+            <li>
+              <a href="<%= new_payment_path(invoice_id: @invoice.id) %>">
+                <i class="fa fa-credit-card"></i> Add payment
+              </a>
+            </li>
+          <% end %>
+          <li>
+            <a href="<%= deliver_invoice_path(@invoice, redirect: invoice_path(@invoice))%>"
+              <%
+                send_invoice_confirm = ""
+                if !@invoice.patient.reminder_enable?
+                  send_invoice_confirm << "Warning: #{@invoice.patient.full_name} has disabled reminders on their profile.\n\n"
+                end
+
+                if @invoice.last_send_patient_at.present?
+                  send_invoice_confirm << "The invoice was already sent on #{@invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
+                else
+                  send_invoice_confirm << "Are you sure want to send invoice?"
+                end
+              %>
+              data-confirm="<%= send_invoice_confirm %>"
+              data-method="POST"
+              ><i class="fa fa-envelope-o <% if @invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
+          </li>
+
+          <% if @invoice.invoice_to_contact %>
+            <li>
+              <a data-href="<%= modal_email_others_invoice_path(@invoice, redirect: invoice_path(@invoice), contact_ids: [@invoice.invoice_to_contact.id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
+                <i class="fa fa-envelope-o <% if @invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
+              </a>
+            </li>
+          <% end %>
+
+          <li>
+            <a data-href="<%= modal_email_others_invoice_path(@invoice, redirect: invoice_path(@invoice)) %>" class="btn-send-invoice-others" href="javascript:void(0)">
+              <i class="fa fa-send-o"></i> Email others
+            </a>
+          </li>
+          <% if @invoice.appointment %>
+            <li>
+              <a href="<%= appointment_path(@invoice.appointment) %>">
+                <i class="fa fa-calendar"></i> View appointment
+              </a>
+            </li>
+          <% end %>
+
+          <li class="divider"></li>
+          <% if !@invoice.paid? %>
+            <% reminder_template = current_business.get_communication_template('outstanding_invoice_reminder') %>
+            <% if reminder_template && reminder_template.enabled? %>
+              <% if @invoice.outstanding_reminder_enable? %>
+                <li>
+                  <a href="<%= disable_outstanding_reminder_invoice_path(@invoice) %>"
+                    data-method="PUT"
+                    data-confirm="Are you sure you want to DISABLE automatic outstanding reminder on this invoice?"
+                    ><i class="fa fa-bell"></i> Disable outstanding reminder</a>
+                </li>
+              <% else %>
+                <li>
+                  <a href="<%= enable_outstanding_reminder_invoice_path(@invoice) %>"
+                    data-method="PUT"
+                    data-confirm="Are you sure you want to ENABLE automatic outstanding reminder on this invoice?"
+                    ><i class="fa fa-bell"></i> Enable outstanding reminder</a>
+                </li>
+              <% end %>
+            <% end %>
+          <% end %>
+
+          <% if !@invoice.paid? && can?(:destroy, @invoice) %>
+            <li>
+              <a href="<%= invoice_path(@invoice) %>" title="delete" data-confirm="Are you sure want to VOID this invoice? This action can not be undone!" data-method="delete" class="btn btn-link">
+                <i class="fa fa-times" aria-hidden="true"></i> Void
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+    <% end %>
+  </div>
+
+
+</section>
+
+<section>
+  <div class="clearfix">
+    <div class="col-xs-12">
+      <%= yield %>
+    </div>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'modal_email_others_js', invoice: @invoice %>
+<% end %>

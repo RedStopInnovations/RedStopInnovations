@@ -1,0 +1,70 @@
+<% content_for :title, 'Non-billable subtypes' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Non-billable subtypes</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a class="btn btn-primary" href="<%= new_settings_availability_subtype_path %>" data-remote="true">Add subtype</a>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Non-billable subtypes</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width: 200px">Name</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% @availability_types.each do |at| %>
+                  <tr>
+                    <td>
+                      <%= at.name %>
+                    </td>
+                    <td>
+                      <a href="<%= edit_settings_availability_subtype_path(at) %>" class="btn btn-link"
+                        data-remote="true">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                      <a href="#" class="btn btn-link btn-form"
+                        data-form-url="<%= settings_availability_subtype_path(at) %>"
+                        data-form-method="DELETE" data-form-confirmation="Are you sure you want to DELETE this item?">
+                        <i class="fa fa-trash text-danger"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if @availability_types.size.zero? %>
+            <p class="text-muted">
+              There is no item <a class="btn btn-white" href="<%= new_settings_availability_subtype_path %>" data-remote="true">Add new</a>
+            </p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+<h3>Client home care package</h3>
+<div class="box">
+  <%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :hcp_company_name, label: 'HCP Company name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :hcp_manager_phone, label: 'HCP Company phone', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :hcp_manager_name, label: 'Invoice to name', required: true %>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <%= ff.input :hcp_manager_email, label: 'Invoice to email', required: true %>
+      </div>
+    </div>
+  <% end %>
+</div>

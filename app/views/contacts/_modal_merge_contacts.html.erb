@@ -1,0 +1,88 @@
+<div class="modal fade modal-merge-contacts" id="modal-merge-contacts">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Merge duplicate contacts</h4>
+      </div>
+      <form action="<%= merge_contact_path(@contact) %>" method="POST">
+        <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+
+        <div class="modal-body">
+          <% if contacts.empty? %>
+            No duplicate contacts were found.
+          <% else %>
+            <p>
+              We've found the following possible duplicate contacts. Check each confirmed contact and then hit the <strong>Merge contacts</strong> button.
+            </p>
+
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>CRN</th>
+                    <th>Contact name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Clients</th>
+                    <th>Invoices</th>
+                    <th>Account statements</th>
+                    <th colspan="2">Creation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% contacts.each do |contact| %>
+                  <tr>
+                    <td><%= contact.id %></td>
+                    <td>
+                      <a href="<%= contact_path(contact)%>"><%= contact.business_name.titleize %></a>
+                      <br>
+                      <small><%= contact.full_name %></small>
+                    </td>
+                    <td>
+                      <%= contact.email %>
+                    </td>
+                    <td>
+                      <%= contact.mobile %>
+                    </td>
+                    <td>
+                      <%= contact.patients.count(Arel.sql('DISTINCT patients.id')) %>
+                    </td>
+                    <td>
+                      <%= contact.invoices.count %>
+                    </td>
+                    <td>
+                      <%= contact.account_statements.not_deleted.count %>
+                    </td>
+                    <td>
+                      <%= contact.created_at.strftime(t('datetime.common')) %>
+                    </td>
+                    <td>
+                      <label class="checkbox-inline">
+                        <input type="checkbox" name="contact_ids[]" value="<%= contact.id %>"> Merge?
+                      </label>
+                    </td>
+                  </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <div class="alert alert-danger">
+              <h4>Caution! You can not undo this action.</h4>
+              This will merge any selected contact into <strong><%= @contact.business_name %></strong>, including contact details/information, clients, appointments, availability, invoices, account statements and communications.
+            </div>
+          <% end %>
+        </div>
+
+        <div class="modal-footer">
+          <% if contacts.empty? %>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <% else %>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger" disabled="disabled">Merge contacts</button>
+          <% end %>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Page</th>
+      <th>Practitioner</th>
+      <th>Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% events.each do |event| %>
+      <tr>
+        <td>
+          <%= event.created_at.strftime(t('datetime.common')) %>
+        </td>
+        <td>
+          <%= event.data['url'] %>
+        </td>
+        <td>
+          <%= event.data['source_title'] %>
+        </td>
+        <td>
+          <%= event.data['contact_info_type'] %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="row hidden-print">
+  <div class="col-md-6 text-left">
+    <div id="events-pagination">
+      <%= page_entries_info events, entry_name: 'items' %>
+    </div>
+  </div>
+  <div class="col-md-6 text-right">
+    <%= paginate events %>
+  </div>
+</div>

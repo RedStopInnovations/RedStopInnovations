@@ -1,0 +1,109 @@
+<% content_for :title, @practitioner.full_name %>
+
+<% unless params[:_iframe] %>
+<div class="header-main header-style3">
+    <div class="top-bar p-3">
+        <div class="container text-center">
+            <% if @business.avatar.exists? %>
+                <img src="<%= @business.avatar.url(:medium) %>" alt="Logo" style="max-height: 70px;">
+            <% end %>
+        </div>
+    </div>
+</div>
+<% end %>
+
+<section class="sptb">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-12">
+                <div class="card">
+                    <div class="item-user">
+                        <div class="profile-pic wideget-user-img mb-0">
+                            <img src="<%= @practitioner.profile_picture_url(:medium) %>" alt="user" class="w-100">
+                        </div>
+                    </div>
+                    <div class="card-body item-user text-center">
+                        <div>
+                            <h3 class="mt-0 mb-2 font-weight-bold"><%= @practitioner.full_name %></h3>
+                            <div class="mb-1">
+                                <span class="badge badge-dark"><%= @practitioner.profession %></span>
+                            </div>
+                            <span class="text-muted"><span class="fa fa-map-marker text-muted mr-2"></span> <%= @practitioner.city %></span><br>
+
+                        </div>
+                    </div>
+                    <div class="card-body item-user">
+                        <h4 class="mb-4">Contact Info</h4>
+                        <div>
+                            <h6><span class="font-weight-semibold"><i class="fa fa-map-marker mr-2 mb-2"></i></span><a href="#" class="text-body"><%= @practitioner.postcode %> <%= @practitioner.city %></a></h6>
+                            <h6><span class="font-weight-semibold"><i class="fa fa-phone mr-2 mb-2"></i></span>
+                                <% if @practitioner.business.phone.present? %>
+                                <% phone = @practitioner.business.phone %>
+                                <%= link_to_reveal_contact_info(@practitioner, phone, :phone, class: 'text-primary') %>
+                                <% end %>
+                            </h6>
+                            <h6><span class="font-weight-semibold"><i class="fa fa-envelope mr-2  mb-2"></i></span>
+                                <% if @practitioner.business.email.present? %>
+                                    <% email = @practitioner.business.email %>
+                                    <%= link_to_reveal_contact_info(@practitioner, email, :email, class: 'text-primary', max_length: 15) %>
+                                <% end %>
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-list text-left">
+                            <a href="#" class="btn btn-block btn-primary text-uppercase"><i class="fa fa-calendar"></i> Book Home Visit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-9 col-lg-9 col-md-12">
+                <div class="card mb-5">
+                    <div class="card-header">
+                        <h3 class="card-title">About</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <% if @practitioner.summary.present? %>
+                            <%= simple_format @practitioner.summary %>
+                        <% end %>
+                        <div>
+                            <% if @practitioner.education.present? %>
+                              <strong>Education:</strong> <%= @practitioner.education %> <br>
+                            <% end %>
+
+                            <% if @practitioner.medicare.present? %>
+                              <strong>Provider Number:</strong> <%= @practitioner.medicare %> <br>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+
+                <%
+                    billable_items = @practitioner.most_10_expensive_billable_items.to_a
+                %>
+                <% if billable_items.present? %>
+                    <div class="card mb-5">
+                        <div class="card-header">
+                            <h3 class="card-title">Services</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <table class="table table-bordered table-striped">
+                                <tbody>
+                                    <% billable_items.each do |item| %>
+                                    <tr>
+                                        <td><%= item.name %></td>
+                                        <td style="width: 200px;">$<%= item.price %></td>
+                                    </tr>
+                                    <% end %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</section>

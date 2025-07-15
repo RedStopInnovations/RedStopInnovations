@@ -1,0 +1,15 @@
+(function() {
+  $('#modal-merge-patients').remove();
+  $('body').append("<%= escape_javascript (render 'modal_merge_patients', patients: @patients) %>");
+  $('#modal-merge-patients').modal('show');
+
+  /* Toggle submit button */
+  $('[name="patient_ids[]"]').on('change', function() {
+    var $btnSubmit = $('#modal-merge-patients').find('button[type=submit]');
+    if ($('[name="patient_ids[]"]:checked').length === 0) {
+      $btnSubmit.attr('disabled', 'disabled')
+    } else {
+      $btnSubmit.removeAttr('disabled');
+    }
+  });
+})();

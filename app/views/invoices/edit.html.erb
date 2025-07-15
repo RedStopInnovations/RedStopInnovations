@@ -1,0 +1,25 @@
+<% content_for :title, 'Edit invoice' %>
+
+<section class="box-header">
+  <h1>Edit invoice #<%= @invoice.invoice_number %>
+    <% if @invoice.paid? %>
+      <span class="small label label-success ml-10">Paid</span>
+    <% end %>
+  </h1>
+</section>
+
+<section class="content" id="js-edit-invoice-app">
+  <edit-invoice :invoice-id="<%= @invoice.id %>"></edit-invoice>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'invoices/form/edit_invoice_template' %>
+  <%= render 'invoices/form/edit_invoice_component' %>
+  <script>
+  (function() {
+    new Vue({
+      el: '#js-edit-invoice-app'
+    });
+  })();
+  </script>
+<% end %>

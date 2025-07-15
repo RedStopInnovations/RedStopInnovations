@@ -1,0 +1,129 @@
+<section class="box-header">
+  <h1>Subscription invoices</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= admin_settings_path %>">Admin</a>
+    </li>
+    <li>Subscription Invoices</li>
+  </ul>
+</section>
+
+
+<section class="content">
+  <div class="panel pane-default">
+    <div class="panel-body">
+      <%= search_form_for @search_query, url: admin_business_invoices_path, enforce_utf8: false do |f| %>
+        <div class="row">
+          <div class="col-md-4 col-xs-12">
+            <div class="form-group">
+              <label for="">Search</label>
+              <%= f.search_field :invoice_number_or_business_name_cont, class: 'form-control', placeholder: 'Search by invoice number, business name' %>
+            </div>
+          </div>
+          <div class="col-md-2 col-xs-12">
+            <label>Payment status</label>
+            <%
+              payment_status_options = [["All", ""]]
+              BusinessInvoice::PAYMENT_STATUS_TYPES.map do |status|
+                payment_status_options << [status.titleize, status]
+              end
+            %>
+            <%= f.select :payment_status_eq, payment_status_options, {}, { class: 'form-control' } %>
+
+          </div>
+          <div class="col-md-4 col-xs-12">
+            <br>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="<%= admin_business_invoices_path %>" class="btn btn-white"> Clear</a>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="panel pane-default">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Business</th>
+              <th>Issue date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @business_invoices.each do |business_invoice| %>
+              <tr>
+                <td>
+                  <a href="<%= admin_business_invoice_path(business_invoice) %>"><%= business_invoice.invoice_number %></a>
+                </td>
+                <td>
+                  <a href="<%= admin_business_path(business_invoice.business) %>"><%= business_invoice.business.name %></a>
+                </td>
+                <td><%= business_invoice.issue_date.try(:strftime, '%d %b, %Y') %></td>
+                <td><%= format_money business_invoice.amount %></td>
+                <td>
+                  <% if business_invoice.payment_status == 'paid' %>
+                    <span class="label label-success">Paid</span>
+                  <% else %>
+                    <span class="label label-warning"><%= business_invoice.payment_status.titleize %></span>
+                  <% end %>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <a href="<%= admin_business_invoice_path(business_invoice) %>" class="btn btn-white">View</a>
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li>
+                        <a href="<%= edit_admin_business_invoice_path(business_invoice) %>">Edit</a>
+                      </li>
+                      <li>
+                        <a href="<%= admin_business_invoice_path(business_invoice, format: 'pdf') %>" target="_blank">Print</a>
+                      </li>
+                      <li>
+                        <a href="<%= deliver_admin_business_invoice_path(business_invoice) %>" data-method="POST" data-confirm="Are you sure want to send this invoice?">Send</a>
+                      </li>
+                      <% if !business_invoice.paid? %>
+                        <% if business_invoice.business.subscription_credit_card_added? %>
+                          <li>
+                            <a href="<%= charge_admin_business_invoice_path(business_invoice) %>" class=" text-warning" data-method="POST" data-confirm="Are you sure want to charge this invoice?">Charge</a>
+                          </li>
+                        <% else %>
+                          <li class="disabled">
+                            <a href="javascript:;" class="text-muted" disabled>Charge (Card not added)</a>
+                          </li>
+                        <% end %>
+                        <li>
+                          <a href="<%= new_admin_subscription_payment_path(invoice_id: business_invoice.id) %>">Add payment</a>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <%= page_entries_info @business_invoices, entry_name: 'invoice' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @business_invoices %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

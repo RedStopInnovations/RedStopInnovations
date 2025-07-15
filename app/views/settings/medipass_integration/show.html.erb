@@ -1,0 +1,55 @@
+<section class="box-header">
+  <h1>Medipass integration</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
+    </li>
+    <li class="active">Medipass integration</li>
+  </ul>
+</section>
+
+<section class="content">
+  <div class="box">
+    <% if @medipass_account.nil? %>
+      <p class="text-muted">The Medipass integration is not setup yet.</p>
+      <br>
+      <a href="<%= settings_medipass_integration_setup_path %>" class="btn sitebtn">Setup Now</a>
+    <% end %>
+
+    <% if @medipass_account %>
+      <h4>Account information</h4>
+      <div class="row">
+        <div class="col-lg-6">
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td class="text-bold">API key:</td>
+                <td><%= @medipass_account.api_key.to_s.first(3) + '***' + @medipass_account.api_key.to_s.last(3) %></td>
+              </tr>
+              <tr>
+                <td class="text-bold">Last updated on:</td>
+                <td><%= @medipass_account.updated_at.strftime('%d %b %Y, %l:%M%P') %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <a href="<%= settings_medipass_integration_setup_path %>" class="btn sitebtn">Edit</a>
+    <% end %>
+    <hr>
+    <div class="row">
+      <div class="col-md-6">
+        <h4>How to get Medipass API key?</h4>
+        <p>
+          You need to submit an application directly with HICAPS. If you already have a HICAPS terminal, register now to turn on HICAPS Go for your practice. When successful, you can obtain the medipass API key.
+          <br>
+          <a href="https://www.hicaps.com.au/mobile">https://www.hicaps.com.au/mobile</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,167 @@
+<% content_for :title, 'Edit referral' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Edit referral</h1>
+    </div>
+  </div>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= app_referrals_path %>">Referrals</a>
+    </li>
+    <li>
+      <a href="<%= app_referral_path(@referral) %>">#<%= @referral.id %></a>
+    </li>
+    <li class="active">Edit details</li>
+  </ul>
+</section>
+
+<section class="content">
+  <%= simple_nested_form_for @referral_form, as: :referral, url: app_referral_path(@referral), method: 'PUT', html: { id: 'js-form-referral', novalidate: false, multipart: true } do |f| %>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Service info</strong></div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <%
+                professions = current_business.practitioners.active.pluck(Arel.sql('DISTINCT profession')).select(&:present?)
+                professions.concat(@referral.professions).uniq
+              %>
+              <%=
+                f.input :professions,
+                        as: :select,
+                        required: true,
+                        collection: professions,
+                        include_blank: "-- Select professions --",
+                        include_hidden: false,
+                        input_html: {
+                          class: 'selectize',
+                          multiple: true
+                        }
+              %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <%= f.input :availability_type_id, as: :select, required: true, collection: [['Home visit', AvailabilityType::TYPE_HOME_VISIT_ID], ['Facility', AvailabilityType::TYPE_FACILITY_ID]],
+                include_blank: "-- Select availability type --" %>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <%= f.input :practitioner_id, as: :select, collection: current_business.practitioners.active.collect {|p| [p.full_name, p.id]},
+                include_blank: "--  Select practitioner  --",
+                input_html: {
+                  class: 'selectize',
+                }
+              %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= f.input :priority, as: :select, label: 'Referral urgency', collection: [["Urgent priority", 'Urgent'], ["Normal priority", 'Normal']],
+                include_blank: "-- Select priority --" %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <%= f.input :referral_reason, as: :text, label: 'Reason for referral', input_html: { rows: 3 } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Client info</strong></div>
+      <div class="panel-body">
+        <% if @referral.approved? && @referral.patient_id? %>
+          <p class="text-warning">This referral is already approved. View created client file <a href="<%= patient_path(@referral.patient_id) %>">here</a>.</p>
+        <% end %>
+
+        <%= render 'app/referrals/form/client_fields', f: f %>
+      </div>
+    </div>
+
+    <% if @referral.type.present? %>
+      <% case @referral.type %>
+      <% when Referral::TYPE_HCP %>
+        <%= render 'app/referrals/form/hcp_fields', f: f %>
+      <% when Referral::TYPE_DVA %>
+        <%= render 'app/referrals/form/dva_fields', f: f %>
+      <% when Referral::TYPE_MEDICARE %>
+        <%= render 'app/referrals/form/medicare_fields', f: f %>
+      <% when Referral::TYPE_NDIS %>
+        <%= render 'app/referrals/form/ndis_fields', f: f %>
+      <% when Referral::TYPE_PRIVATE %>
+        <%= render 'app/referrals/form/private_fields', f: f %>
+      <% when Referral::TYPE_HIH %>
+        <%= render 'app/referrals/form/hih_fields', f: f %>
+      <% when Referral::TYPE_STRC %>
+        <%= render 'app/referrals/form/strc_fields', f: f %>
+      <% end %>
+    <% end %>
+
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+          <div class="panel-heading"><strong>Attachments</strong></div>
+          <div class="panel-body">
+              <% if @referral.attachments.size > 0 %>
+                <ul class="list-unstyled">
+                    <% @referral.attachments.each do |ref_attm| %>
+                    <li>
+                      <a href="<%= ref_attm.attachment.url %>" target="_blank"><%= truncate ref_attm.attachment.original_filename, length: 50 %></a>
+                      <a href="#" class="text-danger ml-10 btn-form"
+                        data-form-url="<%= delete_attachment_app_referral_path(@referral, ref_attm) %>"
+                        data-form-method="DELETE"
+                        data-form-confirmation="Are you sure you want to DELETE this attachment?"
+                        ><i class="fa fa-trash"></i></a>
+                    </li>
+                    <% end %>
+                </ul>
+                <hr>
+              <% end %>
+
+              <div class="form-group">
+                <span class="help-block">PDF and images only. Maximum by 5MB.</span>
+
+                <input type="file" accept="image/jpeg,image/png,application/pdf"
+                  class="bs-file-input"
+                  multiple="true"
+                  name="referral[attachments][]">
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default" id="js-referrer-info-wrap">
+      <div class="panel-heading"><strong>Referrer info</strong></div>
+      <div class="panel-body">
+        <%= render 'app/referrals/form/referrer_fields', f: f %>
+      </div>
+    </div>
+
+    <div id="js-form-error-wrap" class="box hidden"></div>
+
+    <div>
+      <button type="submit" class="btn btn-primary">Update referral</button>
+      <a href="<%= app_referral_path(@referral) %>" class="btn btn-white">Cancel</a>
+    </div>
+  <% end %>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'app/referrals/form/form_js' %>
+<% end %>

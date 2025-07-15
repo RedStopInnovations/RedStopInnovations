@@ -1,0 +1,98 @@
+<% content_for :title, 'Duplicate contacts report' %>
+
+<section class="box-header">
+  <h1>Duplicate contacts</h1>
+</section>
+
+<section class="breadcrumb">
+  <ul>
+    <li>
+      <a href="<%= reports_path %>"><i class="fa fa-bar-chart"></i> Reports</a>
+    </li>
+    <li>
+      <a href="<%= reports_path %>">Contacts</a>
+    </li>
+    <li class="active">Duplicate contacts</li>
+  </ul>
+</section>
+<style>
+  td {
+    word-break: break-word;
+  }
+</style>
+<section class="content">
+  <div class="box-table">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th style="width: 180px">Business name</th>
+          <th>
+            Possible duplicates
+            <table class="table" style="margin-bottom: 0">
+            <tr>
+              <td style="width: 60px">ID</td>
+              <td style="width: 350px">Contact info</td>
+              <td style="width: 100px">Created data</td>
+              <td style="width: 100px" title="Number of associated clients">Clients</td>
+              <td style="width: 100px" title="Number of invoices issued">Invoices</td>
+              <td style="width: 100px" title="Number of account statements">Account Statements</td>
+              <td></td>
+            </tr>
+          </table>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @report.result[:duplicates].each do |dup| %>
+          <tr>
+            <td style="width: 180px">
+              <%= dup[:business_name].titleize %>
+            </td>
+            <td>
+              <table class="table table-bordered">
+                <tbody>
+                  <% dup[:contacts].each do |contact| %>
+                    <tr>
+                      <td style="width: 60px"><a href="<%= contact_path(contact.id) %>"><%= contact.id %></a> </td>
+                      <td style="width: 350px">
+                        <%= contact.full_name %> <br>
+                        <% if contact.email.present? %>
+                          <br>
+                         <span>E: <%= contact.email %></span>
+                        <% end %>
+
+                        <% if contact.phone.present? %>
+                          <br>
+                         <span>P: <%= contact.phone %></span>
+                        <% end %>
+
+                        <% if contact.mobile.present? %>
+                         <br>
+                         <span>P: <%= contact.mobile %></span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <%= contact.created_at.strftime t('date.common') %>
+                      </td>
+                      <td style="width: 100px">
+                        <%= contact.patients_count %>
+                      </td>
+                      <td style="width: 100px">
+                        <%= contact.invoices_count %>
+                      </td>
+                      <td style="width: 100px"><%= contact.account_statements_count %></td>
+                      <td>
+                        <a href="<%= contact_path(contact.id, merge: 1) %>" class="btn btn-sm btn-default">View</a>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

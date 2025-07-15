@@ -1,0 +1,88 @@
+<%= f.simple_fields_for :patient, @referral_form.patient do |ff| %>
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :first_name, required: true, input_html: { autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :last_name, required: true, input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :dob, as: :string, label: 'Date of birth', required: true, placeholder: 'dd/mm/yyyy', input_html: { autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :phone, required: true, input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :email, input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-6 col-sm-12 col-xs-12">
+      <%= ff.input :address1, required: true, label: 'Address', input_html: { id: 'input-patient-address', autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <%= ff.input :city, required: true, input_html: { id: 'input-patient-city', autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <%= ff.input :state, required: true, input_html: { id: 'input-patient-state', autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :postcode, required: true, input_html: { id: 'input-patient-postcode', autocomplete: 'nope' } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :country, required: true, priority: [ @business.country ], input_html: { id: 'input-patient-country', autocomplete: 'nope' }%>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-6">
+      <%= ff.input :next_of_kin, label: 'Next of kin details', as: :text, input_html: { rows: 3 } %>
+    </div>
+    <div class="col-md-6">
+      <%= ff.input :aboriginal_status, as: :select, label: 'Does your client identify as Aboriginal or Torres Strait Islander?', collection: ['No', 'Aboriginal', 'Torres Strait Islander', 'Both'], default: 'No', input_html: { autocomplete: 'nope' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+        <div class="form-group">
+        <label class="control-label">Attach referral documents</label>
+        <span class="help-block">PDF and images only. Maximum by 5MB.</span>
+        <div class="attachments-upload-wrap">
+            <div class="attachment-template">
+              <div class="attachment">
+                <input type="file" accept="image/jpeg,image/png,application/pdf"
+                class="bs-file-input"
+                name="referral[attachments][]">
+                <a class="btn-remove" href="#">Remove</a>
+              </div>
+            </div>
+
+            <div class="attachments-list"></div>
+
+            <button class="btn btn-default btn-add" type="button">Add file</button>
+        </div>
+        </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="row">
+  <div class="col-md-12">
+    <%= f.input :medical_note, label: 'Relevant medical history', as: :text, input_html: { rows: 5 }, hint: "We appreciate as much information as possible." %>
+  </div>
+</div>

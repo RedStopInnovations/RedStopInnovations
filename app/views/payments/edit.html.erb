@@ -1,0 +1,14 @@
+<% content_for :title, 'Edit payment' %>
+<section class="box-header">
+  <h1>Edit payment</h1>
+</section>
+
+<section class="content">
+  <div id="form-edit-payment" data-payment-id="<%= @payment.id %>">
+    <%= render 'form', payment: @payment %>
+  </div>
+</section>
+
+<% content_for :page_js do %>
+  <%= render 'form_edit_js', payment: @payment %>
+<% end %>
