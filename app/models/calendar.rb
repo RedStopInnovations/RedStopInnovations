@@ -13,6 +13,7 @@ class Calendar
     availabilities_query =
       Availability.
         where(business_id: business.id).
+        not_deleted.
         includes(
           :contact,
           :group_appointment_type,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_15_152053) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -331,6 +331,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_15_152053) do
     t.integer "group_appointment_type_id"
     t.jsonb "cached_stats", default: {}
     t.datetime "cached_stats_updated_at"
+    t.datetime "deleted_at"
     t.index ["allow_online_bookings"], name: "index_availabilities_on_allow_online_bookings"
     t.index ["business_id", "availability_type_id"], name: "index_business_id_and_availability_type_id"
     t.index ["fid"], name: "index_availabilities_on_fid"

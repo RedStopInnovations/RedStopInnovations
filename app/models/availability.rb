@@ -37,6 +37,7 @@
 #  group_appointment_type_id :integer
 #  cached_stats              :jsonb
 #  cached_stats_updated_at   :datetime
+#  deleted_at                :datetime
 #
 # Indexes
 #
@@ -89,6 +90,7 @@ class Availability < ApplicationRecord
 
   before_save :generate_friendly_id, if: :start_time_changed?
 
+  scope :not_deleted, -> { where(deleted_at: nil) }
   scope :allow_online_bookings, -> { where allow_online_bookings: true }
   scope :not_hide, -> { where(hide: false) }
   scope :hide, -> { where(hide: true) }

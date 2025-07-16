@@ -32,7 +32,7 @@ class DeleteAvailabilityService
         end
       end
 
-      @availability.delete
+      @availability.update(deleted_at: now)
     end
 
     if @availability.practitioner&.user&.google_calendar_sync_setting&.status_active?
@@ -59,8 +59,9 @@ class DeleteAvailabilityService
     now = Time.current
 
     if delete_repeat_ids.present?
-      Availability.where(id: delete_repeat_ids).delete_all
-
+      Availability.where(id: delete_repeat_ids).update_all(
+        deleted_at: now
+      )
       # Delete appoinments
       delete_appt_ids = Appointment.where(availability_id: delete_repeat_ids).pluck(:id)
 
