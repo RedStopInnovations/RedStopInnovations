@@ -21,7 +21,7 @@ elsif Rails.env.production?
     s3_credentials: {
       access_key_id:     ENV.fetch('AWS_ACCESS_KEY_ID', 'xxx'),
       secret_access_key: ENV.fetch('AWS_SECRET_ACCESS_KEY', 'xxx'),
-      s3_region:         ENV.fetch('AWS_REGION', 'us-southeast-2'),
+      s3_region:         ENV.fetch('AWS_REGION', 'ap-southeast-2'),
     },
     url: ':s3_alias_url',
     s3_protocol: :https,

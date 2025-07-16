@@ -439,7 +439,7 @@ Resources:
             - !Ref DBMasterPassword
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: AWS_REGION
-          Value: "us-southeast-2"
+          Value: "ap-southeast-2"
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: AWS_ACCESS_KEY_ID
           Value: ""

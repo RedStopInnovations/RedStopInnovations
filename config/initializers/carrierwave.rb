@@ -7,7 +7,7 @@ CarrierWave.configure do |config|
     provider:              'AWS',
     aws_access_key_id:     ENV.fetch('AWS_ACCESS_KEY_ID', 'xxx'),
     aws_secret_access_key: ENV.fetch('AWS_SECRET_ACCESS_KEY', 'xxx'),
-    region:                ENV.fetch('AWS_REGION', 'us-southeast-2'),
+    region:                ENV.fetch('AWS_REGION', 'ap-southeast-2'),
   }
   config.fog_directory  = ENV.fetch('S3_BUCKET_NAME', 'mybucket')
   config.fog_public     = true
