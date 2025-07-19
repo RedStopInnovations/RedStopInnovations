@@ -44,9 +44,10 @@ module Letter
           public_travel_start_address = @appointment.availability.short_address
         end
 
-        cancel_url = Rails.application.routes.url_helpers.frontend_appointments_cancel_show_url(
-          token: @appointment.public_token
-        )
+        # cancel_url = Rails.application.routes.url_helpers.frontend_appointments_cancel_show_url(
+        #   token: @appointment.public_token
+        # )
+        cancel_url = '#' # Temporarily disable cancel link
 
         cancel_link_tag = "<a href=\"#{cancel_url}\">Cancel appointment</a>"
 

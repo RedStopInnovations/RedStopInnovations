@@ -123,9 +123,8 @@ Rails.application.configure do
     port:           ENV['MAIL_PORT'],
     user_name:      ENV['MAIL_USERNAME'],
     password:       ENV['MAIL_PASSWORD'],
-    authentication: :"#{ENV['MAIL_AUTHENTICATION']}",
-    ssl:            ['true', '1', 1].include?(ENV['MAIL_SSL']),
-    enable_starttls_auto: true
+    authentication: :plain,
+    enable_starttls_auto: false
   }
 
   config.middleware.use Rack::Deflater

@@ -1,5 +1,5 @@
 class ApplicationMailer < ActionMailer::Base
-  DEFAULT_SENDER = ENV.fetch('DEFAULT_SENDER_EMAIL', 'no-reply@example.com')
+  DEFAULT_SENDER = ENV.fetch('DEFAULT_SENDER_EMAIL', 'info@example.com')
 
   default from: DEFAULT_SENDER,
           sender: DEFAULT_SENDER
