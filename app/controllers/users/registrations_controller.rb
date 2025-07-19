@@ -10,6 +10,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def create
+    redirect_back fallback_location: new_user_registration_path, alert: "Registration is not allowed at this time."
+
+    return
+
     @form = RegistrationForm.new(registration_params)
 
     is_recaptcha_pass = App::RECAPTCHA_ENABLE ? verify_recaptcha : true
