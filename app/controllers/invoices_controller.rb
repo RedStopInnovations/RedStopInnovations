@@ -192,14 +192,14 @@ class InvoicesController < ApplicationController
     patient = @invoice.patient
 
     if patient.email?
-      if current_business.subscription_credit_card_added?
+      # if current_business.subscription_credit_card_added?
         InvoiceMailer.invoice_mail(@invoice).deliver_later
         send_ts = Time.current
         @invoice.update_columns(
           last_send_patient_at: send_ts,
           last_send_at: send_ts
         )
-      end
+      # end
       flash[:notice] = 'The invoice has been sent to client'
     else
       flash[:alert] = 'The client has not an email address'
