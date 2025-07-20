@@ -11,7 +11,7 @@ class ApplicationMailer < ActionMailer::Base
 
   def business_email_options(business)
     options = {
-      from: "#{business.name} <#{DEFAULT_SENDER}>"
+      from: "#{business.name} (via Tracksy) <#{DEFAULT_SENDER}>"
     }
 
     if business.email?
@@ -23,7 +23,7 @@ class ApplicationMailer < ActionMailer::Base
 
   def business_accounting_email_options(business)
     options = {
-      from: "#{business.name} <#{DEFAULT_SENDER}>"
+      from: "#{business.name} (via Tracksy) <#{DEFAULT_SENDER}>"
     }
 
     if business.accounting_email?
