@@ -263,7 +263,7 @@
 }
 
 .card-blog-overlay {
-	background: url(../images/media/thumb2.jpg);
+	// background: url(../images/media/thumb2.jpg);
 	background-size: cover;
 	position: relative;
 }
@@ -282,17 +282,17 @@
 }
 
 .card-blog-overlay1 {
-	background: url(../images/media/thumb1.jpg);
+	// background: url(../images/media/thumb1.jpg);
 	background-size: cover;
 }
 
 .card-blog-overlay2 {
-	background: url(../images/banners/banner4.jpg);
+	// background: url(../images/banners/banner4.jpg);
 	background-size: cover;
 }
 
 .card-blog-overlay3 {
-	background: url(../images/media/photos/4.jpg);
+	// background: url(../images/media/photos/4.jpg);
 	background-size: cover;
 }
 
@@ -657,7 +657,7 @@ a.card-tabs-item {
 }
 
 .card-blog-overlay6 {
-	background: url(../images/banners/subscribe.jpg);
+	// background: url(../images/banners/subscribe.jpg);
 	background-size: cover;
 	&:before {
 		content: '';
@@ -680,7 +680,7 @@ a.card-tabs-item {
 }
 
 .card-blog-img {
-	background: url(../images/media/photos/pattern.jpg);
+	// background: url(../images/media/photos/pattern.jpg);
 	background-size: cover;
 	&:before {
 		content: '';
@@ -814,7 +814,6 @@ dd {
 }
 
 .card-video {
-	/* background: url(../images/products/b5.png); */
 	background-size: cover;
 	&:before {
 		content: '';

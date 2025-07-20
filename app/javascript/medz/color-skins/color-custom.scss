@@ -1379,13 +1379,13 @@ a.text-secondary {
     background-color: $secondary1;
 }
 
-.pattern-1 {
-    background: linear-gradient(rgba(1, 130, 129, 0.7), rgba(14, 53, 53, 0.7)), url(../images/media/photos/pattern.jpg) center;
-}
+// .pattern-1 {
+//     background: linear-gradient(rgba(1, 130, 129, 0.7), rgba(14, 53, 53, 0.7)), url(../images/media/photos/pattern.jpg) center;
+// }
 
-.pattern-2 {
-    background: linear-gradient(86deg, rgba(1, 130, 129, 0.7) 0%, rgba(14, 53, 53, 0.7) 100%), url(../images/banners/subscribe.jpg);
-}
+// .pattern-2 {
+//     background: linear-gradient(86deg, rgba(1, 130, 129, 0.7) 0%, rgba(14, 53, 53, 0.7) 100%), url(../images/banners/subscribe.jpg);
+// }
 
 .bg-secondary-transparent {
     background-color: rgba(167, 32, 113, 0.1);
@@ -1691,7 +1691,7 @@ button#ihavecookiesBtn {
 }
 
 .header-search-logo .header-brand-img {
-    background: url(../images/brand/logos/logo-1.png);
+    // background: url(../images/brand/logos/logo-1.png);
     display: block;
     width: 150px;
     height: 40px;
@@ -1721,7 +1721,7 @@ button#ihavecookiesBtn {
 
 @media only screen and (max-width: 991px) {
     .smllogo.mobile-logo {
-        background: url(../images/brand/logos/logo-1.png);
+        // background: url(../images/brand/logos/logo-1.png);
         width: 150px;
         height: 40px;
         background-repeat: no-repeat;
