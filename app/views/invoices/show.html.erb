@@ -50,7 +50,7 @@
 
             <div class="invoice-block position-relative">
 
-              <a title="Send invoice to this client" class="normal-link pull-right" style="position: absolute; right: 10px; top: 5px;"
+              <a title="Send invoice to this client" class="normal-link pull-right btn btn-xs btn-white" style="position: absolute; right: 5px; top: 5px; padding: 4px 8px;"
                 href="<%= deliver_invoice_path(@invoice, redirect: invoice_path(@invoice))%>"
                 <%
                   send_invoice_confirm = ""
@@ -71,7 +71,7 @@
               </a>
 
               <div class="line">
-                <a class="normal-link" href="<%= patient_path(patient) %>">
+                <a href="<%= patient_path(patient) %>">
                   <b><%= patient.full_name %></b>
                 </a>
               </div>
@@ -108,12 +108,12 @@
               <a href="javascript:void(0)"
                 data-href="<%= modal_email_others_invoice_path(@invoice, redirect: invoice_path(@invoice), contact_ids: [invoice_to.id]) %>"
                 title="Send invoice to this contact"
-                class="normal-link pull-right btn-send-invoice-others"
-                style="position: absolute; right: 10px; top: 5px;"
+                class="normal-link pull-right btn btn-xs btn-white btn-send-invoice-others"
+                style="position: absolute; right: 5px; top: 5px; padding: 4px 8px;"
                 ><i class="fa fa-envelope-o <% if @invoice.last_send_contact_at.present? %> green <% end %>"></i></a>
 
               <div class="line">
-                <a class="normal-link" href="<%= contact_path(invoice_to.id) %>">
+                <a href="<%= contact_path(invoice_to.id) %>">
                   <b><%= invoice_to.business_name %></b>
                 </a>
               </div>
