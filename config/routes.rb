@@ -425,8 +425,6 @@ Rails.application.routes.draw do
 
       put 'business_settings' => 'business#update'
       get 'storage_documents' => 'business#storage_documents'
-      get 'sms_sender_id' => 'business#sms_sender_id'
-
       get 'subscriptions', to: 'subscriptions#index'
       post 'subscriptions/add_card_details', to: 'subscriptions#add_card_details'
       get 'subscriptions/invoices', to: 'subscriptions#invoices'

@@ -5,7 +5,6 @@
 #  id                 :integer          not null, primary key
 #  storage_url        :string
 #  business_id        :integer
-#  sms_sender_id      :string
 #  google_tag_manager :json
 #
 # Indexes

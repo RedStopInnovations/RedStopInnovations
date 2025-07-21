@@ -10,8 +10,6 @@ module Settings
 
     def storage_documents; end
 
-    def sms_sender_id; end
-
     # @TODO: rewrite this, should have it own action
     def update
       if @setting.update(setting_params)

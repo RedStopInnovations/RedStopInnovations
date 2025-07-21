@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_21_045046) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_21_073549) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -494,7 +494,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_21_045046) do
   create_table "business_settings", id: :serial, force: :cascade do |t|
     t.string "storage_url"
     t.integer "business_id"
-    t.string "sms_sender_id"
     t.json "google_tag_manager", default: {}
     t.index ["business_id"], name: "index_business_settings_on_business_id"
   end
