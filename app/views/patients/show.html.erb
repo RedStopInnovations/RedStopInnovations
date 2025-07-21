@@ -27,6 +27,19 @@
           <div class="row">
             <div class="col-md-6">
               <div class="block-info">
+                <strong>Title:</strong>
+                <% if @patient.title? %>
+                  <p><%= @patient.title %>&nbsp;</p>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
                 <strong>First name:</strong>
                 <p><%= @patient.first_name %>&nbsp;</p>
               </div>
@@ -366,10 +379,11 @@
                 <strong>NDIS:</strong>
                 <a href="<%= edit_payment_methods_patient_path(@patient, payment_method: 'ndis') %>" class="ml-10 visible-hover-item" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
                 <p class="text-smaller">
-                  NDIS client number: <%= @patient.ndis_client_number.presence || 'N/A' %> <br>
+                  NDIS number: <%= @patient.ndis_client_number.presence || 'N/A' %> <br>
+                  Fund management: <%= @patient.ndis_fund_management.presence || 'N/A' %> <br>
+                  Diagnosis: <%= @patient.ndis_diagnosis.presence || 'N/A' %> <br>
                   Plan start/end date: <%= presenter.display_ndis_plan_start_date.presence || 'N/A' %> / <%= presenter.display_ndis_plan_end_date.presence || 'N/A' %> <br>
-                  Client DOB: <%= @patient.dob.try(:strftime, t('date.dob')) %> <br>
-                  Invoice to name: <%= @patient.ndis_plan_manager_name.presence || 'N/A' %> <br>
+                  Manager name: <%= @patient.ndis_plan_manager_name.presence || 'N/A' %> <br>
                   Manager phone: <%= @patient.ndis_plan_manager_phone.presence || 'N/A' %> <br>
                   Manager email: <%= @patient.ndis_plan_manager_email.presence || 'N/A' %>
                 </p>
@@ -412,7 +426,8 @@
                 <p class="text-smaller">
                   Insurer: <%= @patient.hi_company_name.presence || 'N/A' %> <br>
                   Member number: <%= @patient.hi_number.presence || 'N/A' %> <br>
-                  Invoice to name: <%= @patient.hi_manager_name.presence || 'N/A' %> <br>
+                  Patient number: <%= @patient.hi_patient_number.presence || 'N/A' %> <br>
+                  Manager: <%= @patient.hi_manager_name.presence || 'N/A' %> <br>
                   Manager email: <%= @patient.hi_manager_email.presence || 'N/A' %> <br>
                   Manager phone: <%= @patient.hi_manager_phone.presence || 'N/A' %>
                 </p>

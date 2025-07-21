@@ -365,6 +365,7 @@ class PatientsController < ApplicationController
 
   def create_patient_params
     params.require(:patient).permit(
+      :title,
       :first_name,
       :last_name,
       :phone,
@@ -423,6 +424,8 @@ class PatientsController < ApplicationController
       :ndis_plan_manager_name,
       :ndis_plan_manager_phone,
       :ndis_plan_manager_email,
+      :ndis_fund_management,
+      :ndis_diagnosis,
 
       # Home care package details
       :hcp_company_name,
@@ -442,6 +445,7 @@ class PatientsController < ApplicationController
       # Health insurance details
       :hi_company_name,
       :hi_number,
+      :hi_patient_number,
       :hi_manager_name,
       :hi_manager_email,
       :hi_manager_phone,

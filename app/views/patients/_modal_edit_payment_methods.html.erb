@@ -71,12 +71,14 @@
                 ndis_plan_end_date = ndis_plan_end_date.to_date.strftime('%Y-%m-%d') rescue nil
               end
             %>
-            <%= f.input :ndis_client_number, label: 'NDIS client number' %>
+            <%= f.input :ndis_client_number, label: 'NDIS number' %>
+            <%= f.input :ndis_fund_management, label: 'Fund management' %>
+            <%= f.input :ndis_diagnosis, label: 'Diagnosis' %>
             <div class="row">
               <div class="col-xs-6"><%= f.input :ndis_plan_start_date, label: 'Plan start date', input_html: { value: ndis_plan_start_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
               <div class="col-xs-6"><%= f.input :ndis_plan_end_date, label: 'Plan end date', input_html: { value: ndis_plan_end_date, class: 'flatpickr-datepicker', data: { 'date-format' => 'Y-m-d', 'alt-format' => 'd M Y' } } %></div>
             </div>
-            <%= f.input :ndis_plan_manager_name, label: 'Invoice to name' %>
+            <%= f.input :ndis_plan_manager_name, label: 'Manager name' %>
             <%= f.input :ndis_plan_manager_phone, label: 'Manager phone' %>
             <%= f.input :ndis_plan_manager_email, label: 'Manager email' %>
           <% end %>
@@ -116,7 +118,8 @@
           <% if target_method == 'hi' %>
             <%= f.input :hi_company_name, label: 'Insurer Name' %>
             <%= f.input :hi_number, label: 'Member number' %>
-            <%= f.input :hi_manager_name, label: 'Invoice to name' %>
+            <%= f.input :hi_patient_number, label: 'Patient number' %>
+            <%= f.input :hi_manager_name, label: 'Manager name' %>
             <%= f.input :hi_manager_email, label: 'Manager email' %>
             <%= f.input :hi_manager_phone, label: 'Manager phone' %>
           <% end %>

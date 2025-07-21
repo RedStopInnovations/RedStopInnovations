@@ -4,6 +4,7 @@
 #
 #  id                      :integer          not null, primary key
 #  first_name              :string
+#  middle_name             :string
 #  last_name               :string
 #  phone                   :string
 #  mobile                  :string
@@ -99,7 +100,9 @@ class Patient < ApplicationRecord
                  :ndis_plan_end_date,
                  :ndis_plan_manager_name,
                  :ndis_plan_manager_phone,
-                 :ndis_plan_manager_email
+                 :ndis_plan_manager_email,
+                 :ndis_fund_management,
+                 :ndis_diagnosis
 
   # Home care package details
   store_accessor :hcp_details,
@@ -122,6 +125,7 @@ class Patient < ApplicationRecord
   store_accessor :hi_details,
                  :hi_company_name,
                  :hi_number,
+                 :hi_patient_number,
                  :hi_manager_name,
                  :hi_manager_email,
                  :hi_manager_phone

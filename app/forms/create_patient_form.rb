@@ -1,4 +1,5 @@
 class CreatePatientForm < BaseForm
+  attribute :title, String
   attribute :first_name, String
   attribute :last_name, String
   attribute :dob, String
@@ -37,6 +38,12 @@ class CreatePatientForm < BaseForm
   validates :address1, :city, :state, :postcode, :country,
             presence: true,
             length: { maximum: 50 }
+
+  validates_length_of :title,
+                       minimum: 2,
+                       maximum: 10,
+                       allow_blank: true,
+                       allow_nil: true
 
   validates_length_of :first_name, :last_name,
                        minimum: 1,

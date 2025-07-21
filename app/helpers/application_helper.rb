@@ -17,6 +17,12 @@ module ApplicationHelper
     "#{ ENV['BASE_URL'] }#{ sanitized_path }"
   end
 
+  def patient_titles
+    [
+      'Mr', 'Ms', 'Mrs', 'Miss', 'Mx', 'Dr', 'Prof', 'Master'
+    ]
+  end
+
   def format_money amount_in_dollar, currency = nil, delimiter = nil
     if defined?(current_business).present?
       currency = current_business&.currency

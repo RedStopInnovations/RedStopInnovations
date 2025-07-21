@@ -8,6 +8,12 @@
           <div class="panel-body">
             <div class="row">
               <div class="col-md-6">
+                <%= f.input :title, as: :select, collection: patient_titles %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
                 <%= f.input :first_name, input_html: { autofocus: true } %>
               </div>
               <div class="col-md-6">
@@ -168,7 +174,7 @@
 
         <div>
           <button class="btn btn-primary" type="submit">Save client</button>
-          <a href="<%= patients_path %>" class="btn btn-white">Cancel</a>
+          <a href="<%= patient_path(@patient) %>" class="btn btn-white">Cancel</a>
         </div>
       <% end %>
     </div>

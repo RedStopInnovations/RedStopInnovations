@@ -33,11 +33,6 @@ class CreatePatientService
       )
     end
 
-    # Discover Medipass member
-    # if App::MEDIPASS_ENABLE
-    #   DiscoveryMedipassMemberJob.perform_later(patient.id)
-    # end
-
     # Grant patient access
     PatientAccess.create!(
       user_id: author.id,
@@ -51,6 +46,7 @@ class CreatePatientService
 
   def build_patient
     patient = Patient.new(form_request.attributes.slice(
+      :title,
       :first_name,
       :last_name,
       :dob,

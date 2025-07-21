@@ -7,9 +7,26 @@ namespace :splose do |args|
       internal_attrs[:title] = splose_attrs['title'].presence
       internal_attrs[:first_name] = splose_attrs['firstname'].presence
       internal_attrs[:last_name] = splose_attrs['lastname'].presence
+      internal_attrs[:middle_name] = splose_attrs['middleName'].presence
       internal_attrs[:dob] = splose_attrs['birthdate'].presence
+      internal_attrs[:gender] = splose_attrs['sex'].presence
       internal_attrs[:email] = splose_attrs['email'].presence
       internal_attrs[:timezone] = splose_attrs['timezone'].presence
+
+      internal_attrs[:important_notification] = splose_attrs['alert'].presence
+
+      internal_attrs[:accepted_privacy_policy] =
+        if splose_attrs['privacyPolicy'].present?
+          {
+            'Accepted' => true,
+            'Rejected' => false,
+            'No response' => nil
+          }[splose_attrs['privacyPolicy']]
+        else
+          nil
+        end
+
+      internal_attrs[:general_info] = splose_attrs['extraInfo'].presence
 
       if splose_attrs['archived']
         internal_attrs[:archived_at] = splose_attrs['updatedAt']
@@ -21,6 +38,7 @@ namespace :splose do |args|
 
       internal_attrs[:address1] = splose_attrs['addressL1'].presence
       internal_attrs[:address2] = splose_attrs['addressL2'].presence
+      internal_attrs[:address3] = splose_attrs['addressL3'].presence
       internal_attrs[:city] = splose_attrs['city'].presence
       internal_attrs[:postcode] = splose_attrs['postalCode'].presence
       internal_attrs[:state] = splose_attrs['state'].presence
@@ -31,14 +49,72 @@ namespace :splose do |args|
       if splose_attrs['phoneNumbers'].present?
         splose_attrs['phoneNumbers'].each do |phone_number|
           if phone_number['type'] == 'Mobile'
-            internal_attrs[:mobile] = phone_number['phoneNumber']
+            internal_attrs[:mobile] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
             internal_attrs[:mobile_formated] = TelephoneNumber.parse(internal_attrs[:mobile], country).international_number
           end
+
           if phone_number['type'] == 'Home'
-            internal_attrs[:phone] = phone_number['phoneNumber']
+            internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
             internal_attrs[:phone_formated] = TelephoneNumber.parse(internal_attrs[:phone], country).international_number
           end
         end
+      end
+
+      # DVA details
+      internal_attrs[:dva_details] = {
+        dva_file_number: splose_attrs['veteransFileNumber'].presence
+      }
+
+      # NDIS details
+      splose_ndis_info = splose_attrs['ndisInfo'] || {}
+      local_ndis_details = {
+        ndis_client_number: splose_attrs['ndisNumber'].presence,
+        ndis_plan_manager_name: "#{splose_ndis_info['nomineeFirstName']} #{splose_ndis_info['nomineeLastName']}".strip.presence,
+        ndis_plan_manager_phone: "#{splose_ndis_info['nomineeMobileCode']}#{splose_ndis_info['nomineeMobileNumber']}".strip.presence,
+        ndis_plan_manager_email: splose_ndis_info['nomineeEmail'].presence,
+        ndis_fund_management: splose_ndis_info['fundManagement'].presence,
+        ndis_diagnosis: splose_ndis_info['diagnosis'].presence
+      }
+
+      if splose_ndis_info['startDate']
+        local_ndis_details[:ndis_plan_start_date] = Date.parse(splose_ndis_info['startDate']).strftime('%Y-%m-%d') rescue nil
+      end
+      if splose_ndis_info['endDate']
+        local_ndis_details[:ndis_plan_end_date] = Date.parse(splose_ndis_info['endDate']).strftime('%Y-%m-%d') rescue nil
+      end
+
+      if local_ndis_details.values.any?(&:present?)
+        internal_attrs[:ndis_details] = local_ndis_details
+      else
+        internal_attrs[:ndis_details] = nil
+      end
+
+      # Medicare details
+      local_medicare_details = {
+        medicare_card_number: splose_attrs['medicareNumber'].presence,
+        medicare_card_irn: splose_attrs['irn'].presence
+      }
+
+      if local_medicare_details.values.any?(&:present?)
+        internal_attrs[:medicare_details] = local_medicare_details
+      else
+        internal_attrs[:medicare_details] = nil
+      end
+
+      # Private health insurance details
+      splose_health_fund = splose_attrs['healthFund'] || {}
+      local_hi_details = {
+        hi_company_name: splose_health_fund['name'].presence,
+        hi_number: splose_health_fund['membershipNumber'].presence,
+        hi_patient_number: splose_health_fund['patientNumber'].presence,
+        hi_manager_email: splose_health_fund['email'].presence,
+        hi_manager_phone: splose_health_fund['phone'].presence
+      }
+
+      if local_hi_details.values.any?(&:present?)
+        internal_attrs[:hi_details] = local_hi_details
+      else
+        internal_attrs[:hi_details] = nil
       end
 
       internal_attrs[:created_at] = Time.parse(splose_attrs['createdAt']) if splose_attrs['createdAt'].present?
@@ -63,6 +139,7 @@ namespace :splose do |args|
     business_id = ENV['business_id']
     api_key = ENV['api_key']
     @force_update = ENV['force_update'] == '1' || ENV['force_update'] == 'true'
+    # @update_since = ENV['update_since'].presence # TODO: apply this to import only records updated since this date. @see: https://docs.splose.com/api-reference/endpoints/patient/get-a-paged-array-of-patients#parameter-update-gt
 
     if business_id.blank? || api_key.blank?
       raise ArgumentError, "Business ID or API key is missing!"
@@ -140,7 +217,7 @@ namespace :splose do |args|
 
       if res['links']['nextPage'].present?
         log "Next page found. Fetching more patients ..."
-        sleep(30)
+        sleep(5)
         fetch_patients(res['links']['nextPage'])
       end
     end

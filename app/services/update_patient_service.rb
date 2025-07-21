@@ -24,11 +24,6 @@ class UpdatePatientService
       )
     end
 
-    # Discover Medipass member
-    # if App::MEDIPASS_ENABLE
-    #   DiscoveryMedipassMemberJob.perform_later(patient.id)
-    # end
-
     # Grant patient access if not granted
     unless PatientAccess.exists?(user_id: author.id, patient_id: patient.id)
       PatientAccess.create!(
@@ -44,6 +39,7 @@ class UpdatePatientService
 
   def update_patient
     patient.assign_attributes(form_request.attributes.slice(
+      :title,
       :first_name,
       :last_name,
       :dob,

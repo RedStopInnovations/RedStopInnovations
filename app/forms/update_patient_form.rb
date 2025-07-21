@@ -1,4 +1,5 @@
 class UpdatePatientForm < BaseForm
+  attribute :title, String
   attribute :first_name, String
   attribute :last_name, String
   attribute :dob, String
@@ -38,6 +39,12 @@ class UpdatePatientForm < BaseForm
             presence: true,
             length: { maximum: 50 }
 
+  validates_length_of :title,
+                       minimum: 2,
+                       maximum: 10,
+                       allow_blank: true,
+                       allow_nil: true
+
   validates_length_of :first_name, :last_name,
                        minimum: 1,
                        maximum: 25,
@@ -63,6 +70,7 @@ class UpdatePatientForm < BaseForm
 
   def self.hydrate(patient)
     attrs = patient.attributes.symbolize_keys.slice(
+      :title,
       :first_name,
       :last_name,
       :phone,
