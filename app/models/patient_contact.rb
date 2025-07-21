@@ -25,6 +25,7 @@ class PatientContact < ApplicationRecord
     TYPE_SPECIALIST  = 'Specialist',
     TYPE_REFERRER    = 'Referrer',
     TYPE_INVOICE_TO  = 'Invoice to',
+    TYPE_EMERGENCY   = 'Emergency',
     TYPE_OTHER       = 'Other'
   ]
 

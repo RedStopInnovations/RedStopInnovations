@@ -29,6 +29,7 @@ class UpdatePatientForm < BaseForm
   attribute :invoice_to_contact_ids, Array[Integer]
   attribute :doctor_contact_ids, Array[Integer]
   attribute :specialist_contact_ids, Array[Integer]
+  attribute :emergency_contact_ids, Array[Integer]
   attribute :other_contact_ids, Array[Integer]
 
   validates_presence_of :first_name,
@@ -99,6 +100,7 @@ class UpdatePatientForm < BaseForm
     attrs[:invoice_to_contact_ids] = patient.invoice_to_contact_ids
     attrs[:doctor_contact_ids] = patient.doctor_contact_ids
     attrs[:specialist_contact_ids] = patient.specialist_contact_ids
+    attrs[:emergency_contact_ids] = patient.emergency_contact_ids
     attrs[:other_contact_ids] = patient.other_contact_ids
 
     new(attrs)

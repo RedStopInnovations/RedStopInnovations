@@ -134,6 +134,11 @@
               </div>
 
               <div class="form-group">
+                <label>Emergency:</label>
+                <%= f.input :emergency_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
+              </div>
+
+              <div class="form-group">
                 <label>Other:</label>
                 <%= f.input :other_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
               </div>

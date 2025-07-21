@@ -591,6 +591,21 @@
               </div>
             </div>
 
+            <div class="col-md-6">
+              <div class="block-info">
+                <strong>Emergency:</strong>
+                <% if @patient.emergency_contacts.size > 0 %>
+                  <ul class="list-unstyled">
+                    <% @patient.emergency_contacts.each do |contact| %>
+                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-muted">--</p>
+                <% end %>
+              </div>
+            </div>
+
           </div>
 
           <div class="row">

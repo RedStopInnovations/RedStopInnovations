@@ -74,6 +74,7 @@ class CreatePatientService
       :specialist_contact_ids,
       :referrer_contact_ids,
       :invoice_to_contact_ids,
+      :emergency_contact_ids,
       :other_contact_ids
     ))
 

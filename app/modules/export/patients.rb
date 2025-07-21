@@ -27,6 +27,7 @@ module Export
           "Referrer contact",
           "Doctor contact",
           "Specialist contact",
+          "Emergency contact",
           "Other contact",
           "Privacy policy acceptance",
           "Contact ID numbers",
@@ -43,6 +44,7 @@ module Export
           referrer_contacts_cell = patient.referrer_contacts.map(&:business_name).join(';')
           doctor_contacts_cell = patient.doctor_contacts.map(&:business_name).join(';')
           specialist_contacts_cell = patient.specialist_contacts.map(&:business_name).join(';')
+          emergency_contacts_cell = patient.emergency_contacts.map(&:business_name).join(';')
           other_contacts_cell = patient.other_contacts.map(&:business_name).join(';')
 
           privacy_policy_acceptance_cell =
@@ -91,6 +93,7 @@ module Export
             referrer_contacts_cell,
             doctor_contacts_cell,
             specialist_contacts_cell,
+            emergency_contacts_cell,
             other_contacts_cell,
             privacy_policy_acceptance_cell,
             contact_id_numbers_cell,
@@ -212,7 +215,7 @@ module Export
         'NDIS client number' => patient.ndis_client_number,
         'Plan start date' => patient.ndis_plan_start_date,
         'Plan end date' => patient.ndis_plan_end_date,
-        'Invoice to name' => patient.ndis_plan_manager_name,
+        'Manager name' => patient.ndis_plan_manager_name,
         'Manager phone' => patient.ndis_plan_manager_phone,
         'Manager email' => patient.ndis_plan_manager_email
       }
@@ -261,7 +264,7 @@ module Export
       info = {
         'Health insurer name' => patient.hi_company_name,
         'Member number' => patient.hi_number,
-        'Invoice to name' => patient.hi_manager_name,
+        'Manager name' => patient.hi_manager_name,
         'Manager email' => patient.hi_manager_email,
         'Manager phone' => patient.hi_manager_phone,
       }
@@ -276,8 +279,8 @@ module Export
       info = {
         'Company name' => patient.strc_company_name,
         'Company phone' => patient.strc_company_phone,
-        'Invoice to name' => patient.strc_invoice_to_name,
-        'Invoice to email' => patient.strc_invoice_to_email,
+        'Manager name' => patient.strc_invoice_to_name,
+        'Manager email' => patient.strc_invoice_to_email,
       }
       info.map do |key, val|
         "#{key}: #{val}"

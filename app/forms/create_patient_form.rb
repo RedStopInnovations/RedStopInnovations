@@ -14,6 +14,7 @@ class CreatePatientForm < BaseForm
   attribute :invoice_to_contact_ids, Array[Integer]
   attribute :doctor_contact_ids, Array[Integer]
   attribute :specialist_contact_ids, Array[Integer]
+  attribute :emergency_contact_ids, Array[Integer]
   attribute :other_contact_ids, Array[Integer]
 
   attribute :email, String

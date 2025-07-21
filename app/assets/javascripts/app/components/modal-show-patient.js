@@ -21,6 +21,7 @@
           specialist_contacts: [],
           referrer_contacts: [],
           invoice_to_contacts: [],
+          emergency_contacts: [],
           other_contacts: []
         }
       }
@@ -58,6 +59,7 @@
           specialist_contacts: [],
           referrer_contacts: [],
           invoice_to_contacts: [],
+          emergency_contacts: [],
           other_contacts: []
         };
       },

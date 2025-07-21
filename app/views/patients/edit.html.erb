@@ -100,7 +100,7 @@
             <div id="js-contact-tags-wrap">
               <%
                 associated_contacts_ids = (@update_patient_form.referrer_contact_ids + @update_patient_form.invoice_to_contact_ids +
-                                        @update_patient_form.doctor_contact_ids + @update_patient_form.specialist_contact_ids +
+                                        @update_patient_form.doctor_contact_ids + @update_patient_form.specialist_contact_ids + @update_patient_form.emergency_contact_ids +
                                         @update_patient_form.other_contact_ids).map(&:presence).compact.uniq
 
                 associated_contacts = current_business.contacts.where(id: associated_contacts_ids)
@@ -125,6 +125,11 @@
               <div class="form-group">
                 <label>Specialist:</label>
                 <%= f.input :specialist_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
+              </div>
+
+              <div class="form-group">
+                <label>Emergency:</label>
+                <%= f.input :emergency_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
               </div>
 
               <div class="form-group">

@@ -12,6 +12,7 @@ module PatientContactTagging
       #   - patient_specialist_contacts
       #   - patient_referrer_contacts
       #   - patient_invoice_to_contacts
+      #   - patient_emergency_contacts
       #   - patient_other_contacts
       has_many(
         assoc_name,
@@ -25,6 +26,7 @@ module PatientContactTagging
       #   - specialist_contacts
       #   - referrer_contacts
       #   - invoice_to_contacts
+      #   - emergency_contacts
       #   - other_contacts
 
       define_method "#{normalized_contact_type}_contacts" do
@@ -38,6 +40,7 @@ module PatientContactTagging
       #   - primary_specialist_contact
       #   - primary_referrer_contact
       #   - primary_invoice_to_contact
+      #   - primary_emergency_contact
       #   - primary_other_contact
       # @return Contact
       define_method "primary_#{normalized_contact_type}_contact" do
@@ -51,6 +54,7 @@ module PatientContactTagging
       #   - specialist_contact_ids
       #   - referrer_contact_ids
       #   - invoice_to_contact_ids
+      #   - emergency_contact_ids
       #   - other_contact_ids
       attr_accessor contact_ids_attr
 
