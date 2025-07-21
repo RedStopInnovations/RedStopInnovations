@@ -30,8 +30,11 @@ Rails.application.routes.draw do
 
   namespace :admin, path: super_admin_prefix do
     root to: 'dashboard#index'
+    get 'profile', to: 'profile#show', as: :profile
+    put 'profile', to: 'profile#update', as: :update_profile
     get 'tools', to: 'tools#index', as: :tools
     get 'dashboard', to: 'dashboard#index', as: :dashboard
+
     resources :users, only: [:index, :show, :edit, :update] do
       member do
         post :resend_invitation_email
@@ -43,26 +46,18 @@ Rails.application.routes.draw do
       end
     end
 
-    get 'profile', to: 'profile#show', as: :profile
-    put 'profile', to: 'profile#update', as: :update_profile
     resources :practitioners, only: [:index, :show, :edit, :update] do
      collection do
         post :bulk_approve_profile
         post :bulk_reject_profile
       end
+
       member do
         put :approval
         post :delete_avatar
       end
     end
-    resources :referrals do
-      member do
-        put :assign_business, path: 'assign-business'
-        post :send_nearby_practitioners, path: 'send-nearby-practitioners'
-      end
-    end
-    resources :courses
-    resources :tags
+
     resources :businesses, only: [:index, :show, :edit, :update] do
       collection do
         post :bulk_approve
@@ -73,24 +68,9 @@ Rails.application.routes.draw do
         put :suspend
       end
     end
-    resources :seopages
-    resources :receptionists
-    resources :posts, except: [:new, :create] do
-      member do
-        put :approval
-      end
-    end
-    resources :patients, only: [:index, :show, :edit, :update] do
-      member do
-        get :invoices
-        get :payments
-        get :appointments
-      end
-    end
 
-    resources :invoices, only: [:index, :show]
-    resources :payments, only: [:index, :show]
-    resources :subscription_discounts
+    resources :receptionists
+
     resources :subscriptions, only: [:index, :show] do
       member do
         get :invoices
@@ -98,7 +78,9 @@ Rails.application.routes.draw do
         put :update_settings
       end
     end
+
     resources :subscription_payments
+
     resources :business_invoices do
       member do
         post :charge
@@ -108,6 +90,7 @@ Rails.application.routes.draw do
         put :reset_items
       end
     end
+
     resources :reviews do
       member do
         put :approval
@@ -121,9 +104,9 @@ Rails.application.routes.draw do
       scope :appointments, controller: :appointments do
         get :appointments_summary
       end
+
       scope :subscriptions, controller: :subscriptions do
         get :revenue_summary
-        get :lifetime_value_summary
       end
 
       scope :business, controller: :business do

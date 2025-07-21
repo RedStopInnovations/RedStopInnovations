@@ -68,7 +68,6 @@
 class Practitioner < ApplicationRecord
   include RansackAuthorization::Practitioner
   include HasAddressGeocoding
-  include HasMarketplaceScope
 
   PROFESSIONS = [
     "Physiotherapist",

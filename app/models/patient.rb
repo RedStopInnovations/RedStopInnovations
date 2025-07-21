@@ -57,7 +57,6 @@ class Patient < ApplicationRecord
   include RansackAuthorization::Patient
   include HasAddressGeocoding
   include PatientContactTagging
-  include HasMarketplaceScope
   include DeletionRecordable
 
   acts_as_paranoid

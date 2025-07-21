@@ -64,7 +64,6 @@ module Tracksy
       allow do
         origins '*'
         resource '/api/v1/*', :headers => :any, :methods => [:get, :post, :options]
-        resource '/api/marketplace/*', :headers => :any, :methods => [:get, :post, :options]
       end
     end
 

@@ -31,7 +31,6 @@
 #  is_partner          :boolean          default(FALSE)
 #  active              :boolean          default(FALSE)
 #  currency            :string           default("aud")
-#  marketplace_id      :integer
 #  policy_url          :string
 #  suspended           :boolean          default(FALSE)
 #  accounting_email    :string
@@ -40,7 +39,6 @@
 #
 #  index_businesses_on_active          (active)
 #  index_businesses_on_is_partner      (is_partner)
-#  index_businesses_on_marketplace_id  (marketplace_id)
 #
 
 class Business < ApplicationRecord
@@ -161,7 +159,6 @@ class Business < ApplicationRecord
   before_save :set_currency
 
   scope :active, -> { where active: true }
-  scope :within_marketplace, -> (marketplace_id){ where(marketplace_id: marketplace_id) }
 
   def in_trial_period?
     self.subscription.trial_end.future?

@@ -24,7 +24,6 @@
 #
 
 class BillableItem < ApplicationRecord
-  include HasMarketplaceScope
   belongs_to :business
   belongs_to :tax
 

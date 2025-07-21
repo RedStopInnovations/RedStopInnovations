@@ -7,7 +7,7 @@ module Admin
 
     def index
       @search_query =  Practitioner.joins(:user)
-                                   .includes(:tags, :business)
+                                   .includes(:business)
                                    .where(users: { is_practitioner: true })
 
       @search_query = @search_query.where(active: :true) unless params[:include_inactive].present?

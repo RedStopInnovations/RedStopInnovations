@@ -24,20 +24,8 @@
   <body class="fixed skin-purple-light sidebar-mini <%= yield(:body_class) %>">
     <div class="wrapper">
       <% if admin_user_signed_in? %>
-        <% case current_admin_user.role %>
-        <% when AdminUser::SUPER_ADMIN_ROLE %>
-          <%= render 'layouts/admin/header' %>
-        <% when AdminUser::MARKETPLACE_ADMIN_ROLE %>
-          <%= render 'layouts/admin/marketplace_admin_header' %>
-        <% end %>
-
-
-        <% case current_admin_user.role %>
-        <% when AdminUser::SUPER_ADMIN_ROLE %>
-          <%= render 'layouts/admin/sidebar' %>
-        <% when AdminUser::MARKETPLACE_ADMIN_ROLE %>
-          <%= render 'layouts/admin/marketplace_admin_sidebar' %>
-        <% end %>
+        <%= render 'layouts/admin/header' %>
+        <%= render 'layouts/admin/sidebar' %>
       <% end %>
 
       <div class="content-wrapper dash_app">

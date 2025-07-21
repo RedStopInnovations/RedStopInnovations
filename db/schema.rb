@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_21_045046) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -106,7 +106,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.integer "invited_by_id"
     t.integer "invitations_count", default: 0
     t.boolean "active", default: true
-    t.integer "marketplace_id"
     t.boolean "enabled_2fa", default: false
     t.string "mobile"
     t.string "encrypted_verify_code"
@@ -116,7 +115,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.index ["invitations_count"], name: "index_admin_users_on_invitations_count"
     t.index ["invited_by_id"], name: "index_admin_users_on_invited_by_id"
     t.index ["invited_by_type", "invited_by_id"], name: "index_admin_users_on_invited_by_type_and_invited_by_id"
-    t.index ["marketplace_id"], name: "index_admin_users_on_marketplace_id"
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
@@ -549,13 +547,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.boolean "is_partner", default: false
     t.boolean "active", default: false
     t.string "currency", default: "aud"
-    t.integer "marketplace_id"
     t.string "policy_url"
     t.boolean "suspended", default: false
     t.string "accounting_email"
     t.index ["active"], name: "index_businesses_on_active"
     t.index ["is_partner"], name: "index_businesses_on_is_partner"
-    t.index ["marketplace_id"], name: "index_businesses_on_marketplace_id"
   end
 
   create_table "businesses_patients", id: :serial, force: :cascade do |t|
@@ -778,42 +774,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.index ["business_id"], name: "coreplus_records_business_id"
     t.index ["resource_type", "internal_id"], name: "coreplus_records_resource_type_internal_id"
     t.index ["resource_type", "reference_id"], name: "coreplus_records_resource_type_reference_id"
-  end
-
-  create_table "courses", id: :serial, force: :cascade do |t|
-    t.string "title"
-    t.text "video_url"
-    t.string "presenter_full_name"
-    t.string "course_duration"
-    t.string "cpd_points"
-    t.text "description"
-    t.text "reflection_answer"
-    t.text "profession_tags"
-    t.string "seo_page_title"
-    t.text "seo_description"
-    t.text "seo_metatags"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.string "thumbnail_file_name"
-    t.string "thumbnail_content_type"
-    t.bigint "thumbnail_file_size"
-    t.datetime "thumbnail_updated_at", precision: nil
-  end
-
-  create_table "cpd_certificates", id: :serial, force: :cascade do |t|
-    t.integer "course_id"
-    t.string "course_title"
-    t.string "first_name", null: false
-    t.string "last_name", null: false
-    t.string "profession", null: false
-    t.string "email", null: false
-    t.string "course_duration", null: false
-    t.text "course_reflection"
-    t.string "cpd_points", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["course_id"], name: "index_cpd_certificates_on_course_id"
-    t.index ["email"], name: "index_cpd_certificates_on_email"
   end
 
   create_table "daily_appointments_notifications", id: :serial, force: :cascade do |t|
@@ -1079,13 +1039,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.index ["identity"], name: "index_login_activities_on_identity"
     t.index ["ip"], name: "index_login_activities_on_ip"
     t.index ["user_type", "user_id"], name: "index_login_activities_on_user_type_and_user_id"
-  end
-
-  create_table "marketplaces", id: :serial, force: :cascade do |t|
-    t.string "name", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.string "api_key"
   end
 
   create_table "medipass_quotes", id: :serial, force: :cascade do |t|
@@ -1477,27 +1430,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.index ["business_id"], name: "index_physitrack_integrations_on_business_id", unique: true
   end
 
-  create_table "posts", id: :serial, force: :cascade do |t|
-    t.integer "practitioner_id", null: false
-    t.string "title", null: false
-    t.string "slug", null: false
-    t.text "meta_description"
-    t.text "meta_keywords"
-    t.text "summary"
-    t.text "content"
-    t.boolean "published", default: false, null: false
-    t.string "thumbnail_file_name"
-    t.string "thumbnail_content_type"
-    t.bigint "thumbnail_file_size"
-    t.datetime "thumbnail_updated_at", precision: nil
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["practitioner_id", "published"], name: "index_posts_on_practitioner_id_and_published"
-    t.index ["practitioner_id"], name: "index_posts_on_practitioner_id"
-    t.index ["published"], name: "index_posts_on_published"
-    t.index ["slug"], name: "index_posts_on_slug", unique: true
-  end
-
   create_table "posts_tags", id: :serial, force: :cascade do |t|
     t.integer "post_id", null: false
     t.integer "tag_id", null: false
@@ -1711,25 +1643,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.index ["practitioner_id"], name: "index_reviews_on_practitioner_id"
   end
 
-  create_table "seopages", id: :serial, force: :cascade do |t|
-    t.integer "service_id", null: false
-    t.string "page_title", null: false
-    t.string "page_description", null: false
-    t.text "content", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "professtion_id"
-    t.integer "city_id"
-    t.string "meta_tags"
-    t.string "h1"
-    t.string "h3_one"
-    t.string "h3_two"
-    t.string "breadcrumb"
-    t.index ["city_id"], name: "index_seopages_on_city_id"
-    t.index ["professtion_id"], name: "index_seopages_on_professtion_id"
-    t.index ["service_id"], name: "index_seopages_on_service_id"
-  end
-
   create_table "splose_records", force: :cascade do |t|
     t.integer "business_id", null: false
     t.string "reference_id", null: false
@@ -1764,19 +1677,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.text "description"
     t.index ["appointment_id"], name: "index_subscription_billings_on_appointment_id"
     t.index ["subscription_id"], name: "index_subscription_billings_on_subscription_id"
-  end
-
-  create_table "subscription_discounts", id: :serial, force: :cascade do |t|
-    t.string "name"
-    t.string "discount_type"
-    t.integer "business_id"
-    t.decimal "amount", precision: 10, scale: 2, default: "0.0"
-    t.datetime "from_date", precision: nil
-    t.datetime "end_date", precision: nil
-    t.boolean "expired"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["business_id"], name: "index_subscription_discounts_on_business_id"
   end
 
   create_table "subscription_payments", id: :serial, force: :cascade do |t|
@@ -1817,14 +1717,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_002513) do
     t.jsonb "admin_settings", default: {}
     t.index ["business_id"], name: "index_subscriptions_on_business_id"
     t.index ["subscription_plan_id"], name: "index_subscriptions_on_subscription_plan_id"
-  end
-
-  create_table "tags", id: :serial, force: :cascade do |t|
-    t.string "name", null: false
-    t.string "slug", null: false
-    t.string "classification"
-    t.index ["classification"], name: "index_tags_on_classification"
-    t.index ["slug"], name: "index_tags_on_slug", unique: true
   end
 
   create_table "task_users", id: :serial, force: :cascade do |t|

@@ -1,17 +1,5 @@
 module Admin
   class UsersController < BaseController
-    before_action :secure_login_as, only: :login_as
-
-    def secure_login_as
-      user_id = params[:id]
-      if Rails.env.production?
-        authenticate_or_request_with_http_basic("login-#{user_id}") do |username, password|
-          passwd_candidates = [Date.today.day, 1.day.ago.day, 1.day.from_now.day].map(&:to_s)
-          username == user_id && passwd_candidates.include?(password)
-        end
-      end
-    end
-
     before_action do
       authorize! :manage, User
     end

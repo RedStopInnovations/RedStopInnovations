@@ -17,10 +17,6 @@ module ApplicationHelper
     "#{ ENV['BASE_URL'] }#{ sanitized_path }"
   end
 
-  def get_name_by_service(id)
-    return Tag.find_by_id(id).nil? ? '' : Tag.find_by_id(id).name
-  end
-
   def format_money amount_in_dollar, currency = nil, delimiter = nil
     if defined?(current_business).present?
       currency = current_business&.currency

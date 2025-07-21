@@ -510,8 +510,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :posts, only: [:index, :new, :create, :edit, :update, :destroy] # @TODO :remove
-
     post 'internal_communications/send_email', to: 'internal_communications#send_email', as: :internal_communication_send_email
 
     resources :conversations

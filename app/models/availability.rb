@@ -51,7 +51,6 @@
 
 class Availability < ApplicationRecord
   include HasAddressGeocoding
-  include HasMarketplaceScope
 
   ROUTING_STATUS_OK = 'OK'
   ROUTING_STATUS_ERROR = 'ERROR'

@@ -68,8 +68,6 @@
 
     <h3>Admin Settings</h3>
     <div class="box">
-      <%= f_p.input :tag_ids, as: :select, label: 'Tags', collection: Tag.all, label_method: :name, input_html: { multiple: true, class: 'selectize' } %>
-
       <%= f_p.input :approved, label: 'Profile approved?' %>
       <%= f_p.input :public_profile %>
       <%= f_p.input :allow_online_bookings %>

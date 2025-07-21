@@ -28,7 +28,6 @@
 #  invited_by_id          :integer
 #  invitations_count      :integer          default(0)
 #  active                 :boolean          default(TRUE)
-#  marketplace_id         :integer
 #  enabled_2fa            :boolean          default(FALSE)
 #  mobile                 :string
 #  encrypted_verify_code  :string
@@ -40,7 +39,6 @@
 #  index_admin_users_on_invitation_token      (invitation_token) UNIQUE
 #  index_admin_users_on_invitations_count     (invitations_count)
 #  index_admin_users_on_invited_by_id         (invited_by_id)
-#  index_admin_users_on_marketplace_id        (marketplace_id)
 #  index_admin_users_on_reset_password_token  (reset_password_token) UNIQUE
 #
 
@@ -48,7 +46,6 @@ class AdminUser < ApplicationRecord
   ROLES = [
     SUPER_ADMIN_ROLE  = 'super_admin',
     RECEPTIONIST_ROLE = 'receptionist',
-    MARKETPLACE_ADMIN_ROLE = 'marketplace_admin',
   ]
 
   devise :database_authenticatable,
@@ -89,10 +86,6 @@ class AdminUser < ApplicationRecord
     role == SUPER_ADMIN_ROLE
   end
 
-  def is_marketplace_admin?
-    role == MARKETPLACE_ADMIN_ROLE
-  end
-
   def timezone
     App::DEFAULT_TIME_ZONE
   end
@@ -101,8 +94,6 @@ class AdminUser < ApplicationRecord
     case role
     when RECEPTIONIST_ROLE, SUPER_ADMIN_ROLE
       Patient.all
-    when MARKETPLACE_ADMIN_ROLE
-      Patient.within_marketplace(marketplace_id)
     else
       Patient.none
     end
