@@ -185,10 +185,6 @@ class Patient < ApplicationRecord
     !import_id.nil?
   end
 
-  def timezone
-    'UTC'
-  end
-
   def archived?
     archived_at?
   end

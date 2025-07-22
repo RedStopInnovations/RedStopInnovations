@@ -152,7 +152,7 @@ namespace :splose do |args|
       general_info_lines = [splose_attrs['extraInfo'].presence]
 
       if splose_attrs['emergencyContactName'].present? || splose_attrs['emergencyContactNumber'].present?
-        general_info_lines << "Emergency contact: #{splose_attrs['emergencyContactName'].strip} (#{splose_attrs['emergencyContactNumber'].strip})"
+        general_info_lines << "Emergency contact: #{splose_attrs['emergencyContactName'].to_s.strip} (#{splose_attrs['emergencyContactNumber'].to_s.strip})"
       end
 
       if splose_attrs['extraBillingInfo'].present?
@@ -202,7 +202,7 @@ namespace :splose do |args|
           business_name: splose_attrs['emergencyContactName'].strip,
           phone: splose_attrs['emergencyContactNumber'].strip
         ) do |contact|
-          contact.type = 'Emergency'
+          contact.contact_type = 'Emergency'
         end
 
         associations << {

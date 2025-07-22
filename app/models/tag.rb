@@ -8,7 +8,7 @@ class Tag < ApplicationRecord
 
   validates :name,
             presence: true,
-            length: { maximum: 25 }
+            length: { maximum: 50 }
 
   validates :color,
             presence: true,

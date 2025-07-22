@@ -87,7 +87,7 @@ class Contact < ApplicationRecord
 
   validates :business_name,
             presence: true,
-            length: { maximum: 100 }
+            length: { maximum: 255 }
 
   validates :first_name, :last_name,
             length: { maximum: 25 },
