@@ -331,7 +331,7 @@ namespace :splose do |args|
 
       if res['links']['nextPage'].present?
         log "Next page found. Fetching more patients ..."
-        sleep(5)
+        sleep(15)
         fetch_patients(res['links']['nextPage'])
       end
     end
