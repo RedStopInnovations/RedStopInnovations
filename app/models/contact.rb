@@ -43,7 +43,8 @@ class Contact < ApplicationRecord
   include DeletionRecordable
 
   TYPES = [
-    'Standard'
+    'Standard',
+    'Emergency'
   ]
 
   acts_as_paranoid

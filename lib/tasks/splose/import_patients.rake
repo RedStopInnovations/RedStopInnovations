@@ -1,7 +1,8 @@
 namespace :splose do |args|
-  # bin/rails splose:import_patients business_id=1 api_key=xxx force_update=1
+  # bin/rails splose:import_patients business_id=1 api_key=xxx force_update=1 splose_base_url=https://tbu.splose.com
   task import_patients: :environment do
     @patient_tags = []
+    @splose_base_url = nil
 
     def map_patient_attrs(splose_attrs)
       internal_attrs = {}
@@ -27,8 +28,6 @@ namespace :splose do |args|
         else
           nil
         end
-
-      internal_attrs[:general_info] = splose_attrs['extraInfo'].presence
 
       if splose_attrs['archived']
         internal_attrs[:archived_at] = splose_attrs['updatedAt']
@@ -149,6 +148,24 @@ namespace :splose do |args|
         internal_attrs[:tag_ids] = []
       end
 
+      # Other info
+      general_info_lines = [splose_attrs['extraInfo'].presence]
+
+      if splose_attrs['emergencyContactName'].present? || splose_attrs['emergencyContactNumber'].present?
+        general_info_lines << "Emergency contact: #{splose_attrs['emergencyContactName'].strip} (#{splose_attrs['emergencyContactNumber'].strip})"
+      end
+
+      if splose_attrs['extraBillingInfo'].present?
+        general_info_lines << "Extra invoice billing details: #{splose_attrs['extraBillingInfo'].strip}"
+      end
+
+      if @splose_base_url.present?
+        general_info_lines << "Splose URL: #{@splose_base_url}/patients/#{splose_attrs['id']}"
+      end
+
+      internal_attrs[:general_info] = general_info_lines.compact.join("\n\n").strip.presence
+
+      # Timestamps
       internal_attrs[:created_at] = Time.parse(splose_attrs['createdAt']) if splose_attrs['createdAt'].present?
       internal_attrs[:updated_at] = Time.parse(splose_attrs['updatedAt']) if splose_attrs['updatedAt'].present?
       internal_attrs[:deleted_at] = Time.parse(splose_attrs['deletedAt']) if splose_attrs['deletedAt'].present?
@@ -157,7 +174,8 @@ namespace :splose do |args|
     end
 
     def map_associated_contacts(splose_attrs)
-      internal_associated_contacts = []
+      associations = []
+
       splose_invoice_to_contact_id = splose_attrs['invoiceRecipientId'].presence
       if splose_invoice_to_contact_id.present?
         import_contact = SploseImportRecord.find_by(
@@ -167,14 +185,33 @@ namespace :splose do |args|
         )
 
         if import_contact.present?
-          internal_associated_contacts << {
+          associations << {
             type: PatientContact::TYPE_INVOICE_TO,
             contact_id: import_contact.internal_id
           }
         end
       end
 
-      internal_associated_contacts
+      if splose_attrs['emergencyContactName'].present? && splose_attrs['emergencyContactNumber'].present?
+        # Splose data sample:
+        # "emergencyContactNumber": "0123456",
+        # "emergencyContactName": "Test emergency contact",
+        # "emergencyContactRelationship": "Wife"
+        emergency_contact = ::Contact.find_or_create_by!(
+          business_id: @business.id,
+          business_name: splose_attrs['emergencyContactName'].strip,
+          phone: splose_attrs['emergencyContactNumber'].strip
+        ) do |contact|
+          contact.type = 'Emergency'
+        end
+
+        associations << {
+          type: PatientContact::TYPE_EMERGENCY,
+          contact_id: emergency_contact.id
+        }
+      end
+
+      associations
     end
 
     class SploseImportRecord < ActiveRecord::Base
@@ -194,6 +231,7 @@ namespace :splose do |args|
     business_id = ENV['business_id']
     api_key = ENV['api_key']
     @force_update = ENV['force_update'] == '1' || ENV['force_update'] == 'true'
+    @splose_base_url = ENV['splose_base_url'].presence
     # @update_since = ENV['update_since'].presence # TODO: apply this to import only records updated since this date. @see: https://docs.splose.com/api-reference/endpoints/patient/get-a-paged-array-of-patients#parameter-update-gt
 
     if business_id.blank? || api_key.blank?
