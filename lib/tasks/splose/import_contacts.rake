@@ -4,6 +4,7 @@ namespace :splose do |args|
     def map_contact_attrs(splose_attrs)
       internal_attrs = {}
 
+      internal_attrs[:contact_type] = splose_attrs['type'].presence
       internal_attrs[:title] = splose_attrs['title'].presence
       internal_attrs[:first_name] = splose_attrs['firstName'].presence
       internal_attrs[:last_name] = splose_attrs['lastName'].presence

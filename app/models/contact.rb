@@ -3,6 +3,7 @@
 # Table name: contacts
 #
 #  id                     :integer          not null, primary key
+#  contact_type           :string
 #  business_name          :string
 #  title                  :string
 #  first_name             :string
@@ -40,6 +41,10 @@ class Contact < ApplicationRecord
   include RansackAuthorization::Contact
   include HasAddressGeocoding
   include DeletionRecordable
+
+  TYPES = [
+    'Standard'
+  ]
 
   acts_as_paranoid
   auto_strip_attributes :title, :business_name, :first_name, :last_name, squish: true
