@@ -17,6 +17,8 @@ class CreatePatientForm < BaseForm
   attribute :emergency_contact_ids, Array[Integer]
   attribute :other_contact_ids, Array[Integer]
 
+  attribute :tag_ids, Array[Integer]
+
   attribute :email, String
   attribute :phone, String
   attribute :mobile, String

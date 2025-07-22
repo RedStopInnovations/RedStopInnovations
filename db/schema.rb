@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_21_101403) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_22_015702) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1360,6 +1360,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_21_101403) do
     t.string "address3"
     t.string "middle_name"
     t.index ["deleted_at"], name: "index_patients_on_deleted_at"
+  end
+
+  create_table "patients_tags", force: :cascade do |t|
+    t.bigint "patient_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["patient_id", "tag_id"], name: "index_patients_tags_on_patient_id_and_tag_id", unique: true
+    t.index ["patient_id"], name: "index_patients_tags_on_patient_id"
+    t.index ["tag_id"], name: "index_patients_tags_on_tag_id"
   end
 
   create_table "payment_allocations", id: :serial, force: :cascade do |t|

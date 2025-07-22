@@ -145,6 +145,13 @@
           <div class="panel-body">
             <div class="row">
               <div class="col-md-6">
+                <label>Tags</label>
+                <%= f.input :tag_ids, as: :select, label: false, collection: current_business.tags.all, include_hidden: false, label_method: :name, input_html: { multiple: true, id: 'js-input-patient-tags' } %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
                 <%= f.input :nationality %>
               </div>
               <div class="col-md-6">
@@ -313,6 +320,26 @@
         })[0].selectize;
 
         contactSelectizies.push(selectize);
+      });
+
+      var allTags = JSON.parse('<%= j current_business.tags.type_patient.to_a.to_json.html_safe %>');
+      $('#js-input-patient-tags').selectize({
+        plugins: ['remove_button'],
+        options: [],
+        valueField: 'id',
+        addPrecedence: false,
+        labelField: 'name',
+        searchField: ['name'],
+        options: allTags,
+        render: {
+          item: function (item, escape) {
+              return (
+              "<div>" +
+                '<span class="badge" style="margin-bottom: 2px; background-color: ' + item.color +'">' + escape(item.name) + "</span>" +
+              "</div>"
+              );
+          }
+        },
       });
 
     })();

@@ -139,6 +139,19 @@
                   </div>
                 </div>
               </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="block-info">
+                    <strong>Tags:</strong>
+                    <p>
+                      <span class="badge mr-5" v-for="tag in patient.tags" :key="tag.id" :style="{'background-color': tag.color}">{{ tag.name }}</span>
+                      <span v-if="patient.tags.length === 0" class="text-muted">--</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             <div id="patient-contacts-tab" class="tab-pane fade">

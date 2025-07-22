@@ -163,6 +163,7 @@ class Patient < ApplicationRecord
   has_many :account_statements, as: :source
   has_many :tasks
   has_one :stripe_customer, class_name: 'PatientStripeCustomer', inverse_of: :patient
+  has_and_belongs_to_many :tags
 
   before_save :set_full_name_attr, :format_phone_and_mobile
   before_save :strip_medicare_details,

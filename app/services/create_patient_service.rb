@@ -75,7 +75,9 @@ class CreatePatientService
       :referrer_contact_ids,
       :invoice_to_contact_ids,
       :emergency_contact_ids,
-      :other_contact_ids
+      :other_contact_ids,
+
+      :tag_ids
     ))
 
     patient.business_id = business.id

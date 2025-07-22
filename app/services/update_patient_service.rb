@@ -68,7 +68,8 @@ class UpdatePatientService
       :referrer_contact_ids,
       :invoice_to_contact_ids,
       :emergency_contact_ids,
-      :other_contact_ids
+      :other_contact_ids,
+      :tag_ids
     ))
 
     patient.save!

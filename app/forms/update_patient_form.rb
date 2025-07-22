@@ -31,6 +31,7 @@ class UpdatePatientForm < BaseForm
   attribute :specialist_contact_ids, Array[Integer]
   attribute :emergency_contact_ids, Array[Integer]
   attribute :other_contact_ids, Array[Integer]
+  attribute :tag_ids, Array[Integer]
 
   validates_presence_of :first_name,
                         :last_name,
@@ -102,6 +103,8 @@ class UpdatePatientForm < BaseForm
     attrs[:specialist_contact_ids] = patient.specialist_contact_ids
     attrs[:emergency_contact_ids] = patient.emergency_contact_ids
     attrs[:other_contact_ids] = patient.other_contact_ids
+
+    attrs[:tag_ids] = patient.tag_ids
 
     new(attrs)
   end

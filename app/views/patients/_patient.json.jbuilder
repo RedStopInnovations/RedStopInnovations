@@ -23,4 +23,5 @@ json.extract! patient,
               :general_info,
               :reminder_enable,
               :mobile_formated,
-              :phone_formated
+              :phone_formated,
+              :tags
