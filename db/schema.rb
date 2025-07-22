@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_22_033322) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_22_034327) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1444,15 +1444,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_22_033322) do
     t.index ["business_id"], name: "index_physitrack_integrations_on_business_id", unique: true
   end
 
-  create_table "posts_tags", id: :serial, force: :cascade do |t|
-    t.integer "post_id", null: false
-    t.integer "tag_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["post_id"], name: "index_posts_tags_on_post_id"
-    t.index ["tag_id"], name: "index_posts_tags_on_tag_id"
-  end
-
   create_table "practitioner_business_hours", force: :cascade do |t|
     t.integer "practitioner_id", null: false
     t.integer "day_of_week", null: false
@@ -1530,13 +1521,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_22_033322) do
     t.index ["business_id"], name: "index_practitioners_on_business_id"
     t.index ["slug"], name: "index_practitioners_on_slug"
     t.index ["user_id"], name: "index_practitioners_on_user_id"
-  end
-
-  create_table "practitioners_tags", id: :serial, force: :cascade do |t|
-    t.integer "practitioner_id", null: false
-    t.integer "tag_id", null: false
-    t.index ["practitioner_id"], name: "index_practitioners_tags_on_practitioner_id"
-    t.index ["tag_id"], name: "index_practitioners_tags_on_tag_id"
   end
 
   create_table "product_myob_items", id: :serial, force: :cascade do |t|
