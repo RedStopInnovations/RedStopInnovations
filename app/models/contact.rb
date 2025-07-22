@@ -7,17 +7,20 @@
 #  title                  :string
 #  first_name             :string
 #  last_name              :string
+#  company_name           :string
 #  phone                  :string
 #  mobile                 :string
 #  fax                    :string
 #  email                  :string
 #  address1               :string
 #  address2               :string
+#  address3               :string
 #  city                   :string
 #  state                  :string
 #  postcode               :string
 #  country                :string
-#  created_at             :datetime         not null
+#  archived_at            :datetime
+#  updated_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  business_id            :integer
 #  notes                  :text
@@ -43,7 +46,9 @@ class Contact < ApplicationRecord
 
   has_paper_trail(
     only: [
-      :business_name, :title, :first_name, :last_name, :email, :address1, :address2, :city, :state, :postcode, :country
+      :business_name, :title, :first_name, :last_name, :email,
+      :address1, :address2, :address3, :city, :state, :postcode, :country,
+      :archived_at
     ],
     on: [:create, :update, :destroy],
     versions: {
@@ -96,6 +101,8 @@ class Contact < ApplicationRecord
 
 
   before_save :set_full_name_attr
+
+  scope :not_archived, -> { where(archived_at: nil) }
 
   private
 

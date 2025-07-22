@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_22_015702) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_22_031442) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -733,6 +733,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_22_015702) do
     t.jsonb "metadata", default: {}
     t.text "important_notification"
     t.string "company_name"
+    t.string "address3"
+    t.datetime "archived_at"
     t.index ["business_id"], name: "index_contacts_on_business_id"
   end
 

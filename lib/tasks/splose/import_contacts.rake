@@ -15,7 +15,8 @@ namespace :splose do |args|
 
       internal_attrs[:address1] = splose_attrs['addressL1'].presence
       internal_attrs[:address2] = splose_attrs['addressL2'].presence
-      internal_attrs[:city] = splose_attrs['city'].presence
+      internal_attrs[:address3] = splose_attrs['addressL3'].presence
+      internal_attrs[:city] = splose_attrs['suburb'].presence || splose_attrs['city'].presence
       internal_attrs[:postcode] = splose_attrs['postalCode'].presence
       internal_attrs[:state] = splose_attrs['state'].presence
       internal_attrs[:country] = splose_attrs['country'].presence
@@ -23,12 +24,23 @@ namespace :splose do |args|
       if splose_attrs['phoneNumbers'].present?
         splose_attrs['phoneNumbers'].each do |phone_number|
           if phone_number['type'] == 'Mobile'
-            internal_attrs[:mobile] = phone_number['phoneNumber']
+            internal_attrs[:mobile] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
           end
+
           if phone_number['type'] == 'Home'
-            internal_attrs[:phone] = phone_number['phoneNumber']
+            internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
+          end
+
+          if phone_number['type'] == 'Work'
+            internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
           end
         end
+      end
+
+      if splose_attrs['archived']
+        internal_attrs[:archived_at] = splose_attrs['updatedAt']
+      else
+        internal_attrs[:archived_at] = nil
       end
 
       internal_attrs[:created_at] = Time.parse(splose_attrs['createdAt']) if splose_attrs['createdAt'].present?

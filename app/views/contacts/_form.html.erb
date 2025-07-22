@@ -11,7 +11,7 @@
     <div class="panel-body">
       <div class="row">
         <div class="col-md-8">
-          <%= f.input :business_name, label: 'Contact name', autofocus: true %>
+          <%= f.input :business_name, label: 'Name', autofocus: true %>
         </div>
       </div>
       <hr>
@@ -26,6 +26,7 @@
         <div class="col-md-4"><%= f.input :fax %> </div>
       </div>
       <div class="row">
+        <div class="col-md-4 col-xs-12"><%= f.input :company_name %> </div>
         <div class="col-md-4 col-xs-12"><%= f.input :email %> </div>
       </div>
       <hr>
@@ -59,7 +60,7 @@
           Create contact
         <% end %>
       </button>
-      <a href="<%= contacts_path %>" class="btn btn-white">Cancel</a>
+      <a href="<%= contact.persisted? ? contact_path(contact) : contacts_path %>" class="btn btn-white">Cancel</a>
     </div>
   </div>
 <% end %>

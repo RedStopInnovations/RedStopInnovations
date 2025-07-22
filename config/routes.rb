@@ -162,6 +162,7 @@ Rails.application.routes.draw do
         get :possible_duplicates
         post :merge
         put :update_important_notification
+        put :archive
       end
 
       resources :account_statements,

@@ -2,7 +2,7 @@ class ContactsController < ApplicationController
   include HasABusiness
 
   before_action :set_contact, only: [
-    :show, :edit, :update, :destroy, :invoices, :patients,
+    :show, :edit, :update, :archive, :destroy, :invoices, :patients,
     :possible_duplicates, :merge,
     :update_important_notification
   ]
@@ -19,7 +19,7 @@ class ContactsController < ApplicationController
       @ransack_params[:m] = 'or'
     end
 
-    @search_query = current_business.contacts.ransack(@ransack_params)
+    @search_query = current_business.contacts.not_archived.ransack(@ransack_params)
 
     @contacts = @search_query
       .result
@@ -120,6 +120,13 @@ class ContactsController < ApplicationController
                 notice: 'The contacts has been successfully merged.'
   end
 
+  def archive
+    authorize! :archive, Contact
+
+    @contact.update archived_at: Time.current
+    redirect_to contacts_url, notice: 'The contact was successfully archived.'
+  end
+
   def destroy
     authorize! :destroy, Contact
 
@@ -181,12 +188,14 @@ class ContactsController < ApplicationController
       :title,
       :first_name,
       :last_name,
+      :company_name,
       :phone,
       :mobile,
       :fax,
       :email,
       :address1,
       :address2,
+      :address,
       :city,
       :state,
       :postcode,

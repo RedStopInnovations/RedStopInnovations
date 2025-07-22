@@ -4,6 +4,10 @@
       <h1><%= @contact.business_name %>
         <br class="visible-xs">
         <small>| CRN: <span class="text-copyable" js-click-to-copy="<%= @contact.id %>"><%= @contact.id %></span></small>
+        <% if @contact.archived_at? %>
+          <small>| Archived: <%= @contact.archived_at.strftime(t('date.common')) %></small>
+        <% end %>
+
       </h1>
     </div>
 
@@ -24,7 +28,7 @@
             <% end %>
             <% if can?(:destroy, @contact) %>
             <li>
-              <a href="<%= contact_path(@contact) %>" data-confirm="Are you sure you want to delete this contact?" data-method="delete"><span class="text-danger">Delete</span> </a>
+              <a href="<%= archive_contact_path(@contact) %>" data-confirm="Are you sure you want to archive this contact?" data-method="put"><span class="text-danger">Archive</span> </a>
             <li>
             <% end %>
           </ul>

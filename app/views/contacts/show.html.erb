@@ -29,7 +29,7 @@
         <div class="row">
           <div class="col-sm-12 col-md-6">
             <div class="block-info">
-              <strong>Contact name:</strong>
+              <strong>Name:</strong>
               <p>
                 <%= @contact.business_name %>&nbsp;
               </p>
@@ -104,6 +104,34 @@
           </div>
           <div class="col-sm-4">
             <div class="block-info">
+              <strong>Fax:</strong>
+              <p>
+                <% if @contact.fax.present? %>
+                  <%= @contact.fax %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="block-info">
+              <strong>Company:</strong>
+              <p>
+                <% if @contact.company_name.present? %>
+                  <%= @contact.company_name %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="block-info">
               <strong>Email:</strong>
               <p>
                 <% if @contact.email.present? %>
@@ -115,7 +143,6 @@
             </div>
           </div>
         </div>
-
 
           <div class="row">
             <div class="col-md-12">
