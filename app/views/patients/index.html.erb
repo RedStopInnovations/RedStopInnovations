@@ -91,6 +91,12 @@
                 <% end %>
               </td>
 
+              <td style="width: 200px;">
+                <% patient.tags.each do |tag| %>
+                  <span class="badge mr-5" style="background-color: <%= tag.color %>;"><%= tag.name %></span>
+                <% end %>
+              </td>
+
               <td style="width: 120px; text-align: right">
                 <div class="btn-group" style="min-width: 90px">
                   <a href="<%= patient_path(patient) %>" class="btn btn-white">Details</a>

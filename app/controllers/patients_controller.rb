@@ -49,6 +49,7 @@ class PatientsController < ApplicationController
     @search_query = @search_query.ransack(@ransack_params)
     @patients = @search_query.
                 result.
+                includes(:tags).
                 order(last_name: :asc).
                 page(params[:page])
   end
