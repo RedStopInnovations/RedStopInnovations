@@ -87,6 +87,7 @@ class Business < ApplicationRecord
   has_many :availabilities
   has_many :contacts
   has_many :taxes
+  has_many :tags
   has_many :letter_templates
   has_many :patient_letters
   has_many :provider_number_registrations

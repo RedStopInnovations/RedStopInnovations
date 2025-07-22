@@ -433,6 +433,7 @@ Rails.application.routes.draw do
       get 'stripe_connect_callback', to: 'stripe_integration#authorize_callback'
 
       resources :treatment_shortcuts
+      resources :tags
 
       scope :medipass_integration,
             controller: :medipass_integration,

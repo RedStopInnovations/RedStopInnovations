@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_21_090429) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_21_101403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1718,6 +1718,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_21_090429) do
     t.jsonb "admin_settings", default: {}
     t.index ["business_id"], name: "index_subscriptions_on_business_id"
     t.index ["subscription_plan_id"], name: "index_subscriptions_on_subscription_plan_id"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.integer "business_id", null: false
+    t.string "tag_type", null: false
+    t.string "name", null: false
+    t.string "color", default: "#000000", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["business_id"], name: "index_tags_on_business_id"
   end
 
   create_table "task_users", id: :serial, force: :cascade do |t|
