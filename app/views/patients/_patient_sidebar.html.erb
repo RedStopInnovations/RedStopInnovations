@@ -1,9 +1,20 @@
+<%
+  invoices_count = @patient.invoices.count
+  appointments_count = @patient.appointments.count
+  attachments_count = @patient.attachments.count
+  treatment_notes_count = @patient.treatments.count
+  letters_count = @patient.letters.count
+  cases_count = @patient.patient_cases.count
+  messages_count = @patient.communications.count
+  account_statements_count = @patient.account_statements.count
+%>
+
 
 <div class="panel panel-default">
   <div class="panel-heading visible-xs" data-toggle="collapse" data-target="#js-patient-page-nav-wrap">
     <h4 class="panel-title">
       <i class="fa fa-bars"></i>
-      <span class="pull-right"><f class="fa fa-caret-down"></f></span>
+      <span class="pull-right"><i class="fa fa-caret-down"></i></span>
     </h4>
   </div>
 
@@ -18,33 +29,38 @@
         </li>
         <% if can?(:read, Invoice) %>
         <li class=<%= (controller_name == 'patients' && action_name == 'invoices') ? 'active' : '' %> >
-          <a href="<%= invoices_patient_path(@patient) %>">Invoices</a>
+          <a href="<%= invoices_patient_path(@patient) %>">Invoices <% if invoices_count > 0 %> <span class="label label-default pull-right"><%= invoices_count %></span><% end %></a>
         </li>
         <% end %>
         <li class=<%= (controller_name == 'patients' && action_name == 'appointments') ? 'active' : '' %>>
-          <a href="<%= appointments_patient_path(@patient) %>">Appointments</a>
+          <a href="<%= appointments_patient_path(@patient) %>">Appointments <% if appointments_count > 0 %> <span class="label label-default pull-right"><%= appointments_count %></span><% end %></a>
         </li>
         <li class=<%= (controller_name == 'patient_attachments' && ['index', 'show', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
-          <a href="<%= patient_attachments_path(patient_id: @patient) %>">Attachments</a>
+          <a href="<%= patient_attachments_path(patient_id: @patient) %>">Attachments <% if attachments_count > 0 %> <span class="label label-default pull-right"><%= attachments_count %></span><% end %></a>
         </li>
         <% if can?(:read, Treatment) %>
         <li class=<%= (controller_name == 'treatments' && action_name == 'index') ? 'active' : '' %>>
-          <a href="<%= patient_treatments_path(@patient) %>">Treatment notes</a>
+          <a href="<%= patient_treatments_path(@patient) %>">Treatment notes <% if treatment_notes_count > 0 %> <span class="label label-default pull-right"><%= treatment_notes_count %></span><% end %></a>
         </li>
         <% end %>
         <% if can?(:read, PatientLetter) %>
           <li class=<%= (controller_name == 'patient_letters' && ['index', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
-            <a href="<%= patient_letters_path(@patient) %>">Letters</a>
+            <a href="<%= patient_letters_path(@patient) %>">Letters <% if letters_count > 0 %> <span class="label label-default pull-right"><%= letters_count %></span><% end %></a>
           </li>
         <% end %>
         <% if can?(:read, PatientCase) %>
         <li class=<%= (controller_name == 'patients' && action_name == 'cases') ? 'active' : '' %>>
-          <a href="<%= patient_cases_path(patient_id: @patient.id) %>">Cases</a>
+          <a href="<%= patient_cases_path(patient_id: @patient.id) %>">Cases <% if cases_count > 0 %> <span class="label label-default pull-right"><%= cases_count %></span><% end %></a>
         </li>
         <% end %>
         <% if can?(:read, Communication) %>
         <li class=<%= (controller_name == 'patient_communications' && [action_name == 'index' || action_name == 'show']) ? 'active' : '' %>>
-          <a href="<%= patient_communications_path(@patient) %>">Messages</a>
+          <a href="<%= patient_communications_path(@patient) %>">Messages <% if messages_count > 0 %> <span class="label label-default pull-right"><%= messages_count %></span><% end %></a>
+        </li>
+        <% end %>
+        <% if can?(:read, Invoice) %>
+        <li class=<%= (controller_name == 'patient_account_statements' && action_name == 'published') ? 'active' : '' %>>
+          <a href="<%= published_patient_account_statements_path(@patient) %>">Published statements <% if account_statements_count > 0 %> <span class="label label-default pull-right"><%= account_statements_count %></span><% end %></a>
         </li>
         <% end %>
         <% if can?(:read, Invoice) %>
@@ -52,12 +68,6 @@
           <a href="<%= patient_account_statements_path(@patient) %>">Account statements</a>
         </li>
         <% end %>
-        <% if can?(:read, Invoice) %>
-        <li class=<%= (controller_name == 'patient_account_statements' && action_name == 'published') ? 'active' : '' %>>
-          <a href="<%= published_patient_account_statements_path(@patient) %>">Published statements</a>
-        </li>
-        <% end %>
-
         <% if current_business.physitrack_integration_enabled? %>
           <li>
             <a href="<%= open_in_physitrack_patient_path(@patient) %>" target="_blank">Create exercise program</a>

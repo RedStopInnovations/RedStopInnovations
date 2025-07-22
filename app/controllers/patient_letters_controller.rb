@@ -26,9 +26,11 @@ class PatientLettersController < ApplicationController
         render(
           pdf: download_file_name,
           template: 'pdfs/patient_letter',
+          show_as_html: params.key?('__debug__'),
           locals: {
             patient_letter: @patient_letter
-          }
+          },
+          disable_javascript: true
         )
       end
     end

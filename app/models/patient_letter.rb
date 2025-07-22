@@ -22,10 +22,10 @@
 class PatientLetter < ApplicationRecord
   belongs_to :business
   belongs_to :patient, -> { with_deleted }, inverse_of: :letters
-  belongs_to :letter_template
-  belongs_to :author, class_name: 'Practitioner'
+  belongs_to :letter_template, optional: true
+  belongs_to :author, class_name: 'Practitioner', optional: true
 
-  validates_presence_of :business, :patient, :letter_template
-  validates :description, presence: true, length: { maximum: 100 }
+  validates_presence_of :business, :patient
+  validates :description, presence: true, length: { maximum: 255 }
   validates :content, presence: true, length: { maximum: 2000000 }
 end
