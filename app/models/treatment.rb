@@ -7,14 +7,8 @@
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #  patient_id            :integer
-#  practitioner_id       :integer
 #  treatment_template_id :integer
 #  name                  :string
-#  print_name            :string
-#  print_address         :boolean          default(FALSE)
-#  print_birth           :boolean          default(FALSE)
-#  print_ref_num         :boolean          default(FALSE)
-#  print_doctor          :boolean          default(FALSE)
 #  patient_case_id       :integer
 #  status                :string
 #  sections              :text
@@ -50,11 +44,10 @@ class Treatment < ApplicationRecord
 
   serialize :sections, type: Array
 
-  belongs_to :practitioner # @TODO: remove
   belongs_to :patient, -> { with_deleted }
-  belongs_to :appointment # optional?
-  belongs_to :patient_case
-  belongs_to :author, class_name: 'User'
+  belongs_to :appointment, optional: true
+  belongs_to :patient_case, optional: true
+  belongs_to :author, class_name: 'User', optional: true
 
   belongs_to :treatment_template,
              -> { with_deleted },

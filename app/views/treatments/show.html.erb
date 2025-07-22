@@ -72,7 +72,12 @@
 
 
     <div class="panel-body">
-      <%= render 'sections', treatment: @treatment %>
+
+      <% if @treatment.content %>
+        <%= @treatment.content.html_safe %>
+      <% else %>
+        <%= render 'sections', treatment: @treatment %>
+      <% end %>
     </div>
 
   </div>

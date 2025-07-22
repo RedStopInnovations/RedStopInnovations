@@ -67,7 +67,8 @@ class TreatmentsController < ApplicationController
   def new
     @treatment = Treatment.new
 
-    @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
+    # @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
+    @available_treatment_templates = current_business.treatment_templates.order(name: :asc).to_a
 
     if params[:patient_id] &&
        current_business.patients.exists?(id: params[:patient_id])
@@ -93,6 +94,13 @@ class TreatmentsController < ApplicationController
 
   def edit
     authorize! :edit, @treatment
+
+    if @treatment.content.present?
+      redirect_back fallback_location: patient_treatment_path(@patient, @treatment),
+                    alert: 'This note is readonly'
+      return
+    end
+
     @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
 
     # Still show current template even if it's hidden to current user
@@ -131,6 +139,13 @@ class TreatmentsController < ApplicationController
 
   def update
     authorize! :edit, @treatment
+
+    if @treatment.content.present?
+      redirect_back fallback_location: patient_treatment_path(@patient, @treatment),
+                    alert: 'This note is readonly'
+      return
+    end
+
     if @treatment.author_id.blank?
       @treatment.author_id = current_user.id
     end
@@ -144,9 +159,6 @@ class TreatmentsController < ApplicationController
         )
       end
 
-      if current_business.trigger_categories.count > 0
-        # Trigger::BusinessTriggersReportWorker.perform_later(current_business.id)
-      end
       redirect_to patient_treatments_path(@patient),
               notice: 'Treatment note was successfully updated.'
     else
@@ -167,16 +179,12 @@ class TreatmentsController < ApplicationController
 
     if @treatment.status == Treatment::STATUS_DRAFT
       @treatment.destroy
-      if current_business.trigger_categories.count > 0
-        # Trigger::BusinessTriggersReportWorker.perform_later(current_business.id)
-      end
       redirect_to patient_treatments_url(@patient),
                   notice: 'Treatment was successfully deleted.'
     else
       redirect_to patient_treatments_url(@patient),
-                  alert: 'Can\'t delete this treatment note.'
+                  alert: 'Can\'t delete Final treatment note.'
     end
-
   end
 
   def export_pdf
@@ -186,11 +194,13 @@ class TreatmentsController < ApplicationController
 
         render pdf: download_file_name,
               template: "pdfs/treatments/show",
+              show_as_html: params.key?('__debug__'),
               locals: {
                 treatment: @treatment,
                 patient: @patient,
                 business: current_business
-              }
+              },
+              disable_javascript: true
       end
     end
   end
