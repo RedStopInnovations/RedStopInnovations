@@ -1,6 +1,8 @@
 namespace :splose do |args|
   # bin/rails splose:import_patients business_id=1 api_key=xxx force_update=1
   task import_patients: :environment do
+    @patient_tags = []
+
     def map_patient_attrs(splose_attrs)
       internal_attrs = {}
 
@@ -117,6 +119,36 @@ namespace :splose do |args|
         internal_attrs[:hi_details] = nil
       end
 
+      # Tags
+      splose_patient_tags = splose_attrs['patientTags'] || []
+      local_tag_ids = []
+
+      if splose_patient_tags.present?
+        splose_patient_tags.each do |tag_name|
+          # Find if tag already exists in the business
+          tag_name = tag_name.strip
+          if @patient_tags.value?(tag_name)
+            local_tag_ids << @patient_tags.key(tag_name)
+          else
+            # Create new tag if it does not exist
+            new_tag = ::Tag.create!(
+              business_id: @business.id,
+              name: tag_name,
+              color: '#000000', # Default to black if no color provided
+              tag_type: ::Tag::TYPE_PATIENT
+            )
+            @patient_tags[tag_name] = new_tag.id
+            local_tag_ids << new_tag.id
+          end
+        end
+      end
+
+      if local_tag_ids.any?
+        internal_attrs[:tag_ids] = local_tag_ids
+      else
+        internal_attrs[:tag_ids] = []
+      end
+
       internal_attrs[:created_at] = Time.parse(splose_attrs['createdAt']) if splose_attrs['createdAt'].present?
       internal_attrs[:updated_at] = Time.parse(splose_attrs['updatedAt']) if splose_attrs['updatedAt'].present?
       internal_attrs[:deleted_at] = Time.parse(splose_attrs['deletedAt']) if splose_attrs['deletedAt'].present?
@@ -130,6 +162,8 @@ namespace :splose do |args|
 
     class ImportPatient < ::ActiveRecord::Base
       self.table_name = 'patients'
+
+      has_and_belongs_to_many :tags, class_name: 'Tag', join_table: 'patients_tags', foreign_key: 'patient_id', association_foreign_key: 'tag_id'
     end
 
     def log(what)
@@ -157,6 +191,7 @@ namespace :splose do |args|
     @total = 0
     @total_creations = 0
     @total_updates = 0
+    @patient_tags = @business.tags.type_patient.pluck(:id, :name).to_h
 
     def fetch_patients(url = '/v1/patients')
       log "Fetching patients ... "
