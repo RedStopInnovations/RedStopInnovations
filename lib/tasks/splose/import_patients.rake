@@ -156,6 +156,27 @@ namespace :splose do |args|
       internal_attrs
     end
 
+    def map_associated_contacts(splose_attrs)
+      internal_associated_contacts = []
+      splose_invoice_to_contact_id = splose_attrs['invoiceRecipientId'].presence
+      if splose_invoice_to_contact_id.present?
+        import_contact = SploseImportRecord.find_by(
+          business_id: @business.id,
+          reference_id: splose_invoice_to_contact_id,
+          resource_type: 'Contact'
+        )
+
+        if import_contact.present?
+          internal_associated_contacts << {
+            type: PatientContact::TYPE_INVOICE_TO,
+            contact_id: import_contact.internal_id
+          }
+        end
+      end
+
+      internal_associated_contacts
+    end
+
     class SploseImportRecord < ActiveRecord::Base
       self.table_name = 'splose_records'
     end
@@ -209,15 +230,27 @@ namespace :splose do |args|
             resource_type: 'Patient'
           )
 
+          mapped_patient_attrs = map_patient_attrs(patient_raw_attrs)
+          mapped_associated_contacts = map_associated_contacts(patient_raw_attrs)
+
           if import_record.new_record?
-            local_patient = ImportPatient.new map_patient_attrs(patient_raw_attrs)
+            local_patient = ImportPatient.new mapped_patient_attrs
 
             local_patient.business_id = @business.id
             local_patient.save!
 
+            mapped_associated_contacts.each do |association_attrs|
+              ::PatientContact.create!(
+                patient_id: local_patient.id,
+                contact_id: association_attrs[:contact_id],
+                type: association_attrs[:type]
+              )
+            end
+
             import_record.internal_id = local_patient.id
             import_record.last_synced_at = @sync_start_at
             import_record.save!
+
             log " - Created: ##{local_patient.id} | Ref ID: #{patient_raw_attrs['id']}"
             @total_creations += 1
           else
@@ -234,9 +267,17 @@ namespace :splose do |args|
                 @total_updates += 1
               end
 
-              local_patient.assign_attributes map_patient_attrs(patient_raw_attrs)
-
+              local_patient.assign_attributes mapped_patient_attrs
               local_patient.save!
+
+              mapped_associated_contacts.each do |association_attrs|
+                ::PatientContact.find_or_create_by!(
+                  patient_id: local_patient.id,
+                  contact_id: association_attrs[:contact_id],
+                  type: association_attrs[:type],
+                )
+              end
+
               import_record.internal_id = local_patient.id
               import_record.last_synced_at = @sync_start_at
               import_record.save!
