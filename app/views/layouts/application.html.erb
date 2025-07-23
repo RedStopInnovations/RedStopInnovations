@@ -54,10 +54,6 @@
 
     <%= yield :page_js %>
 
-    <% if user_signed_in? && current_user.is_practitioner? && current_user.avatar.blank? && flash[:after_sign_in] %>
-      <%= render 'shared/modal_update_avatar' %>
-    <% end %>
-
     <% if user_signed_in? && (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
       <%= render 'layouts/dashboard/global_search' %>
     <% end %>
