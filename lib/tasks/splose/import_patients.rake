@@ -159,10 +159,6 @@ namespace :splose do |args|
         general_info_lines << "Extra invoice billing details: #{splose_attrs['extraBillingInfo'].strip}"
       end
 
-      if @splose_base_url.present?
-        general_info_lines << "Splose URL: #{@splose_base_url}/patients/#{splose_attrs['id']}"
-      end
-
       internal_attrs[:general_info] = general_info_lines.compact.join("\n\n").strip.presence
 
       # Timestamps
@@ -270,6 +266,10 @@ namespace :splose do |args|
 
           mapped_patient_attrs = map_patient_attrs(patient_raw_attrs)
           mapped_associated_contacts = map_associated_contacts(patient_raw_attrs)
+
+          if @splose_base_url.present?
+            import_record.reference_url = "#{@splose_base_url}/patients/#{patient_raw_attrs['id']}"
+          end
 
           if import_record.new_record?
             local_patient = ImportPatient.new mapped_patient_attrs

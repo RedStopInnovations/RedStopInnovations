@@ -1,6 +1,8 @@
 namespace :splose do |args|
   # bin/rails splose:import_contacts business_id=1 api_key=xxx force_update=1
   task import_contacts: :environment do
+    @splose_base_url = nil
+
     def map_contact_attrs(splose_attrs)
       internal_attrs = {}
 
@@ -66,6 +68,7 @@ namespace :splose do |args|
     business_id = ENV['business_id']
     api_key = ENV['api_key']
     @force_update = ENV['force_update'] == '1' || ENV['force_update'] == 'true'
+    @splose_base_url = ENV['splose_base_url'].presence
 
     if business_id.blank? || api_key.blank?
       raise ArgumentError, "Business ID or API key is missing!"
@@ -99,6 +102,10 @@ namespace :splose do |args|
             reference_id: contact_raw_attrs['id'],
             resource_type: 'Contact'
           )
+
+          if @splose_base_url.present?
+            import_record.reference_url = "#{@splose_base_url}/contacts/#{contact_raw_attrs['id']}"
+          end
 
           if import_record.new_record?
             local_contact = ImportContact.new map_contact_attrs(contact_raw_attrs)

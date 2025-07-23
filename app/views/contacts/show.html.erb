@@ -208,6 +208,18 @@
           </div>
         </div>
 
+        <%
+          if splose_record = SploseRecord.find_by(internal_id: @contact.id, business_id: current_business.id, resource_type: 'Contact')
+            if splose_record.reference_url.present?
+              %>
+              <p>
+                <a href="<%= splose_record.reference_url %>" target="_blank">View in Splose <i class="fa fa-external-link"></i></a>
+              </p>
+              <%
+            end
+          end
+        %>
+
       </div>
     </div>
 

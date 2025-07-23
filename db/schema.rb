@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_23_012037) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_23_025951) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1649,6 +1649,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_012037) do
     t.integer "internal_id", null: false
     t.string "resource_type", null: false
     t.datetime "last_synced_at", null: false
+    t.string "reference_url"
     t.index ["business_id"], name: "splose_records_business_id"
     t.index ["resource_type", "internal_id"], name: "splose_records_resource_type_internal_id"
     t.index ["resource_type", "reference_id"], name: "splose_records_resource_type_reference_id"

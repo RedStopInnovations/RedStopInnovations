@@ -172,6 +172,18 @@
           <% else %>
             <p><span class="text-muted">--</span></p>
           <% end %>
+
+          <%
+            if splose_record = SploseRecord.find_by(internal_id: @patient.id, business_id: current_business.id, resource_type: 'Patient')
+              if splose_record.reference_url.present?
+                %>
+                <p>
+                  <a href="<%= splose_record.reference_url %>" target="_blank">View in Splose <i class="fa fa-external-link"></i></a>
+                </p>
+                <%
+              end
+            end
+          %>
         </div>
       </div>
 
@@ -186,6 +198,9 @@
                 <p>
                   <% @patient.tags.each do |tag| %>
                     <span class="badge mr-5" style="background-color: <%= tag.color %>;"><%= tag.name %></span>
+                  <% end %>
+                  <% if @patient.tags.size == 0 %>
+                    <span class="text-muted">--</span>
                   <% end %>
                 </p>
               </div>
