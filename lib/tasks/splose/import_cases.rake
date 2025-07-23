@@ -54,9 +54,39 @@ namespace :splose do |args|
     @total_updates = 0
     @total_skipped = 0
 
+    def fetch_with_retry(url, max_attempts = 3)
+      attempt = 1
+
+      while attempt <= max_attempts
+        begin
+          log "API call attempt #{attempt}/#{max_attempts} for URL: #{url}"
+          return @api_client.call(:get, url)
+        rescue SploseApi::Exception => e
+          # Check if it's a 429 rate limit error using status_code property
+          is_rate_limit_error = e.respond_to?(:status_code) && e.status_code == 429
+
+          if is_rate_limit_error && attempt < max_attempts
+            wait_time = 10 * attempt # Linear backoff: 10, 20, 30 seconds
+            log "Rate limit hit (429 Too Many Requests). Status code: #{e.status_code}. Waiting #{wait_time} seconds before retry #{attempt + 1}/#{max_attempts}..."
+            sleep(wait_time)
+            attempt += 1
+          else
+            if is_rate_limit_error
+              log "Max retry attempts (#{max_attempts}) reached for rate limiting. Exiting import."
+              raise "Import failed: Maximum retry attempts reached due to rate limiting (status: #{e.status_code})"
+            else
+              # Re-raise non-rate-limit errors immediately
+              log "Error encountered: #{e.message} (status: #{e.respond_to?(:status_code) ? e.status_code : 'unknown'})"
+              raise e
+            end
+          end
+        end
+      end
+    end
+
     def fetch_cases(url = '/v1/cases')
       log "Fetching cases ... "
-      res = @api_client.call(:get, url)
+      res = fetch_with_retry(url)
       cases = res['data'] || []
       log "Got: #{cases.count} records."
 
@@ -132,7 +162,7 @@ namespace :splose do |args|
 
       if res['links']['nextPage'].present?
         log "Next page found. Fetching more cases ..."
-        sleep(30)
+        sleep(15)
         fetch_cases(res['links']['nextPage'])
       end
     end
