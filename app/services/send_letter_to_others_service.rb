@@ -19,7 +19,8 @@ class SendLetterToOthersService
           linked_patient_id: patient.id,
           category: 'letter_send',
           message: @patient_letter.content,
-          source: @patient_letter
+          source: @patient_letter,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         com_delivery = CommunicationDelivery.create!(

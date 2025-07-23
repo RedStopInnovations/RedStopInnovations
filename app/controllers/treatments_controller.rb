@@ -213,7 +213,8 @@ class TreatmentsController < ApplicationController
         linked_patient_id: @patient.id,
         recipient: @patient,
         category: 'treatment_note_send',
-        source: @treatment
+        source: @treatment,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       com_delivery = CommunicationDelivery.create!(
@@ -265,7 +266,8 @@ class TreatmentsController < ApplicationController
               recipient: contact,
               category: 'treatment_note_send',
               message: form.message,
-              source: @treatment
+              source: @treatment,
+              direction: Communication::DIRECTION_OUTBOUND
             )
 
             com_delivery = CommunicationDelivery.create!(
@@ -310,7 +312,8 @@ class TreatmentsController < ApplicationController
         linked_patient_id: @patient.id,
         recipient: @patient,
         category: 'treatment_note_send',
-        source: treatment_notes.first
+        source: treatment_notes.first,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       com_delivery = CommunicationDelivery.create!(

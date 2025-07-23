@@ -38,7 +38,8 @@ class InvoiceMailer < ApplicationMailer
       linked_patient_id: @patient.id,
       recipient: @patient,
       message: @content,
-      source: @invoice
+      source: @invoice,
+      direction: Communication::DIRECTION_OUTBOUND
     )
 
     com_delivery = CommunicationDelivery.create!(
@@ -131,7 +132,8 @@ class InvoiceMailer < ApplicationMailer
       linked_patient_id: @patient.id,
       recipient: contact,
       message: message,
-      source: invoice
+      source: invoice,
+      direction: Communication::DIRECTION_OUTBOUND
     )
 
     com_delivery = CommunicationDelivery.create!(

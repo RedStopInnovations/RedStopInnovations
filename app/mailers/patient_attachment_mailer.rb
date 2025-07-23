@@ -32,7 +32,8 @@ class PatientAttachmentMailer < ApplicationMailer
       linked_patient_id: @patient.id,
       recipient: @patient,
       category: 'patient_attachment_send',
-      source: @attachment
+      source: @attachment,
+      direction: Communication::DIRECTION_OUTBOUND
     )
 
     com_delivery = CommunicationDelivery.create!(

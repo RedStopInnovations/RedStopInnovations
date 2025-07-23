@@ -26,7 +26,8 @@ class SendPaymentRemittanceWorker
         linked_patient_id: patient.id,
         recipient: contact,
         message: nil,
-        source: invoice
+        source: invoice,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       com_delivery = CommunicationDelivery.create!(
@@ -55,7 +56,8 @@ class SendPaymentRemittanceWorker
           linked_patient_id: patient.id,
           recipient: patient,
           message: nil,
-          source: invoice
+          source: invoice,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         com_delivery = CommunicationDelivery.create!(

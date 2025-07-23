@@ -26,7 +26,8 @@ class AppointmentMailer < ApplicationMailer
       linked_patient_id: @patient.id,
       recipient: @patient,
       message: @content.content,
-      source: @appointment
+      source: @appointment,
+      direction: Communication::DIRECTION_OUTBOUND
     )
 
     com_delivery = CommunicationDelivery.create!(

@@ -20,7 +20,8 @@ class SendAccountStatementToOthersService
           linked_patient_id: @account_statement.source_id,
           message:  message,
           category: 'account_statement_send',
-          source: @account_statement
+          source: @account_statement,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         com_delivery = CommunicationDelivery.create!(

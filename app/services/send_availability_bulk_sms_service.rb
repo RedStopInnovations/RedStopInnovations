@@ -24,14 +24,14 @@ class SendAvailabilityBulkSmsService
         if perform_send
           sms_content = build_sms_content(appointment)
 
-          com = Communication.create!(
-            business_id: business.id,
+          com = business.communications.create!(
             message_type: Communication::TYPE_SMS,
             category: form_request.communication_category,
             recipient: patient,
             linked_patient_id: patient.id,
             message: sms_content,
-            source: appointment
+            source: appointment,
+            direction: Communication::DIRECTION_OUTBOUND
           )
 
           begin

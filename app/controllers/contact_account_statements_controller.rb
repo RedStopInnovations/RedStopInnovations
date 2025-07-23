@@ -100,7 +100,8 @@ class ContactAccountStatementsController < ApplicationController
         message_type: Communication::TYPE_EMAIL,
         recipient: @contact,
         category: 'account_statement_send',
-        source: @account_statement
+        source: @account_statement,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       com_delivery = CommunicationDelivery.create!(

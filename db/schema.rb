@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_23_091029) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_23_151935) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -666,28 +666,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_091029) do
 
   create_table "communications", id: :serial, force: :cascade do |t|
     t.integer "business_id", null: false
-    t.integer "practitioner_id"
-    t.integer "patient_id"
     t.string "message_type"
     t.string "category"
     t.string "direction"
     t.text "message"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.integer "contact_id"
     t.text "description"
-    t.text "content"
     t.integer "source_id"
     t.string "source_type"
     t.string "recipient_type"
     t.integer "recipient_id"
     t.integer "linked_patient_id"
-    t.index ["business_id", "practitioner_id"], name: "index_communications_on_business_id_and_practitioner_id"
+    t.string "subject"
+    t.string "from"
     t.index ["business_id"], name: "index_communications_on_business_id"
-    t.index ["contact_id"], name: "index_communications_on_contact_id"
-    t.index ["patient_id"], name: "index_communications_on_patient_id"
-    t.index ["practitioner_id", "patient_id"], name: "index_communications_on_practitioner_id_and_patient_id"
-    t.index ["practitioner_id"], name: "index_communications_on_practitioner_id"
     t.index ["recipient_id", "recipient_type"], name: "index_communications_on_recipient_id_and_recipient_type"
     t.index ["source_type", "source_id"], name: "index_communications_on_source_type_and_source_id"
   end

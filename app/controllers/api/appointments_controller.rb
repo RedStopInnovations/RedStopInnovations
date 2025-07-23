@@ -188,14 +188,14 @@ module Api
       else
         # @TODO: move to a job
         sms_content = build_sms_arrival_time_content(@appointment)
-        com = Communication.create!(
-          business_id: current_business.id,
+        com = current_business.communications.create!(
           message_type: Communication::TYPE_SMS,
           category: 'appointment_arrival_time',
           recipient: patient,
           linked_patient_id: patient.id,
           message: sms_content,
-          source: @appointment
+          source: @appointment,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         begin

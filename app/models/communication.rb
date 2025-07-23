@@ -4,17 +4,15 @@
 #
 #  id                :integer          not null, primary key
 #  business_id       :integer          not null
-#  practitioner_id   :integer
-#  patient_id        :integer
 #  message_type      :string
 #  category          :string
 #  direction         :string
+#  subject           :string
+#  from              :string
 #  message           :text
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  contact_id        :integer
 #  description       :text
-#  content           :text
 #  source_id         :integer
 #  source_type       :string
 #  recipient_type    :string
@@ -24,11 +22,6 @@
 # Indexes
 #
 #  index_communications_on_business_id                      (business_id)
-#  index_communications_on_business_id_and_practitioner_id  (business_id,practitioner_id)
-#  index_communications_on_contact_id                       (contact_id)
-#  index_communications_on_patient_id                       (patient_id)
-#  index_communications_on_practitioner_id                  (practitioner_id)
-#  index_communications_on_practitioner_id_and_patient_id   (practitioner_id,patient_id)
 #  index_communications_on_recipient_id_and_recipient_type  (recipient_id,recipient_type)
 #  index_communications_on_source_type_and_source_id        (source_type,source_id)
 #
@@ -38,6 +31,11 @@ class Communication < ApplicationRecord
   MESSAGE_TYPES = [
     TYPE_EMAIL = 'Email',
     TYPE_SMS   = 'SMS'
+  ]
+
+  DIRECTIONS = [
+    DIRECTION_INBOUND = 'Inbound',
+    DIRECTION_OUTBOUND = 'Outbound'
   ]
 
   belongs_to :source, polymorphic: true
@@ -83,8 +81,6 @@ class Communication < ApplicationRecord
 
   # TODO: validate message type, message length ..
   belongs_to :business
-  belongs_to :practitioner, optional: true
-  belongs_to :patient, -> { with_deleted }, optional: true
   belongs_to :contact, -> { with_deleted }, optional: true
   belongs_to :linked_patient, class_name: 'Patient'
 

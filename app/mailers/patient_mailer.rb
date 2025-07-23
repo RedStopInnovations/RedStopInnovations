@@ -25,6 +25,7 @@ class PatientMailer < ApplicationMailer
       linked_patient_id: patient.id,
       recipient: patient,
       message: com_template_renderred.content,
+      direction: Communication::DIRECTION_OUTBOUND
     )
 
     CommunicationDelivery.create!(

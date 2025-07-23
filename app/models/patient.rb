@@ -148,7 +148,6 @@ class Patient < ApplicationRecord
 
   belongs_to :business
 
-  has_many :communications
   has_many :patient_cases
   has_many :appointments
   has_many :incoming_messages

@@ -40,7 +40,8 @@ class OutstandingInvoiceReminderWorker
         linked_patient_id: patient.id,
         recipient: contact,
         message: nil,
-        source: invoice
+        source: invoice,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       com_delivery = CommunicationDelivery.create!(
@@ -71,7 +72,8 @@ class OutstandingInvoiceReminderWorker
           recipient: patient,
           category: 'invoice_outstanding_reminder',
           message: nil,
-          source: invoice
+          source: invoice,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         com_delivery = CommunicationDelivery.create!(

@@ -74,14 +74,14 @@ class AppointmentReminderWorker
     if patient.mobile? && business.communication_template_enabled?('appointment_reminder_sms')
       sms_content = build_reminder_sms_content
 
-      com = Communication.create!(
-        business_id: business.id,
+      com = business.communications.create!(
         message_type: 'SMS',
         category: 'appointment_reminder',
         recipient: patient,
         linked_patient_id: patient.id,
         message: sms_content,
-        source: @appointment
+        source: @appointment,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       begin

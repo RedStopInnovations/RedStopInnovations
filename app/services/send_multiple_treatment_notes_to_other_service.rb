@@ -16,7 +16,8 @@ class SendMultipleTreatmentNotesToOtherService
           recipient: contact,
           category: 'treatment_note_send',
           message: form.message,
-          source: delegated_treatment_note
+          source: delegated_treatment_note,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         com_delivery = CommunicationDelivery.create!(

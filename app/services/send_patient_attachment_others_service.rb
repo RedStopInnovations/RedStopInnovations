@@ -12,7 +12,8 @@ class SendPatientAttachmentOthersService
           linked_patient_id: patient.id,
           category: 'patient_attachment_send',
           message: form.message,
-          source: attachment
+          source: attachment,
+          direction: Communication::DIRECTION_OUTBOUND
         )
 
         com_delivery = CommunicationDelivery.create!(
