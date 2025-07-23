@@ -83,14 +83,7 @@
               </tr>
 
               <tr>
-                <td style="width: 180px">Created:</td>
-                <td>
-                  <%= @patient_case.created_at.strftime(t('date.common')) %>
-                </td>
-              </tr>
-
-              <tr>
-                <td>Lead practitioner:</td>
+                <td>Practitioner:</td>
                 <td>
                   <% if @patient_case.practitioner.present? %>
                     <%= @patient_case.practitioner.full_name %>
@@ -106,18 +99,20 @@
               </tr>
 
               <tr>
-                <td>Case type description:</td>
-                <td><%= @patient_case.case_type.try(:description) %></td>
-              </tr>
-
-              <tr>
-                <td>Case notes:</td>
+                <td>Notes:</td>
                 <td>
                   <% if @patient_case.notes.present? %>
                     <%= simple_format @patient_case.notes %>
                   <% else %>
                     <span class="text-muted">--</span>
                   <% end %>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="width: 180px">Created:</td>
+                <td>
+                  <%= @patient_case.created_at.strftime(t('date.common')) %>
                 </td>
               </tr>
 
@@ -133,14 +128,14 @@
     <div class="col-md-6 col-xs-12">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <strong>Budget</strong>
+          <strong>Allocation</strong>
         </div>
 
         <div class="panel-body">
           <table class="table table-borderless">
             <tbody>
               <tr>
-                <td style="width: 180px;">Total appointments:</td>
+                <td style="width: 180px;">Max invoiced appts.:</td>
                 <td>
                   <% if @patient_case.invoice_number %>
                     <%= @patient_case.invoice_number %>

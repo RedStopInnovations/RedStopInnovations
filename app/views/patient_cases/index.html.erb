@@ -22,26 +22,18 @@
               <th>Number</th>
               <th>Type</th>
               <th style="width: 70px;">Status</th>
-              <th>Lead</th>
+              <th>Practitioner</th>
+              <th>Issue date</th>
               <th>End date</th>
-              <th style="width: 210px;">
-                Budget <br>
-                <span class="text-smaller">Used / Max / Remaining</span>
-              </th>
               <th style="width: 180px;">
-                Invoices <br>
-                <span class="text-smaller">Issued / Max / Remaining</span>
+                Invoiced
               </th>
-              <th>Created</th>
               <th style="width: 120px;"></th>
             </tr>
           </thead>
 
           <tbody>
             <% @patient_cases.each do |patient_case| %>
-              <%
-                total_invoiced_amount = patient_case.invoices.to_a.sum(&:amount)
-              %>
             <tr>
               <td>
                 <% if patient_case.case_number %>
@@ -60,59 +52,23 @@
               <td><%= patient_case.status %></td>
               <td><%= patient_case.practitioner&.full_name %></td>
               <td>
-                <%= patient_case.end_date&.strftime(t('date.common')) %>
+                <%= patient_case.issue_date&.strftime(t('date.common')) %>
               </td>
               <td>
-                <%= format_money total_invoiced_amount.round(2) %>
-
-                <span> / </span>
-
-                <% if patient_case.invoice_total.present? %>
-                  <%= format_money patient_case.invoice_total %>
-                <% else %>
-                  <span class="text-muted">--</span>
-                <% end %>
-
-                <span> / </span>
-
-                <% if patient_case.invoice_total.present? %>
-                  <% remaining_invoice_total = patient_case.invoice_total - total_invoiced_amount %>
-                  <% if remaining_invoice_total > 0 %>
-                    <span><%= format_money remaining_invoice_total.round(2) %></span>
-                  <% else %>
-                    <span>0</span>
-                  <% end %>
-                <% else %>
-                  <span class="text-muted">--</span>
-                <% end %>
+                <%= patient_case.end_date&.strftime(t('date.common')) %>
               </td>
 
               <td>
                 <%= patient_case.invoices.size %>
-
                 <span> / </span>
-
                 <% if patient_case.invoice_number.present? %>
                   <%= patient_case.invoice_number %>
                 <% else %>
                   <span class="text-muted">--</span>
                 <% end %>
-
-                <span> / </span>
-
-                <% if patient_case.invoice_number.present? %>
-                  <% remaining_number_of_invoices = patient_case.invoice_number - patient_case.invoices.size %>
-                  <% if remaining_number_of_invoices > 0 %>
-                    <span><%= remaining_number_of_invoices %></span>
-                  <% else %>
-                    <span>0</span>
-                  <% end %>
-                <% else %>
-                  <span class="text-muted">--</span>
-                <% end %>
+                appointments
               </td>
 
-              <td><%= patient_case.created_at.strftime(t('date.common')) %></td>
               <td>
                 <div class="btn-group">
                   <a href="<%= patient_case_path(@patient, patient_case) %>" class="btn btn-white">Details</a>
