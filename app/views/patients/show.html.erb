@@ -24,6 +24,18 @@
       <div class="panel panel-default">
         <div class="panel-heading"><span class="panel-title">General info</span></div>
         <div class="panel-body">
+          <div class="block-info">
+            <strong>Tags:</strong>
+            <p>
+              <% @patient.tags.each do |tag| %>
+                <span class="badge mr-5" style="background-color: <%= tag.color %>;"><%= tag.name %></span>
+              <% end %>
+              <% if @patient.tags.size == 0 %>
+                <span class="text-muted">--</span>
+              <% end %>
+            </p>
+          </div>
+
           <div class="row">
             <div class="col-md-6">
               <div class="block-info">
@@ -190,22 +202,6 @@
       <div class="panel panel-default">
         <div class="panel-heading"><span class="panel-title">Other info</span></div>
         <div class="panel-body">
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Tags:</strong>
-                <p>
-                  <% @patient.tags.each do |tag| %>
-                    <span class="badge mr-5" style="background-color: <%= tag.color %>;"><%= tag.name %></span>
-                  <% end %>
-                  <% if @patient.tags.size == 0 %>
-                    <span class="text-muted">--</span>
-                  <% end %>
-                </p>
-              </div>
-            </div>
-          </div>
 
           <div class="row">
             <div class="col-md-6">
