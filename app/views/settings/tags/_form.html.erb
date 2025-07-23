@@ -3,13 +3,61 @@
     <div class="box">
       <%= simple_nested_form_for [:settings, object], url: object.new_record? ? settings_tags_path : settings_tag_path(object) do |f| %>
         <%= f.input :name, label: 'Tag name', placeholder: 'Enter tag name' %>
-        <%= f.input :color,
-                    label: 'Color',
-                    as: :string,
-                    input_html: { type: 'color', value: object.color.presence || '#000000', class: 'form-control', style: 'height: 40px; width: 80px;' } %>
+
+        <div class="form-group">
+          <%= f.label :color, 'Color', class: 'control-label' %>
+          <div style="display: flex;">
+            <%= f.input_field :color,
+                              type: 'color',
+                              value: object.color.presence || '#000000',
+                              class: 'form-control p-5',
+                              style: 'width: 80px;',
+                              id: 'color-picker' %>
+            <%= f.input_field :color,
+                              type: 'text',
+                              value: object.color.presence || '#000000',
+                              class: 'form-control ml-5',
+                              pattern: '^#[0-9A-Fa-f]{6}$',
+                              id: 'color-text' %>
+          </div>
+          <small class="form-text text-muted">Use the color picker or enter a hex color code manually</small>
+        </div>
+
         <%= f.submit class: 'btn btn-primary', value: object.new_record? ? "Create" : "Update", "data-disable-with": object.new_record? ? "Creating..." : "Updating..." %>
         <a href="<%= settings_tags_path %>" class="btn btn-white">Cancel</a>
       <% end %>
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const colorPicker = document.getElementById('color-picker');
+    const colorText = document.getElementById('color-text');
+
+    // Sync color picker changes to text input
+    colorPicker.addEventListener('input', function() {
+      colorText.value = this.value.toUpperCase();
+    });
+
+    // Sync text input changes to color picker
+    colorText.addEventListener('input', function() {
+      const hexPattern = /^#[0-9A-Fa-f]{6}$/;
+      if (hexPattern.test(this.value)) {
+        colorPicker.value = this.value;
+        this.style.borderColor = '';
+      } else {
+        this.style.borderColor = '#dc3545'; // Bootstrap danger color
+      }
+    });
+
+    // Validate on blur
+    colorText.addEventListener('blur', function() {
+      const hexPattern = /^#[0-9A-Fa-f]{6}$/;
+      if (!hexPattern.test(this.value) && this.value !== '') {
+        alert('Please enter a valid hex color code (e.g., #FF5733)');
+        this.focus();
+      }
+    });
+  });
+</script>
