@@ -79,10 +79,6 @@ class Ability
 
         can :read, Communication
 
-        can [:edit, :update, :destroy], Post do |post|
-          post.practitioner_id == user.practitioner.try(:id)
-        end
-
         can :manage, :calendar
         can :read, Product
 

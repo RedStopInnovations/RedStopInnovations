@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_23_074024) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_23_091029) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1520,6 +1520,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_074024) do
     t.boolean "allow_online_bookings", default: true
     t.float "local_latitude"
     t.float "local_longitude"
+    t.jsonb "provider_numbers", default: []
     t.index ["active"], name: "index_practitioners_on_active"
     t.index ["approved", "public_profile", "active"], name: "idx_practitioners_approved_public_profile_active"
     t.index ["approved"], name: "index_practitioners_on_approved"

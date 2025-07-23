@@ -54,6 +54,7 @@
 #  allow_online_bookings           :boolean          default(TRUE)
 #  local_latitude                  :float
 #  local_longitude                 :float
+#  provider_numbers                :jsonb
 #
 # Indexes
 #
