@@ -93,7 +93,7 @@ namespace :splose do
               doc_json = JSON.parse(content)
               if doc_json['type'] == 'doc' && doc_json['content'].is_a?(Array)
                 # Convert the content array to HTML using ProseMirror
-                ProseMirror.serialize_doc(doc_json['content'])
+                Helpers::ProseMirror.serialize_doc(doc_json['content'])
               else
                 # Fallback to plain content if structure is unexpected
                 cleaned_content.split("\n").map { |line| "<p>#{line}</p>" }.join
