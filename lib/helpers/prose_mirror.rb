@@ -32,7 +32,7 @@ module ProseMirror
     },
     'yesNo' => ->(node, _children) {
         value = node.dig('attrs', 'value') || ''
-        "<p><strong>Answer:</strong> #{value}</p>"
+        "<p>#{value}</p>"
     },
     'linearScale' => ->(node, _children) {
         value = node.dig('attrs', 'value') || ''
@@ -95,7 +95,7 @@ module ProseMirror
     'taskItem' => ->(node, children) {
         checked = node.dig('attrs', 'checked') || false
         checkbox = checked ? '☑' : '☐'
-        "<li class=\"task-item\">#{checkbox} #{children}</li>"
+        "<li class=\"task-item\"><span>#{checkbox} #{children.gsub(/<\/?p[^>]*>/, '')}</span></li>"
     },
     'horizontalRule' => ->(_node, _children) {
         "<hr />"
@@ -112,7 +112,7 @@ module ProseMirror
     'multipleChoiceItem' => ->(node, children) {
         checked = node.dig('attrs', 'checked') || false
         radio = checked ? '◉' : '○'
-        "<p>#{radio} #{children}</p>"
+        "<p><span>#{radio} #{children.gsub(/<\/?p[^>]*>/, '')}</span></p>"
     }
     }
 
