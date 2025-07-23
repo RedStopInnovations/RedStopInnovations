@@ -69,7 +69,7 @@ namespace :splose do |args|
       end
     end
 
-    def fetch_contacts(url = '/v1/contacts')
+    def fetch_contacts(url = '/v1/contacts?include_archived=true')
       log "Fetching contacts ... "
       res = fetch_with_retry(url)
       contacts = res['data'] || []

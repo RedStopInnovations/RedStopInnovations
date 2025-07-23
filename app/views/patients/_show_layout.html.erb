@@ -7,7 +7,7 @@
         <%= @patient.full_name %>
         <small>| CRN: <span class="text-copyable" js-click-to-copy="<%= @patient.id %>"><%= @patient.id %></span></small>
         <% if @patient.archived? %>
-          <small>| Archived: <%= @patient.archived_at.strftime(t('date.common')) %></small>
+          <span class="badge">Archived</span>
         <% end %>
       </h1>
     </div>

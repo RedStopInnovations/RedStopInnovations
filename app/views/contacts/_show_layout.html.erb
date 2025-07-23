@@ -5,9 +5,8 @@
         <br class="visible-xs">
         <small>| CRN: <span class="text-copyable" js-click-to-copy="<%= @contact.id %>"><%= @contact.id %></span></small>
         <% if @contact.archived_at? %>
-          <small>| Archived: <%= @contact.archived_at.strftime(t('date.common')) %></small>
+          <span class="badge">Archived</span>
         <% end %>
-
       </h1>
     </div>
 

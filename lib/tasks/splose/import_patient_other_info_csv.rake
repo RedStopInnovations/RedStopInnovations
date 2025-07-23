@@ -118,9 +118,6 @@ namespace :splose do |args|
 
               @total_updates += 1
               log "Updated patient #{patient.full_name} (ID: #{patient.id}, Splose ID: #{splose_patient_id})"
-              log "  - Medications: #{medications.count} items" if medications.any?
-              log "  - Allergies: #{allergies.count} items" if allergies.any?
-              log "  - Intolerances: #{intolerances.count} items" if intolerances.any?
             else
               log "Skipping row #{@total}: No updates needed for patient #{patient.full_name}"
               @total_skipped += 1

@@ -278,7 +278,7 @@ namespace :splose do |args|
       end
     end
 
-    def fetch_patients(url = '/v1/patients')
+    def fetch_patients(url = '/v1/patients?include_archived=true')
       log "Fetching patients ... "
       res = fetch_with_retry(url)
       patients = res['data'] || []
@@ -360,7 +360,7 @@ namespace :splose do |args|
 
       if res['links']['nextPage'].present?
         log "Next page found. Fetching more patients ..."
-        sleep(15)
+        sleep(5)
         fetch_patients(res['links']['nextPage'])
       end
     end
