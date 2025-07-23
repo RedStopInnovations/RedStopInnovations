@@ -155,12 +155,14 @@ class PatientCasesController < ApplicationController
   def case_params
     result = params.require(:patient_case).permit(
       :notes,
+      :case_number,
       :invoice_total,
       :invoice_number,
       :status,
       :practitioner_id,
       :case_type_id,
       :end_date,
+      :issue_date,
       :patient_id
     )
     attachments_attributes = []

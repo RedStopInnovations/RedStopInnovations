@@ -3,6 +3,7 @@
 # Table name: patient_cases
 #
 #  id              :integer          not null, primary key
+#  case_number     :string
 #  notes           :text
 #  status          :string
 #  practitioner_id :integer
@@ -13,6 +14,7 @@
 #  invoice_total   :float
 #  invoice_number  :integer
 #  archived_at     :datetime
+#  issue_date      :date
 #  end_date        :date
 #
 # Indexes
@@ -47,9 +49,9 @@ class PatientCase < ApplicationRecord
 
   after_initialize :set_default
 
-  belongs_to :practitioner
+  belongs_to :practitioner, optional: true
   belongs_to :patient, -> { with_deleted }
-  belongs_to :case_type, class_name: "CaseType"
+  belongs_to :case_type, optional: true, class_name: "CaseType"
 
   has_many :invoices
   has_many :treatments
@@ -58,7 +60,6 @@ class PatientCase < ApplicationRecord
 
   validates :status, presence: true, inclusion: { in: STATUS }
 
-  validates_presence_of :case_type, :patient
   validates_length_of :notes, maximum: 1000
   validates :end_date, timeliness: { type: :date },
             allow_nil: true,

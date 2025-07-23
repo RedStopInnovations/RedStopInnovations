@@ -19,6 +19,7 @@
         <table class="table table-bordered table-hover">
           <thead>
             <tr>
+              <th>Number</th>
               <th>Type</th>
               <th style="width: 70px;">Status</th>
               <th>Lead</th>
@@ -42,7 +43,20 @@
                 total_invoiced_amount = patient_case.invoices.to_a.sum(&:amount)
               %>
             <tr>
-              <td><%= patient_case.case_type.try(:title) %></td>
+              <td>
+                <% if patient_case.case_number %>
+                  <%= patient_case.case_number %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </td>
+              <td>
+                <% if patient_case.case_type %>
+                  <%= patient_case.case_type.title %>
+                <% else %>
+                  <span class="text-muted">--</span>
+                <% end %>
+              </td>
               <td><%= patient_case.status %></td>
               <td><%= patient_case.practitioner&.full_name %></td>
               <td>

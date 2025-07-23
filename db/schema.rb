@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_22_155550) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_23_012037) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1229,6 +1229,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_22_155550) do
     t.integer "invoice_number"
     t.datetime "archived_at", precision: nil
     t.date "end_date"
+    t.string "case_number"
+    t.datetime "issue_date"
     t.index ["case_type_id"], name: "index_patient_cases_on_case_type_id"
     t.index ["patient_id"], name: "index_patient_cases_on_patient_id"
     t.index ["practitioner_id"], name: "index_patient_cases_on_practitioner_id"

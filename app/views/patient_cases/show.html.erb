@@ -45,6 +45,44 @@
           <table class="table table-borderless">
             <tbody>
               <tr>
+                <td style="width: 180px">Number:</td>
+                <td>
+                  <% if @patient_case.case_number? %>
+                    <%= @patient_case.case_number %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Status:</td>
+                <td><strong><%= @patient_case.status.upcase %></strong></td>
+              </tr>
+
+              <tr>
+                <td>Issue date:</td>
+                <td>
+                  <% if @patient_case.issue_date? %>
+                    <%= @patient_case.issue_date.strftime(t('date.common')) %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+              </tr>
+
+              <tr>
+                <td>End date:</td>
+                <td>
+                  <% if @patient_case.end_date? %>
+                    <%= @patient_case.end_date.strftime(t('date.common')) %>
+                  <% else %>
+                    <span class="text-muted">--</span>
+                  <% end %>
+                </td>
+              </tr>
+
+              <tr>
                 <td style="width: 180px">Created:</td>
                 <td>
                   <%= @patient_case.created_at.strftime(t('date.common')) %>
@@ -70,22 +108,6 @@
               <tr>
                 <td>Case type description:</td>
                 <td><%= @patient_case.case_type.try(:description) %></td>
-              </tr>
-
-              <tr>
-                <td>Status:</td>
-                <td><strong><%= @patient_case.status.upcase %></strong></td>
-              </tr>
-
-              <tr>
-                <td>End date:</td>
-                <td>
-                  <% if @patient_case.end_date? %>
-                    <%= @patient_case.end_date.strftime(t('date.common')) %>
-                  <% else %>
-                    <span class="text-muted">--</span>
-                  <% end %>
-                </td>
               </tr>
 
               <tr>
@@ -117,6 +139,16 @@
         <div class="panel-body">
           <table class="table table-borderless">
             <tbody>
+              <tr>
+                <td style="width: 180px;">Total appointments:</td>
+                <td>
+                  <% if @patient_case.invoice_number %>
+                    <%= @patient_case.invoice_number %>
+                  <% else %>
+                    <span class="text-muted" title="Not limited">--</span>
+                  <% end %>
+                </td>
+              </tr>
               <tr>
                 <td style="width: 180px;">Total invoiced amount:</td>
                 <td>
