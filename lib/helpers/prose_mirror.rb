@@ -29,6 +29,90 @@ module ProseMirror
         rowspan = attrs['rowspan'] && attrs['rowspan'] > 1 ? " rowspan=\"#{attrs['rowspan']}\"" : ''
         style = attrs['backgroundColor'] ? " style=\"background-color: #{attrs['backgroundColor']}\"" : ''
         "<td#{colspan}#{rowspan}#{style}>#{children}</td>"
+    },
+    'yesNo' => ->(node, _children) {
+        value = node.dig('attrs', 'value') || ''
+        "<p><strong>Answer:</strong> #{value}</p>"
+    },
+    'linearScale' => ->(node, _children) {
+        value = node.dig('attrs', 'value') || ''
+        start_label = node.dig('attrs', 'startLabel') || ''
+        end_label = node.dig('attrs', 'endLabel') || ''
+        start_value = node.dig('attrs', 'startValue') || ''
+        end_value = node.dig('attrs', 'endValue') || ''
+
+        if value.present?
+            "<p>#{value} (#{start_label}: #{start_value} - #{end_label}: #{end_value})</p>"
+        else
+            "<p>#{start_label}: #{start_value} - #{end_label}: #{end_value}</p>"
+        end
+    },
+    'fileUpload' => ->(node, _children) {
+        value = node.dig('attrs', 'value')
+        if value.present?
+            "<p>(File uploaded)</p>"
+        else
+            "<p>(File not uploaded)</p>"
+        end
+    },
+    'signature' => ->(node, _children) {
+        value = node.dig('attrs', 'value')
+        if value.present?
+            "<p>(Signed)</p>"
+        else
+            "<p>(Not signed)</p>"
+        end
+    },
+    'bodyChart' => ->(node, _children) {
+        value = node.dig('attrs', 'value')
+        if value.present?
+            "<p>(Uploaded)</p>"
+        else
+            "<p>(Not uploaded)</p>"
+        end
+    },
+    'date' => ->(node, _children) {
+        value = node.dig('attrs', 'value') || ''
+        # Format the date if it's in ISO format
+        if value.match?(/^\d{4}-\d{2}-\d{2}T/)
+            begin
+                formatted_date = Date.parse(value).strftime('%d %b %Y')
+                formatted_date
+            rescue
+                value
+            end
+        else
+            value
+        end
+    },
+    'taskList' => ->(_node, children) {
+        if children.present?
+            "<ul class=\"task-list\">#{children}</ul>"
+        else
+            "<p>(No items)</p>"
+        end
+    },
+    'taskItem' => ->(node, children) {
+        checked = node.dig('attrs', 'checked') || false
+        checkbox = checked ? '☑' : '☐'
+        "<li class=\"task-item\">#{checkbox} #{children}</li>"
+    },
+    'horizontalRule' => ->(_node, _children) {
+        "<hr />"
+    },
+    'dropdown' => ->(node, _children) {
+        value = node.dig('attrs', 'value') || ''
+        options = node.dig('attrs', 'options') || []
+        options_text = options.any? ? " (Options: #{options.join(', ')})" : ''
+        "<p><strong>Selected:</strong> #{value}#{options_text}</p>"
+    },
+    'multipleChoice' => ->(_node, children) {
+        "<div class=\"multiple-choice\">#{children}</div>"
+    },
+    'multipleChoiceItem' => ->(node, children) {
+        checked = node.dig('attrs', 'checked') || false
+        radio = checked ? '◉' : '○'
+        "<p>#{radio} #{children}</p>"
     }
     }
 
@@ -41,7 +125,7 @@ module ProseMirror
         styles = []
         styles << "color: #{attrs['color']}" if attrs['color']
         styles << "background-color: #{attrs['backgroundColor']}" if attrs['backgroundColor']
-        styles << "font-size: #{attrs['fontSize']}" if attrs['fontSize']
+        styles << "font-size: #{attrs['fontSize']}px" if attrs['fontSize']
         styles << "font-family: #{attrs['fontFamily']}" if attrs['fontFamily']
         style = styles.any? ? " style=\"#{styles.join('; ')}\"" : ''
         "<span#{style}>#{inner}</span>"
