@@ -52,24 +52,6 @@ namespace :splose do |args|
       self.table_name = 'splose_records'
     end
 
-    class ImportPatientAttachment < ::ActiveRecord::Base
-      self.table_name = 'patient_attachments'
-
-      has_attached_file :attachment
-
-      validates_attachment_content_type :attachment,
-        content_type: [
-            'application/pdf',
-            /\Aimage\/.*\Z/,
-            'application/vnd.ms-excel',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-office',
-            'text/plain'
-      ]
-    end
-
     def log(what)
       puts what
     end
@@ -171,7 +153,7 @@ namespace :splose do |args|
               safe_title = form_title.gsub(/[^0-9A-Za-z.\-]/, '_')
               pdf_filename = "#{safe_title}_#{form_raw_attrs['id']}.pdf"
 
-              local_attachment = ImportPatientAttachment.new map_form_attrs(form_raw_attrs)
+              local_attachment = ::PatientAttachment.new map_form_attrs(form_raw_attrs)
               local_attachment.patient_id = patient.id
               local_attachment.attachment = Extensions::FakeFileIo.new(pdf_filename, pdf_content)
               local_attachment.save!(validate: false)
@@ -190,7 +172,7 @@ namespace :splose do |args|
             # TODO: compare with updated_at on local record is better
             if @force_update || Time.parse(form_raw_attrs['updatedAt']) > import_record.last_synced_at
               log "Form ##{form_raw_attrs['id']} has new update."
-              local_attachment = ImportPatientAttachment.find_by(
+              local_attachment = ::PatientAttachment.find_by(
                 id: import_record.internal_id
               )
 
@@ -205,7 +187,7 @@ namespace :splose do |args|
                   safe_title = form_title.gsub(/[^0-9A-Za-z.\-]/, '_')
                   pdf_filename = "#{safe_title}_#{form_raw_attrs['id']}.pdf"
 
-                  local_attachment = ImportPatientAttachment.new map_form_attrs(form_raw_attrs)
+                  local_attachment = ::PatientAttachment.new map_form_attrs(form_raw_attrs)
                   local_attachment.patient_id = patient.id
                   local_attachment.attachment = Extensions::FakeFileIo.new(pdf_filename, pdf_content)
                   local_attachment.save!(validate: false)
