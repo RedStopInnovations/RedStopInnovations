@@ -9,7 +9,7 @@ module Settings
     before_action :find_tag, only: [:edit, :update, :destroy]
 
     def index
-      @tags = current_business.tags.all
+      @tags = current_business.tags.order(name: :asc).all
     end
 
     def new
