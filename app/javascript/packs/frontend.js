@@ -20,7 +20,6 @@ import "flatpickr/dist/flatpickr.css";
 
 //=== Webfont icons
 import 'medz/iconfonts/font-awesome/css/font-awesome.css';
-import 'medz/iconfonts/feather/feather.css';
 
 //== Custom style
 import 'frontend/styles/custom/flatpickr';
