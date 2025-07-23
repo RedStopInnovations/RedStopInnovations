@@ -136,7 +136,7 @@ namespace :splose do |args|
               color: '#000000', # Default to black if no color provided
               tag_type: ::Tag::TYPE_PATIENT
             )
-            @patient_tags[tag_name] = new_tag.id
+            @patient_tags[new_tag.id] = tag_name
             local_tag_ids << new_tag.id
           end
         end
