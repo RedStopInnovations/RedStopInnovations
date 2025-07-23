@@ -177,6 +177,64 @@
       </div>
 
       <div class="panel panel-default">
+        <div class="panel-heading"><span class="panel-title">Clinical info</span></div>
+        <div class="panel-body">
+          <table class="table table-bordered">
+            <tr>
+              <td style="width: 150px;">Medications</td>
+              <td>
+                <% if @patient.medications.size == 0 %>
+                  <span class="text-muted">--</span>
+                <% else %>
+                  <ul>
+                    <% @patient.medications.each do |item| %>
+                    <li>
+                      <%= item['name'] %> <span class="text-muted mr-5 ml-5">|</span><span><%= item['frequency'] %></span>
+                    </li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Allergies</td>
+              <td>
+                <% if @patient.allergies.size == 0 %>
+                  <span class="text-muted">--</span>
+                <% else %>
+                  <ul>
+                    <% @patient.allergies.each do |item| %>
+                    <li>
+                      <%= item['type'] %> <span class="text-muted mr-5 ml-5">|</span><span><%= item['description'] %></span>
+                    </li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Intolerances</td>
+              <td>
+                <% if @patient.intolerances.size == 0 %>
+                  <span class="text-muted">--</span>
+                <% else %>
+                  <ul>
+                    <% @patient.intolerances.each do |item| %>
+                    <li>
+                      <%= item %>
+                    </li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
         <div class="panel-heading"><span class="panel-title">Additional info</span></div>
         <div class="panel-body">
           <% if @patient.general_info.present? %>

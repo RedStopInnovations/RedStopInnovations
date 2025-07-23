@@ -48,6 +48,9 @@
 #  hi_details              :jsonb
 #  important_notification  :text
 #  strc_details            :jsonb
+#  medications             :jsonb
+#  allergies               :jsonb
+#  intolerances            :jsonb
 #
 # Indexes
 #
