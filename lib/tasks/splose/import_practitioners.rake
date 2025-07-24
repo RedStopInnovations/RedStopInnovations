@@ -59,11 +59,6 @@ namespace :splose do |args|
       # Map roleName from SPlose to local User roles using mapping function
       internal_attrs[:role] = map_splose_role_to_user_role(splose_attrs['roleName'])
 
-      # Generate a secure random password for new users
-      # They will need to reset their password on first login
-      internal_attrs[:password] = SecureRandom.alphanumeric(12) + '1!' # Ensure strong password requirements
-      internal_attrs[:password_confirmation] = internal_attrs[:password]
-
       internal_attrs[:created_at] = Time.parse(splose_attrs['createdAt']) if splose_attrs['createdAt'].present?
       internal_attrs[:updated_at] = Time.parse(splose_attrs['updatedAt']) if splose_attrs['updatedAt'].present?
 
