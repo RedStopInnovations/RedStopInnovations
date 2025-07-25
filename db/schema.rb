@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_23_151935) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_25_044819) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1360,6 +1360,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_151935) do
     t.jsonb "medications", default: [], array: true
     t.jsonb "allergies", default: [], array: true
     t.jsonb "intolerances", default: [], array: true
+    t.string "country_code"
     t.index ["deleted_at"], name: "index_patients_on_deleted_at"
   end
 

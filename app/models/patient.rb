@@ -236,6 +236,11 @@ class Patient < ApplicationRecord
     else
       self.mobile_formated = nil
     end
+
+    {
+      mobile_formated: self.mobile_formated,
+      phone_formated: self.phone_formated
+    }
   end
 
   def strip_medicare_details

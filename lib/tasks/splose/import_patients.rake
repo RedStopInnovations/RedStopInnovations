@@ -43,20 +43,21 @@ namespace :splose do |args|
       internal_attrs[:city] = splose_attrs['city'].presence
       internal_attrs[:postcode] = splose_attrs['postalCode'].presence
       internal_attrs[:state] = splose_attrs['state'].presence
-      internal_attrs[:country] = splose_attrs['country'].presence
 
-      country = internal_attrs[:country] || 'Australia'
+      country_code = ISO3166::Country.find_country_by_any_name(splose_attrs['country'].presence || 'Australia')&.alpha2
+      internal_attrs[:country] = country_code
+      internal_attrs[:country_code] = country_code
 
       if splose_attrs['phoneNumbers'].present?
         splose_attrs['phoneNumbers'].each do |phone_number|
           if phone_number['type'] == 'Mobile'
-            internal_attrs[:mobile] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
-            internal_attrs[:mobile_formated] = TelephoneNumber.parse(internal_attrs[:mobile], country).e164_number
+            internal_attrs[:mobile] = "#{phone_number['phoneNumber']}".strip
+            internal_attrs[:mobile_formated] = TelephoneNumber.parse(internal_attrs[:mobile], country_code).e164_number
           end
 
           if phone_number['type'] == 'Home'
-            internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
-            internal_attrs[:phone_formated] = TelephoneNumber.parse(internal_attrs[:phone], country).e164_number
+            internal_attrs[:phone] = "#{phone_number['phoneNumber']}".strip
+            internal_attrs[:phone_formated] = TelephoneNumber.parse(internal_attrs[:phone], country_code).e164_number
           end
         end
       end

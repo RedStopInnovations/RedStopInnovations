@@ -22,20 +22,22 @@ namespace :splose do |args|
       internal_attrs[:city] = splose_attrs['suburb'].presence || splose_attrs['city'].presence
       internal_attrs[:postcode] = splose_attrs['postalCode'].presence
       internal_attrs[:state] = splose_attrs['state'].presence
-      internal_attrs[:country] = splose_attrs['country'].presence
+
+      country_code = ISO3166::Country.find_country_by_any_name(splose_attrs['country'].presence || 'Australia')&.alpha2
+      internal_attrs[:country] = country_code
 
       if splose_attrs['phoneNumbers'].present?
         splose_attrs['phoneNumbers'].each do |phone_number|
           if phone_number['type'] == 'Mobile'
-            internal_attrs[:mobile] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
+            internal_attrs[:mobile] = "#{phone_number['phoneNumber']}".strip
           end
 
           if phone_number['type'] == 'Home'
-            internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
+            internal_attrs[:phone] = "#{phone_number['phoneNumber']}".strip
           end
 
           if phone_number['type'] == 'Work'
-            internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
+            internal_attrs[:phone] = "#{phone_number['phoneNumber']}".strip
           end
         end
       end
