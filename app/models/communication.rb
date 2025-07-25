@@ -39,7 +39,7 @@ class Communication < ApplicationRecord
   ]
 
   belongs_to :source, polymorphic: true
-  belongs_to :recipient, -> { with_deleted }, polymorphic: true
+  belongs_to :recipient, polymorphic: true
 
   SOURCE_TYPES = [
     "Appointment", "Invoice", "AccountStatement", "PatientLetter", "Treatment", "PatientAttachment"

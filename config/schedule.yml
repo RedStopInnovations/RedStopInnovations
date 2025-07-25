@@ -14,6 +14,10 @@
 #   cron: "*/30 * * * *" # Every 30 mins
 #   class: "DailyAppointmentsReminder::Worker"
 
-"Refresh Google Account authorization for calendar sync":
-  cron: "*/5 * * * *" # Every 5 mins
-  class: "RefreshGoogleCalendarAuthorizationWorker"
+# "Refresh Google Account authorization for calendar sync":
+#   cron: "*/5 * * * *" # Every 5 mins
+#   class: "RefreshGoogleCalendarAuthorizationWorker"
+
+"Sync SMS messages from Twilio":
+  cron: "*/15 * * * * *" # Every 15 secs
+  class: "SyncInboundMessagesWorker"

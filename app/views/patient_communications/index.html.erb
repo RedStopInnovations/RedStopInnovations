@@ -22,54 +22,34 @@
         <table class="table">
           <thead>
             <tr>
+              <th style="width: 170px">Date</th>
               <th style="width: 210px">Category</th>
-              <th style="width: 200px">Links</th>
-              <th style="width: 150px">Send to</th>
               <th style="width: 100px">Method</th>
-              <th style="width: 170px">Send at</th>
+              <th>Direction</th>
               <th style="width: 150px">
                 <span
                   data-toggle="popover"
                   data-html="true"
                   data-trigger="hover" title="Message delivery status"
                   data-content="- <b>Scheduled</b>: The message is scheduled to be sent.<br/><br/>- <b>Processed</b>: The message has been sent to 3rd service provider. Delivery status is not yet confirmed.<br/><br/>- <b> Delivered</b>: The message has been confirmed as received by the recipient.<br/><br/>- <b>Error</b>: The message is not delivered for some reason.<br/><br/>- <b>Untracked, N/A</b>: The delivery status is not tracking."
-                  >Delivery status</span>
+                  >Status</span>
               </th>
-              <th></th>
+              <th style="width: 220px">Links</th>
+              <th class="text-right"></th>
             </tr>
           </thead>
           <tbody>
             <% @communications.each do |communication| %>
             <tr>
+              <td><%= communication.created_at.strftime(t('datetime.common')) %></td>
               <td>
                 <% if communication.category.present? %>
                   <%= t("communication.categories.#{communication.category}") %>
                 <% end %>
               </td>
 
-
-              <td>
-                <% if communication.source %>
-                  <%= link_to_communication_source(communication.source) %>
-                  <% if communication.source.is_a?(Invoice) && communication.source.paid? %>
-                    <small><span class="label label-success">Paid</span></small>
-                  <% end %>
-                <% else %>
-                  <span class="text-muted">-</span>
-                <% end %>
-              </td>
-
-              <td>
-                <% if communication.recipient.is_a?(Patient) %>
-                  <span class="text-smaller text-muted">Client</span>
-                <% elsif communication.recipient.is_a?(Contact) %>
-                  <a href="<%= contact_path(communication.recipient) %>"><%= communication.recipient.business_name %></a>
-                <% end %>
-              </td>
-
               <td><%= communication.message_type %></td>
-
-              <td><%= communication.created_at.strftime(t('datetime.common')) %></td>
+              <td><%= communication.direction %></td>
 
               <td>
                 <% if communication.delivery %>
@@ -96,6 +76,15 @@
               </td>
 
               <td>
+                <% if communication.source %>
+                  <%= link_to_communication_source(communication.source) %>
+                  <% if communication.source.is_a?(Invoice) && communication.source.paid? %>
+                    <small><span class="label label-success">Paid</span></small>
+                  <% end %>
+                <% end %>
+              </td>
+
+              <td class="text-center">
                 <a href="<%= patient_communication_path(@patient, communication) %>" class="btn btn-white">Details</a>
               </td>
             </tr>
@@ -104,11 +93,12 @@
         </table>
       </div>
 
-      <div class="row">
-        <div class="col-md-6 text-left">
+      <div class="row mt-20">
+        <div class="col-md-6 text-xs-center">
           <%= page_entries_info @communications, entry_name: 'messages' %>
         </div>
-        <div class="col-md-6 text-right">
+
+        <div class="col-md-6 text-right text-xs-center mt-xs-5">
           <%= paginate @communications, theme: 'app' %>
         </div>
       </div>

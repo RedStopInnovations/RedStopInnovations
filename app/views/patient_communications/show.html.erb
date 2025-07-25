@@ -6,6 +6,11 @@
       <div class="row">
         <div class="col-md-4 col-xs-12">
           <div class="block-info">
+            <strong>Date:</strong>
+            <p><%= @communication.created_at.strftime(t('datetime.common')) %></p>
+          </div>
+
+          <div class="block-info">
             <strong>Category:</strong>
             <p>
               <% if @communication.category.present? %>
@@ -20,31 +25,46 @@
           </div>
 
           <div class="block-info">
-            <strong>Links:</strong>
+            <strong>Direction:</strong>
+            <p><%= @communication.direction %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Recipient:</strong>
             <p>
+              <% if @communication.direction == Communication::DIRECTION_OUTBOUND %>
+                <% if @communication.recipient.is_a?(Patient) %>
+                  Client: <a href="<%= patient_path(@communication.recipient) %>"><%= @communication.recipient.full_name %></a>
+                <% elsif @communication.recipient.is_a?(Contact) %>
+                  Contact: <a href="<%= contact_path(@communication.recipient) %>"><%= @communication.recipient.business_name %></a>
+                <% elsif @communication.recipient.is_a?(Business) %>
+                  System
+                <% end %>
+              <% elsif @communication.direction == Communication::DIRECTION_INBOUND %>
+                System
+              <% end %>
+
+              <% if @communication.delivery %>
+                (<%= @communication.delivery.recipient %>)
+              <% end %>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Links: </strong>
+            <p>
+              <% if @communication.direction == Communication::DIRECTION_INBOUND && @communication.linked_patient %>
+                <a href="<%= patient_path(@communication.linked_patient) %>"><%= @communication.linked_patient.full_name %></a>
+                <br>
+              <% end %>
+
               <% if @communication.source %>
                 <%= link_to_communication_source(@communication.source) %>
                 <% if @communication.source.is_a?(Invoice) && @communication.source.paid? %>
                   <small><span class="label label-success">Paid</span></small>
                 <% end %>
-              <% else %>
-                <span class="text-muted">-</span>
               <% end %>
             </p>
-          </div>
-
-          <% if @communication.recipient.is_a?(Contact) %>
-            <div class="block-info">
-              <strong>Send to:</strong>
-              <p>
-                <a href="<%= contact_path(@communication.recipient) %>"><%= @communication.recipient.business_name %></a>
-              </p>
-            </div>
-          <% end %>
-
-          <div class="block-info">
-            <strong>Sent at:</strong>
-            <p><%= @communication.created_at.strftime(t('datetime.common')) %></p>
           </div>
 
           <div class="block-info">
@@ -53,8 +73,7 @@
               <% if @communication.delivery %>
                 <% delivery = @communication.delivery %>
 
-                <b>Status</b>: <span class="<%= communication_delivery_status_text_color_class delivery.status %>"><%= delivery.status.titleize %></span> <br>
-                <b>Recipient</b>: <%= delivery.recipient %><br/>
+                <span class="<%= communication_delivery_status_text_color_class delivery.status %>"><%= delivery.status.titleize %></span> <br>
 
                 <% if delivery.status_error? %>
                   <b>Error type</b>: <%= delivery.error_type.try(:titleize) %>

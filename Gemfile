@@ -81,7 +81,7 @@ gem 'momentjs-rails', '>= 2.9.0'
 
 gem 'aws-sdk-s3'
 gem 'sidekiq', '< 7'
-gem 'twilio-ruby', '~> 4.11.1'
+gem 'twilio-ruby', '~> 7.7.0'
 gem 'fog-aws' # carrierwave requirements
 gem 'carrierwave', '~> 2.0'
 gem 'validates_timeliness', '~> 7.0.0.beta1'
