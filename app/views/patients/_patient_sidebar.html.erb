@@ -5,7 +5,11 @@
   treatment_notes_count = @patient.treatments.count
   letters_count = @patient.letters.count
   cases_count = @patient.patient_cases.count
-  messages_count = Communication.where(recipient: @patient).count
+  messages_count = Communication.
+      where(recipient: @patient).
+      or(
+        Communication.where(linked_patient_id: @patient.id)
+      ).count
   account_statements_count = @patient.account_statements.count
 %>
 
