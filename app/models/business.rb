@@ -121,6 +121,7 @@ class Business < ApplicationRecord
   has_one :setting, class_name: 'BusinessSetting'
   has_one :physitrack_integration
   has_one :calendar_appearance_setting
+  has_one :sms_settings, class_name: 'SmsSettings'
 
   has_and_belongs_to_many :referrals
 

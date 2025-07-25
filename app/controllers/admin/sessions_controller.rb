@@ -107,11 +107,7 @@ module Admin
     end
 
     def send_verify_code(code, aUser)
-      TwilioService.new(
-        to_number: aUser.mobile,
-        message: "System 2FA code: #{code}",
-        from: ENV.fetch('TWILIO_NUMBER', 'System')
-      ).send_sms
+      # TODO: Implement SMS sending
     end
 
     def store_verify_code(code, aUser)

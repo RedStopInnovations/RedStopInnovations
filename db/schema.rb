@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_25_044819) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_25_065347) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1639,6 +1639,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_044819) do
     t.integer "source_appointment_id"
     t.index ["patient_id"], name: "index_reviews_on_patient_id"
     t.index ["practitioner_id"], name: "index_reviews_on_practitioner_id"
+  end
+
+  create_table "sms_settings", force: :cascade do |t|
+    t.bigint "business_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.boolean "enabled_two_way", default: false, null: false
+    t.string "twilio_number"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["business_id"], name: "index_sms_settings_on_business_id", unique: true
   end
 
   create_table "splose_records", force: :cascade do |t|

@@ -44,7 +44,7 @@ class AppointmentNotificationService
           ).render.content
 
         twilio_message = Twilio::REST::Client.new.messages.create(
-          messaging_service_sid: ENV['TWILIO_SMS_SERVICE_ID'],
+          messaging_service_sid: ENV['TWILIO_MESSAGE_SERVICE_SID'],
           body: sms_content,
           to: standardize_practitioner_mobile(practitioner),
         )

@@ -97,7 +97,7 @@ class AppointmentReminderWorker
 
         if patient.mobile_formated.present?
           twilio_message = Twilio::REST::Client.new.messages.create(
-            messaging_service_sid: ENV['TWILIO_SMS_SERVICE_ID'],
+            messaging_service_sid: ENV['TWILIO_MESSAGE_SERVICE_SID'],
             body: sms_content,
             to: patient.mobile_formated,
             status_callback: Rails.application.routes.url_helpers.twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
