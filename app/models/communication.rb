@@ -82,7 +82,7 @@ class Communication < ApplicationRecord
   # TODO: validate message type, message length ..
   belongs_to :business
   belongs_to :contact, -> { with_deleted }, optional: true
-  belongs_to :linked_patient, class_name: 'Patient'
+  belongs_to :linked_patient, -> { with_deleted }, class_name: 'Patient'
 
   has_one :delivery, class_name: 'CommunicationDelivery', foreign_key: 'communication_id'
 

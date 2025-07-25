@@ -1,0 +1,97 @@
+<aside class="control-sidebar control-sidebar-light" id="js-conversations-sidebar" v-cloak :class="{'control-sidebar-open': isOpen}" v-click-outside="onFocusOut">
+    <div class="header">
+        <strong>Conversations</strong>
+        <button type="button" class="close" @click="onClickClose"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="body">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center p-3 mt-15">
+            <i class="fa fa-spinner fa-spin"></i> Loading ...
+        </div>
+
+        <!-- Conversations List -->
+        <div v-else-if="!selectedConversation" class="conversations-list">
+            <div v-if="conversations.length === 0" class="text-center text-muted p-3">
+                Nothing to show
+            </div>
+
+            <div v-for="conversation in conversations"
+                 :key="conversation.patient_id"
+                 class="conversation-item"
+                 @click.prevent.stop="onClickConversation(conversation)">
+                <div class="conversation-header">
+                    <strong class="patient-name">{{ conversation.patient_name }}</strong>
+                    <small class="timestamp">{{ conversation.last_message_at | timeAgo }}</small>
+                </div>
+                <div class="conversation-preview">
+                    {{ formatMessagePreview(conversation.last_message) }}
+                </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div v-if="pagination.current_page < pagination.total_pages" class="text-center p-3 mt-15">
+                <button class="btn btn-white"
+                        @click="loadMoreConversations"
+                        :disabled="loading">
+                    <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+                    <span v-else>Load More</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Selected Conversation Messages -->
+        <div v-else class="conversation-messages">
+            <div class="conversation-header">
+                <button class="btn-back btn btn-white" @click.prevent.stop="goBackToConversations">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <div class="patient-info">
+                    <strong>{{ selectedConversation.patient_name }}</strong>
+                    <div class="patient-mobile">{{ selectedConversation.patient_mobile }}</div>
+                </div>
+            </div>
+
+            <!-- Messages Loading -->
+            <div v-if="messagesLoading && conversationMessages.length === 0" class="text-center p-3">
+                <i class="fa fa-spinner fa-spin"></i> Loading ...
+            </div>
+
+            <!-- Messages List -->
+            <div v-else class="messages-container">
+                <!-- Load More Messages Button (for older messages) -->
+                <div v-if="messagesPagination.current_page < messagesPagination.total_pages" class="text-center p-3">
+                    <button class="btn btn-sm btn-white"
+                            @click="loadMoreMessages"
+                            :disabled="messagesLoading">
+                        <i v-if="messagesLoading" class="fa fa-spinner fa-spin"></i>
+                        <span v-else>Load Older Messages</span>
+                    </button>
+                </div>
+
+                <div v-if="conversationMessages.length === 0" class="text-center text-muted p-3">
+                    No messages found
+                </div>
+
+                <div v-for="message in conversationMessages"
+                     :key="message.id"
+                     class="message-item"
+                     :class="{ 'message-inbound': message.direction === 'Inbound', 'message-outbound': message.direction === 'Outbound' }">
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            {{ message.message }}
+                        </div>
+                        <div class="message-time">{{ message.created_at | timeAgo }}</div>
+                    </div>
+                </div>
+
+                <!-- Messages Pagination Info -->
+                <div v-if="conversationMessages.length > 0" class="text-center text-muted mt-15">
+                    <small>Displaying {{ conversationMessages.length }} of {{ messagesPagination.total_count }} messages</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</aside>

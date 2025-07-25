@@ -109,5 +109,7 @@ Rails.application.routes.draw do
     get 'search_appointment' => 'search_appointment#index'
     post 'communications/build_content' => 'communications#build_content'
     post 'communications/send_patient_message' => 'communications#send_patient_message'
+    get 'communications/sms_conversations' => 'communications#sms_conversations'
+    get 'communications/patient_sms_conversations/:patient_id' => 'communications#patient_sms_conversations'
   end
 end

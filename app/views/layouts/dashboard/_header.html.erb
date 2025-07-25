@@ -2,6 +2,10 @@
   <%= render 'layouts/dashboard/banner' %>
 <% end %>
 
+<%
+  unread_conversations_count = 0
+%>
+
 <header class="main-header">
   <div class="visible-xs mobile-sidebar-toggle-wrap">
     <a href="#" data-toggle="offcanvas" role="button"><i class="fa fa-bars"></i> </a>
@@ -71,6 +75,14 @@
 
     <div class="navbar-custom-menu">
       <ul class="nav navbar-nav">
+        <li>
+          <a href="#" js-conversations-sidebar-toggle>
+            <i class="fa fa-comments"></i>
+            <% if unread_conversations_count > 0 %>
+              <span class="label label-danger"><%= unread_conversations_count %></span>
+            <% end %>
+          </a>
+        </li>
         <%
           open_tasks_query = current_business
             .tasks

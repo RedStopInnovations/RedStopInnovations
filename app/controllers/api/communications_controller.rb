@@ -104,5 +104,77 @@ module Api
         )
       end
     end
+
+    def sms_conversations
+      page = (params[:page] || 1).to_i
+      latest_com_query = Patient.joins('INNER JOIN communications ON communications.linked_patient_id = patients.id')
+        .where('patients.business_id': 1)
+        .where('communications.message_type': Communication::TYPE_SMS)
+        .group('patients.id')
+        .order('MAX(communications.id) DESC')
+        .select('MAX(communications.id) AS latest_communication_id')
+
+      communications = Communication.where(id: latest_com_query)
+        .includes(:linked_patient)
+        .page(page)
+
+      conversations = communications.map do |comm|
+        {
+          patient_id: comm.linked_patient.id,
+          patient_name: comm.linked_patient.full_name,
+          patient_mobile: comm.linked_patient.mobile_formated,
+          last_message: comm.message,
+          last_message_direction: comm.direction,
+          last_message_at: comm.created_at
+        }
+      end
+
+      render json: {
+        conversations: conversations,
+        pagination: {
+          current_page: page,
+          total_count: communications.total_count,
+          total_pages: communications.total_pages,
+        }
+      }
+    end
+
+    def patient_sms_conversations
+      patient_id = params[:patient_id]
+      page = (params[:page] || 1).to_i
+
+      patient = current_business.patients.find(patient_id)
+
+      messages = current_business
+        .communications
+        .where(linked_patient_id: patient_id, message_type: Communication::TYPE_SMS)
+        .order(created_at: :desc)
+        .page(page)
+
+      conversations = messages.map do |message|
+        {
+          id: message.id,
+          message: message.message,
+          direction: message.direction,
+          created_at: message.created_at,
+          from: message.from
+        }
+      end
+
+      render json: {
+        patient: {
+          id: patient.id,
+          name: patient.full_name
+        },
+        messages: conversations,
+        pagination: {
+          current_page: messages.current_page,
+          total_count: messages.total_count,
+          total_pages: messages.total_pages,
+        }
+      }
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'Patient not found' }, status: 404
+    end
   end
 end
