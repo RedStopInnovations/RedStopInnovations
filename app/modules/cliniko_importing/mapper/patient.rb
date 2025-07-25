@@ -37,7 +37,7 @@ module ClinikoImporting
               local_patient_attrs[:mobile_formated] = TelephoneNumber.parse(
                 phone_number.number,
                 local_patient_attrs[:country]
-              ).international_number
+              ).e164_number
             end
 
             if phone_number.phone_type == 'Home'
@@ -45,7 +45,7 @@ module ClinikoImporting
               local_patient_attrs[:phone_formated] = TelephoneNumber.parse(
                 phone_number.number,
                 local_patient_attrs[:country]
-              ).international_number
+              ).e164_number
             end
           end
         end

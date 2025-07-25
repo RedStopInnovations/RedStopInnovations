@@ -154,7 +154,7 @@ module CoreplusImporting
           local_attrs[:phone_formated] = TelephoneNumber.parse(
             home_phone,
             'AU'
-          ).international_number
+          ).e164_number
         end
 
         mobile = coreplus_attrs['mobile'].presence
@@ -164,7 +164,7 @@ module CoreplusImporting
           local_attrs[:mobile_formated] = TelephoneNumber.parse(
             mobile,
             'AU'
-          ).international_number
+          ).e164_number
         end
 
         local_attrs

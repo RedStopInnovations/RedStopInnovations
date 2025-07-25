@@ -543,7 +543,7 @@ module ApplicationHelper
   end
 
   def chat_on_whatsapp_url(mobile, country_code)
-    "https://wa.me/" << TelephoneNumber.parse(mobile, country_code).international_number(formatted: false)
+    "https://wa.me/" << TelephoneNumber.parse(mobile, country_code).e164_number(formatted: false)
   end
 
   def subscription_invoice_status_badge_class(status)

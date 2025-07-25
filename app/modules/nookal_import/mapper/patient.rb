@@ -74,7 +74,7 @@ module NookalImport
           )
 
           if tele_number.valid?
-            local_attrs[:mobile_formated] = tele_number.international_number
+            local_attrs[:mobile_formated] = tele_number.e164_number
           end
         end
 
@@ -86,7 +86,7 @@ module NookalImport
           )
 
           if tele_number.valid?
-            local_attrs[:phone_formated] = tele_number.international_number
+            local_attrs[:phone_formated] = tele_number.e164_number
           end
         end
 

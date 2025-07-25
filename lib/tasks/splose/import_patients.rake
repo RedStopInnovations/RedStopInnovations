@@ -51,12 +51,12 @@ namespace :splose do |args|
         splose_attrs['phoneNumbers'].each do |phone_number|
           if phone_number['type'] == 'Mobile'
             internal_attrs[:mobile] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
-            internal_attrs[:mobile_formated] = TelephoneNumber.parse(internal_attrs[:mobile], country).international_number
+            internal_attrs[:mobile_formated] = TelephoneNumber.parse(internal_attrs[:mobile], country).e164_number
           end
 
           if phone_number['type'] == 'Home'
             internal_attrs[:phone] = "#{phone_number['code']}#{phone_number['phoneNumber']}".strip
-            internal_attrs[:phone_formated] = TelephoneNumber.parse(internal_attrs[:phone], country).international_number
+            internal_attrs[:phone_formated] = TelephoneNumber.parse(internal_attrs[:phone], country).e164_number
           end
         end
       end

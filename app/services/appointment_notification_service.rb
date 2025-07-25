@@ -62,6 +62,6 @@ class AppointmentNotificationService
 
   def standardize_practitioner_mobile(practitioner)
     country = practitioner.country.presence || practitioner.business.country
-    TelephoneNumber.parse(practitioner.mobile, country).international_number
+    TelephoneNumber.parse(practitioner.mobile, country).e164_number
   end
 end

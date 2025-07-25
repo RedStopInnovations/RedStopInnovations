@@ -51,7 +51,7 @@ namespace :healthstrong do
       end
 
       if attrs[:mobile].present?
-        attrs[:mobile_formated] = TelephoneNumber.parse(attrs[:mobile], attrs[:country]).international_number
+        attrs[:mobile_formated] = TelephoneNumber.parse(attrs[:mobile], attrs[:country]).e164_number
       end
 
       attrs

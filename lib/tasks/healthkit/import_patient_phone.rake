@@ -59,7 +59,7 @@ namespace :healthkit do
             phone_number_formatted = TelephoneNumber.parse(
               phone_number,
               'AU'
-            ).international_number
+            ).e164_number
           end
 
           case healthkit_attrs['type']

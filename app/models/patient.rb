@@ -226,13 +226,13 @@ class Patient < ApplicationRecord
 
   def format_phone_and_mobile
     if phone.present?
-      self.phone_formated = TelephoneNumber.parse(phone, country).international_number
+      self.phone_formated = TelephoneNumber.parse(phone, country).e164_number
     else
       self.phone_formated = nil
     end
 
     if mobile.present?
-      self.mobile_formated = TelephoneNumber.parse(mobile, country).international_number
+      self.mobile_formated = TelephoneNumber.parse(mobile, country).e164_number
     else
       self.mobile_formated = nil
     end
