@@ -51,7 +51,7 @@ class SendPatientMessageService
 
         status_callback_url =
           if Rails.env.production?
-            twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+            Rails.application.routes.url_helpers.twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
           end
 
         twilio_message_from = business.sms_settings.enabled_two_way? ? business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
