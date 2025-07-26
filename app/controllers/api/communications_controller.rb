@@ -116,6 +116,7 @@ module Api
 
       communications = Communication.where(id: latest_com_query)
         .includes(:linked_patient)
+        .order(created_at: :desc)
         .page(page)
 
       conversations = communications.map do |comm|
@@ -123,9 +124,11 @@ module Api
           patient_id: comm.linked_patient.id,
           patient_name: comm.linked_patient.full_name,
           patient_mobile: comm.linked_patient.mobile_formated,
+          last_message_id: comm.id,
           last_message: comm.message,
           last_message_direction: comm.direction,
-          last_message_at: comm.created_at
+          last_message_at: comm.created_at,
+          read: comm.read
         }
       end
 
@@ -137,6 +140,10 @@ module Api
           total_pages: communications.total_pages,
         }
       }
+    end
+
+    def unread_conversations_count
+      render json: { count: count_unread_conversations }
     end
 
     def patient_sms_conversations
@@ -175,6 +182,148 @@ module Api
       }
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'Patient not found' }, status: 404
+    end
+
+    def send_message
+      patient_id = params[:patient_id]
+      message_content = params[:message]
+
+      # Validate patient belongs to current business
+      patient = current_business.patients.find(patient_id)
+
+      # Validate message content
+      if message_content.blank?
+        render json: { message: 'Message content cannot be empty' }, status: 400
+        return
+      else
+        message_content = message_content.strip
+        if message_content.length > 320
+          render json: { message: 'Message content exceeds maximum length of 320 characters' }, status: 400
+          return
+        end
+      end
+
+      # Check if patient has a valid mobile number
+      unless patient.mobile_formated.present?
+        render json: { message: 'Patient does not have a valid mobile number' }, status: 400
+        return
+      end
+
+      begin
+        # Create the communication record
+        com = current_business.communications.create!(
+          category: 'General',
+          linked_patient: patient,
+          message: message_content.strip,
+          message_type: Communication::TYPE_SMS,
+          direction: Communication::DIRECTION_OUTBOUND,
+          from: current_business.sms_settings&.twilio_number || 'System',
+          recipient: patient
+        )
+
+        begin
+          com_delivery = CommunicationDelivery.new(
+            communication_id: com.id,
+            recipient: patient.mobile_formated,
+            tracking_id: SecureRandom.base58(32),
+            last_tried_at: Time.current,
+            provider_id: CommunicationDelivery::PROVIDER_ID_TWILIO,
+            status: CommunicationDelivery::STATUS_SCHEDULED
+          )
+          com_delivery.save
+
+          status_callback_url =
+            if Rails.env.production?
+              twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+            end
+          twilio_message = Twilio::REST::Client.new.messages.create(
+            from: current_business.sms_settings&.twilio_number || 'System',
+            body: com.message,
+            to: patient.mobile_formated,
+            status_callback: status_callback_url
+          )
+
+          com_delivery.provider_resource_id = twilio_message.sid
+          com_delivery.provider_delivery_status = twilio_message.status
+          com_delivery.status = CommunicationDelivery::STATUS_PROCESSED
+
+          billing_item = SubscriptionBillingService.new.create_sms_billing_item(
+            current_business, 'Send SMS to client'
+          )
+
+          UpdateSmsBillingItemQuantityWorker.perform_at(3.minutes.from_now, billing_item.id, twilio_message.sid)
+
+          render json: {
+            message: com.message,
+            created_at: com.created_at
+          }
+        rescue => e
+          provider_metadata = {}
+          com_delivery.status = CommunicationDelivery::STATUS_ERROR
+          provider_metadata['error_code'] = e.code
+          provider_metadata['error_message'] = e.message
+
+          com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
+          com_delivery.provider_metadata = provider_metadata
+
+          render(
+            json: {
+              message: "An error has occurred. Sorry for the inconvenience. #{e.message}"
+            },
+            status: 500
+          )
+        ensure
+          if com_delivery
+            com_delivery.save
+          end
+        end
+
+      rescue => e
+        Sentry.capture_exception(e)
+        render json: {
+          message: 'Failed to send message: ' + e.message
+        }, status: 500
+      end
+
+    rescue ActiveRecord::RecordNotFound
+      render json: { message: 'Patient not found' }, status: 404
+    end
+
+    def mark_as_read_conversation
+      patient_id = params[:patient_id]
+
+      patient = current_business.patients.find(patient_id)
+
+      # Mark all SMS communications with this patient as read
+      current_business
+        .communications
+        .where(
+          linked_patient_id: patient_id,
+          message_type: Communication::TYPE_SMS
+        )
+        .where(read: false)
+        .update_all(read: true)
+
+      render json: {
+        message: 'Conversation marked as read',
+      }
+
+    rescue ActiveRecord::RecordNotFound
+      render json: { message: 'Patient not found' }, status: 404
+    end
+
+    private
+
+    def count_unread_conversations
+      current_business
+        .communications
+        .where(
+          message_type: Communication::TYPE_SMS,
+          direction: Communication::DIRECTION_INBOUND,
+          read: false
+        )
+        .distinct
+        .count(:linked_patient_id)
     end
   end
 end

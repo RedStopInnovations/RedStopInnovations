@@ -92,6 +92,7 @@ class SyncInboundMessagesWorker
       recipient_id: business.id,
       category: 'general',
       created_at: message_sent_at,
+      read: false
     )
 
     # Create CommunicationDelivery record

@@ -585,4 +585,10 @@ module ApplicationHelper
       ['Not specified', 'NOT_SPECIFIED'],
     ]
   end
+
+  def count_business_unread_patient_conversations(business)
+    business.communications
+      .where(message_type: Communication::TYPE_SMS, direction: Communication::DIRECTION_INBOUND, read: false)
+      .distinct.count(:linked_patient_id)
+  end
 end

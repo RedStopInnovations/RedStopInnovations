@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_25_065347) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_26_081126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -680,6 +680,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_065347) do
     t.integer "linked_patient_id"
     t.string "subject"
     t.string "from"
+    t.boolean "read", default: true, null: false
     t.index ["business_id"], name: "index_communications_on_business_id"
     t.index ["recipient_id", "recipient_type"], name: "index_communications_on_recipient_id_and_recipient_type"
     t.index ["source_type", "source_id"], name: "index_communications_on_source_type_and_source_id"

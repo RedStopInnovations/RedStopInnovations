@@ -18,7 +18,11 @@ $(function() {
           current_page: 1,
           total_count: 0,
           total_pages: 0
-        }
+        },
+        conversationsRefreshInterval: null,
+        unreadCounterRefreshInterval: null,
+        replyMessage: '',
+        sendingMessage: false
       },
       filters: {
         timeAgo: function(dateString) {
@@ -42,18 +46,17 @@ $(function() {
             return diffInHours + 'h ago';
           }
 
-          const diffInDays = Math.floor(diffInHours / 24);
-          if (diffInDays < 7) {
-            return diffInDays + 'd ago';
-          }
+          // For messages older than 24 hours, show date and time
+          const options = {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          };
 
-          const diffInWeeks = Math.floor(diffInDays / 7);
-          if (diffInWeeks < 4) {
-            return diffInWeeks + 'w ago';
-          }
-
-          // For older dates, show the actual date
-          return date.toLocaleDateString();
+          return date.toLocaleDateString('en-US', options);
         }
       },
       computed: {
@@ -61,39 +64,45 @@ $(function() {
       mounted: function() {
         const vm = this;
 
-        //=== Listen events to open search that trigger from elements outside the component
-        document.addEventListener(
-          'app.conversations-sidebar.open', function(e) {
+        $(document).on(
+        'click',
+        '[js-conversations-sidebar-toggle]',
+        function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             vm.isOpen = true;
             vm.loadConversations();
-          }
+            vm.startConversationsRefresh();
+        }
         );
 
-        $(function() {
-          $(document).on(
-            'click',
-            '[js-conversations-sidebar-toggle]',
-            function(e) {
-              e.preventDefault();
-              document.dispatchEvent(new CustomEvent('app.conversations-sidebar.open'));
-            }
-          );
-        });
+        // Start badge counter refresh immediately when component mounts
+        vm.startUnreadCounterRefresh();
+      },
+      beforeDestroy: function() {
+        this.stopAutoRefreshConversations();
+        this.stopAutoRefreshUnreadCounter();
       },
       methods: {
 
         onClickClose: function() {
-          this.isOpen = false;
-          this.selectedConversation = null;
-          this.resetPagination();
-        },
-
-        onFocusOut: function() {
-          if (this.isOpen) {
             this.isOpen = false;
             this.selectedConversation = null;
             this.resetPagination();
-          }
+            this.stopAutoRefreshConversations(); // Only stop conversations refresh, keep badge counter running
+        },
+
+        onFocusOut: function() {
+            const vm = this;
+            // Add a small delay to prevent conflict with conversation selection
+            if (vm.isOpen) {
+                setTimeout(function() {
+                    vm.isOpen = false;
+                    vm.selectedConversation = null;
+                    vm.resetPagination();
+                    vm.stopAutoRefreshConversations(); // Only stop conversations refresh, keep badge counter running
+                }, 150);
+            }
         },
 
         loadConversations: function(page = 1) {
@@ -139,10 +148,13 @@ $(function() {
 
         onClickConversation: function(conversation) {
           this.selectedConversation = conversation;
-          this.loadPatientMessages(conversation.patient_id);
+          this.loadConversationMessages(conversation.patient_id);
+
+          // Force mark conversation as read if it has any unread messages long time ago
+          this.markConversationAsRead(conversation.patient_id);
         },
 
-        loadPatientMessages: function(patientId, page = 1) {
+        loadConversationMessages: function(patientId, page = 1) {
           const vm = this;
           if (vm.messagesLoading) return;
 
@@ -169,7 +181,7 @@ $(function() {
               vm.messagesPagination = response.pagination;
             },
             error: function(xhr) {
-              console.error('Failed to load patient messages:', xhr);
+              console.error('Failed to load messages:', xhr);
               vm.$notify && vm.$notify('Failed to load messages', 'error');
             },
             complete: function() {
@@ -180,7 +192,7 @@ $(function() {
 
         loadMoreMessages: function() {
           if (this.messagesPagination.current_page < this.messagesPagination.total_pages && !this.messagesLoading) {
-            this.loadPatientMessages(this.selectedConversation.patient_id, this.messagesPagination.current_page + 1);
+            this.loadConversationMessages(this.selectedConversation.patient_id, this.messagesPagination.current_page + 1);
           }
         },
 
@@ -195,13 +207,253 @@ $(function() {
           this.selectedConversation = null;
           this.conversationMessages = [];
           this.messagesPagination.current_page = 1;
+          this.replyMessage = '';
         },
 
         formatMessagePreview: function(message) {
           if (!message) return '';
           return message.length > 50 ? message.substring(0, 50) + '...' : message;
-        }
+        },
 
+        startConversationsRefresh: function() {
+          const vm = this;
+
+          // Stop any existing conversations refresh interval
+          if (vm.conversationsRefreshInterval) {
+            clearInterval(vm.conversationsRefreshInterval);
+          }
+
+          // Auto-refresh conversations or individual conversation messages when sidebar is open
+          vm.conversationsRefreshInterval = setInterval(function() {
+            if (vm.isOpen) {
+              if (!vm.selectedConversation) {
+                // Refresh conversations list when on conversations view
+                vm.refreshConversations();
+              } else {
+                // Refresh individual conversation messages when viewing a conversation
+                vm.refreshSelectedConversationMessages();
+              }
+            }
+          }, 10000); // 10 seconds
+        },
+
+        startUnreadCounterRefresh: function() {
+          const vm = this;
+
+          // Stop any existing badge refresh interval
+          if (vm.unreadCounterRefreshInterval) {
+            clearInterval(vm.unreadCounterRefreshInterval);
+          }
+
+          // Always refresh badge counter (even when sidebar is closed)
+          vm.unreadCounterRefreshInterval = setInterval(function() {
+            vm.refreshUnreadBadgeCounter();
+          }, 10000);
+
+          // Initial badge counter load
+          vm.refreshUnreadBadgeCounter();
+        },
+
+        stopAutoRefreshConversations: function() {
+          if (this.conversationsRefreshInterval) {
+            clearInterval(this.conversationsRefreshInterval);
+            this.conversationsRefreshInterval = null;
+          }
+        },
+
+        stopAutoRefreshUnreadCounter: function() {
+          if (this.unreadCounterRefreshInterval) {
+            clearInterval(this.unreadCounterRefreshInterval);
+            this.unreadCounterRefreshInterval = null;
+          }
+        },
+
+        refreshConversations: function() {
+          const vm = this;
+          if (vm.loading) return;
+
+          // Silently refresh conversations without showing loading state
+          $.ajax({
+            url: '/api/communications/sms_conversations',
+            method: 'GET',
+            data: {
+              page: 1,
+            },
+            success: function(response) {
+              // Only update if we got new data to avoid unnecessary re-renders
+              if (JSON.stringify(vm.conversations) !== JSON.stringify(response.conversations)) {
+                vm.conversations = response.conversations;
+                vm.pagination = response.pagination;
+              }
+            },
+            error: function(xhr) {
+              console.error('Failed to refresh conversations:', xhr);
+              // Silently fail - don't show error to user for background refresh
+            }
+          });
+        },
+
+        refreshSelectedConversationMessages: function() {
+          const vm = this;
+          if (vm.messagesLoading || !vm.selectedConversation) return;
+
+          // Get the current scroll position
+          const messagesContainer = document.querySelector('#js-conversations-sidebar .messages-container');
+          const scrollTop = messagesContainer ? messagesContainer.scrollTop : 0;
+          const scrollHeight = messagesContainer ? messagesContainer.scrollHeight : 0;
+          const isAtBottom = Math.abs(scrollHeight - scrollTop - messagesContainer.clientHeight) < 5;
+
+          // Silently refresh messages without showing loading state
+          $.ajax({
+            url: '/api/communications/patient_sms_conversations/' + vm.selectedConversation.patient_id,
+            method: 'GET',
+            data: {
+              page: 1,
+            },
+            success: function(response) {
+              // Check if we have new messages
+              const newMessages = response.messages.reverse();
+              const currentMessageIds = vm.conversationMessages.map(msg => msg.id);
+              const newMessageIds = newMessages.map(msg => msg.id);
+
+              // Only update if there are actually new messages
+              if (JSON.stringify(currentMessageIds) !== JSON.stringify(newMessageIds)) {
+                vm.conversationMessages = newMessages;
+
+                // If user was at bottom, scroll to bottom to show new messages
+                // If they were scrolled up, keep their position
+                vm.$nextTick(function() {
+                  if (isAtBottom) {
+                    vm.scrollToBottom();
+                  }
+                });
+              }
+            },
+            error: function(xhr) {
+              console.error('Failed to refresh conversation messages:', xhr);
+              // Silently fail - don't show error to user for background refresh
+            }
+          });
+        },
+
+        refreshUnreadBadgeCounter: function() {
+          const vm = this;
+
+          $.ajax({
+            url: '/api/communications/sms_conversations/unread_count',
+            method: 'GET',
+            success: function(response) {
+                const badgeElement = $('[js-unread-conversations-counter]');
+                const count = response.count;
+                if (badgeElement.length) {
+                    badgeElement.text(count || 0);
+
+                    // Hide badge if count is 0
+                    if (count === 0 || count === null || count === undefined) {
+                        badgeElement.hide();
+                    } else {
+                        badgeElement.show();
+                    }
+                }
+            },
+            error: function(xhr) {
+              console.error('Failed to refresh badge counter:', xhr);
+              // Silently fail - don't show error to user for background refresh
+            }
+          });
+        },
+
+        sendReplyMessage: function() {
+          const vm = this;
+          if (!vm.replyMessage.trim() || vm.sendingMessage || !vm.selectedConversation) return;
+
+          vm.sendingMessage = true;
+
+          $.ajax({
+            url: '/api/communications/patient_sms_conversations/' + vm.selectedConversation.patient_id + '/send_message',
+            method: 'POST',
+            data: {
+              message: vm.replyMessage.trim(),
+              _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+              // Clear the input
+              vm.replyMessage = '';
+
+              // Add the new message to the conversation
+              const newMessage = {
+                id: response.message_id || Date.now(), // Use response ID or timestamp as fallback
+                message: response.message,
+                direction: 'Outbound',
+                created_at: response.created_at || new Date().toISOString(),
+                from: response.from || 'You'
+              };
+
+              // Add to the end of messages (newest at bottom)
+              vm.conversationMessages.push(newMessage);
+
+              // Scroll to bottom to show new message
+              vm.$nextTick(function() {
+                vm.scrollToBottom();
+              });
+
+              // Show success message if available
+              if (response.message) {
+                console.log('Message sent successfully:', response.message);
+              }
+            },
+            error: function(xhr) {
+              console.error('Failed to send message:', xhr);
+              let errorMessage = 'Failed to send message';
+
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+              } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                errorMessage = xhr.responseJSON.errors.join(', ');
+              }
+
+              // Show error to user
+              alert('Error: ' + errorMessage);
+            },
+            complete: function() {
+              vm.sendingMessage = false;
+            }
+          });
+        },
+
+        handleEnterKeyOnReplyInput: function(event) {
+          if (event.metaKey || event.ctrlKey) {
+            // Send message on Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux)
+            this.sendReplyMessage();
+          }
+          // Allow Enter alone for new line
+        },
+
+        markConversationAsRead: function(patientId) {
+          const vm = this;
+
+          $.ajax({
+            url: '/api/communications/patient_sms_conversations/' + patientId + '/mark_as_read',
+            method: 'POST',
+            data: {
+              _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+              // Update the conversation in the list to remove unread status
+              const conversation = vm.conversations.find(conv => conv.patient_id === patientId);
+              if (conversation) {
+                conversation.read = true;
+              }
+
+              // Refresh badge counter immediately after marking as read
+              vm.refreshUnreadBadgeCounter();
+            },
+            error: function(xhr) {
+              console.error('Failed to mark conversation as read:', xhr);
+              // Silently fail - don't disrupt user experience
+            }
+          });
+        },
       }
     })
   }

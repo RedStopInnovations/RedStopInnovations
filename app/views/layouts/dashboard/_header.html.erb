@@ -1,11 +1,3 @@
-<% if Rails.env.production? %>
-  <%= render 'layouts/dashboard/banner' %>
-<% end %>
-
-<%
-  unread_conversations_count = 0
-%>
-
 <header class="main-header">
   <div class="visible-xs mobile-sidebar-toggle-wrap">
     <a href="#" data-toggle="offcanvas" role="button"><i class="fa fa-bars"></i> </a>
@@ -75,14 +67,16 @@
 
     <div class="navbar-custom-menu">
       <ul class="nav navbar-nav">
-        <li>
-          <a href="#" js-conversations-sidebar-toggle>
-            <i class="fa fa-comments"></i>
-            <% if unread_conversations_count > 0 %>
-              <span class="label label-danger"><%= unread_conversations_count %></span>
-            <% end %>
-          </a>
-        </li>
+        <% if user_signed_in? && (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
+          <% unread_count = count_business_unread_patient_conversations(current_business) %>
+          <li>
+            <a href="#" js-conversations-sidebar-toggle>
+              <i class="fa fa-comments"></i>
+              <span class="label label-danger" js-unread-conversations-counter><%= unread_count if unread_count > 0 %></span>
+            </a>
+          </li>
+        <% end %>
+
         <%
           open_tasks_query = current_business
             .tasks
