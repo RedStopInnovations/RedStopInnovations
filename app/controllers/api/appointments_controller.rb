@@ -173,9 +173,16 @@ module Api
 
       rejected_error =
         if !patient.mobile_formated.present?
-          'The client mobile number is present or not valid format'
+          'The client mobile number is not present or invalid'
         elsif !(@appointment.arrival && @appointment.arrival.arrival_at?)
           'The arrival time of the appointment is not available.'
+        end
+
+        if !rejected_error
+          # Check if SMS is enabled for the business
+          unless current_business.sms_settings&.enabled?
+            rejected_error = 'The SMS feature is not available on your account'
+          end
         end
 
       if rejected_error
@@ -209,11 +216,18 @@ module Api
           )
           com_delivery.save
 
+          status_callback_url =
+            if Rails.env.production?
+              twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+            end
+
+          twilio_message_from = current_business.sms_settings.enabled_two_way? ? current_business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+
           twilio_message = Twilio::REST::Client.new.messages.create(
-            messaging_service_sid: ENV['TWILIO_MESSAGE_SERVICE_SID'],
+            from: twilio_message_from,
             body: sms_content,
             to: patient.mobile_formated,
-            status_callback: twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+            status_callback: status_callback_url
           )
 
           com_delivery.provider_resource_id = twilio_message.sid
@@ -230,32 +244,12 @@ module Api
 
           head :no_content
         rescue => e
-          provider_metadata = {}
           com_delivery.status = CommunicationDelivery::STATUS_ERROR
-          case e
-          when Twilio::REST::ServerError
-            com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_SERVICE_ERROR
-            com_delivery.error_message = e.message
-            provider_metadata['error_code'] = e.code
-            provider_metadata['error_message'] = e.message
-          when Twilio::REST::RequestError
-            provider_metadata['error_code'] = e.code
-            provider_metadata['error_message'] = e.message
-
-            case e.code.to_s
-            when '21211', '21214', '21612', '21614' # Invalid 'To' Phone Number, 'To' phone number cannot be reached
-              com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
-              com_delivery.error_message = e.message
-            when '21212', '21408', '51001', '51002', '14107', '21603', '21606', '21611', '21618'
-              com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
-            else
-              com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_UNKNOWN
-            end
-          else
-            com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
-          end
-
-          com_delivery.provider_metadata = provider_metadata
+          com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
+          com_delivery.provider_metadata = {
+            error_code: e.code,
+            error_message: e.message
+          }
 
           unless com_delivery.error_type == CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
             Sentry.capture_exception(e)

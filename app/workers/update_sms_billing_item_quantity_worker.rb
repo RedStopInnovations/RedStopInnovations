@@ -8,7 +8,7 @@ class UpdateSmsBillingItemQuantityWorker
     billing_item = SubscriptionBilling.find_by(id: billing_item_id)
 
     if billing_item
-      twilio_message = Twilio::REST::Client.new.messages.find(twilio_message_sid)
+      twilio_message = Twilio::REST::Client.new.messages(twilio_message_sid).fetch
       num_segments = twilio_message.num_segments.to_i
       if num_segments > 0
         billing_item.update_column :quantity, num_segments

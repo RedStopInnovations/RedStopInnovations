@@ -96,11 +96,18 @@ class AppointmentReminderWorker
         com_delivery.save
 
         if patient.mobile_formated.present?
+          status_callback_url =
+            if Rails.env.production?
+              Rails.application.routes.url_helpers.twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+            end
+
+          twilio_message_from = business.sms_settings.enabled_two_way? ? business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+
           twilio_message = Twilio::REST::Client.new.messages.create(
-            messaging_service_sid: ENV['TWILIO_MESSAGE_SERVICE_SID'],
+            from: twilio_message_from,
             body: sms_content,
             to: patient.mobile_formated,
-            status_callback: Rails.application.routes.url_helpers.twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+            status_callback: status_callback_url
           )
           com_delivery.provider_resource_id = twilio_message.sid
           com_delivery.provider_delivery_status = twilio_message.status
@@ -121,33 +128,12 @@ class AppointmentReminderWorker
           com_delivery.error_message = 'The mobile number is blank or not valid'
         end
       rescue => e
-        provider_metadata = {}
         com_delivery.status = CommunicationDelivery::STATUS_ERROR
-
-        # @see: https://www.twilio.com/docs/api/errors
-        # @TODO: extract this to somewhere
-        case e
-        when Twilio::REST::ServerError
-          com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_SERVICE_ERROR
-          com_delivery.error_message = e.message
-          provider_metadata['error_code'] = e.code
-          provider_metadata['error_message'] = e.message
-        when Twilio::REST::RequestError
-          provider_metadata['error_code'] = e.code
-          provider_metadata['error_message'] = e.message
-
-          case e.code.to_s
-          when '21211', '21214', '21612', '21614' # Invalid 'To' Phone Number, 'To' phone number cannot be reached
-            com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
-            com_delivery.error_message = e.message
-          when '21212', '21408', '51001', '51002', '14107', '21603', '21606', '21611', '21618'
-            com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
-          else
-            com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
-          end
-        end
-
-        com_delivery.provider_metadata = provider_metadata
+        com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
+        com_delivery.provider_metadata = {
+          error_code: e.code,
+          error_message: e.message
+        }
 
         Sentry.capture_exception(e) unless com_delivery.error_type == CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
       ensure

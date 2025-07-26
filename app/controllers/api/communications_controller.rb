@@ -62,13 +62,20 @@ module Api
         patient = current_business.patients.find(form.patient_id)
         rejected_error =
           if !patient.mobile_formated.present?
-            'The client mobile number is present or not valid format'
+            'The client mobile number is not present or invalid'
           end
+
+        if !rejected_error
+          # Check if SMS is enabled for the business
+          unless current_business.sms_settings&.enabled?
+            rejected_error = 'The SMS feature is not available on your account'
+          end
+        end
 
         if rejected_error
           render(
             json: {
-              message: "Cound not send messsage, error: #{rejected_error}"
+              message: "Could not send messsage, error: #{rejected_error}"
             },
             status: 400
           )
@@ -188,6 +195,12 @@ module Api
       patient_id = params[:patient_id]
       message_content = params[:message]
 
+      # Check if 2-way sms is enabled for the business
+      unless current_business.sms_settings&.enabled?
+        render json: { message: 'The SMS feature is not available on your account' }, status: 400
+        return
+      end
+
       # Validate patient belongs to current business
       patient = current_business.patients.find(patient_id)
 
@@ -236,8 +249,11 @@ module Api
             if Rails.env.production?
               twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
             end
+
+          twilio_message_from = current_business.sms_settings.enabled_two_way? ? current_business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+
           twilio_message = Twilio::REST::Client.new.messages.create(
-            from: current_business.sms_settings&.twilio_number || 'System',
+            from: twilio_message_from,
             body: com.message,
             to: patient.mobile_formated,
             status_callback: status_callback_url
@@ -248,7 +264,7 @@ module Api
           com_delivery.status = CommunicationDelivery::STATUS_PROCESSED
 
           billing_item = SubscriptionBillingService.new.create_sms_billing_item(
-            current_business, 'Send SMS to client'
+            current_business, 'Send message to client'
           )
 
           UpdateSmsBillingItemQuantityWorker.perform_at(3.minutes.from_now, billing_item.id, twilio_message.sid)

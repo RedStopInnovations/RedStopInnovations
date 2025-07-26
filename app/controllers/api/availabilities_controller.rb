@@ -188,107 +188,107 @@ module Api
       # @TODO: send in background
       send_time = Time.current
       send_option = params[:send_option].presence || 'FORCE_ALL'
+      rejected_error = nil
+      # Check if SMS is enabled for the business
+      unless current_business.sms_settings&.enabled?
+        rejected_error = 'The SMS feature is not available on your account'
+      end
 
-      @availability.appointments.each do |appointment|
-        patient = appointment.patient
+      if rejected_error
+        render(
+          json: {
+            message: "Cound not sent arrival time. Reason: #{rejected_error}"
+          },
+          status: 400
+        )
+      else
+        @availability.appointments.each do |appointment|
+          patient = appointment.patient
 
-        if patient.mobile_formated.present? && appointment.arrival && appointment.arrival.arrival_at?
-          perform_send =
-            if send_option == 'FORCE_ALL'
-              true
-            elsif send_option == 'SKIP_REMINDER_DISABLED'
-              patient.reminder_enable?
-            end
-
-          if perform_send
-            # @TODO: move to a job
-            sms_content = build_sms_arrival_time_content(appointment)
-            com = current_business.communications.create!(
-              message_type: Communication::TYPE_SMS,
-              category: 'appointment_arrival_time',
-              recipient: patient,
-              linked_patient_id: patient.id,
-              message: sms_content,
-              source: appointment,
-              direction: Communication::DIRECTION_OUTBOUND
-            )
-
-            begin
-              com_delivery = CommunicationDelivery.new(
-                communication_id: com.id,
-                recipient: patient.mobile_formated,
-                tracking_id: SecureRandom.base58(32),
-                last_tried_at: send_time,
-                provider_id: CommunicationDelivery::PROVIDER_ID_TWILIO,
-                status: CommunicationDelivery::STATUS_SCHEDULED
-              )
-              com_delivery.save
-
-              twilio_message = Twilio::REST::Client.new.messages.create(
-                messaging_service_sid: ENV['TWILIO_MESSAGE_SERVICE_SID'],
-                body: sms_content,
-                to: patient.mobile_formated,
-                status_callback: twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
-              )
-
-              com_delivery.provider_resource_id = twilio_message.sid
-              com_delivery.provider_delivery_status = twilio_message.status
-              com_delivery.status = CommunicationDelivery::STATUS_PROCESSED
-              appointment.arrival.update_attribute :sent_at, send_time
-
-              billing_item = SubscriptionBillingService.new.create_sms_billing_item(
-                current_business, 'Send appointment arrival time to client', appointment
-              )
-
-              UpdateSmsBillingItemQuantityWorker.perform_at(3.minutes.from_now, billing_item.id, twilio_message.sid)
-
-              head :no_content
-            rescue => e
-              provider_metadata = {}
-              com_delivery.status = CommunicationDelivery::STATUS_ERROR
-
-              case e
-              when Twilio::REST::ServerError
-                com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_SERVICE_ERROR
-                com_delivery.error_message = e.message
-                provider_metadata['error_code'] = e.code
-                provider_metadata['error_message'] = e.message
-              when Twilio::REST::RequestError
-                provider_metadata['error_code'] = e.code
-                provider_metadata['error_message'] = e.message
-
-                case e.code.to_s
-                when '21211', '21214', '21612', '21614' # Invalid 'To' Phone Number, 'To' phone number cannot be reached
-                  com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
-                  com_delivery.error_message = e.message
-                when '21212', '21408', '51001', '51002', '14107', '21603', '21606', '21611', '21618'
-                  com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
-                else
-                  com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_UNKNOWN
-                end
-              else
-                com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
+          if patient.mobile_formated.present? && appointment.arrival && appointment.arrival.arrival_at?
+            perform_send =
+              if send_option == 'FORCE_ALL'
+                true
+              elsif send_option == 'SKIP_REMINDER_DISABLED'
+                patient.reminder_enable?
               end
 
-              com_delivery.provider_metadata = provider_metadata
+            if perform_send
+              # @TODO: move to a job
+              sms_content = build_sms_arrival_time_content(appointment)
+              com = current_business.communications.create!(
+                message_type: Communication::TYPE_SMS,
+                category: 'appointment_arrival_time',
+                recipient: patient,
+                linked_patient_id: patient.id,
+                message: sms_content,
+                source: appointment,
+                direction: Communication::DIRECTION_OUTBOUND
+              )
 
-              unless com_delivery.error_type == CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
-                Sentry.capture_exception(e)
-              end
-            ensure
-              if com_delivery
+              begin
+                com_delivery = CommunicationDelivery.new(
+                  communication_id: com.id,
+                  recipient: patient.mobile_formated,
+                  tracking_id: SecureRandom.base58(32),
+                  last_tried_at: send_time,
+                  provider_id: CommunicationDelivery::PROVIDER_ID_TWILIO,
+                  status: CommunicationDelivery::STATUS_SCHEDULED
+                )
                 com_delivery.save
+
+                status_callback_url =
+                  if Rails.env.production?
+                    twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
+                  end
+
+                twilio_message_from = current_business.sms_settings.enabled_two_way? ? current_business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+
+                twilio_message = Twilio::REST::Client.new.messages.create(
+                  from: twilio_message_from,
+                  body: sms_content,
+                  to: patient.mobile_formated,
+                  status_callback: status_callback_url
+                )
+
+                com_delivery.provider_resource_id = twilio_message.sid
+                com_delivery.provider_delivery_status = twilio_message.status
+                com_delivery.status = CommunicationDelivery::STATUS_PROCESSED
+                appointment.arrival.update_attribute :sent_at, send_time
+
+                billing_item = SubscriptionBillingService.new.create_sms_billing_item(
+                  current_business, 'Send appointment arrival time to client', appointment
+                )
+
+                UpdateSmsBillingItemQuantityWorker.perform_at(3.minutes.from_now, billing_item.id, twilio_message.sid)
+
+                head :no_content
+              rescue => e
+                com_delivery.status = CommunicationDelivery::STATUS_ERROR
+                com_delivery.error_type = CommunicationDelivery::DELIVERY_ERROR_TYPE_INTERNAL_ERROR
+                com_delivery.provider_metadata = {
+                  error_code: e.code,
+                  error_message: e.message
+                }
+
+                unless com_delivery.error_type == CommunicationDelivery::DELIVERY_ERROR_TYPE_INVALID_RECIPIENT
+                  Sentry.capture_exception(e)
+                end
+              ensure
+                if com_delivery
+                  com_delivery.save
+                end
               end
             end
           end
         end
-      end
 
-      head :no_content
+        head :no_content
+      end
     end
 
     def send_bulk_sms
-      if !current_business.in_trial_period? && current_business.subscription_credit_card_added?
+      if current_business.sms_settings&.enabled?
         form_request = SendAvailabilityBulkSmsForm.new(params.permit(
           :send_option,
           :content,
@@ -321,7 +321,7 @@ module Api
         end
       else
         render(json: {
-            message: 'This feature is not available on your company account.'
+            message: 'The SMS feature is not available on your account'
           },
           status: 400
         )

@@ -19,5 +19,5 @@
 #   class: "RefreshGoogleCalendarAuthorizationWorker"
 
 "Sync SMS messages from Twilio":
-  cron: "*/15 * * * * *" # Every 15 secs
+  cron: "*/10 * * * * *" # Every 10 secs
   class: "SyncInboundMessagesWorker"

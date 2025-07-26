@@ -30,8 +30,8 @@ class AppointmentNotificationService
         end
       end
 
-      if notify_setting.enabled_sms_delivery? && practitioner.mobile.present? && !business.in_trial_period?
-        # && business.subscription.credit_card_added?
+
+      if notify_setting.enabled_sms_delivery? && practitioner.mobile.present? && business.sms_settings&.enabled?
         sms_content = NotificationTemplate::Sms::Renderer.new(
           NotificationTemplate::Sms::Template.new(
             notify_setting.template['sms_content']),
@@ -43,8 +43,10 @@ class AppointmentNotificationService
             ]
           ).render.content
 
+        twilio_message_from = business.sms_settings.enabled_two_way? ? business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+
         twilio_message = Twilio::REST::Client.new.messages.create(
-          messaging_service_sid: ENV['TWILIO_MESSAGE_SERVICE_SID'],
+          from: twilio_message_from,
           body: sms_content,
           to: standardize_practitioner_mobile(practitioner),
         )

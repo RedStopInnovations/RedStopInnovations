@@ -14,7 +14,6 @@ class SyncInboundMessagesWorker
   private
 
   def sync_inbound_messages
-    twilio_api_client = Twilio::REST::Client.new
     processed_count = 0
     error_count = 0
 
@@ -37,7 +36,7 @@ class SyncInboundMessagesWorker
     messages = []
     # TODO: remember the last fetch timestamp instead of hardcoding 3 minutes
     # @see: https://www.twilio.com/docs/messaging/api/message-resource#read-multiple-message-resources
-    twilio_api_client.messages.list(date_sent_after: 3.minutes.ago, page_size: 100).each do |message|
+    Twilio::REST::Client.new.messages.list(date_sent_after: 3.minutes.ago, page_size: 100).each do |message|
       messages << message
     end
 
@@ -118,7 +117,6 @@ class SyncInboundMessagesWorker
         'num_segments' => twilio_message.num_segments,
         'error_code' => twilio_message.error_code,
         'error_message' => twilio_message.error_message,
-        'num_segments' => twilio_message.num_segments,
       }
     )
 
