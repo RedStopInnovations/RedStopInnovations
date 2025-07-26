@@ -61,8 +61,8 @@ module Report
             records.each do |patient_case|
               invoiced_amount_total = patient_case.invoices.to_a.sum(&:amount)
               csv << [
-                patient_case.case_type.title,
-                patient_case.case_type.id,
+                patient_case.case_type&.title,
+                patient_case.case_type&.id,
                 patient_case.practitioner&.full_name,
                 patient_case.practitioner&.id,
                 patient_case.patient.full_name,

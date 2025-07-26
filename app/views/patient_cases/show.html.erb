@@ -95,7 +95,7 @@
 
               <tr>
                 <td>Case type:</td>
-                <td><%= @patient_case.case_type.try(:title) %></td>
+                <td><%= @patient_case.case_type&.title %></td>
               </tr>
 
               <tr>

@@ -164,7 +164,7 @@
               total_invoiced_amount = patient_case.invoices.to_a.sum(&:amount)
             %>
             <tr>
-              <td><%= patient_case.case_type.title %></td>
+              <td><%= patient_case.case_type&.title %></td>
               <td>
                 <a href="<%= patient_path(patient_case.patient) %>">
                   <%= patient_case.patient.full_name %>

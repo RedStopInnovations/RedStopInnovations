@@ -4,7 +4,9 @@ json.issued_invoices_amount patient_case.invoices.sum(&:amount).to_f
 json.issued_invoices_count patient_case.invoices.count
 
 json.case_type do
-  json.extract! patient_case.case_type, :id, :title, :description
+  if patient_case.case_type
+    json.extract! patient_case.case_type, :id, :title, :description
+  end
 end
 
 json.practitioner do
