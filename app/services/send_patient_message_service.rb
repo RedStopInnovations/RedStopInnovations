@@ -21,13 +21,14 @@ class SendPatientMessageService
         'general'
       end
 
-      com = Communication.new(
+      com = business.communications.new(
         business_id: business.id,
         message_type: Communication::TYPE_SMS,
         category: comm_category,
         recipient: patient,
         linked_patient_id: patient.id,
-        message: sms_content
+        message: sms_content,
+        direction: Communication::DIRECTION_OUTBOUND
       )
 
       if form.source_id.present? && form.source_type.present?
