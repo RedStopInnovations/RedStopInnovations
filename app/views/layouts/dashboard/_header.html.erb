@@ -7,8 +7,7 @@
 
   <span class="logo">
     <span class="logo-mini">
-      <span>O</span>
-      <span class="text-green">H</span>
+      <span>T</span>
     </span>
     <span class="logo-text">TRACKSY</span>
   </span>
@@ -55,7 +54,7 @@
       <i class="fa fa-bars"></i>
     </a>
 
-    <% if user_signed_in? && (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
+    <% if current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor? %>
       <div class="form-quick-search-header" id="js-form-quick-search-header">
         <span class="search-icon"><i class="bi bi-search"></i></span>
         <span class="placeholder">Search</span>
@@ -67,7 +66,7 @@
 
     <div class="navbar-custom-menu">
       <ul class="nav navbar-nav">
-        <% if user_signed_in? && (current_user.role_administrator? || current_user.role_supervisor? || current_user.role_restricted_supervisor?) %>
+        <% if current_business.sms_settings&.enabled? %>
           <% unread_count = count_business_unread_patient_conversations(current_business) %>
           <li>
             <a href="#" js-conversations-sidebar-toggle>

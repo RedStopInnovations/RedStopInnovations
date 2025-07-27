@@ -65,15 +65,39 @@ $(function() {
         const vm = this;
 
         $(document).on(
-        'click',
-        '[js-conversations-sidebar-toggle]',
-        function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            vm.isOpen = true;
-            vm.loadConversations();
-            vm.startConversationsRefresh();
-        }
+          'click',
+          '[js-conversations-sidebar-toggle]',
+          function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              vm.isOpen = true;
+              vm.loadConversations();
+              vm.startConversationsRefresh();
+          }
+        );
+
+        // Listen for patient conversation button clicks
+        $(document).on(
+          'click',
+          '[js-btn-start-patient-conversation]',
+          function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+
+              const patientId = $(this).data('patient-id');
+              const patientName = $(this).data('patient-name');
+              const patientMobile = $(this).data('patient-mobile');
+
+              if (patientMobile === undefined || patientMobile === null) {
+                vm.$notify('The clint mobile number is not present or invalid', 'error');
+              } else {
+                vm.openPatientConversation({
+                  patient_id: patientId,
+                  patient_name: patientName,
+                  patient_mobile: patientMobile
+                });
+              }
+          }
         );
 
         // Start badge counter refresh immediately when component mounts
@@ -208,6 +232,9 @@ $(function() {
           this.conversationMessages = [];
           this.messagesPagination.current_page = 1;
           this.replyMessage = '';
+
+          // Refresh conversations list to show latest updates
+          this.loadConversations();
         },
 
         formatMessagePreview: function(message) {
@@ -327,6 +354,8 @@ $(function() {
                     vm.scrollToBottom();
                   }
                 });
+
+                vm.markConversationAsRead(vm.selectedConversation.patient_id);
               }
             },
             error: function(xhr) {
@@ -396,11 +425,6 @@ $(function() {
               vm.$nextTick(function() {
                 vm.scrollToBottom();
               });
-
-              // Show success message if available
-              if (response.message) {
-                console.log('Message sent successfully:', response.message);
-              }
             },
             error: function(xhr) {
               console.error('Failed to send message:', xhr);
@@ -453,6 +477,29 @@ $(function() {
               // Silently fail - don't disrupt user experience
             }
           });
+        },
+
+        openPatientConversation: function(patientData) {
+          const vm = this;
+
+          // Set the selected conversation
+          vm.selectedConversation = {
+            patient_id: patientData.patient_id,
+            patient_name: patientData.patient_name,
+            patient_mobile: patientData.patient_mobile
+          };
+
+          vm.markConversationAsRead(patientData.patient_id);
+
+          // Open the sidebar
+          vm.isOpen = true;
+
+          // Load messages for this patient (might be empty for new conversations)
+          vm.loadConversationMessages(patientData.patient_id);
+
+          // Stop conversations refresh and start conversation-specific refresh
+          vm.stopAutoRefreshConversations();
+          vm.startConversationsRefresh();
         },
       }
     })

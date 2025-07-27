@@ -178,7 +178,8 @@ module Api
       render json: {
         patient: {
           id: patient.id,
-          name: patient.full_name
+          name: patient.full_name,
+          mobile_formated: patient.mobile_formated,
         },
         messages: conversations,
         pagination: {

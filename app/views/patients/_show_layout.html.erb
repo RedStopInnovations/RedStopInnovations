@@ -14,7 +14,18 @@
 
   <div class="col-xs-12 col-md-6 text-right">
     <% if controller_name == 'patients' && ['show', 'edit'].include?(action_name) %>
+
     <div class="btn-group">
+      <% if current_business.sms_settings&.enabled? %>
+      <a href="#" class="btn btn-white" js-btn-start-patient-conversation
+        data-patient-id="<%= @patient.id %>"
+        data-patient-name="<%= @patient.full_name %>"
+        <% if @patient.mobile_formated %>
+          data-patient-mobile="<%= @patient.mobile_formated %>"
+        <% end %>
+        ><i class="fa fa-comments"></i> New SMS</a>
+      <% end %>
+
       <a href="<%= edit_patient_path(@patient) %>" class="btn btn-white"><i class="fa fa-pencil"></i> Edit details</a>
       <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
       </button>
