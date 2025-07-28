@@ -115,7 +115,7 @@ module Api
     def sms_conversations
       page = (params[:page] || 1).to_i
       latest_com_query = Patient.joins('INNER JOIN communications ON communications.linked_patient_id = patients.id')
-        .where('patients.business_id': 1)
+        .where('patients.business_id': current_business.id)
         .where('communications.message_type': Communication::TYPE_SMS)
         .group('patients.id')
         .order('MAX(communications.id) DESC')
