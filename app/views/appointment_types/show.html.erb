@@ -101,24 +101,6 @@
         </div>
 
         <div class="block-info">
-          <strong>Display on online bookings:</strong>
-          <div class="check-box mt-10 check-box-readonly">
-            <input type="checkbox" readonly <%= @appointment_type.display_on_online_bookings? ? "checked" : "" %>>
-            <label>&nbsp;</label>
-          </div>
-        </div>
-
-        <% if current_business.stripe_payment_available? %>
-          <div class="block-info">
-            <strong>Online bookings pre-payment:</strong>
-            <div class="check-box mt-10 check-box-readonly">
-              <input type="checkbox" readonly <%= @appointment_type.is_online_booking_prepayment? ? "checked" : "" %>>
-              <label>&nbsp;</label>
-            </div>
-          </div>
-        <% end %>
-
-        <div class="block-info">
           <strong>Provided practitioners (<%= @appointment_type.practitioners.size %>):</strong>
           <p>
             <%= @appointment_type.practitioners.order('full_name asc').pluck(:full_name).join(', ') %>
