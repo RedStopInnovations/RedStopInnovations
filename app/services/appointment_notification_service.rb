@@ -43,7 +43,7 @@ class AppointmentNotificationService
             ]
           ).render.content
 
-        twilio_message_from = business.sms_settings.enabled_two_way? ? business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+        twilio_message_from = business.sms_settings.enabled_two_way? ? business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_DEFAULT_FROM']
 
         twilio_message = Twilio::REST::Client.new.messages.create(
           from: twilio_message_from,

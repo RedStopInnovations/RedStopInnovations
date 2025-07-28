@@ -242,7 +242,7 @@ module Api
                     twilio_sms_delivery_hook_url(tracking_id: com_delivery.tracking_id)
                   end
 
-                twilio_message_from = current_business.sms_settings.enabled_two_way? ? current_business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_SERVICE_SID']
+                twilio_message_from = current_business.sms_settings.enabled_two_way? ? current_business.sms_settings.twilio_number : ENV['TWILIO_MESSAGE_DEFAULT_FROM']
 
                 twilio_message = Twilio::REST::Client.new.messages.create(
                   from: twilio_message_from,
