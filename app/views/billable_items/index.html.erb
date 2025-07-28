@@ -41,8 +41,6 @@
             <th style="width: 450px">Name</th>
             <th style="width: 150px">Item number</th>
             <th style="width: 130px">Price</th>
-            <th style="width: 130px">Rebate?</th>
-            <th style="width: 130px">Variable pricing?</th>
             <th style="width: 130px">Tax</th>
             <th></th>
           </tr>
@@ -55,20 +53,6 @@
               </td>
               <td><%= billable_item.item_number %></td>
               <td><%= format_money billable_item.price %></td>
-              <td>
-                <div class="check-box check-box-readonly">
-                  <input type="checkbox" <%= billable_item.health_insurance_rebate? ? "checked" : "" %>>
-                  <label>&nbsp;</label>
-                </div>
-              </td>
-
-              <td>
-                <div class="check-box check-box-readonly">
-                  <input type="checkbox" <%= billable_item.pricing_for_contact? ? "checked" : "" %>>
-                  <label>&nbsp;</label>
-                </div>
-              </td>
-
               <td>
                 <% if billable_item.tax %>
                   <%= billable_item.tax.name %>

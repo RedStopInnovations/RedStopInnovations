@@ -11,7 +11,6 @@ class CreateBusinessDefaultDataService
       item_number: '500',
       price: 130,
       practitioner_ids: practitioner_ids,
-      health_insurance_rebate: true
     )
     initial_item.save!(validate: false)
     subsequent_item = business.billable_items.new(
@@ -20,7 +19,6 @@ class CreateBusinessDefaultDataService
       item_number: '505',
       price: 100,
       practitioner_ids: practitioner_ids,
-      health_insurance_rebate: true
     )
     subsequent_item.save!(validate: false)
 

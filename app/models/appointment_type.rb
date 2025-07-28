@@ -30,14 +30,14 @@ class AppointmentType < ApplicationRecord
   include DeletionRecordable
 
   belongs_to :business, inverse_of: :appointment_types
-  belongs_to :default_billable_item, class_name: 'BillableItem' # TODO: remove after issue #2287 is done
+  # belongs_to :default_billable_item, class_name: 'BillableItem' # TODO: remove after issue #2287 is done
   belongs_to :default_treatment_template, class_name: 'TreatmentTemplate'
   has_many :appointments
   has_and_belongs_to_many :practitioners, validate: false # TODO: validate business scope?
   has_and_belongs_to_many :billable_items, validate: false, uniq: true # TODO: validate business scope?
 
   validates_presence_of :name
-  validates_length_of :name, maximum: 50, allow_nil: true, allow_blank: true
+  validates_length_of :name, maximum: 255, allow_nil: true, allow_blank: true
   validates :duration,
             presence: true,
             numericality: {

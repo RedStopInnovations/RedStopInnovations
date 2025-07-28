@@ -108,19 +108,10 @@ class Practitioner < ApplicationRecord
   has_many :availabilities, dependent: :destroy
   has_many :appointments, inverse_of: :practitioner, dependent: :destroy
   has_many :invoices
-  has_many :payments
   has_many :treatments
-  has_many :posts, inverse_of: :practitioner
   has_many :reviews
   has_many :business_hours, class_name: 'PractitionerBusinessHour'
 
-  has_and_belongs_to_many :tags
-  has_and_belongs_to_many :billable_items
-  has_and_belongs_to_many :public_billable_items,
-                          -> {
-                            where(billable_items: { display_on_pricing_page: :true, deleted_at: nil })
-                          },
-                          class_name: 'BillableItem'
   has_and_belongs_to_many(
     :most_10_expensive_billable_items,
     -> {

@@ -27,7 +27,6 @@ class BillableItem < ApplicationRecord
   belongs_to :business
   belongs_to :tax
 
-  has_and_belongs_to_many :practitioners, validate: false
   has_and_belongs_to_many :appointment_types, validate: false
 
   has_many :invoice_items, as: :invoiceable
@@ -46,20 +45,12 @@ class BillableItem < ApplicationRecord
             length: { maximum: 30 } # Item code in Xero limited to 30
 
   validates_length_of :name,
-                      maximum: 150,
+                      maximum: 255,
                       allow_nil: true,
                       allow_blank: true
   validates_length_of :description, maximum: 1000
   validates :price, presence: true,
             numericality: { greater_than: 0 }
-
-  validate do
-    if health_insurance_rebate? && !errors.include?(:item_number)
-      unless HicapsItem.where(item_number: item_number).exists?
-        errors.add(:item_number, 'is not a valid HICAPS item number')
-      end
-    end
-  end
 
   delegate :name, :rate, to: :tax, prefix: true, allow_nil: true
 

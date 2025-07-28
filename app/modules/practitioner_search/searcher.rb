@@ -95,7 +95,7 @@ module PractitionerSearch
     end
 
     def eager_load(query)
-      query.includes([:user, :public_billable_items, :business])
+      query.includes([:user, :business])
     end
 
     def base_scope

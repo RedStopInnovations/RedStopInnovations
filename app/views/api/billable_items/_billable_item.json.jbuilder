@@ -1,4 +1,4 @@
-json.extract! billable_item, :id, :name, :description, :item_number, :tax_id, :health_insurance_rebate, :pricing_for_contact, :display_on_pricing_page
+json.extract! billable_item, :id, :name, :description, :item_number, :tax_id
 
 json.set! :price, billable_item.price.to_f
 

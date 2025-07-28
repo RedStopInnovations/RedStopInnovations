@@ -7,7 +7,6 @@ module Api
                  :description,
                  :item_number,
                  :price,
-                 :health_insurance_rebate,
                  :created_at,
                  :updated_at
 

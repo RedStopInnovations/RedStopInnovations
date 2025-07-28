@@ -119,7 +119,7 @@
         <% end %>
 
         <div class="block-info">
-          <strong>Practitioners (<%= @appointment_type.practitioners.size %>):</strong>
+          <strong>Provided practitioners (<%= @appointment_type.practitioners.size %>):</strong>
           <p>
             <%= @appointment_type.practitioners.order('full_name asc').pluck(:full_name).join(', ') %>
           </p>

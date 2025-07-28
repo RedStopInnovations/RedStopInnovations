@@ -40,7 +40,6 @@ class BillableItemsController < ApplicationController
 
   def update
     if @billable_item.update(billable_item_params)
-      @billable_item.pricing_contacts.delete_all unless @billable_item.pricing_for_contact
 
       redirect_to billable_items_url,
                   notice: 'The billable item was successfully updated.'
@@ -74,15 +73,9 @@ class BillableItemsController < ApplicationController
       :description,
       :item_number,
       :price,
-      :health_insurance_rebate,
       :tax_id,
-      :pricing_for_contact,
-      :display_on_pricing_page,
-      practitioner_ids: [],
-      pricing_contacts_attributes: [:id, :contact_id, :price, :_destroy]
     )
 
-    result.expect(:pricing_contacts_attributes) unless result[:pricing_for_contact]
     result
   end
 end

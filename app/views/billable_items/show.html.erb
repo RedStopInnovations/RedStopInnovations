@@ -53,30 +53,6 @@
           </div>
 
           <div class="block-info">
-            <strong>Health insurance rebate:</strong>
-            <div class="check-box check-box-readonly">
-              <input type="checkbox" <%= @billable_item.health_insurance_rebate? ? "checked" : "" %>>
-              <label>&nbsp;</label>
-            </div>
-          </div>
-
-          <div class="block-info">
-            <strong>Display on pricing pages:</strong>
-            <div class="check-box check-box-readonly">
-              <input type="checkbox" <%= @billable_item.display_on_pricing_page? ? "checked" : "" %>>
-              <label>&nbsp;</label>
-            </div>
-          </div>
-
-          <div class="block-info">
-            <strong>Variable pricing for contacts:</strong>
-            <div class="check-box check-box-readonly">
-              <input type="checkbox" <%= @billable_item.pricing_for_contact? ? "checked" : "" %>>
-              <label>&nbsp;</label>
-            </div>
-          </div>
-
-          <div class="block-info">
             <strong>Tax:</strong>
             <p>
               <% if @billable_item.tax %>
@@ -87,49 +63,9 @@
             </p>
           </div>
 
-          <div class="block-info">
-            <strong>Practitioners:</strong>
-            <p><%= @billable_item.practitioners.map(&:full_name).join(', ') %></p>
-          </div>
         </div>
       </div>
     </div>
-
-    <% if @billable_item.pricing_for_contact %>
-    <div class="col-md-6 col-xs-12">
-      <div class="panel panel-default">
-        <div class="panel-heading">Pricing for contacts</div>
-        <div class="panel-body">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Contact</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @billable_item.pricing_contacts.each do |row| %>
-                  <% if row.contact.present? %>
-                  <tr>
-                    <td>
-                      <a href="<%= contact_path(row.contact_id) %>"><%= row.contact.business_name %></a>
-                    </td>
-                    <td><%= format_money row.price %></td>
-                  </tr>
-                  <% end %>
-                <% end %>
-
-                <% if @billable_item.pricing_contacts.blank? %>
-                <tr>
-                  <td colspan="2">Not found any pricing for contacts</td>
-                </tr>
-                <% end %>
-              </tbody>
-            </table>
-        </div>
-      </div>
-    </div>
-    <% end %>
 
   </div>
 

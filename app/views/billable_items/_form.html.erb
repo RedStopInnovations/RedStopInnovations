@@ -1,141 +1,16 @@
-<%= simple_nested_form_for billable_item, url: billable_item.new_record? ? billable_items_path : billable_item_path(billable_item) do |f| %>
-  <%
-   # Mark practitioners as default
-   if billable_item.new_record? && request.get?
-    billable_item.practitioner_ids = current_business.practitioners.pluck(:id)
-   end
-  %>
-
-  <div class="box">
-    <div class="row">
-      <div class="col-md-6">
+<div class="panel panel-default">
+  <div class="panel-body">
+    <%= simple_nested_form_for billable_item, url: billable_item.new_record? ? billable_items_path : billable_item_path(billable_item) do |f| %>
         <%= f.input :name %>
-      </div>
-      <div class="col-md-6">
         <%= f.input :description %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
+
         <%= f.input :item_number, hint: 'Must be unique.' %>
-      </div>
-      <div class="col-md-6">
         <%= f.input :price, label: 'Price (exclusive of tax)' %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
+
         <%= f.input :tax_id, collection: current_business.taxes.select(:id, :name) %>
-      </div>
-      <div class="col-md-6">
-        <%= f.input :health_insurance_rebate, wrapper: false, input_html: { id: 'billable_item_health_insurance_rebate' } %>
-        <%= f.input :display_on_pricing_page, wrapper: false %>
-        <%= f.input :pricing_for_contact, wrapper: false, label: "Need variable pricing for contacts?",
-            input_html: { id: 'pricing_for_contact' } %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <%= f.input :practitioner_ids, label: 'Practitioners', collection: current_business.practitioners.active.select(:id, :full_name), label_method: :full_name, include_hidden: false, input_html: { multiple: true, class: 'selectize' } %>
-        </div>
-      </div>
-    </div>
-
-    <div class="box-pricing" style="display: <%= billable_item.pricing_for_contact ? "block" : "none" %>">
       <hr>
-      <table class="table-flat">
-        <thead>
-          <tr>
-            <th style="width: 40%;">Contact</th>
-            <th style="width: 40%">Price</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <%= f.simple_fields_for :pricing_contacts do |ff| %>
-          <tr>
-            <td style="padding-right: 15px;">
-              <%= ff.input :contact_id, as: :select, label: false, collection: current_business.contacts.select(:id, :business_name),
-                label_method: :business_name, include_blank: "-- Select Contact --", input_html: { class: 'selectize' } %>
-            </td>
-            <td style="padding-right: 15px;">
-              <%= ff.input :price, label: false %>
-            </td>
-            <td style="vertical-align: top;">
-              <%= ff.hidden_field :_destroy %>
-              <button class="btn btn-sm btn-danger" style="height: 40px;padding-left: 10px;"
-                type="button">
-                <i class="fa fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          <% end %>
-        </tbody>
-      </table>
-        <button class="btn btn-white mb-15 add-contact" type="button">
-          + Add Pricing Contact
-        </button>
-    </div>
-
-    <hr>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="<%= billable_items_path %>" class="btn btn-white">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="<%= billable_items_path %>" class="btn btn-white">Cancel</a>
+    <% end %>
   </div>
-<% end %>
-
-<% content_for :page_js do %>
-<script>
-  var contacts = <%= current_business.contacts.select(:id, :business_name).to_json.html_safe %>;
-
-  $('.box-pricing .add-contact').click(function(event) {
-    var index = $('.box-pricing tbody tr').length
-    var rowHTML = '<tr><td style="padding-right: 15px;"><div class="form-group">';
-
-    rowHTML += '<select class="form-control selectize"' +
-      'name="billable_item[pricing_contacts_attributes][' + index + '][contact_id]">' +
-      '<option value="">-- Select Contact --</option>';
-
-    $.each(contacts, function(index, contact) {
-      rowHTML += '<option value="' + contact['id'] + '">' + contact['business_name'].replace(/<\/?[^>]+(>|$)/g, ""); + '</option>';
-    });
-
-    rowHTML +=
-        '</select> </div>' +
-        '</td>' +
-        '<td  style="padding-right: 15px;"><div class="form-group">' +
-        '<input class="form-control" type="number" step="any" value="0.0"' +
-            'name="billable_item[pricing_contacts_attributes][' + index + '][price]">' +
-        '</div></td>' +
-        '<td style="vertical-align: top;">' +
-          '<button class="btn btn-sm btn-danger" style="height: 40px;padding-left: 10px;"' +
-            'type="button">' +
-            '<i class="fa fa-trash"></i>' +
-          '</button>' +
-        '</td>' +
-      '<tr>';
-
-    $('.box-pricing tbody').append(rowHTML);
-
-    $('.box-pricing select.selectize:not(.selectized)').selectize({});
-  });
-
-  $('#pricing_for_contact').change(function(event) {
-    if(event.target.checked) {
-      $('.box-pricing').slideDown(400);
-    }else {
-      $('.box-pricing').slideUp(400);
-    }
-  });
-
-  $('.box-pricing').on('click', '.btn-danger', function(event) {
-    var destroyElement = $(this).parents('tr').find('input[name$="[_destroy]"]');
-    if(destroyElement.length) {
-      $(this).parents('tr').slideUp(0);
-      destroyElement.val(true);
-    }else {
-      $(this).parents('tr').remove();
-    }
-  });
-</script>
-<% end %>
+</div>

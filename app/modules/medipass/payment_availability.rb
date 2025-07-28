@@ -37,18 +37,6 @@ module Medipass
         errors[:invoice] = 'The invoice is not attached to an appointment.'
         return
       end
-
-      # NOTE: remove this once Medipass supports non-clailable items
-      has_non_claimable_item = invoice.items.billable_item.any? do |invoice_item|
-        !invoice_item.invoiceable.health_insurance_rebate?
-      end
-
-      if has_non_claimable_item
-        errors[:invoice] = 'The invoice contains non claimable items.'\
-                           ' This feature is not yet available on Medipass.'\
-                           ' Please remove non claimable items from invoice to process payment'
-        return
-      end
     end
 
   end
