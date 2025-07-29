@@ -24,7 +24,6 @@ class BookingForm < BaseForm
   attribute :notes, String
   attribute :privacy_policy, String
   attribute :bookings_answers, Array[BookingsAnswer]
-  attribute :stripe_token, String
 
   validates_presence_of :availability_id, :appointment_type_id
   validates_presence_of :first_name,
@@ -70,20 +69,6 @@ class BookingForm < BaseForm
             end
           end
         end
-      end
-    end
-  end
-
-  # Validate stripe_token
-  validate do
-    if appointment_type && availability
-      business = availability.business
-      if business.stripe_payment_available? &&
-        appointment_type.is_online_booking_prepayment? &&
-          (appointment_type.billable_items.count > 0) &&
-          !stripe_token.present?
-
-        errors.add(:base, 'Payment info is required for this appointment type.')
       end
     end
   end

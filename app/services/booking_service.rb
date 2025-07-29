@@ -21,57 +21,17 @@ class BookingService
       ensure_availability_service_radius
     end
 
-    if process_prepayment?
-      invoice = build_invoice
-      begin
-        stripe_charge = create_stripe_charge(invoice)
-        payment = build_payment_from_stripe_charge(stripe_charge)
-      rescue Stripe::CardError => e
-        raise Exception, e.message
-      end
-    end
-
     begin
       ActiveRecord::Base.transaction do
         save_patient_info
         grant_patient_access_to_pracitioner
         appointment = create_appointment
 
-        if process_prepayment?
-          invoice.assign_attributes(
-            invoice_number: generate_invoice_number,
-            appointment_id: appointment.id,
-            patient_id: @patient.id,
-            outstanding: 0
-          )
-
-          payment.patient_id = @patient.id
-          invoice.save!(validate: false)
-          payment.save!(validate: false)
-
-          PaymentAllocation.create!(
-            payment: payment,
-            invoice: invoice,
-            amount: invoice.amount
-          )
-        end
-
         if @availability.home_visit? && @booking_form.bookings_answers.present?
           store_bookings_answers(appointment)
         end
       end
     rescue => e
-      if process_prepayment? && stripe_charge.present?
-        begin
-          Stripe::Refund.create({
-            charge: stripe_charge.id
-          }, {
-            stripe_account: @business.stripe_account.account_id
-          })
-        rescue => e
-          Sentry.capture_exception(e)
-        end
-      end
       raise e
     end
 
@@ -101,14 +61,6 @@ class BookingService
         'appointment_created'
       )
 
-      if process_prepayment? && invoice && patient.email?
-        InvoiceMailer.invoice_mail(invoice).deliver_later
-        send_ts = Time.current
-        invoice.update_columns(
-          last_send_patient_at: send_ts,
-          last_send_at: send_ts
-        )
-      end
     else
       result.success = false
     end
@@ -117,12 +69,6 @@ class BookingService
   end
 
   private
-
-  def process_prepayment?
-    @business.stripe_payment_available? &&
-      @appointment_type.is_online_booking_prepayment? &&
-        @booking_form.stripe_token.present?
-  end
 
   def save_patient_info
     if @patient.new_record?

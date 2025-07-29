@@ -79,11 +79,7 @@
 
                                 label = "#{at.name} / Price: #{price_text} / Duration: #{at.duration} mins"
                               %>
-                              <option value="<%= at.id %>"
-                                <% if online_payment_available && price > 0 %>
-                                data-prepayment="<%= at.is_online_booking_prepayment? %>"
-                                <% end %>
-                              ><%= label %></option>
+                              <option value="<%= at.id %>"><%= label %></option>
                             <% end %>
                           </select>
                         </div>

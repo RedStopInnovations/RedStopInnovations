@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_26_081126) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_29_151448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -228,7 +228,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_26_081126) do
     t.datetime "deleted_at", precision: nil
     t.boolean "display_on_online_bookings", default: true
     t.string "color"
-    t.boolean "is_online_booking_prepayment", default: false
     t.index ["business_id", "availability_type_id"], name: "business_id_availability_type_id"
     t.index ["business_id"], name: "index_appointment_types_on_business_id"
   end

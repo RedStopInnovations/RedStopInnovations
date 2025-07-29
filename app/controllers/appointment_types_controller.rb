@@ -86,7 +86,6 @@ class AppointmentTypesController < ApplicationController
       :reminder_enable,
       :display_on_online_bookings,
       :availability_type_id,
-      :is_online_booking_prepayment,
       practitioner_ids: [],
       billable_item_ids: []
     )
@@ -100,7 +99,6 @@ class AppointmentTypesController < ApplicationController
       :default_treatment_template_id,
       :reminder_enable,
       :display_on_online_bookings,
-      :is_online_booking_prepayment,
       practitioner_ids: [],
       billable_item_ids: []
     )

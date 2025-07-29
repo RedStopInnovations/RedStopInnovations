@@ -18,7 +18,6 @@
 #  deleted_at                    :datetime
 #  display_on_online_bookings    :boolean          default(TRUE)
 #  color                         :string
-#  is_online_booking_prepayment  :boolean          default(FALSE)
 #
 # Indexes
 #
@@ -61,12 +60,6 @@ class AppointmentType < ApplicationRecord
   scope :facility,
         -> { where(availability_type_id: AvailabilityType::TYPE_FACILITY_ID) }
   scope :not_deleted, -> { where(deleted_at: nil) }
-
-  before_save do
-    if billable_items.empty?
-      self.is_online_booking_prepayment = false
-    end
-  end
 
   def availability_type
     @availability_type ||= AvailabilityType[availability_type_id]
