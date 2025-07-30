@@ -1,4 +1,4 @@
-json.extract! patient_case, :id, :status, :notes, :invoice_number, :invoice_total, :created_at, :archived_at, :updated_at
+json.extract! patient_case, :id, :case_number, :status, :notes, :invoice_number, :invoice_total, :created_at, :archived_at, :updated_at
 
 json.issued_invoices_amount patient_case.invoices.sum(&:amount).to_f
 json.issued_invoices_count patient_case.invoices.count

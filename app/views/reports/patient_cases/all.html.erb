@@ -140,18 +140,17 @@
         <table class="table table-bordered table-hover">
           <thead>
             <tr>
-              <th>Case type</th>
+              <th>Number</th>
               <th>Client</th>
               <th>Status</th>
               <th>Lead</th>
+              <th>Issue date</th>
               <th>End date</th>
-              <th style="width: 210px;">
-                Budget <br>
-                <span class="text-smaller">Used / Max / Remaining</span>
+              <th style="width: 180px;">
+                Invoiced appointments
               </th>
               <th style="width: 180px;">
-                Invoices <br>
-                <span class="text-smaller">Issued / Max / Remaining</span>
+                Invoiced amount
               </th>
               <th>Created date</th>
               <th></th>
@@ -164,7 +163,7 @@
               total_invoiced_amount = patient_case.invoices.to_a.sum(&:amount)
             %>
             <tr>
-              <td><%= patient_case.case_type&.title %></td>
+              <td><%= patient_case.case_number %></td>
               <td>
                 <a href="<%= patient_path(patient_case.patient) %>">
                   <%= patient_case.patient.full_name %>
@@ -173,57 +172,36 @@
               <td><%= patient_case.status.titleize %></td>
               <td><%= patient_case.practitioner&.full_name %></td>
               <td>
-                <%= patient_case.end_date&.strftime(t('date.common')) %>
+                <%= patient_case.issue_date&.strftime(t('date.common')) %>
               </td>
               <td>
-                <%= format_money total_invoiced_amount.round(2) %>
+                <%= patient_case.end_date&.strftime(t('date.common')) %>
+              </td>
 
+              <td>
+                <%= patient_case.invoices.size %>
                 <span> / </span>
+                <% if patient_case.invoice_number.present? %>
+                  <%= patient_case.invoice_number %>
+                <% else %>
+                  <span class="text-muted" title="No limit">--</span>
+                <% end %>
+              </td>
 
+              <td>
+                <%
+                  total_invoiced_amount = patient_case.invoices.sum(&:amount).round(2)
+                %>
+
+                <%= format_money total_invoiced_amount %>
+                <span> / </span>
                 <% if patient_case.invoice_total.present? %>
                   <%= format_money patient_case.invoice_total %>
                 <% else %>
                   <span class="text-muted">--</span>
                 <% end %>
-
-                <span> / </span>
-
-                <% if patient_case.invoice_total.present? %>
-                  <% remaining_invoice_total = patient_case.invoice_total - total_invoiced_amount %>
-                  <% if remaining_invoice_total > 0 %>
-                    <span><%= format_money remaining_invoice_total.round(2) %></span>
-                  <% else %>
-                    <span>0</span>
-                  <% end %>
-                <% else %>
-                  <span class="text-muted">--</span>
-                <% end %>
               </td>
 
-              <td>
-                <%= patient_case.invoices.size %>
-
-                <span> / </span>
-
-                <% if patient_case.invoice_number.present? %>
-                  <%= patient_case.invoice_number %>
-                <% else %>
-                  <span class="text-muted">--</span>
-                <% end %>
-
-                <span> / </span>
-
-                <% if patient_case.invoice_number.present? %>
-                  <% remaining_number_of_invoices = patient_case.invoice_number - patient_case.invoices.size %>
-                  <% if remaining_number_of_invoices > 0 %>
-                    <span><%= remaining_number_of_invoices %></span>
-                  <% else %>
-                    <span>0</span>
-                  <% end %>
-                <% else %>
-                  <span class="text-muted">--</span>
-                <% end %>
-              </td>
 
               <td><%= patient_case.created_at.strftime(t('date.common')) %></td>
               <td class="hidden-print">

@@ -135,43 +135,32 @@
           <table class="table table-borderless">
             <tbody>
               <tr>
-                <td style="width: 180px;">Max invoiced appts.:</td>
+                <td>Appointments</td>
                 <td>
-                  <% if @patient_case.invoice_number %>
+                  <%= @patient_case.invoices.size %>
+                  <span> / </span>
+                  <% if @patient_case.invoice_number.present? %>
                     <%= @patient_case.invoice_number %>
                   <% else %>
-                    <span class="text-muted" title="Not limited">--</span>
+                    <span class="text-muted" title="No limit">--</span>
                   <% end %>
                 </td>
+
               </tr>
+
               <tr>
-                <td style="width: 180px;">Total invoiced amount:</td>
+                <td>Invoiced amount</td>
                 <td>
+                  <%
+                    total_invoiced_amount = @patient_case.invoices.sum(&:amount).round(2)
+                  %>
+
                   <%= format_money total_invoiced_amount %>
-                </td>
-              </tr>
-              <tr>
-                <td>Max invoice total:</td>
-                <td>
-                  <% if @patient_case.invoice_total? %>
+                  <span> / </span>
+                  <% if @patient_case.invoice_total.present? %>
                     <%= format_money @patient_case.invoice_total %>
                   <% else %>
-                    <span class="text-muted" title="Not limited">--</span>
-                  <% end %>
-                </td>
-              </tr>
-              <tr>
-                <td>Remaining:</td>
-                <td>
-                  <% if @patient_case.invoice_total? %>
-                    <% remaining_invoice_total = @patient_case.invoice_total - total_invoiced_amount %>
-                    <% if remaining_invoice_total > 0 %>
-                      <span><%= format_money remaining_invoice_total.round(2) %> (<%= (remaining_invoice_total / @patient_case.invoice_total * 100).round %>%)</span>
-                    <% else %>
-                      <span><%= format_money 0 %></span>
-                    <% end %>
-                  <% else %>
-                    <span class="text-muted" title="Not limited">--</span>
+                    <span class="text-muted">--</span>
                   <% end %>
                 </td>
               </tr>
@@ -191,14 +180,6 @@
       <% if @case_associates.blank? %>
         <span class="text-muted">No items found</span>
       <% else %>
-        <span>Attachments: <%= @patient_case.attachments.count %></span>
-        |
-        <span>Appointments: <%= @patient_case.appointments.count %></span>
-        |
-        <span>Treatment notes: <%= @patient_case.treatments.count %></span>
-        |
-        <span>Invoices: <%= @patient_case.invoices.count %></span>
-
         <table class="table table-bordered mt-10">
           <thead>
             <tr>

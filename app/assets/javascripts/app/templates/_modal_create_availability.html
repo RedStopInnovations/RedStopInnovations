@@ -659,19 +659,20 @@
 
                   <template slot="option" scope="props">
                     <div class="desc">
-                      <span class="text-bolder">{{ props.option.case_type.title }}</span>
+                      <span class="text-bolder">{{ props.option.case_number }}</span>
                       <span v-if="props.option.archived_at" class="label label-default">ARCHIVED</span>
-                      <a :href="'/app/patient-cases/' + props.option.id" target="_blank"><i class="fa fa-external-link"></i></a>
                       <div class="small pl-5">
-                        <span style="width: 65px; display: inline-block;">Status:</span> {{ props.option.status }}
+                        <span style="width: 60px; display: inline-block;">Status:</span> {{ props.option.status }}
                         <br>
-                        <span style="width: 65px; display: inline-block;">Budget($): </span> Used: {{ props.option.issued_invoices_amount }} / Max:
-                        <span v-if="props.option.invoice_total">{{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
-                        / Remaining: <span v-if="props.option.invoice_total">{{ props.option.invoice_total - props.option.issued_invoices_amount | round(2, {remove_trailing_zeros: true}) }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        <span style="width: 60px; display: inline-block;">
+                          Invoiced appointments: {{ props.option.issued_invoices_count }} / <span v-if="props.option.invoice_number">{{ props.option.invoice_number }}</span><span v-if="!props.option.invoice_number" class="text-muted" title="Not limited">--</span>
+                        </span>
                         <br>
-                        <span style="width: 65px; display: inline-block;">Invoices:</span> {{ props.option.issued_invoices_count }}
+                        <span style="width: 60px; display: inline-block;">
+                          Invoiced amount total: ${{ props.option.issued_invoices_amount }} / <span v-if="props.option.invoice_total">${{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        </span>
                         <br>
-                        <span style="width: 65px; display: inline-block;">Created:</span> {{ props.option.created_at | shortDate }}
+                        <span style="width: 60px; display: inline-block;">Created:</span> {{ props.option.created_at | shortDate }}
                       </div>
 
                     </div>

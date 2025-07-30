@@ -135,7 +135,7 @@
       },
 
       customSelectedCaseLabel: function(kase) {
-        let label = kase.case_type.title;
+        let label = kase.case_number;
 
         label += ' (' + kase.status + ')';
 

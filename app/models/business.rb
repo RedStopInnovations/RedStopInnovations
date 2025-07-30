@@ -82,7 +82,7 @@ class Business < ApplicationRecord
   has_many :payment_types
   has_many :groups
   has_many :case_types
-  has_many :patient_cases, through: :case_types
+  has_many :patient_cases, through: :patients
   has_many :incoming_messages, through: :patients
   has_many :availabilities
   has_many :contacts

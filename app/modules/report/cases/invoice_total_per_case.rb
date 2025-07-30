@@ -49,7 +49,7 @@ module Report
         @practitioners = {}
 
         groups_by_month =
-          patients_query.pluck(:updated_at, :amount, :practitioner_id, :full_name).group_by do |record|
+          patients_query.pluck(:updated_at, :amount, :practitioner_id, 'patients.full_name').group_by do |record|
             record[0].beginning_of_month.to_date
           end
 

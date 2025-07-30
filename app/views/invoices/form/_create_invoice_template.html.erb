@@ -119,11 +119,6 @@
               <div class="form-group">
                 <label>Case: </label>
 
-                <!-- <div v-if="selectedCase" class="form-control form-control-static">
-                  <span class="pull-right"><a href="#" @click.prevent="onClickDeselectCase" class="text-danger">×</a></span>
-                  <span>{{ selectedCase.case_type.title }} - {{ selectedCase.status }}</span>
-                </div> -->
-
                 <v-multiselect
                   v-model="selectedCase"
                   :options="allPatientCases"
@@ -146,16 +141,18 @@
 
                   <template slot="option" scope="props">
                     <div class="desc">
-                      <span class="text-bolder">{{ props.option.case_type.title }}</span> <span v-if="props.option.archived_at" class="label label-default">ARCHIVED</span>
-                      <a :href="'/app/patient-cases/' + props.option.id" target="_blank"><i class="fa fa-external-link"></i></a>
+                      <span class="text-bolder">{{ props.option.case_number }}</span> <span v-if="props.option.archived_at" class="label label-default">ARCHIVED</span>
+                      <a :href="'/app/patients/' + selectedPatient.id + '/cases/' + props.option.id" target="_blank"><i class="fa fa-external-link"></i></a>
                       <div class="small pl-5">
                         <span style="width: 60px; display: inline-block;">Status:</span> {{ props.option.status }}
                         <br>
-                        <span style="width: 60px; display: inline-block;">Budget: </span> Used: ${{ props.option.issued_invoices_amount }} / Max:
-                        <span v-if="props.option.invoice_total">${{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
-                        / Remaining: <span v-if="props.option.invoice_total">${{ props.option.invoice_total - props.option.issued_invoices_amount }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        <span style="width: 60px; display: inline-block;">
+                          Invoiced appointments: {{ props.option.issued_invoices_count }} / <span v-if="props.option.invoice_number">{{ props.option.invoice_number }}</span><span v-if="!props.option.invoice_number" class="text-muted" title="Not limited">--</span>
+                        </span>
                         <br>
-                        <span style="width: 60px; display: inline-block;">Invoices:</span> {{ props.option.issued_invoices_count }}
+                        <span style="width: 60px; display: inline-block;">
+                          Invoiced amount total: ${{ props.option.issued_invoices_amount }} / <span v-if="props.option.invoice_total">${{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                        </span>
                         <br>
                         <span style="width: 60px; display: inline-block;">Created:</span> {{ props.option.created_at | shortDate }}
                       </div>
@@ -457,16 +454,18 @@
         <div class="panel-heading"><strong>Open cases</strong></div>
         <div class="panel-body">
           <div v-for="kase in patientOpenCases" :key="kase.id" class="mb-10">
-            <strong>{{ kase.case_type.title }}</strong> <a :href="'/app/patient-cases/' + kase.id" target="_blank" title="View details"><i class="fa fa-external-link"></i></a>
+            <strong>{{ kase.case_number }}</strong> <a :href="'/app/patients/' + selectedPatient.id + '/cases/' + kase.id" target="_blank" title="View details"><i class="fa fa-external-link"></i></a>
 
             <div class="small">
-              <span style="width: 50px; display: inline-block;">Budget: </span> Used: ${{ kase.issued_invoices_amount }} / Max:
-              <span v-if="kase.invoice_total">${{ kase.invoice_total }}</span><span v-if="!kase.invoice_total" class="text-muted" title="Not limited">--</span>
-              / Remaining: <span v-if="kase.invoice_total">${{ kase.invoice_total - kase.issued_invoices_amount }}</span><span v-if="!kase.invoice_total" class="text-muted" title="Not limited">--</span>
+              <span>
+                Invoiced appointments: {{ kase.issued_invoices_count }} / <span v-if="kase.invoice_number">{{ kase.invoice_number }}</span><span v-if="!kase.invoice_number" class="text-muted" title="Not limited">--</span>
+              </span>
               <br>
-              <span style="width: 50px; display: inline-block;">Invoices:</span> {{ kase.issued_invoices_count }}
+              <span>
+                Invoiced amount total: ${{ kase.issued_invoices_amount }} / <span v-if="kase.invoice_total">${{ kase.invoice_total }}</span><span v-if="!kase.invoice_total" class="text-muted" title="Not limited">--</span>
+              </span>
               <br>
-              <span style="width: 50px; display: inline-block;">Created:</span> {{ kase.created_at | shortDate }}
+              <span>Created:</span> {{ kase.created_at | shortDate }}
             </div>
 
           </div>

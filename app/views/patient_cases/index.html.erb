@@ -26,7 +26,10 @@
               <th>Issue date</th>
               <th>End date</th>
               <th style="width: 180px;">
-                Invoiced
+                Invoiced appointments
+              </th>
+              <th style="width: 180px;">
+                Invoiced amount
               </th>
               <th style="width: 120px;"></th>
             </tr>
@@ -64,9 +67,22 @@
                 <% if patient_case.invoice_number.present? %>
                   <%= patient_case.invoice_number %>
                 <% else %>
+                  <span class="text-muted" title="No limit">--</span>
+                <% end %>
+              </td>
+
+              <td>
+                <%
+                  total_invoiced_amount = patient_case.invoices.sum(&:amount).round(2)
+                %>
+
+                <%= format_money total_invoiced_amount %>
+                <span> / </span>
+                <% if patient_case.invoice_total.present? %>
+                  <%= format_money patient_case.invoice_total %>
+                <% else %>
                   <span class="text-muted">--</span>
                 <% end %>
-                appointments
               </td>
 
               <td>
