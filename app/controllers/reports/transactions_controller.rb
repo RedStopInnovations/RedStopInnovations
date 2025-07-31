@@ -43,17 +43,6 @@ module Reports
       end
     end
 
-    def unsent_invoices
-      ahoy_track_once 'View unsent invoices report'
-
-      @report = Report::Transactions::UnsentInvoices.make current_business, params
-
-      respond_to do |f|
-        f.html
-        f.csv { send_data @report.as_csv }
-      end
-    end
-
     def payment_summary
       ahoy_track_once 'View payments summary report'
 

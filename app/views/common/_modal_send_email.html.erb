@@ -12,7 +12,7 @@
           <%=
             f.input :emails,
                     label: 'Recipients',
-                    collection: default_recipients_for_sending_email(patient),
+                    collection: default_recipients_for_sending_email(patient, source),
                     include_hidden: false,
                     required: true,
                     input_html: {
@@ -24,7 +24,7 @@
 
           <%= f.input :email_subject, as: :string, label: "Subject", required: true, input_html: { name: 'email_subject' } %>
 
-          <%= f.input :email_content, label: "Content", as: :text, required: true, input_html: { rows: 5, name: 'email_content' } %>
+          <%= f.input :email_content, label: "Content", as: :text, required: true, input_html: { rows: 5, name: 'email_content', class: 'js-input-email-content' } %>
           <hr>
           <div class="text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

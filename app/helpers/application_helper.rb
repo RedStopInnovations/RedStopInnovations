@@ -51,8 +51,15 @@ module ApplicationHelper
     options
   end
 
-  def default_recipients_for_sending_email(patient)
+  def default_recipients_for_sending_email(patient, source = nil)
     options = []
+
+    if source.is_a?(Invoice) && source.invoice_to_contact
+      contact = source.invoice_to_contact
+      if contact.email.present? && EmailValidator.valid?(contact.email)
+        options << ["#{contact.business_name} <#{contact.email}>", contact.email, true]
+      end
+    end
 
     if patient.email.present? && EmailValidator.valid?(patient.email)
       options << ["#{patient.full_name} <#{patient.email}>", patient.email, true]

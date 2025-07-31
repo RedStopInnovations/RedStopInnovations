@@ -181,10 +181,6 @@
                     <a href="<%= modal_send_follow_up_reminder_appointment_path(last_appointment.id) %>" data-remote="true">Send follow-up reminder</a>
                   </li>
 
-                  <li>
-                    <a href="#" class="js-btn-trigger-sms" data-sms="<%= build_data_for_button_trigger_sms(patient.mobile_formated, patient_without_upcoming_appointment_follow_up_sms_body(patient, last_appointment)) %>">SMS client</a>
-                  </li>
-
                   <% end %>
 
                   <li>

@@ -19,52 +19,30 @@
         </a>
         <% end %>
 
-        <a href="<%= invoice_path(@invoice, format: "pdf") %>" class="btn btn-white">
-          <i class="fa fa-print"></i> Print
+        <a href="#" data-modal-content-url="<%= modal_send_email_invoice_path(@invoice) %>" class="btn btn-white js-btn-send-email">
+          <i class="fa fa-envelope-o"></i>
+          Email invoice
         </a>
+
+        <% if !@invoice.paid? && can?(:create, Payment) %>
+          <a href="<%= new_payment_path(invoice_id: @invoice.id) %>" class="btn btn-white">
+            <i class="fa fa-credit-card"></i> Payment
+          </a>
+        <% end %>
+
         <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-          Action <span class="caret"></span>
+          <span class="caret"></span>
         </button>
+
         <ul class="dropdown-menu dropdown-menu-right">
-          <% if !@invoice.paid? && can?(:create, Payment) %>
-            <li>
-              <a href="<%= new_payment_path(invoice_id: @invoice.id) %>">
-                <i class="fa fa-credit-card"></i> Add payment
-              </a>
-            </li>
-          <% end %>
           <li>
-            <a href="<%= deliver_invoice_path(@invoice, redirect: invoice_path(@invoice))%>"
-              <%
-                send_invoice_confirm = ""
-                if !@invoice.patient.reminder_enable?
-                  send_invoice_confirm << "Warning: #{@invoice.patient.full_name} has disabled reminders on their profile.\n\n"
-                end
-
-                if @invoice.last_send_patient_at.present?
-                  send_invoice_confirm << "The invoice was already sent on #{@invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
-                else
-                  send_invoice_confirm << "Are you sure want to send invoice?"
-                end
-              %>
-              data-confirm="<%= send_invoice_confirm %>"
-              data-method="POST"
-              ><i class="fa fa-envelope-o <% if @invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
-          </li>
-
-          <% if @invoice.invoice_to_contact %>
-            <li>
-              <a data-href="<%= modal_email_others_invoice_path(@invoice, redirect: invoice_path(@invoice), contact_ids: [@invoice.invoice_to_contact.id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
-                <i class="fa fa-envelope-o <% if @invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
-              </a>
-            </li>
-          <% end %>
-
-          <li>
-            <a data-href="<%= modal_email_others_invoice_path(@invoice, redirect: invoice_path(@invoice)) %>" class="btn-send-invoice-others" href="javascript:void(0)">
-              <i class="fa fa-send-o"></i> Email others
+            <a href="<%= invoice_path(@invoice, format: "pdf") %>">
+              <i class="fa fa-print"></i> Print
             </a>
           </li>
+
+
+          <li>
           <% if @invoice.appointment %>
             <li>
               <a href="<%= appointment_path(@invoice.appointment) %>">
@@ -119,6 +97,3 @@
   </div>
 </section>
 
-<% content_for :page_js do %>
-  <%= render 'modal_email_others_js', invoice: @invoice %>
-<% end %>

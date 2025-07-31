@@ -15,7 +15,7 @@
       <div class="pull-right">
           <div class="btn-group">
             <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
-              <i class="fa fa-envelope"></i>
+              <i class="fa fa-envelope-o"></i>
               Email
             </a>
 
@@ -76,5 +76,5 @@
 <% end %>
 
 <% content_for :page_js do %>
-  <%= render 'modal_send_email_js' %>
+  <%= render 'common/modal_send_email_js' %>
 <% end %>

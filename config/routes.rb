@@ -108,7 +108,6 @@ Rails.application.routes.draw do
       scope :transactions, controller: :transactions do
         get :outstanding_invoices
         get :invoices_raised
-        get :unsent_invoices
         get :payment_summary
         get :daily_payments
         get :voided_invoices
@@ -195,11 +194,8 @@ Rails.application.routes.draw do
         post :send_medipass_request
         post :resend_medipass_request
         get :payments
-        post :deliver, action: :deliver
-        post :send_to_contacts
         get :preview_medipass_payment_request
         post :send_quote
-        get :modal_email_others
         get :preview_dva_payment
         post :send_dva_payment
         get :preview_bulk_bill_payment
@@ -207,8 +203,9 @@ Rails.application.routes.draw do
         put :mark_as_sent
         put :enable_outstanding_reminder
         put :disable_outstanding_reminder
-
         get :activity_log
+        get :modal_send_email
+        post :send_email
       end
     end
 

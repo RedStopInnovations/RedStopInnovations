@@ -211,14 +211,15 @@ class TreatmentsController < ApplicationController
       send_email_form.emails << @patient.email
     end
 
-    render 'treatments/_modal_send_email',
+    render 'common/_modal_send_email',
            locals: {
-            modal_title: "Send treatment note",
-            send_email_url: send_email_patient_treatment_path(@patient, @treatment),
-            patient: @patient,
-            send_email_form: send_email_form
-          },
-           layout: false
+             modal_title: "Send treatment note",
+             send_email_url: send_email_patient_treatment_path(@patient, @treatment),
+             patient: @patient,
+             send_email_form: send_email_form,
+             source: @treatment,
+            },
+            layout: false
   end
 
   def send_email

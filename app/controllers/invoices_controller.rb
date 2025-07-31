@@ -6,11 +6,10 @@ class InvoicesController < ApplicationController
   end
 
   before_action :set_invoice, only: [
-    :show, :edit, :update, :deliver, :destroy,
-    :send_medipass_request, :send_to_contacts,
+    :show, :edit, :update, :destroy,
+    :send_medipass_request,
     :resend_medipass_request,
     :payments, :preview_medipass_payment_request,
-    :modal_email_others,
     :preview_dva_payment,
     :send_dva_payment,
     :preview_bulk_bill_payment,
@@ -18,15 +17,15 @@ class InvoicesController < ApplicationController
     :mark_as_sent,
     :enable_outstanding_reminder,
     :disable_outstanding_reminder,
-    :activity_log
+    :activity_log,
+    :modal_send_email, :send_email,
   ]
 
   before_action :not_allow_if_voided, only: [
-    :edit, :update, :deliver, :destroy,
-    :send_medipass_request, :send_to_contacts,
+    :edit, :update, :modal_send_email, :send_email, :destroy,
+    :send_medipass_request,
     :resend_medipass_request,
     :payments, :preview_medipass_payment_request,
-    :modal_email_others,
     :preview_dva_payment,
     :send_dva_payment,
     :preview_bulk_bill_payment,
@@ -42,7 +41,7 @@ class InvoicesController < ApplicationController
     @invoices = @search_query
                 .result
                 .preload(
-                  :patient, :appointment, :invoice_to_contact, patient_case: [:case_type], created_version: [:author]
+                  :patient, :appointment, :invoice_to_contact, created_version: [:author]
                 )
                 .order('issue_date DESC, created_at DESC')
                 .page(params[:page])
@@ -188,41 +187,65 @@ class InvoicesController < ApplicationController
     redirect_to invoices_url
   end
 
-  def deliver
+  def modal_send_email
     patient = @invoice.patient
 
-    if patient.email?
-      # if current_business.subscription_credit_card_added?
-        InvoiceMailer.invoice_mail(@invoice).deliver_later
-        send_ts = Time.current
-        @invoice.update_columns(
-          last_send_patient_at: send_ts,
-          last_send_at: send_ts
-        )
-      # end
-      flash[:notice] = 'The invoice has been sent to client'
-    else
-      flash[:alert] = 'The client has not an email address'
+    email_template = current_business.get_communication_template('send_invoice_pdf')
+    embed_variables = [
+      current_business, @invoice, patient
+    ]
+    unless @invoice.practitioner.nil?
+      embed_variables << @invoice.practitioner
     end
 
-    redirect_back fallback_location: (params[:redirect] || invoice_url(@invoice))
+    email_composed_content = Letter::Renderer.new(patient, email_template).render(embed_variables).content
+    email_composed_subject = email_template.email_subject.presence
+
+    send_email_form = SendEmailForm.new(
+      email_subject: email_composed_subject || "Invoice #{@invoice.invoice_number} from #{current_business.name}",
+      email_content: email_composed_content,
+      patient: patient,
+    )
+
+    if @invoice.invoice_to_contact.present?
+      send_email_form.emails << @invoice.invoice_to_contact.email if @invoice.invoice_to_contact.email.present?
+    else
+      if patient.email.present?
+        send_email_form.emails << patient.email
+      end
+    end
+
+    render 'common/_modal_send_email',
+           locals: {
+             modal_title: "Send invoice",
+             send_email_url: send_email_invoice_path(@invoice),
+             patient: patient,
+             send_email_form: send_email_form,
+             source: @invoice,
+            },
+            layout: false
   end
 
-  def send_to_contacts
-    form = SendOthersForm.new(
-      send_others_params.merge(business: current_business)
+  def send_email
+    form = SendEmailForm.new(
+      params.permit(:email_subject, :email_content, emails: []).merge(business: current_business)
     )
 
     if form.valid?
-      if current_business.subscription_credit_card_added?
-        SendInvoiceToOthersService.new.call(@invoice, current_user, form)
-      end
-      flash[:notice] = 'The invoice has been successfully sent.'
+      SendInvoiceEmailService.new.call(@invoice, form, current_user)
+      render(
+        json: {
+          message: 'The invoice has been scheduled to send.'
+        }
+      )
     else
-      flash[:alert] = "Could not send invoice. Error: #{form.errors.full_messages.first}."
+      render(
+        json: {
+          message: "Could not send invoice. Please check for form errors: #{form.errors.full_messages.first}."
+        },
+        status: 422
+      )
     end
-
-    redirect_back fallback_location: (params[:redirect] || invoice_url(@invoice))
   end
 
   def payments
@@ -327,14 +350,6 @@ class InvoicesController < ApplicationController
     unless Rails.env.production?
       @payment_availability = Claiming::BulkBill::PaymentAvailability.new(@invoice)
     end
-  end
-
-  def modal_email_others
-    @send_other_form = SendOthersForm.new
-    if params[:contact_ids].present? && params[:contact_ids].is_a?(Array)
-      @send_other_form.contact_ids = current_business.contacts.where(id: params[:contact_ids]).pluck(:id)
-    end
-    render 'invoices/_modal_email_others', locals: { invoice: @invoice }, layout: false
   end
 
   def mark_as_sent

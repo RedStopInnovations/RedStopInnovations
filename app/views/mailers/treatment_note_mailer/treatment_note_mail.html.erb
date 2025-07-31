@@ -1,1 +1,1 @@
-<%= simple_format @email_content %>
+<%= sanitize @email_content, scrubber: Letter::Scrubber.new %>a

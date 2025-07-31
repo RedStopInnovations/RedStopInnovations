@@ -446,40 +446,6 @@
                         </a>
                       </li>
 
-                      <li>
-                        <a href="<%= deliver_invoice_path(invoice)%>"
-                          <%
-                            send_invoice_confirm = ""
-                            if !invoice.patient.reminder_enable?
-                              send_invoice_confirm << "Warning: #{invoice.patient.full_name} has disabled reminders on their profile.\n\n"
-                            end
-
-                            if invoice.last_send_patient_at.present?
-                              send_invoice_confirm << "The invoice was already sent on #{invoice.last_send_patient_at.strftime(t('date.common'))}. Are you sure you want to send it again?"
-                            else
-                              send_invoice_confirm << "Are you sure want to send invoice?"
-                            end
-                          %>
-                          data-confirm="<%= send_invoice_confirm %>"
-                          data-method="POST"
-                          ><i class="fa fa-envelope-o <% if invoice.last_send_patient_at.present? %> green <% end %>"></i> Email to client</a>
-                      </li>
-
-                      <% if invoice.invoice_to_contact_id? %>
-                        <li>
-                          <a data-href="<%= modal_email_others_invoice_path(invoice, redirect: invoices_path, contact_ids: [invoice.invoice_to_contact_id]) %>" class="btn-send-invoice-others" href="javascript:void(0)">
-                            <i class="fa fa-envelope-o <% if invoice.last_send_contact_at? %> green <% end %>"></i> Email to "Invoice to"
-                          </a>
-                        </li>
-                      <% end %>
-
-                      <li>
-                        <a data-href="<%= modal_email_others_invoice_path(invoice) %>" class="btn-send-invoice-others"
-                          href="javascript:void(0)">
-                          <i class="fa fa-send-o"></i> Email others
-                        </a>
-                      </li>
-
                     </ul>
                   </div>
 
