@@ -20,6 +20,7 @@
           <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#patient-general-tab">General info</a></li>
             <li><a data-toggle="tab" href="#patient-contacts-tab">Contacts</a></li>
+            <li><a data-toggle="tab" href="#patient-cases-tab">Cases</a></li>
           </ul>
 
           <div class="tab-content" style="padding: 10px;">
@@ -277,6 +278,49 @@
               </div>
 
             </div>
+
+            <div id="patient-cases-tab" class="tab-pane fade">
+              <div v-for="_case in cases" :key="_case.id">
+                <div class="block-info">
+                  <strong>Number:</strong>
+                  <p>
+                    <span v-if="_case.case_number">
+                      {{ _case.case_number }}
+                    </span>
+                    <span v-else class="text-muted">--</span>
+                  </p>
+                </div>
+
+                <div class="block-info">
+                  <strong>Status:</strong>
+                  <p>
+                    {{ _case.status }}
+                  </p>
+                </div>
+
+                <div class="block-info">
+                  <strong>Appointments:</strong>
+                  <p>
+                    {{ _case.appointments_count }} / <span v-if="_case.invoice_number">{{ _case.invoice_number }}</span><span v-if="!_case.invoice_number" class="text-muted" title="Not limited">--</span>
+                  </p>
+                </div>
+
+                <div class="block-info">
+                  <strong>Invoices:</strong>
+                  <p>
+                    ${{ _case.issued_invoices_amount }} / <span v-if="_case.invoice_total">${{ _case.invoice_total }}</span><span v-if="!_case.invoice_total" class="text-muted" title="Not limited">--</span>
+                  </p>
+                </div>
+
+                <div class="block-info">
+                  <strong>Created:</strong>
+                  <p>
+                    {{ _case.created_at | shortDate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>

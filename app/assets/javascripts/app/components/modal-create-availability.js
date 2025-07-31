@@ -260,8 +260,8 @@
 
       customSelectedCaseLabel: function(kase) {
         let label = kase.case_number;
-
-        label += ' (' + kase.status + ')';
+        const apptsAllocation = kase.appointments_count + '/' + (kase.invoice_number ? kase.invoice_number : '--') + ' appointments';
+        label += ' (' + kase.status + ')' + ' ' + '(Allocated ' + apptsAllocation + ')';
 
         return label;
       },

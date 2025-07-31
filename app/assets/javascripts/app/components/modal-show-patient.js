@@ -15,6 +15,7 @@
         show: false,
         isRestricted: false,
         patient: null,
+        cases: [],
         contactsLoaded: false,
         contacts: {
           doctor_contacts: [],
@@ -63,6 +64,20 @@
           other_contacts: []
         };
       },
+
+      loadCases: function () {
+        var self = this;
+        $.ajax({
+          method: 'GET',
+          url: '/api/patients/' + self.patient.id + '/patient_cases.json',
+          success: function (res) {
+            self.cases = res.patient_cases;
+          },
+          error: function(xhr) {
+            self.$notify('Cannot load open cases info. An error has occured.', 'error');
+          }
+        });
+      },
       loadContacts: function () {
         var self = this;
         $.ajax({
@@ -89,6 +104,8 @@
               self.$nextTick(function() {
                 $(self.$el).find('.nav-tabs > li > a:first')[0].click();
               });
+
+              self.loadCases();
             } else {
               self.$notify('Cannot load client info. An error has occured.', 'error');
             }

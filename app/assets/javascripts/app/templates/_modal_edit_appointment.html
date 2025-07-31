@@ -292,11 +292,11 @@
                           <span style="width: 60px; display: inline-block;">Status:</span> {{ props.option.status }}
                           <br>
                           <span style="width: 60px; display: inline-block;">
-                            Invoiced appointments: {{ props.option.issued_invoices_count }} / <span v-if="props.option.invoice_number">{{ props.option.invoice_number }}</span><span v-if="!props.option.invoice_number" class="text-muted" title="Not limited">--</span>
+                            Appointments: {{ props.option.appointments_count }} / <span v-if="props.option.invoice_number">{{ props.option.invoice_number }}</span><span v-if="!props.option.invoice_number" class="text-muted" title="Not limited">--</span>
                           </span>
                           <br>
                           <span style="width: 60px; display: inline-block;">
-                            Invoiced amount total: ${{ props.option.issued_invoices_amount }} / <span v-if="props.option.invoice_total">${{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
+                            Invoices: ${{ props.option.issued_invoices_amount }} / <span v-if="props.option.invoice_total">${{ props.option.invoice_total }}</span><span v-if="!props.option.invoice_total" class="text-muted" title="Not limited">--</span>
                           </span>
                           <br>
                           <span style="width: 60px; display: inline-block;">Created:</span> {{ props.option.created_at | shortDate }}

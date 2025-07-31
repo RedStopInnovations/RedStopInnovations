@@ -26,10 +26,10 @@
               <th>Issue date</th>
               <th>End date</th>
               <th style="width: 180px;">
-                Invoiced appointments
+                Appointments
               </th>
               <th style="width: 180px;">
-                Invoiced amount
+                Invoices
               </th>
               <th style="width: 120px;"></th>
             </tr>
@@ -62,7 +62,7 @@
               </td>
 
               <td>
-                <%= patient_case.invoices.size %>
+                <%= patient_case.appointments.size %>
                 <span> / </span>
                 <% if patient_case.invoice_number.present? %>
                   <%= patient_case.invoice_number %>
