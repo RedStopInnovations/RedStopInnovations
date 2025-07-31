@@ -37,6 +37,7 @@ Rails.application.routes.draw do
         get :appointments
         get :recent_invoices
         get :payment_methods
+        get :associated_contacts
       end
 
       collection do

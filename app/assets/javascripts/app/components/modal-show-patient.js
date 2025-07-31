@@ -16,15 +16,8 @@
         isRestricted: false,
         patient: null,
         cases: [],
-        contactsLoaded: false,
-        contacts: {
-          doctor_contacts: [],
-          specialist_contacts: [],
-          referrer_contacts: [],
-          invoice_to_contacts: [],
-          emergency_contacts: [],
-          other_contacts: []
-        }
+        associatedContactsLoaded: false,
+        associatedContacts: []
       }
     },
     mounted: function () {
@@ -37,7 +30,7 @@
 
       $(self.$el).on('shown.bs.tab', '.nav-tabs a', function (event) {
         if ($(event.target).attr('href') == '#patient-contacts-tab') {
-          if (!self.contactsLoaded) {
+          if (!self.associatedContactsLoaded) {
             self.loadContacts();
           }
         }
@@ -53,16 +46,9 @@
       },
       resetData: function() {
         this.patient = null;
-        this.contactsLoaded = false;
+        this.associatedContactsLoaded = false;
+        this.associatedContacts = [];
         this.isRestricted = false;
-        this.contacts = {
-          doctor_contacts: [],
-          specialist_contacts: [],
-          referrer_contacts: [],
-          invoice_to_contacts: [],
-          emergency_contacts: [],
-          other_contacts: []
-        };
       },
 
       loadCases: function () {
@@ -82,10 +68,10 @@
         var self = this;
         $.ajax({
           method: 'GET',
-          url: '/app/patients/' + self.patient.id + '/contacts.json',
+          url: '/api/patients/' + self.patient.id + '/associated_contacts.json',
           success: function (res) {
-            self.contacts = res;
-            self.contactsLoaded = true;
+            self.associatedContacts = res.associated_contacts;
+            self.associatedContactsLoaded = true;
           },
           error: function(xhr) {
             self.$notify('Cannot load contacts info. An error has occured.', 'error');

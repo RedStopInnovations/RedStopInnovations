@@ -80,6 +80,12 @@ module Api
       @patient = current_business.patients.find(params[:id])
     end
 
+    def associated_contacts
+      @patient = current_business.patients.find(params[:id])
+
+      @associated_contacts = @patient.patient_contacts.includes(:contact).order('contacts.full_name')
+    end
+
     private
 
     def create_patient_params

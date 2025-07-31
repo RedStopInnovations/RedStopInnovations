@@ -156,127 +156,34 @@
             </div>
 
             <div id="patient-contacts-tab" class="tab-pane fade">
-
-              <div class="form-group">
-                <div class="row">
-                  <div class="col-xs-3"><label>Referrers:</label></div>
-                  <div class="col-xs-8">
-                    <div class="business-contact-card"
-                      v-for="contact in contacts.referrer_contacts">
-                      <a :href="'/app/contacts/' + contact.id"><span class="business-name">{{ contact.business_name }}</span></a>
-                      <span v-if="contact.full_name" class="contact-full-name"> {{ contact.full_name }}</span>
-                      <div class="contact-details">
-                        <span v-if="contact.short_address">{{ contact.short_address }}<br></span>
-                        <span v-if="contact.email"><a :href="'mailto:' + contact.email" class="contact-details-link">{{ contact.email }}</a><br></span>
-                        <span v-if="contact.phone"><span class="text-bolder">P: </span><a :href="'tel:' + contact.phone" class="contact-details-link">{{ contact.phone }}</a></span>
-                        <span v-if="contact.mobile"><span class="text-bolder">M: </span><a :href="'tel:' + contact.mobile" class="contact-details-link">{{ contact.mobile }}</a></span>
-                      </div>
-                    </div>
-                    <span v-if="contactsLoaded && contacts.referrer_contacts.length == 0" class="text-muted text-smaller">--</span>
-                  </div>
-                </div>
+              <div class="row pb-10 mb-10" style="border-bottom: 1px solid #ddd;">
+                <div class="col-md-4"><strong>Name</strong></div>
+                <div class="col-md-2"><strong>Type</strong></div>
+                <div class="col-md-2 text-center"><strong>Appts</strong></div>
+                <div class="col-md-2 text-center"><strong>Invoices</strong></div>
+                <div class="col-md-2 text-center"><strong>Notes</strong></div>
               </div>
 
-              <div class="form-group">
-                <div class="row">
-                  <div class="col-xs-3"><label>Invoice to:</label></div>
-                  <div class="col-xs-8">
-                    <div class="business-contact-card"
-                      v-for="contact in contacts.invoice_to_contacts">
-                      <a :href="'/app/contacts/' + contact.id"><span class="business-name">{{ contact.business_name }}</span></a>
-                      <span v-if="contact.full_name" class="contact-full-name"> {{ contact.full_name }}</span>
-                      <div class="contact-details">
-                        <span v-if="contact.short_address">{{ contact.short_address }}<br></span>
-                        <span v-if="contact.email"><a :href="'mailto:' + contact.email" class="contact-details-link">{{ contact.email }}</a><br></span>
-                        <span v-if="contact.phone"><span class="text-bolder">P: </span><a :href="'tel:' + contact.phone" class="contact-details-link">{{ contact.phone }}</a></span>
-                        <span v-if="contact.mobile"><span class="text-bolder">M: </span><a :href="'tel:' + contact.mobile" class="contact-details-link">{{ contact.mobile }}</a></span>
-                      </div>
-                    </div>
-                    <span v-if="contactsLoaded && contacts.invoice_to_contacts.length == 0" class="text-muted text-smaller">--</span>
+                <div class="row mb-10 pt-10 pb-10" style="border-bottom: 1px solid #f5f5f5;"
+                  v-for="patient_contact in associatedContacts"
+                  :key="patient_contact.id"
+                  >
+                  <div class="col-md-4">
+                    {{ patient_contact.contact.business_name }}
+                  </div>
+                  <div class="col-md-2">
+                    {{ patient_contact.type }}
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <input type="checkbox" :checked="patient_contact.for_appointments" onclick="return false;">
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <input type="checkbox" :checked="patient_contact.for_invoices" onclick="return false;">
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <input type="checkbox" :checked="patient_contact.for_treatment_notes" onclick="return false;">
                   </div>
                 </div>
-              </div>
-
-              <div class="form-group">
-                <div class="row">
-                  <div class="col-xs-3"><label>Doctors:</label></div>
-                  <div class="col-xs-8">
-                    <div class="business-contact-card"
-                      v-for="contact in contacts.doctor_contacts">
-                      <a :href="'/app/contacts/' + contact.id"><span class="business-name">{{ contact.business_name }}</span></a>
-                      <span v-if="contact.full_name" class="contact-full-name"> {{ contact.full_name }}</span>
-                      <div class="contact-details">
-                        <span v-if="contact.short_address">{{ contact.short_address }}<br></span>
-                        <span v-if="contact.email"><a :href="'mailto:' + contact.email" class="contact-details-link">{{ contact.email }}</a><br></span>
-                        <span v-if="contact.phone"><span>P: </span><a :href="'tel:' + contact.phone" class="contact-details-link">{{ contact.phone }}</a></span>
-                        <span v-if="contact.mobile"><span>M: </span><a :href="'tel:' + contact.mobile" class="contact-details-link">{{ contact.mobile }}</a></span>
-                      </div>
-                    </div>
-                    <span v-if="contactsLoaded && contacts.doctor_contacts.length == 0" class="text-muted text-smaller">--</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="row">
-                  <div class="col-xs-3"><label>Specialists:</label></div>
-                  <div class="col-xs-8">
-                    <div class="business-contact-card"
-                      v-for="contact in contacts.specialist_contacts">
-                      <a :href="'/app/contacts/' + contact.id"><span class="business-name">{{ contact.business_name }}</span></a>
-                      <span v-if="contact.full_name" class="contact-full-name"> {{ contact.full_name }}</span>
-                      <div class="contact-details">
-                        <span v-if="contact.short_address">{{ contact.short_address }}<br></span>
-                        <span v-if="contact.email"><a :href="'mailto:' + contact.email" class="contact-details-link">{{ contact.email }}</a><br></span>
-                        <span v-if="contact.phone"><span class="text-bolder">P: </span><a :href="'tel:' + contact.phone" class="contact-details-link">{{ contact.phone }}</a></span>
-                        <span v-if="contact.mobile"><span class="text-bolder">M: </span><a :href="'tel:' + contact.mobile" class="contact-details-link">{{ contact.mobile }}</a></span>
-                      </div>
-                    </div>
-                    <span v-if="contactsLoaded && contacts.specialist_contacts.length == 0" class="text-muted text-smaller">--</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="row">
-                  <div class="col-xs-3"><label>Emergency:</label></div>
-                  <div class="col-xs-8">
-                    <div class="business-contact-card"
-                      v-for="contact in contacts.emergency_contacts">
-                      <a :href="'/app/contacts/' + contact.id"><span class="business-name">{{ contact.business_name }}</span></a>
-                      <span v-if="contact.full_name" class="contact-full-name"> {{ contact.full_name }}</span>
-                      <div class="contact-details">
-                        <span v-if="contact.short_address">{{ contact.short_address }}<br></span>
-                        <span v-if="contact.email"><a :href="'mailto:' + contact.email" class="contact-details-link">{{ contact.email }}</a><br></span>
-                        <span v-if="contact.phone"><span class="text-bolder">P: </span><a :href="'tel:' + contact.phone" class="contact-details-link">{{ contact.phone }}</a></span>
-                        <span v-if="contact.mobile"><span class="text-bolder">M: </span><a :href="'tel:' + contact.mobile" class="contact-details-link">{{ contact.mobile }}</a></span>
-                      </div>
-                    </div>
-                    <span v-if="contactsLoaded && contacts.emergency_contacts.length == 0" class="text-muted text-smaller">--</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="row">
-                  <div class="col-xs-3"><label>Other:</label></div>
-                  <div class="col-xs-8">
-                    <div class="business-contact-card"
-                      v-for="contact in contacts.other_contacts">
-                      <a :href="'/app/contacts/' + contact.id"><span class="business-name">{{ contact.business_name }}</span></a>
-                      <span v-if="contact.full_name" class="contact-full-name"> {{ contact.full_name }}</span>
-                      <div class="contact-details">
-                        <span v-if="contact.short_address">{{ contact.short_address }}<br></span>
-                        <span v-if="contact.email"><a :href="'mailto:' + contact.email" class="contact-details-link">{{ contact.email }}</a><br></span>
-                        <span v-if="contact.phone"><span class="text-bolder">P: </span><a :href="'tel:' + contact.phone" class="contact-details-link">{{ contact.phone }}</a></span>
-                        <span v-if="contact.mobile"><span class="text-bolder">M: </span><a :href="'tel:' + contact.mobile" class="contact-details-link">{{ contact.mobile }}</a></span>
-                      </div>
-                    </div>
-                    <span v-if="contactsLoaded && contacts.other_contacts.length == 0" class="text-muted text-smaller">--</span>
-                  </div>
-                </div>
-              </div>
-
             </div>
 
             <div id="patient-cases-tab" class="tab-pane fade">

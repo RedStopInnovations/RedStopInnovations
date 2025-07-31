@@ -24,13 +24,15 @@ class PatientContact < ApplicationRecord
   self.inheritance_column = nil
 
   TYPES = [
-    TYPE_STANDARD    = 'Standard',
-    TYPE_DOCTOR      = 'Doctor',
-    TYPE_SPECIALIST  = 'Specialist',
-    TYPE_REFERRER    = 'Referrer',
-    TYPE_INVOICE_TO  = 'Invoice to',
-    TYPE_EMERGENCY   = 'Emergency',
-    TYPE_OTHER       = 'Other'
+    TYPE_STANDARD     = 'Standard',
+    TYPE_CASE_MANAGER = 'Case Manager',
+    TYPE_DOCTOR       = 'Doctor',
+    TYPE_SPECIALIST   = 'Specialist',
+    TYPE_REFERRER     = 'Referrer',
+    TYPE_NEXT_OF_KIN  = 'Next of Kin',
+    TYPE_INVOICE_TO   = 'Invoice to',
+    TYPE_EMERGENCY    = 'Emergency',
+    TYPE_OTHER        = 'Other'
   ]
 
   has_paper_trail(
