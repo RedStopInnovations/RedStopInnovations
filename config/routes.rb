@@ -287,19 +287,12 @@ Rails.application.routes.draw do
       resources :treatments do
         member do
           get :export_pdf
-          post :deliver
           get :modal_send_email
           post :send_email
-          get :modal_email_others # @TODO: remove
-          post :email_others # @TODO: remove
         end
 
         collection do
           get :last_treatment_note
-          post :send_all_to_patient # @TODO: remove
-          post :send_all_to_others # @TODO: remove
-          get :pre_send_all_to_others # @TODO: remove
-          get :export_all # @TODO: remove
         end
       end
 

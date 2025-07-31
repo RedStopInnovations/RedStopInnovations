@@ -6,11 +6,7 @@ class TreatmentsController < ApplicationController
                 :authorize_patient_access,
                 only: [
                   :new, :index, :create, :show, :edit, :update, :destroy,
-                  :last_treatment_note, :deliver, :export_pdf, :export_all,
-                  :send_all_to_patient,
-                  :modal_email_others,
-                  :email_others,
-                  :pre_send_all_to_others, :send_all_to_others,
+                  :last_treatment_note, :export_pdf,
                   :modal_send_email, :send_email
                 ]
 
@@ -21,10 +17,7 @@ class TreatmentsController < ApplicationController
                   :edit,
                   :update,
                   :destroy,
-                  :deliver,
                   :export_pdf,
-                  :modal_email_others,
-                  :email_others,
                   :modal_send_email, :send_email
                 ]
 
@@ -182,7 +175,7 @@ class TreatmentsController < ApplicationController
     if @treatment.status == Treatment::STATUS_DRAFT
       @treatment.destroy
       redirect_to patient_treatments_url(@patient),
-                  notice: 'Treatment was successfully deleted.'
+                  notice: 'Treatment note was successfully deleted.'
     else
       redirect_to patient_treatments_url(@patient),
                   alert: 'Can\'t delete Final treatment note.'
@@ -250,176 +243,10 @@ class TreatmentsController < ApplicationController
     end
   end
 
-  def deliver
-    if @patient.email.present?
-
-      com = current_business.communications.create!(
-        message_type: Communication::TYPE_EMAIL,
-        linked_patient_id: @patient.id,
-        recipient: @patient,
-        category: 'treatment_note_send',
-        source: @treatment,
-        direction: Communication::DIRECTION_OUTBOUND
-      )
-
-      com_delivery = CommunicationDelivery.create!(
-        communication_id: com.id,
-        recipient: @patient.email,
-        tracking_id: SecureRandom.base58(32),
-        last_tried_at: Time.current,
-        status: CommunicationDelivery::STATUS_SCHEDULED,
-        provider_id: CommunicationDelivery::PROVIDER_ID_SENDGRID
-      )
-
-      PatientMailer.treatment_note(
-        @treatment, sendgrid_delivery_tracking_id: com_delivery.tracking_id
-      ).deliver_later
-
-      flash[:notice] = 'The treatment note has been sent to client.'
-    else
-      flash[:alert] = 'The client has not an email adddress.'
-    end
-    redirect_to patient_treatments_path(@patient)
-  end
-
   def last_treatment_note
     @treatment = @patient.treatments.where(treatment_template_id: params[:template_id])
                          .order(updated_at: :desc).first
     render json: @treatment
-  end
-
-  def modal_email_others
-    render 'treatments/_modal_email_others',
-           locals: { patient: @patient, treatment: @treatment },
-           layout: false
-  end
-
-  def email_others
-    form = SendOthersForm.new(
-      email_others_params.merge(business: current_business)
-    )
-
-    if form.valid?
-      if current_business.subscription_credit_card_added?
-        contacts = current_business.contacts.where(id: form.contact_ids)
-
-        contacts.each do |contact|
-          if contact.email.present?
-            com = current_business.communications.create(
-              message_type: Communication::TYPE_EMAIL,
-              linked_patient_id: @patient.id,
-              recipient: contact,
-              category: 'treatment_note_send',
-              message: form.message,
-              source: @treatment,
-              direction: Communication::DIRECTION_OUTBOUND
-            )
-
-            com_delivery = CommunicationDelivery.create!(
-              communication_id: com.id,
-              recipient: contact.email,
-              tracking_id: SecureRandom.base58(32),
-              last_tried_at: Time.current,
-              status: CommunicationDelivery::STATUS_SCHEDULED,
-              provider_id: CommunicationDelivery::PROVIDER_ID_SENDGRID
-            )
-
-            PatientMailer.send_treatment_note_to_contact(
-              @treatment, contact, form.message, sendgrid_delivery_tracking_id: com_delivery.tracking_id
-            ).deliver_later
-          end
-        end
-
-        form.emails.each do |email|
-          PatientMailer.send_treatment_note_to_email(@treatment, email, form.message).deliver_later
-        end
-      end
-
-      flash[:notice] = 'The treatment note has been successfully sent.'
-    else
-      flash[:alert] = "Could not send treatment note. Error: #{form.errors.full_messages.first}."
-    end
-
-    redirect_back fallback_location: patient_treatment_url(@patient, @treatment)
-  end
-
-  def send_all_to_patient
-    treatment_notes = @patient.treatments.final.order(created_at: :desc).to_a
-    if treatment_notes.size == 0
-      flash[:alert] = 'The client has no treatment note to send'
-      redirect_to patient_treatments_path(@patient)
-      return
-    end
-
-    if @patient.email.present?
-      com = current_business.communications.create!(
-        message_type: Communication::TYPE_EMAIL,
-        linked_patient_id: @patient.id,
-        recipient: @patient,
-        category: 'treatment_note_send',
-        source: treatment_notes.first,
-        direction: Communication::DIRECTION_OUTBOUND
-      )
-
-      com_delivery = CommunicationDelivery.create!(
-        communication_id: com.id,
-        recipient: @patient.email,
-        tracking_id: SecureRandom.base58(32),
-        last_tried_at: Time.current,
-        status: CommunicationDelivery::STATUS_SCHEDULED,
-        provider_id: CommunicationDelivery::PROVIDER_ID_SENDGRID
-      )
-
-      PatientMailer.send_multiple_treatment_notes_to_patient(
-        @patient, treatment_notes, sendgrid_delivery_tracking_id: com_delivery.tracking_id
-      ).deliver_later
-
-      flash[:notice] = 'All treatment notes has been sent to client.'
-    else
-      flash[:alert] = 'The client has no email adddress.'
-    end
-
-    redirect_to patient_treatments_path(@patient)
-  end
-
-  def send_all_to_others
-    treatment_notes = @patient.treatments.final.order(created_at: :desc).to_a
-
-    if treatment_notes.size == 0
-      flash[:alert] = 'The client has no treatment note to send'
-    else
-      if current_business.subscription_credit_card_added?
-        form = SendOthersForm.new(
-          email_others_params.merge(business: current_business)
-        )
-
-        if form.valid?
-          SendMultipleTreatmentNotesToOtherService.new.call(@patient, treatment_notes, form)
-          flash[:notice] = 'The treatment notes has been successfully sent.'
-        else
-          flash[:alert] = "Could not send treatment note. Error: #{form.errors.full_messages.first}."
-        end
-      end
-    end
-    redirect_to patient_treatments_path(@patient)
-  end
-
-  def pre_send_all_to_others
-  end
-
-  def export_all
-    respond_to do |format|
-      @treatment_notes = @patient.treatments.order(created_at: :desc).to_a
-      format.pdf do
-        render pdf: "treatment_notes",
-              template: "pdfs/treatments/multiple",
-              locals: {
-                treatment_notes: @treatment_notes,
-                patient: @patient,
-                business: current_business
-              }
-      end
-    end
   end
 
   private
@@ -449,9 +276,5 @@ class TreatmentsController < ApplicationController
         ]
       ]
     )
-  end
-
-  def email_others_params
-    params.permit(:message, contact_ids: [], emails: [])
   end
 end
