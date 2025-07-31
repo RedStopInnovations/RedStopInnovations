@@ -15,9 +15,11 @@
     <li class=<%= (controller_name == 'contacts' && action_name == 'patients') ? 'active' : '' %> >
       <a href="<%= patients_contact_path(@contact) %>">Clients <% if patients_count > 0 %><span class="label label-default pull-right"><%= patients_count %></span><% end %></a>
     </li>
+    <% if false %>
     <li class=<%= (controller_name == 'contact_communications' && (action_name == 'index' || action_name == 'show')) ? 'active' : '' %> >
       <a href="<%= contact_communications_path(@contact) %>">Messages <% if messages_count > 0 %><span class="label label-default pull-right"><%= messages_count %></span><% end %></a>
     </li>
+    <% end %>
     <li class=<%= (controller_name == 'contact_account_statements' && action_name == 'published') ? 'active' : '' %> >
       <a href="<%= published_contact_account_statements_path(@contact) %>">Published statements <% if account_statements_count > 0 %><span class="label label-default pull-right"><%= account_statements_count %></span><% end %></a>
     </li>
