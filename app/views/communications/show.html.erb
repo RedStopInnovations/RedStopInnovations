@@ -54,18 +54,11 @@
           <div class="block-info">
             <strong>Recipient:</strong>
             <p>
-              <% if @communication.direction == Communication::DIRECTION_OUTBOUND %>
-                <% if @communication.recipient.is_a?(Patient) %>
-                  Client: <a href="<%= patient_path(@communication.recipient) %>"><%= @communication.recipient.full_name %></a>
-                <% elsif @communication.recipient.is_a?(Contact) %>
-                  Contact: <a href="<%= contact_path(@communication.recipient) %>"><%= @communication.recipient.business_name %></a>
-                <% elsif @communication.recipient.is_a?(Business) %>
+              <% if @communication.delivery %>
+                <% if @communication.direction == Communication::DIRECTION_OUTBOUND %>
+                  <%= @communication.delivery.recipient %>
+                <% else %>
                   System
-                <% end %>
-              <% elsif @communication.direction == Communication::DIRECTION_INBOUND %>
-                <% if @communication.delivery %>
-                  <% delivery = @communication.delivery %>
-                  System (<%= delivery.recipient %>)
                 <% end %>
               <% end %>
             </p>
@@ -113,6 +106,15 @@
         </div>
 
         <div class="col-md-8 col-xs-12">
+          <% if @communication.subject.present? %>
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Subject</strong></div>
+              <div class="panel-body">
+                <%= @communication.subject %>
+              </div>
+            </div>
+          <% end %>
+
           <div class="panel panel-default">
             <div class="panel-heading"><strong>Content</strong></div>
             <div class="panel-body">

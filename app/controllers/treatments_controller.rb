@@ -10,7 +10,8 @@ class TreatmentsController < ApplicationController
                   :send_all_to_patient,
                   :modal_email_others,
                   :email_others,
-                  :pre_send_all_to_others, :send_all_to_others
+                  :pre_send_all_to_others, :send_all_to_others,
+                  :modal_send_email, :send_email
                 ]
 
   before_action :authorize_patient_access
@@ -23,7 +24,8 @@ class TreatmentsController < ApplicationController
                   :deliver,
                   :export_pdf,
                   :modal_email_others,
-                  :email_others
+                  :email_others,
+                  :modal_send_email, :send_email
                 ]
 
   def index
@@ -202,6 +204,49 @@ class TreatmentsController < ApplicationController
               },
               disable_javascript: true
       end
+    end
+  end
+
+  def modal_send_email
+    send_email_form = SendEmailForm.new(
+      email_subject: "Treatment note from #{@current_business.name}",
+      email_content: "Please find attached treatment note",
+      patient: @patient,
+    )
+
+    if @patient.email.present?
+      send_email_form.emails << @patient.email
+    end
+
+    render 'treatments/_modal_send_email',
+           locals: {
+            modal_title: "Send treatment note",
+            send_email_url: send_email_patient_treatment_path(@patient, @treatment),
+            patient: @patient,
+            send_email_form: send_email_form
+          },
+           layout: false
+  end
+
+  def send_email
+    form = SendEmailForm.new(
+      params.permit(:email_subject, :email_content, emails: []).merge(business: current_business)
+    )
+
+    if form.valid?
+      SendTreatmentNoteEmailService.new.call(@patient, @treatment, form, current_user)
+      render(
+        json: {
+          message: 'The treatment notes has been scheduled to send.'
+        }
+      )
+    else
+      render(
+        json: {
+          message: "Could not send treatment note. Please check for form errors: #{form.errors.full_messages.first}."
+        },
+        status: 422
+      )
     end
   end
 

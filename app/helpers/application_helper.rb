@@ -51,6 +51,53 @@ module ApplicationHelper
     options
   end
 
+  def default_recipients_for_sending_email(patient)
+    options = []
+
+    if patient.email.present? && EmailValidator.valid?(patient.email)
+      options << ["#{patient.full_name} <#{patient.email}>", patient.email, true]
+    end
+
+    ## Associated contacts
+    patient.patient_contacts.includes(:contact).each do |pc|
+      contact = pc.contact
+      if contact.email.present? && EmailValidator.valid?(contact.email)
+        options << ["#{contact.business_name} <#{contact.email}>", contact.email]
+      end
+    end
+
+    ## Other emails
+    if patient.ndis_plan_manager_email.present?
+      email = patient.ndis_plan_manager_email
+      if EmailValidator.valid? email
+        options << ["NDIS manager <#{email}>", email]
+      end
+    end
+
+    if patient.hcp_manager_email.present?
+      email = patient.hcp_manager_email
+      if EmailValidator.valid? email
+        options << ["HCP manager <#{email}>", email]
+      end
+    end
+
+    if patient.hih_doctor_email.present?
+      email = patient.hih_doctor_email
+      if EmailValidator.valid? email
+        options << ["HIH doctor <#{email}>", email]
+      end
+    end
+
+    if patient.hi_manager_email.present?
+      email = patient.hi_manager_email
+      if EmailValidator.valid? email
+        options << ["HI manager <#{email}>", email]
+      end
+    end
+
+    options
+  end
+
   def extra_emails_for_send_to_others(patient)
     options = []
 

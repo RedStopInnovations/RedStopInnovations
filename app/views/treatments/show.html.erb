@@ -14,26 +14,17 @@
 
       <div class="pull-right">
           <div class="btn-group">
+            <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
+              <i class="fa fa-envelope"></i>
+              Email
+            </a>
+
             <a href="<%= export_pdf_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
               <i class="fa fa-print"></i> Print
             </a>
 
             <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-right">
-              <li>
-                <a href="<%= deliver_patient_treatment_path(@patient, @treatment) %>"
-                  data-method="POST"
-                  data-confirm="Are you sure?">
-                  <i class="fa fa-envelope-o"></i> Email to client
-                </a>
-              </li>
-
-              <li>
-                <a href="javascript:void(0)" data-href="<%= modal_email_others_patient_treatment_path(@patient, @treatment, redirect: patient_treatments_path(@patient)) %>" class="btn-email-others">
-                  <i class="fa fa-send"></i> Email to others
-                </a>
-              </li>
-
               <% unless @treatment.status == Treatment::STATUS_FINAL %>
                 <li>
                   <a href="<%= edit_patient_treatment_path(@patient, @treatment) %>">
@@ -85,5 +76,5 @@
 <% end %>
 
 <% content_for :page_js do %>
-  <%= render 'modal_email_others_js' %>
+  <%= render 'modal_send_email_js' %>
 <% end %>

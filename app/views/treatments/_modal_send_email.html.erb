@@ -1,0 +1,37 @@
+<div class="modal fade" id="js-modal-send-email">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-gray-light">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title"><%= modal_title %></h4>
+      </div>
+
+      <div class="modal-body">
+        <%= simple_form_for send_email_form, as: nil, url: send_email_url, method: 'POST', html: { class: 'js-form-send-email', novalidate: false } do |f| %>
+          <%=
+            f.input :emails,
+                    label: 'Recipients',
+                    collection: default_recipients_for_sending_email(patient),
+                    include_hidden: false,
+                    required: true,
+                    input_html: {
+                      multiple: true,
+                      name: 'emails[]',
+                      class: 'js-input-extra-emails'
+                    }
+          %>
+
+          <%= f.input :email_subject, as: :string, label: "Subject", required: true, input_html: { name: 'email_subject' } %>
+
+          <%= f.input :email_content, label: "Content", as: :text, required: true, input_html: { rows: 5, name: 'email_content' } %>
+          <hr>
+          <div class="text-right">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
