@@ -69,7 +69,7 @@ module Tracksy
     end
 
     config.middleware.use Rack::Attack
-    require './app/middlewares/validate_request_params'
-    config.middleware.insert_before Rack::Head, ValidateRequestParams
+    # require './app/middlewares/validate_request_params'
+    # config.middleware.insert_before Rack::Head, ValidateRequestParams
   end
 end

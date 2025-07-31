@@ -601,111 +601,43 @@
 
       <div class="panel panel-default">
         <div class="panel-heading">
-          <span class="panel-title">Associate contacts</span>
-          <a class="pull-right" href="<%= edit_associate_contacts_patient_path(@patient) %>" data-remote="true"><i class="fa fa-pencil-square-o"></i> Edit</a>
+          <span class="panel-title">Associated contacts</span>
         </div>
 
         <div class="panel-body">
-          <div class="row">
-
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Referrer:</strong>
-                <% if @patient.referrer_contacts.size > 0 %>
-                  <ul class="list-unstyled">
-                    <% @patient.referrer_contacts.each do |contact| %>
-                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="text-muted">--</p>
-                <% end %>
-              </div>
+          <% if @patient.patient_contacts.any? %>
+            <div class="row associated-contacts-header pb-10 mb-10" style="border-bottom: 1px solid #ddd;">
+              <div class="col-md-4"><strong>Name</strong></div>
+              <div class="col-md-2"><strong>Type</strong></div>
+              <div class="col-md-2 text-center"><strong>Appointments</strong></div>
+              <div class="col-md-2 text-center"><strong>Invoices</strong></div>
+              <div class="col-md-2 text-center"><strong>Notes</strong></div>
             </div>
 
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Invoice to:</strong>
-                <% if @patient.invoice_to_contacts.size > 0 %>
-                  <ul class="list-unstyled">
-                    <% @patient.invoice_to_contacts.each do |contact| %>
-                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="text-muted">--</p>
-                <% end %>
-
+            <% @patient.patient_contacts.each do |patient_contact| %>
+              <div class="row associated-contact-row mb-10 pt-10 pb-10" style="border-bottom: 1px solid #f5f5f5;">
+                <div class="col-md-4">
+                  <a href="<%= contact_path(patient_contact.contact_id) %>"><%= patient_contact.contact.business_name %></a>
+                </div>
+                <div class="col-md-2">
+                  <%= patient_contact.type %>
+                </div>
+                <div class="col-md-2 text-center">
+                  <input type="checkbox" <%= patient_contact.for_appointments ? 'checked' : '' %>  onclick="return false;">
+                </div>
+                <div class="col-md-2 text-center">
+                  <input type="checkbox" <%= patient_contact.for_invoices ? 'checked' : '' %>  onclick="return false;">
+                </div>
+                <div class="col-md-2 text-center">
+                  <input type="checkbox" <%= patient_contact.for_treatment_notes ? 'checked' : '' %>  onclick="return false;">
+                </div>
               </div>
+            <% end %>
+          <% else %>
+            <div class="text-muted">
+              No associated contacts
             </div>
-
-          </div>
-
-          <div class="row">
-
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Doctor:</strong>
-                <% if @patient.doctor_contacts.size > 0 %>
-                  <ul class="list-unstyled">
-                    <% @patient.doctor_contacts.each do |contact| %>
-                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="text-muted">--</p>
-                <% end %>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Specialist:</strong>
-                <% if @patient.specialist_contacts.size > 0 %>
-                  <ul class="list-unstyled">
-                    <% @patient.specialist_contacts.each do |contact| %>
-                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="text-muted">--</p>
-                <% end %>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Emergency:</strong>
-                <% if @patient.emergency_contacts.size > 0 %>
-                  <ul class="list-unstyled">
-                    <% @patient.emergency_contacts.each do |contact| %>
-                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="text-muted">--</p>
-                <% end %>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="block-info">
-                <strong>Other:</strong>
-                <% if @patient.other_contacts.size > 0 %>
-                  <ul class="list-unstyled">
-                    <% @patient.other_contacts.each do |contact| %>
-                      <li><a href="<%= contact_path(contact) %>"><%= contact.business_name %></a></li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="text-muted">--</p>
-                <% end %>
-              </div>
-            </div>
-          </div>
+          <% end %>
         </div>
       </div>
 

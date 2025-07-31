@@ -167,6 +167,8 @@ class Patient < ApplicationRecord
   has_one :stripe_customer, class_name: 'PatientStripeCustomer', inverse_of: :patient
   has_and_belongs_to_many :tags
 
+  accepts_nested_attributes_for :patient_contacts, allow_destroy: true
+
   before_save :set_full_name_attr, :format_phone_and_mobile
   before_save :strip_medicare_details,
               :strip_dva_details,

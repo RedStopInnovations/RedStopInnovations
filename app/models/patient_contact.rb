@@ -2,13 +2,16 @@
 #
 # Table name: patient_contacts
 #
-#  id         :integer          not null, primary key
-#  patient_id :integer          not null
-#  contact_id :integer          not null
-#  type       :string
-#  primary    :boolean          default(FALSE)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                   :integer          not null, primary key
+#  patient_id           :integer          not null
+#  contact_id           :integer          not null
+#  type                 :string
+#  primary              :boolean          default(FALSE)
+#  for_appointments     :boolean          default(FALSE)
+#  for_invoices         :boolean          default(FALSE)
+#  for_treatment_notes  :boolean          default(FALSE)
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
 #
 # Indexes
 #
@@ -21,6 +24,7 @@ class PatientContact < ApplicationRecord
   self.inheritance_column = nil
 
   TYPES = [
+    TYPE_STANDARD    = 'Standard',
     TYPE_DOCTOR      = 'Doctor',
     TYPE_SPECIALIST  = 'Specialist',
     TYPE_REFERRER    = 'Referrer',

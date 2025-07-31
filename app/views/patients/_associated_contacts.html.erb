@@ -1,0 +1,226 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><span class="panel-title">Associated contacts</span></div>
+  <div class="panel-body">
+    <div id="js-associated-contacts-vue">
+      <!-- Header row -->
+      <div class="row associated-contacts-header pb-10 mb-10" style="border-bottom: 1px solid #ddd;">
+        <div class="col-md-4"><strong>Name</strong></div>
+        <div class="col-md-2"><strong>Type</strong></div>
+        <div class="col-md-2 text-center"><strong>Appointments</strong></div>
+        <div class="col-md-2 text-center"><strong>Invoices</strong></div>
+        <div class="col-md-1 text-center"><strong>Notes</strong></div>
+        <div class="col-md-1 text-center"><strong>Action</strong></div>
+      </div>
+
+      <!-- Contact rows -->
+      <div v-for="(contact, index) in contacts" :key="index">
+        <!-- Visible contact row -->
+        <div class="row associated-contact-row mb-10 pt-10 pb-10" v-if="!contact._destroy" style="border-bottom: 1px solid #f5f5f5;">
+          <div class="col-md-4">
+            <select :name="'patient_contacts[' + index + '][contact_id]'"
+                    class="form-control contact-select"
+                    :ref="'contactSelect' + index"
+                    required
+                    v-model="contact.contact_id">
+              <option value="">-- Select contact --</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select :name="'patient_contacts[' + index + '][type]'"
+                    class="form-control"
+                    required
+                    v-model="contact.type">
+              <option value="">-- Select one --</option>
+              <% PatientContact::TYPES.each do |type| %>
+                <option value="<%= type %>"><%= type %></option>
+              <% end %>
+            </select>
+          </div>
+          <div class="col-md-2 text-center">
+            <input type="checkbox"
+                   :name="'patient_contacts[' + index + '][for_appointments]'"
+                   value="1"
+                   v-model="contact.for_appointments">
+          </div>
+          <div class="col-md-2 text-center">
+            <input type="checkbox"
+                   :name="'patient_contacts[' + index + '][for_invoices]'"
+                   value="1"
+                   v-model="contact.for_invoices">
+          </div>
+          <div class="col-md-1 text-center">
+            <input type="checkbox"
+                   :name="'patient_contacts[' + index + '][for_treatment_notes]'"
+                   value="1"
+                   v-model="contact.for_treatment_notes">
+          </div>
+          <div class="col-md-1 text-center">
+            <button type="button" class="btn btn-sm btn-white" @click="removeContact(index)">
+              <i class="fa fa-trash text-danger"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Always render hidden inputs for all contacts (visible and destroyed) -->
+        <div style="display: none;">
+          <input type="hidden" :name="'patient_contacts[' + index + '][id]'" :value="contact.id">
+          <input type="hidden" :name="'patient_contacts[' + index + '][contact_id]'" :value="contact.contact_id">
+          <input type="hidden" :name="'patient_contacts[' + index + '][type]'" :value="contact.type">
+          <input type="hidden" :name="'patient_contacts[' + index + '][for_appointments]'" :value="contact.for_appointments ? '1' : '0'">
+          <input type="hidden" :name="'patient_contacts[' + index + '][for_invoices]'" :value="contact.for_invoices ? '1' : '0'">
+          <input type="hidden" :name="'patient_contacts[' + index + '][for_treatment_notes]'" :value="contact.for_treatment_notes ? '1' : '0'">
+          <input type="hidden" :name="'patient_contacts[' + index + '][_destroy]'" :value="contact._destroy ? '1' : '0'">
+        </div>
+      </div>
+
+      <div v-if="contacts.length === 0 || contacts.every(c => c._destroy)" class="mt-20 text-muted">
+        No associated contacts
+      </div>
+
+      <div class="mt-20">
+        <button type="button" class="btn btn-white" @click="addContact">
+          Add Contact
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :page_js do %>
+<script>
+(function() {
+  // Export Ruby data to JavaScript
+  const businessId = <%= current_business.id %>;
+  const patientContactTypes = <%= raw PatientContact::TYPES.to_json %>;
+
+  // Load existing patient contacts
+  const existingContacts = [];
+  <% if defined?(patient) && patient&.patient_contacts&.any? %>
+    <% patient.patient_contacts.each do |pc| %>
+      existingContacts.push({
+        id: <%= pc.id %>,
+        contact_id: <%= pc.contact_id %>,
+        contact_name: '<%= j(pc.contact.business_name) %>',
+        type: '<%= pc.type %>',
+        for_appointments: <%= pc.for_appointments %>,
+        for_invoices: <%= pc.for_invoices %>,
+        for_treatment_notes: <%= pc.for_treatment_notes %>,
+        _destroy: false
+      });
+    <% end %>
+  <% end %>
+
+  new Vue({
+    el: '#js-associated-contacts-vue',
+    data: {
+      contacts: existingContacts.length > 0 ? existingContacts : [],
+      businessId: businessId,
+      patientContactTypes: patientContactTypes
+    },
+    mounted() {
+      this.initializeSelectize();
+    },
+    methods: {
+      addContact() {
+        const newContact = {
+          id: null,
+          contact_id: '',
+          contact_name: '',
+          type: 'Standard',
+          for_appointments: false,
+          for_invoices: false,
+          for_treatment_notes: false,
+          _destroy: false
+        };
+        this.contacts.push(newContact);
+
+        // Initialize selectize for the new contact after Vue updates
+        this.$nextTick(() => {
+          this.initializeSelectizeForContact(this.contacts.length - 1);
+        });
+      },
+
+      removeContact(index) {
+        const contact = this.contacts[index];
+        if (contact.id) {
+          // Mark existing contact for destruction
+          contact._destroy = true;
+        } else {
+          // Remove new contact completely
+          this.contacts.splice(index, 1);
+        }
+      },
+
+      initializeSelectize() {
+        this.contacts.forEach((contact, index) => {
+          this.initializeSelectizeForContact(index);
+        });
+      },
+
+      initializeSelectizeForContact(index) {
+        const contact = this.contacts[index];
+        const selectRef = 'contactSelect' + index;
+
+        if (this.$refs[selectRef] && this.$refs[selectRef][0]) {
+          const $select = $(this.$refs[selectRef][0]);
+
+          // Destroy existing selectize if present
+          if ($select[0].selectize) {
+            $select[0].selectize.destroy();
+          }
+
+          const selectizeInstance = $select.selectize({
+            plugins: ['no_results'],
+            valueField: 'id',
+            labelField: 'business_name',
+            searchField: ['business_name', 'full_name'],
+            placeholder: 'Type to search contact...',
+            options: [],
+            load: (query, callback) => {
+              if (!query.length) return callback();
+
+              $.get('/api/contacts/search?business_id=' + this.businessId + '&s=' + query, function(res) {
+                callback(res.contacts || []);
+              }).fail(function() {
+                callback();
+              });
+            },
+            create: (input, callback) => {
+              if (confirm('Are you sure to create "' + input + '" as a new contact?')) {
+                $.ajax({
+                  method: 'POST',
+                  data: { contact: { business_name: input } },
+                  url: '/contacts.json',
+                  dataType: 'json',
+                  success: function(res) {
+                    callback(res.contact);
+                  },
+                  error: function() {
+                    callback();
+                  }
+                });
+              } else {
+                callback();
+              }
+            },
+            onChange: (value) => {
+              contact.contact_id = value || '';
+            }
+          });
+
+          // Pre-populate existing contact
+          if (contact.contact_id && contact.contact_name) {
+            const selectize = selectizeInstance[0].selectize;
+            selectize.addOption({
+              id: contact.contact_id,
+              business_name: contact.contact_name
+            });
+            selectize.setValue(contact.contact_id);
+          }
+        }
+      }
+    }
+  });
+})();
+</script>
+<% end %>

@@ -77,6 +77,13 @@ class PatientsController < ApplicationController
 
     if @create_patient_form.valid?
       created_patient = CreatePatientService.new.call(current_business, @create_patient_form, current_user)
+
+      created_patient.update(
+        patient_contacts_attributes: params[:patient_contacts].try(:values).to_a.map do |pc|
+          pc.permit(:id, :contact_id, :type, :for_appointments, :for_invoices, :for_treatment_notes)
+        end
+      )
+
       redirect_to patient_url(created_patient), notice: 'The client was successfully created.'
     else
       render :new
@@ -90,6 +97,13 @@ class PatientsController < ApplicationController
 
     if @update_patient_form.valid?
       UpdatePatientService.new.call(@patient, @update_patient_form, current_user)
+      @patient.reload
+      @patient.update(
+        patient_contacts_attributes: params[:patient_contacts].try(:values).to_a.map do |pc|
+          pc.permit(:id, :contact_id, :type, :for_appointments, :for_invoices, :for_treatment_notes, :_destroy)
+        end
+      )
+
       redirect_to patient_url(@patient), notice: 'The client was successfully updated.'
     else
       render :edit
@@ -388,13 +402,6 @@ class PatientsController < ApplicationController
       :aboriginal_status,
       :spoken_languages,
       :accepted_privacy_policy,
-
-      doctor_contact_ids: [],
-      specialist_contact_ids: [],
-      referrer_contact_ids: [],
-      invoice_to_contact_ids: [],
-      emergency_contact_ids: [],
-      other_contact_ids: [],
       tag_ids: [],
     )
   end

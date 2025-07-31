@@ -25,12 +25,6 @@ class UpdatePatientForm < BaseForm
   attribute :reminder_enable, Boolean, default: true
   attribute :accepted_privacy_policy, Boolean
 
-  attribute :referrer_contact_ids, Array[Integer]
-  attribute :invoice_to_contact_ids, Array[Integer]
-  attribute :doctor_contact_ids, Array[Integer]
-  attribute :specialist_contact_ids, Array[Integer]
-  attribute :emergency_contact_ids, Array[Integer]
-  attribute :other_contact_ids, Array[Integer]
   attribute :tag_ids, Array[Integer]
 
   validates_presence_of :first_name,
@@ -96,13 +90,6 @@ class UpdatePatientForm < BaseForm
     )
 
     patient.preload_tagged_contacts
-
-    attrs[:referrer_contact_ids] = patient.referrer_contact_ids
-    attrs[:invoice_to_contact_ids] = patient.invoice_to_contact_ids
-    attrs[:doctor_contact_ids] = patient.doctor_contact_ids
-    attrs[:specialist_contact_ids] = patient.specialist_contact_ids
-    attrs[:emergency_contact_ids] = patient.emergency_contact_ids
-    attrs[:other_contact_ids] = patient.other_contact_ids
 
     attrs[:tag_ids] = patient.tag_ids
 

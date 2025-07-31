@@ -10,13 +10,6 @@ class CreatePatientForm < BaseForm
   attribute :spoken_languages, String
   attribute :aboriginal_status, String
 
-  attribute :referrer_contact_ids, Array[Integer]
-  attribute :invoice_to_contact_ids, Array[Integer]
-  attribute :doctor_contact_ids, Array[Integer]
-  attribute :specialist_contact_ids, Array[Integer]
-  attribute :emergency_contact_ids, Array[Integer]
-  attribute :other_contact_ids, Array[Integer]
-
   attribute :tag_ids, Array[Integer]
 
   attribute :email, String

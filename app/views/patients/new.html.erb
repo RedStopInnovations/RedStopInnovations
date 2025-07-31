@@ -6,7 +6,7 @@
 
 <section class="content">
   <div class="row">
-    <div class="col-lg-6 col-md-8 col-xs-12">
+    <div class="col-md-8 col-xs-12">
       <%= simple_nested_form_for @create_patient_form, as: :patient, url: patients_path do |f| %>
 
         <div class="panel panel-default">
@@ -111,51 +111,7 @@
           </div>
         </div>
 
-        <div class="panel panel-default">
-          <div class="panel-heading"><span class="panel-title">Associate contacts</span></div>
-          <div class="panel-body">
-            <div id="js-contact-tags-wrap">
-              <%
-                associated_contacts_ids = (@create_patient_form.referrer_contact_ids + @create_patient_form.invoice_to_contact_ids +
-                                        @create_patient_form.doctor_contact_ids + @create_patient_form.specialist_contact_ids +
-                                        @create_patient_form.other_contact_ids).map(&:presence).compact.uniq
-
-                associated_contacts = current_business.contacts.with_deleted.where(id: associated_contacts_ids)
-              %>
-
-              <div class="form-group">
-                <label>Referrer:</label>
-                <%= f.input :referrer_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags'} %>
-              </div>
-
-              <div class="form-group">
-                <label>Invoice to:</label>
-                <%= f.input :invoice_to_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
-              </div>
-
-              <div class="form-group">
-                <label>Doctor:</label>
-                <%= f.input :doctor_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' }
-                %>
-              </div>
-
-              <div class="form-group">
-                <label>Specialist:</label>
-                <%= f.input :specialist_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
-              </div>
-
-              <div class="form-group">
-                <label>Emergency:</label>
-                <%= f.input :emergency_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
-              </div>
-
-              <div class="form-group">
-                <label>Other:</label>
-                <%= f.input :other_contact_ids, as: :select, label: false, wrapper: false, collection: associated_contacts, include_hidden: false, label_method: :business_name, input_html: { multiple: true, class: 'js-input-contact-tags' } %>
-              </div>
-            </div>
-          </div>
-        </div>
+        <%= render 'associated_contacts', patient: Patient.new %>
 
         <div class="panel panel-default">
           <div class="panel-heading"><span class="panel-title">Other info</span></div>
@@ -264,87 +220,6 @@
 
       autocomplete.addListener('place_changed', locationSelected);
 
-      // Associate contacts tagging
-      const $inputsWrap = $('#js-contact-tags-wrap');
-      var contactSelectizies = [];
-
-      /* Add new contact just created to all inputs */
-      var addNewContactOption = function(contact) {
-        for (var i = contactSelectizies.length - 1; i >= 0; i--) {
-          contactSelectizies[i].addOption(contact);
-        }
-      };
-
-      $('.js-input-contact-tags').each(function() {
-        var $this = $(this);
-        var selectize = $this.selectize({
-          plugins: ['remove_button', 'no_results'],
-          options: [],
-          valueField: 'id',
-          addPrecedence: false,
-          labelField: 'business_name',
-          searchField: ['business_name', 'full_name'],
-          load: function(query, callback) {
-            if (!query.length) return callback();
-            var self = this;
-
-            $.get(
-              '/api/contacts/search?s=' + query,
-              function(res) {
-                if (res.contacts.length > 0) {
-                  callback(res.contacts);
-                } else {
-                  self.$empty_results_container.show();
-                }
-              }
-            );
-          },
-          create: function(input, callback) {
-            if (confirm('Are you sure to create "' + input + '" as a NEW contact?')) {
-              $.ajax({
-                method: 'POST',
-                data: { contact: { business_name: input } },
-                url: '<%= contacts_path(format: :json) %>',
-                dataType: 'json',
-                beforeSend: function() {
-                  $inputsWrap.loadingOn();
-                },
-                success: function(res) {
-                  callback(res.contact);
-                  addNewContactOption(res.contact);
-                  Flash.success('The new contact has been successfully created.');
-                },
-                error: function(xhr) {
-                  var errorMsg = 'An error has occurred. Sorry for the inconvenience.';
-
-                  if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-
-                    var validationErrors = xhr.responseJSON.errors
-                    errorMsg = 'Validation errors:';
-                    for (var i = validationErrors.length - 1; i >= 0; i--) {
-                      errorMsg += '<br>' + validationErrors[i];
-                    }
-                  }
-
-                  if (xhr.status === 403) {
-                    errorMsg = 'You don\'t have permission to create new contact';
-                  }
-
-                  Flash.error(errorMsg);
-                },
-                complete: function() {
-                  $inputsWrap.loadingOff();
-                }
-              });
-            } else {
-              callback();
-            }
-          }
-        })[0].selectize;
-
-        contactSelectizies.push(selectize);
-      });
-
       var allTags = JSON.parse('<%= j current_business.tags.type_patient.to_a.to_json.html_safe %>');
       $('#js-input-patient-tags').selectize({
         plugins: ['remove_button'],
@@ -364,6 +239,8 @@
           }
         },
       });
+
+      // @TODO: implement associated contacts editing here
 
     })();
   </script>

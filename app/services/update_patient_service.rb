@@ -63,12 +63,6 @@ class UpdatePatientService
       :spoken_languages,
       :accepted_privacy_policy,
 
-      :doctor_contact_ids,
-      :specialist_contact_ids,
-      :referrer_contact_ids,
-      :invoice_to_contact_ids,
-      :emergency_contact_ids,
-      :other_contact_ids,
       :tag_ids
     ))
 
