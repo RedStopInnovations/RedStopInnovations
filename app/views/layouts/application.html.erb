@@ -58,6 +58,7 @@
       <%= render 'layouts/dashboard/global_search' %>
     <% end %>
     <% if current_business.sms_settings&.enabled? %>
+      <%= render 'layouts/dashboard/conversations_sidebar' %>
     <% end %>
 
   </body>
