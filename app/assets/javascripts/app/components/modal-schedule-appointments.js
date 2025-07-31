@@ -410,15 +410,6 @@
         }
         this.loadAvailability();
       },
-      onSelectedCaseChanged: function(kase) {
-        if (kase && kase.invoice_total && kase.invoice_total <= kase.issued_invoices_amount) {
-          if (!(confirm('The selected case has already exceeded maximum budget. Are you sure you still want to select it?'))) {
-            this.$nextTick(function() {
-              this.selectedCase = null;
-            });
-          }
-        }
-      },
       onSearchPatientChanged: debounce(function(query) {
         var that = this;
 

@@ -168,15 +168,6 @@
       addPatient: function() {
         this.$emit('patient-add');
       },
-      onSelectedCaseChanged: function(kase) {
-        if (kase && kase.invoice_total && kase.invoice_total <= kase.issued_invoices_amount) {
-          if (!(confirm('The selected case has already exceeded maximum budget. Are you sure you still want to select it?'))) {
-            this.$nextTick(function() {
-              this.selectedCase = null;
-            });
-          }
-        }
-      },
       setPatient: function(patient) {
         this.selectedPatient = patient;
         if (this.availabilityData.availability_type_id == App.SINGLE_HOME_VISIT_AVAILABILITY_TYPE_ID) {

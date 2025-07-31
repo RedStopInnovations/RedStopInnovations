@@ -651,7 +651,6 @@
                   select-label=""
                   deselect-label="Deselect"
                   :custom-label="customSelectedCaseLabel"
-                  @select="onSelectedCaseChanged"
                   >
                   <template slot="beforeList" v-if="patientOpenCases.length == 0">
                     <div class="pa-5 text-muted">There is no OPEN cases to select</div>
