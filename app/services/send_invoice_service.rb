@@ -1,5 +1,5 @@
 class SendInvoiceService
-  def call(invoice, sender)
+  def call(invoice, sender = nil)
     business = invoice.business
     patient = invoice.patient
 

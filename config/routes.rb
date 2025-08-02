@@ -382,7 +382,6 @@ Rails.application.routes.draw do
       end
 
       member do
-        get :invoices
         post :send_email
       end
     end

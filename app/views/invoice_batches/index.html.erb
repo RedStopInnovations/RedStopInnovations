@@ -57,7 +57,8 @@
                         status_badge_class = {
                           InvoiceBatch::STATUS_PENDING => 'label-warning',
                           InvoiceBatch::STATUS_COMPLETE => 'label-primary',
-                          InvoiceBatch::STATUS_ERROR => 'label-danger'
+                          InvoiceBatch::STATUS_ERROR => 'label-danger',
+                          InvoiceBatch::STATUS_IN_PROGRESS => 'label-default',
                         }[batch.status]
                       %>
                       <span class="label <%= status_badge_class%>">

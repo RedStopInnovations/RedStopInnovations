@@ -1,6 +1,6 @@
 class InvoiceBatchesController < ApplicationController
   include HasABusiness
-  before_action :set_invoice_batch, only: [:show, :invoices, :send_email, :destroy]
+  before_action :set_invoice_batch, only: [:show, :send_email, :destroy]
 
   def index
     @invoice_batches = current_business.invoice_batches
@@ -39,11 +39,7 @@ class InvoiceBatchesController < ApplicationController
     end
   end
 
-  # Return created invoices for the batch
-  def invoices
-  end
-
-  # FIlter and search for appointments that are not invoiced
+  # Filter and search for appointments that are not invoiced
   def uninvoiced_appointments_search
     start_date = Date.parse(params[:start_date])
     end_date = Date.parse(params[:end_date])
@@ -54,6 +50,8 @@ class InvoiceBatchesController < ApplicationController
     options.start_date = start_date
     options.end_date = end_date
     options.page = page
+
+    # TODO: maybe ignore appointment types that are not billable?
 
     report = Report::Appointments::Uninvoiced.make(current_business, options)
     appointments = report.results[:paginated_appointments]
@@ -79,11 +77,14 @@ class InvoiceBatchesController < ApplicationController
   end
 
   def send_email
-    # Implementation for sending batch emails
+    SendInvoiceBatchJob.perform_later(@invoice_batch.id, current_user.id)
+
+    redirect_back fallback_location: invoice_batches_path, notice: 'Invoice batch has been successfully scheduled for sending.'
   end
 
   def destroy
     @invoice_batch.destroy
+
     redirect_to invoice_batches_path, notice: 'Invoice batch was successfully deleted.'
   end
 
