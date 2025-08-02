@@ -1,0 +1,94 @@
+<% content_for :title, 'Batch invoice' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Batch invoice</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a href="<%= new_invoice_batch_path %>" class="btn btn-primary">+ New batch</a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+        <div class="table-responsive mt-20">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th style="width: 130px;">Batch number</th>
+                <th style="width: 200px;">Date range</th>
+                <th style="width: 200px;"># of appointments</th>
+                <th style="width: 120px;">Total amount</th>
+                <th style="width: 180px;">Created by</th>
+                <th style="width: 180px;">Created</th>
+                <th style="width: 100px;">Status</th>
+                <th class="text-left">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <% if @invoice_batches.any? %>
+                <% @invoice_batches.each do |batch| %>
+                <tr>
+                    <td>
+                    <a href="<%= invoice_batch_path(batch) %>"><%= batch.batch_number %></a>
+                    </td>
+                    <td>
+                    <%= batch.start_date&.strftime(t('date.common')) %> - <%= batch.end_date&.strftime(t('date.common')) %>
+                    </td>
+                    <td>
+                    <%= batch.appointments_count %>
+                    </td>
+                    <td>
+                    <%= format_money(batch.total_invoices_amount) %>
+                    </td>
+                    <td>
+                      <%= batch.author&.full_name %>
+                    </td>
+                    <td>
+                      <%= batch.created_at.strftime(t('datetime.common')) %>
+                    </td>
+                    <td>
+                      <%
+                        status_badge_class = {
+                          InvoiceBatch::STATUS_PENDING => 'label-warning',
+                          InvoiceBatch::STATUS_COMPLETE => 'label-primary',
+                          InvoiceBatch::STATUS_ERROR => 'label-danger'
+                        }[batch.status]
+                      %>
+                      <span class="label <%= status_badge_class%>">
+                        <%= batch.status %>
+                      </span>
+                    </td>
+                    <td class="text-left">
+                      <a href="<%= invoice_batch_path(batch) %>" class="btn btn-white">Details</a>
+                    </td>
+                </tr>
+                <% end %>
+            <% else %>
+              <tr>
+                <td colspan="7" class="text-muted">
+                    No batches found.
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="row mt-20">
+          <div class="col-md-6 text-xs-center">
+              <%= page_entries_info @invoice_batches, entry_name: 'batches' %>
+          </div>
+
+          <div class="col-md-6 text-right text-xs-center mt-xs-5">
+              <%= paginate @invoice_batches, theme: 'app' %>
+          </div>
+        </div>
+    </div>
+  </div>
+</section>

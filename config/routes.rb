@@ -309,6 +309,7 @@ Rails.application.routes.draw do
         post :import_fields
       end
     end
+
     resources :payments do
       collection do
         get :bulk
@@ -317,6 +318,7 @@ Rails.application.routes.draw do
         post :stripe_payment
       end
     end
+
     resources :appointments, only: [:index, :show, :destroy] do
       collection do
         post :bulk_mark_invoice_not_required
@@ -371,6 +373,17 @@ Rails.application.routes.draw do
     resources :business_invoices, only: [:show] do
       member do
         get :billed_items
+      end
+    end
+
+    resources :invoice_batches do
+      collection do
+        get :uninvoiced_appointments_search
+      end
+
+      member do
+        get :invoices
+        post :send_email
       end
     end
 

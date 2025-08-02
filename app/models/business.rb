@@ -65,6 +65,7 @@ class Business < ApplicationRecord
 
   has_many :patients
   has_many :invoices
+  has_many :invoice_batches
   has_many :payments
   has_many :posts, through: :practitioners
   has_many :reviews, through: :practitioners

@@ -1,0 +1,351 @@
+<% content_for :title, 'Batch invoice' %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Batch invoice</h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <a href="<%= invoice_batches_path %>" class="btn btn-white">Back to list</a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div id="js-create-batch-vue-component">
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Search uninvoiced appointments
+      </div>
+      <div class="panel-body">
+        <form @submit.prevent="searchAppointments">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Appointment date *</label>
+                <div class="input-group">
+                  <input type="text"
+                    v-model="filters.start_date"
+                    name="start_date"
+                    class="form-control js-datepicker"
+                    required />
+                  <span class="input-group-addon input-group-addon-middle">to</span>
+                  <input type="text"
+                    v-model="filters.end_date"
+                    name="end_date"
+                    class="form-control js-datepicker"
+                    required />
+                  <div class="input-group-btn">
+                    <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <% today = Date.current %>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_week %>" data-end-date="<%= today.end_of_week %>">This week</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today.beginning_of_month %>" data-end-date="<%= today.end_of_month %>">This month</a></li>
+                      <li role="separator" class="divider"></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today.last_week.beginning_of_week %>" data-end-date="<%= today.last_week.end_of_week %>">Last week</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today.last_month.beginning_of_month %>" data-end-date="<%= today.last_month.end_of_month %>">Last month</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today - 7 %>" data-end-date="<%= today %>">Last 7 days</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today - 30 %>" data-end-date="<%= today %>">Last 30 days</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today - 60 %>" data-end-date="<%= today %>">Last 60 days</a></li>
+                      <li><a href="#" js-btn-date-range data-start-date="<%= today - 90 %>" data-end-date="<%= today %>">Last 90 days</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>&nbsp;</label><br>
+                <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                  <i class="fa fa-spinner fa-spin" v-if="isLoading"></i>
+                  <i class="fa fa-search" v-if="!isLoading"></i>
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div v-if="hasSearched" class="panel panel-default">
+      <div class="panel-body">
+        You have selected <span class="fw-600">{{ selectedCount }} appointments</span> <button type="button" class="btn btn-primary" :disabled="selectedCount < 1" @click="showCreateModal">Continue</button>
+        <hr>
+
+        <div v-if="appointments.length === 0" class="text-muted mt-15">
+          No uninvoiced appointments found for the selected date range.
+        </div>
+        <div v-else>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th style="width: 50px;">
+                  <input type="checkbox"
+                         :checked="isAllCurrentPageSelected"
+                         @change="toggleAllCurrentPage">
+                </th>
+                <th>Date</th>
+                <th>Patient</th>
+                <th>Practitioner</th>
+                <th>Appointment type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="appointment in appointments" :key="appointment.id">
+                <td>
+                  <input type="checkbox"
+                         :value="appointment.id"
+                         v-model="selectedAppointmentIds">
+                </td>
+                <td>{{ appointment.start_time | shortDateTime }}</td>
+                <td>{{ appointment.patient_name }}</td>
+                <td>{{ appointment.practitioner_name }}</td>
+                <td>{{ appointment.appointment_type }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          <div v-if="pagination.total_pages > 1" class="text-right">
+            <ul class="app-pagination">
+              <li :class="{ disabled: pagination.current_page === 1 }">
+                <a href="#" @click.prevent="goToPage(pagination.current_page - 1)">Prev</a>
+              </li>
+              <li v-for="page in visiblePages"
+                  :key="page"
+                  :class="{ active: page === pagination.current_page }">
+                <a href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+              </li>
+              <li :class="{ disabled: pagination.current_page === pagination.total_pages }">
+                <a href="#" @click.prevent="goToPage(pagination.current_page + 1)">Next</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Batch Modal -->
+    <div class="modal fade" id="createBatchModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form @submit.prevent="createBatch">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title">Create batch invoices</h4>
+            </div>
+            <div class="modal-body">
+              <p>You're about to create a batch of <strong>{{ selectedCount }}</strong> invoices.</p>
+
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea v-model="batchNotes"
+                          class="form-control"
+                          rows="3"
+                          ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-white" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary" :disabled="isCreating">
+                <span v-if="isCreating"><i class="fa fa-spinner fa-spin"></i> Creating...</span>
+                <span v-else>Create</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= content_for :page_js do %>
+<script>
+  (function() {
+    new Vue({
+      el: '#js-create-batch-vue-component',
+      data: {
+        filters: {
+          start_date: moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+          end_date: moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
+        },
+        appointments: [],
+        pagination: {
+          current_page: 1,
+          total_pages: 1,
+          total_count: 0
+        },
+        selectedAppointmentIds: [],
+        isLoading: false,
+        hasSearched: false,
+        batchNotes: '',
+        isCreating: false
+      },
+      filters: {
+        formatAppointmentTime: function(dateStr, tz) {
+          return moment.parseZone(dateStr).tz(tz || App.timezone).format('ddd, DD MMM');
+        }
+      },
+      computed: {
+        selectedCount: function() {
+          return this.selectedAppointmentIds.length;
+        },
+        isAllCurrentPageSelected: function() {
+          if (this.appointments.length === 0) return false;
+          var currentPageIds = this.appointments.map(function(a) { return a.id; });
+          var vm = this;
+          return currentPageIds.every(function(id) {
+            return vm.selectedAppointmentIds.indexOf(id) !== -1;
+          });
+        },
+        visiblePages: function() {
+          var pages = [];
+          var start = Math.max(1, this.pagination.current_page - 2);
+          var end = Math.min(this.pagination.total_pages, this.pagination.current_page + 2);
+
+          for (var i = start; i <= end; i++) {
+            pages.push(i);
+          }
+          return pages;
+        }
+      },
+      mounted: function() {
+        this.initializeDatepickers();
+      },
+      methods: {
+        initializeDatepickers: function() {
+          var vm = this;
+          $('.js-datepicker').flatpickr({
+            dateFormat: 'Y-m-d',
+            altFormat: "d M Y",
+            altInput: true,
+            allowInput: true,
+            onChange: function(selectedDates, dateStr, instance) {
+              var field = instance.element.getAttribute('v-model').split('.')[1];
+              vm.filters[field] = dateStr;
+            }
+          });
+
+          // Set initial values for the datepickers
+          $('[name="start_date"]').get(0)._flatpickr.setDate(vm.filters.start_date);
+          $('[name="end_date"]').get(0)._flatpickr.setDate(vm.filters.end_date);
+
+          $('[js-btn-date-range]').on('click', function(e) {
+            e.preventDefault();
+            const $btn = $(this);
+            const selectedStartDate = $btn.data('start-date');
+            const selectedEndDate = $btn.data('end-date');
+            $btn.closest('.input-group').find('[name="start_date"]').get(0)._flatpickr.setDate(selectedStartDate);
+            $btn.closest('.input-group').find('[name="end_date"]').get(0)._flatpickr.setDate(selectedEndDate);
+            vm.filters.start_date = selectedStartDate;
+            vm.filters.end_date = selectedEndDate;
+          });
+        },
+        searchAppointments: function() {
+          if (!this.filters.start_date || !this.filters.end_date) {
+            alert('Both start date and end date are required.');
+            return;
+          }
+
+          // Reset selections when searching
+          this.selectedAppointmentIds = [];
+          this.pagination.current_page = 1;
+          this.loadAppointments();
+        },
+        loadAppointments: function() {
+          var vm = this;
+          vm.isLoading = true;
+
+          $.ajax({
+            url: '<%= uninvoiced_appointments_search_invoice_batches_path %>',
+            method: 'GET',
+            data: {
+              start_date: vm.filters.start_date,
+              end_date: vm.filters.end_date,
+              page: vm.pagination.current_page
+            },
+            success: function(response) {
+              vm.appointments = response.appointments;
+              vm.pagination = response.pagination;
+              vm.hasSearched = true;
+            },
+            error: function(xhr) {
+              if (xhr.responseJSON && xhr.responseJSON.error) {
+                alert('Error: ' + xhr.responseJSON.error);
+              } else {
+                alert('An error occurred while searching appointments.');
+              }
+            },
+            complete: function() {
+              vm.isLoading = false;
+            }
+          });
+        },
+        toggleAllCurrentPage: function() {
+          var currentPageIds = this.appointments.map(function(a) { return a.id; });
+          var vm = this;
+
+          if (this.isAllCurrentPageSelected) {
+            // Remove all current page IDs from selection
+            currentPageIds.forEach(function(id) {
+              var index = vm.selectedAppointmentIds.indexOf(id);
+              if (index !== -1) {
+                vm.selectedAppointmentIds.splice(index, 1);
+              }
+            });
+          } else {
+            // Add all current page IDs to selection
+            currentPageIds.forEach(function(id) {
+              if (vm.selectedAppointmentIds.indexOf(id) === -1) {
+                vm.selectedAppointmentIds.push(id);
+              }
+            });
+          }
+        },
+        goToPage: function(page) {
+          if (page < 1 || page > this.pagination.total_pages || page === this.pagination.current_page) {
+            return;
+          }
+          this.pagination.current_page = page;
+          this.loadAppointments();
+        },
+        showCreateModal: function() {
+          $('#createBatchModal').modal('show');
+        },
+        createBatch: function() {
+          var vm = this;
+          vm.isCreating = true;
+
+          $.ajax({
+            url: '<%= invoice_batches_path %>',
+            method: 'POST',
+            data: {
+              invoice_batch: {
+                start_date: vm.filters.start_date,
+                end_date: vm.filters.end_date,
+                notes: vm.batchNotes,
+                appointment_ids: vm.selectedAppointmentIds
+              }
+            },
+            success: function(response) {
+              window.location.href = '<%= invoice_batches_path %>';
+            },
+            error: function(xhr) {
+              alert('An error occurred while creating the batch.');
+            },
+            complete: function() {
+              vm.isCreating = false;
+            }
+          });
+        }
+      }
+    });
+  })();
+</script>
+<% end %>

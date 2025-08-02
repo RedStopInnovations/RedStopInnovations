@@ -1,0 +1,128 @@
+<% content_for :title, "Batch invoice #{@invoice_batch.batch_number}" %>
+
+<section class="box-header">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>Batch invoice <span class="text-copyable" js-click-to-copy="<%= @invoice_batch.batch_number %>"><%= @invoice_batch.batch_number %></span></h1>
+    </div>
+
+    <div class="text-right col-xs-6">
+      <button type="button" class="btn btn-white"><i class="fa fa-envelope-o"></i> Email invoices</button>
+      <a href="<%= invoice_batches_path %>" class="btn btn-white">Back to list</a>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Details
+        </div>
+        <div class="panel-body">
+          <div class="block-info">
+            <strong>Number:</strong>
+            <p><%= @invoice_batch.batch_number %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Date range:</strong>
+            <p><%= @invoice_batch.start_date.strftime(t('date.common')) %> - <%= @invoice_batch.end_date.strftime(t('date.common')) %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Status:</strong>
+            <p><%= @invoice_batch.status %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Appointments:</strong>
+            <p><%= @invoice_batch.appointments_count %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Invoices created:</strong>
+            <p><%= @invoice_batch.invoices_count %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Total invoices amount:</strong>
+            <p><%= format_money(@invoice_batch.total_invoices_amount) %></p>
+          </div>
+
+          <div class="block-info">
+            <strong>Created:</strong>
+            <p>
+                <%= @invoice_batch.created_at.strftime(t('datetime.common')) %>
+                <span class="text-muted">by</span>
+                <span><%= @invoice_batch.author&.full_name %></span>
+            </p>
+          </div>
+
+          <div class="block-info">
+            <strong>Notes:</strong>
+            <p>
+                <% if @invoice_batch.notes.present? %>
+                    <%= @invoice_batch.notes %>
+                <% else %>
+                    <span class="text-muted">--</span>
+                <% end %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Items (<%= @invoice_batch.invoice_batch_items.count %>)
+    </div>
+
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Appointment</th>
+              <th>Client</th>
+              <th>Invoice</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @invoice_batch.invoice_batch_items.includes(appointment: [:patient], invoice: [:invoice_to_contact]).each do |item| %>
+              <tr>
+                <td>
+                  <a href="<%= appointment_path(item.appointment) %>">
+                    <%= item.appointment.start_time.strftime(t('date.common')) %>
+                  </a>
+                </td>
+                <td>
+                  <a href="<%= patient_path(item.appointment.patient) %>">
+                    <%= item.appointment.patient.full_name %>
+                  </a>
+                </td>
+                <td>
+                  <% if item.invoice %>
+                    <a href="<%= invoice_path(item.invoice) %>"><%= item.invoice.invoice_number %></a>
+                  <% else %>
+                    <span class="text-muted">Not created</span>
+                  <% end %>
+                </td>
+                <td>
+                    <%= item.status %>
+                </td>
+                <td>
+                    <%= item.notes %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

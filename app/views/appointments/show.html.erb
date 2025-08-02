@@ -221,7 +221,7 @@
             <ul class="list-unstyled">
               <% @invoices.each do |invoice| %>
               <li>
-                <a href="<%= invoice_path(invoice) %>">#<%= invoice.invoice_number %></a> <span class="text-muted"> | </span> <span>Amount: <%= format_money(invoice.amount) %></span> <span class="text-muted"> | </span>
+                <a href="<%= invoice_path(invoice) %>"><%= invoice.invoice_number %></a> <span class="text-muted"> | </span> <span>Amount: <%= format_money(invoice.amount) %></span> <span class="text-muted"> | </span>
                 <span>Created: <%= invoice.created_at.strftime(t('date.common')) %></span> <span class="text-muted"> | </span> <a href="<%= invoice_path(invoice) %>">View</a>
               </li>
               <% end %>
@@ -305,7 +305,7 @@
         <div class="panel-body">
           <% if @appointment.patient_case.present? %>
             <% kase = @appointment.patient_case %>
-            <%= kase.case_type&.title %> - <%= kase.status %> <span class="text-muted"> | </span> <a href="<%= patient_case_path(kase.patient_id, kase.id) %>">View</a>
+            <%= kase.case_number %> (<%= kase.status %>) <span class="text-muted"> | </span> <a href="<%= patient_case_path(kase.patient_id, kase.id) %>">View</a>
           <% else %>
             <span class="text-muted">Not added</span>
           <% end %>

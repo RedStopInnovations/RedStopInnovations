@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_31_051420) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_31_085431) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -875,6 +875,35 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_31_051420) do
     t.string "receiver"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "invoice_batch_items", force: :cascade do |t|
+    t.integer "invoice_batch_id", null: false
+    t.integer "invoice_id"
+    t.integer "appointment_id", null: false
+    t.string "status", null: false
+    t.string "notes"
+    t.index ["appointment_id"], name: "index_invoice_batch_items_on_appointment_id"
+    t.index ["invoice_batch_id"], name: "index_invoice_batch_items_on_invoice_batch_id"
+  end
+
+  create_table "invoice_batches", force: :cascade do |t|
+    t.integer "business_id", null: false
+    t.string "batch_number", null: false
+    t.text "notes"
+    t.date "start_date"
+    t.date "end_date"
+    t.jsonb "options"
+    t.string "status", null: false
+    t.integer "author_id", null: false
+    t.integer "invoices_count", default: 0, null: false
+    t.integer "appointments_count", default: 0, null: false
+    t.float "total_invoices_amount", default: 0.0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["batch_number"], name: "index_invoice_batches_on_batch_number"
+    t.index ["business_id"], name: "index_invoice_batches_on_business_id"
   end
 
   create_table "invoice_claims", id: :serial, force: :cascade do |t|
