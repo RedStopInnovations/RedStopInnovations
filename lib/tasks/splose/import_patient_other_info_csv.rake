@@ -2,7 +2,7 @@ require 'csv'
 require 'json'
 
 namespace :splose do |args|
-  # bin/rails splose:import_patient_other_info_csv business_id=1 csv=/path/to/file.csv
+  # bin/rails splose:import_patient_other_info_csv business_id=1 force_update=1 csv=/path/to/file.csv
   task import_patient_other_info_csv: :environment do
     def log(what)
       puts what
@@ -114,7 +114,8 @@ namespace :splose do |args|
 
             # Update patient with the new data
             if update_attrs.any?
-              patient.update!(update_attrs)
+              patient.assign_attributes(update_attrs)
+              patient.save!(validate: false)
 
               @total_updates += 1
               log "Updated patient #{patient.full_name} (ID: #{patient.id}, Splose ID: #{splose_patient_id})"

@@ -23,6 +23,9 @@ namespace :splose do |args|
       internal_attrs[:postcode] = splose_attrs['postalCode'].presence
       internal_attrs[:state] = splose_attrs['state'].presence
 
+      internal_attrs[:profession] = splose_attrs['profession'].presence
+      internal_attrs[:provider_number] = splose_attrs['providerNumber'].presence
+
       country_code = ISO3166::Country.find_country_by_any_name(splose_attrs['country'].presence || 'Australia')&.alpha2
       internal_attrs[:country] = country_code
 
