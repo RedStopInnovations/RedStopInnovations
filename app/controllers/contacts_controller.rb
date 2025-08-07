@@ -184,6 +184,7 @@ class ContactsController < ApplicationController
 
   def contact_params
     params.require(:contact).permit(
+      :contact_type,
       :business_name,
       :title,
       :first_name,

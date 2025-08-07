@@ -1,5 +1,6 @@
 json.extract! contact,
               :id,
+              :contact_type,
               :business_name,
               :title,
               :first_name,

@@ -16,8 +16,6 @@ class PatientsController < ApplicationController
     :update_important_notification,
     :contacts,
     :credit_card_info,
-    :edit_associate_contacts,
-    :update_associate_contacts,
     :edit_payment_methods,
     :update_payment_methods,
   ]
@@ -223,35 +221,6 @@ class PatientsController < ApplicationController
 
   def edit_access
     authorize! :manage_access, @patient
-    respond_to do |f|
-      f.js
-    end
-  end
-
-  def edit_associate_contacts
-    authorize! :update, @patient
-    @patient.preload_tagged_contacts
-    respond_to do |f|
-      f.js
-    end
-  end
-
-  def update_associate_contacts
-    authorize! :update, @patient
-
-    @patient.assign_attributes(params.require(:patient).permit(
-      doctor_contact_ids: [],
-      specialist_contact_ids: [],
-      referrer_contact_ids: [],
-      invoice_to_contact_ids: [],
-      emergency_contact_ids: [],
-      other_contact_ids: []
-    ))
-    # @TODO: use a form class for validation
-    @patient.save!(validate: false)
-
-    flash[:notice]= 'The associate contacts has been successfully updated.'
-
     respond_to do |f|
       f.js
     end
