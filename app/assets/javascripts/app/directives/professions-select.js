@@ -2,6 +2,8 @@
   var PROFESSIONS = [
     "Physiotherapist",
     "Podiatrist",
+    "Physical Therapist",
+    "Chiropodist",
     "Occupational Therapist",
     "Psychologist",
     "Dietitian",
@@ -18,7 +20,15 @@
     "Support Worker",
     "Acupuncturist",
     "Osteopath",
-    "Chiropractor"
+    "Chiropractor",
+    "Diabetes Educator",
+    "Optometrist",
+    "Clinical Psychology",
+    "Behaviour Support",
+    "Art Therapist",
+    "Music Therapist",
+    "Paediatric Physiotherapist",
+    "Hand Therapist",
   ];
   Vue.directive('profession-select', {
     bind: function(el, binding, vnode) {

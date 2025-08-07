@@ -81,7 +81,7 @@
                   name="profession"
                   class="form-control"
                   v-model="waitListData.profession"
-                  v-profession-select="business.professions"
+                  v-profession-select
                   >
                 <option value="" selected>-- Select one --</option>
                 </select>
@@ -107,7 +107,7 @@
 
           <div class="form-group">
             <div class="row">
-              <label class="col-md-3 col-xs-12">Appointment</label>
+              <label class="col-md-3 col-xs-12">Appt. type</label>
               <div class="col-md-9 col-xs-12">
                 <v-multiselect
                   v-model="selectedAppointmentType"
