@@ -342,11 +342,7 @@ Rails.application.routes.draw do
     end
     resources :appointment_types
     resources :billable_items
-    resources :treatment_templates do
-      member do
-        get :sections_form
-      end
-    end
+    resources :treatment_templates
     resource :business_profile, controller: :business_profile, only: [:edit, :update]
     resources :products
     resources :communications, except: [:edit, :update]

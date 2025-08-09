@@ -1,243 +1,1019 @@
 <section class="new_template_container" id="form-template-wrap">
-<form
-  action="<%= treatment_template.new_record? ? treatment_templates_path : treatment_template_path(treatment_template) %>"
-  id="form-template"
-  method="<%= treatment_template.new_record? ? 'POST' : 'PUT' %>"
-  @submit.prevent="onSubmit"
-  ref="form">
-  <h4>Template Details:</h4>
-  <div class="box">
-    <div class="row">
-      <div class="col-md-12">
-        <label>Template name:</label>
-        <input type="text" class="form-control" v-model="template.name">
-      </div>
-    </div>
-    <br>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label>Approved users:</label>
-          <select name="user_ids[]" multiple id="input-user-ids">
-            <%= options_from_collection_for_select current_business.users.active.select(:full_name, :id), :id, :full_name, treatment_template.user_ids %>
-          </select>
-          <span class="help-block">Select users who have access to this template.</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= form_with model: treatment_template, local: true, id: "form-template" do |form| %>
+        <%= form.hidden_field :_method, value: treatment_template.new_record? ? 'post' : 'patch' if !treatment_template.new_record? %>
 
-  <h4>Template form:</h4>
-  <div class="box treatment-template">
-
-    <div class="section-group">
-      <draggable
-        v-model="template.template_sections"
-        :options="{ draggable: '.panel', handle: '.btn-sort-section'}"
-        >
-        <div class="panel panel-default panel-section"
-            v-for="(section, s_idx) in template.template_sections">
-
-          <!-- Section heading -->
-          <div class="panel-heading">
-            <div class="row">
-              <div class="col-md-9 col-xs-8">
-                <label>Section title</label>
-                <input type="text"
-                    class="form-control"
-                    name="treatment_template[template_sections][][name]"
-                    v-model="section.name">
-              </div>
-              <div class="col-md-3 col-xs-4 text-right">
-                <button class="btn btn-white btn-sm"
-                  type="button"
-                  @click="removeSection(section)">
-                  <i class="fa fa-trash text-danger"></i>
-                </button>
-                <span class="btn btn-white btn-sm btn-sort-section" type="button">
-                  <i class="fa fa-arrows"></i>
-                </span>
-
-                <div class="dropdown" style="display: inline-block;">
-                  <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-right">
-                    <li><a href="#" @click.prevent="moveSectionTop(section)"><i class="fa fa-angle-double-up"></i>Move to top</a></li>
-                    <li><a href="#" @click.prevent="moveSectionUp(section)"><i class="fa fa-angle-up"></i>Move up</a></li>
-                    <li><a href="#" @click.prevent="moveSectionDown(section)"><i class="fa fa-angle-down"></i>Move down</a></li>
-                    <li><a href="#" @click.prevent="moveSectionBottom(section)"><i class="fa fa-angle-double-down"></i>Move to bottom</a></li>
-                  </ul>
-                </div>
-              </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <%= form.text_field :name, placeholder: 'Template name', class: "form-control", value: treatment_template.name %>
             </div>
           </div>
-
-          <!-- Questions -->
-          <div class="panel-body">
-            <div class="question-group">
-              <draggable
-                v-model="section.questions"
-                :options="{ draggable: '.box-question', handle: '.btn-sort-question'}">
-                <div class="box-question"
-                  v-for="(question, q_idx) in section.questions">
-                  <div class="row">
-                    <div class="col-md-7">
-                      <label>Question title</label>
-                      <input type="text"
-                        class="form-control"
-                        v-model="question.name"
-                        >
-                    </div>
-                    <div class="col-md-2">
-                      <label>Type</label>
-                      <select
-                        class="form-control"
-                        v-model="question.type"
-                        @change="onQuestionTypeChanged(question)"
-                        >
-                        <option value="Text">Text</option>
-                        <option value="Paragraph">Paragraph</option>
-                        <option value="Checkboxes">Checkboxes</option>
-                        <option value="Radiobuttons">Radiobuttons</option>
-                        <option value="Integer">Integer</option>
-                        <option value="Multiselect">Multiselect</option>
-                      </select>
-                    </div>
-                    <div class="col-md-1">
-                      <label :for="'section_' + s_idx + '_question_' + q_idx + '_required'" class="control-label">Required</label>
-                      <div class="check-box">
-                        <input type="checkbox"
-                          v-model="question.required"
-                          :true-value="'1'"
-                          :false-value="'0'"
-                          :id="'section_' + s_idx + '_question_' + q_idx + '_required'"
-                          />
-                        <label :for="'section_' + s_idx + '_question_' + q_idx + '_required'"></label>
-                      </div>
-                    </div>
-
-                    <div class="col-md-2 text-left">
-                      <label>&nbsp;</label><br>
-                      <button class="btn btn-white" type="button"
-                        @click="removeQuestion(section, question)">
-                        <i class="fa fa-trash text-danger"></i>
-                      </button>
-                      <span class="btn btn-white btn-sort-question" type="button">
-                        <i class="fa fa-arrows"></i>
-                      </span>
-                      <div class="dropdown" style="display: inline-block;">
-                        <button class="btn btn-white dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="caret"></span></button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                          <li><a href="#" @click.prevent="moveQuestionTop(section, question)"><i class="fa fa-angle-double-up"></i>Move to top</a></li>
-                          <li><a href="#" @click.prevent="moveQuestionUp(section, question)"><i class="fa fa-angle-up"></i>Move up</a></li>
-                          <li><a href="#" @click.prevent="moveQuestionDown(section, question)"><i class="fa fa-angle-down"></i>Move down</a></li>
-                          <li><a href="#" @click.prevent="moveQuestionBottom(section, question)"><i class="fa fa-angle-double-down"></i>Move to bottom</a></li>
-                        </ul>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <!-- Answers -->
-                  <div class="row answer-wrap">
-                    <div class="col-md-10 col-xs-12">
-                      <div v-if="question.type === 'Paragraph'">
-                        <label>Default answer</label>
-                        <textarea
-                          class="form-control"
-                          rows="2"
-                          name="treatment_template[template_sections][][questions][][answer][content]"
-                          v-model="question.answer.content"
-                        ></textarea>
-                      </div>
-
-                      <div v-if="question.type === 'Checkboxes' || question.type === 'Radiobuttons'">
-                        <label>Answers</label>
-                        <div class="list-answers">
-                          <draggable
-                            v-model="question.answers"
-                            :options="{ draggable: '.box-answer', handle: '.btn-sort-answer'}">
-                            <div v-for="answer in question.answers" class="box-answer">
-                              <div class="row">
-                                <div class="col-xs-10">
-                                  <div class="input-group">
-                                    <span class="input-group-addon">
-                                      <input type="checkbox" readonly="true" disabled="disabled" v-if="question.type === 'Checkboxes'">
-                                      <input type="radio" readonly="true" disabled="disabled" v-if="question.type === 'Radiobuttons'">
-                                    </span>
-                                    <input
-                                      class="form-control"
-                                      type="text"
-                                      name="treatment_template[template_sections][][questions][][answers][][content]"
-                                      v-model="answer.content"
-                                      />
-                                    </div>
-                                </div>
-                                <div class="col-xs-2 text-left">
-                                  <button class="btn btn-white btn-sm" type="button"
-                                    @click="removeAnswer(question, answer)">
-                                    <i class="fa fa-trash text-danger"></i>
-                                  </button>
-                                  <span class="btn btn-white btn-sm btn-sort-answer" type="button">
-                                    <i class="fa fa-arrows"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </draggable>
-                        </div>
-                        <button class="btn btn-muted btn-sm"
-                          type="button"
-                          @click="addAnswer(question)">Add answer</button>
-                      </div>
-
-                      <div v-if="question.type === 'Multiselect'">
-                        <label>Selections</label>
-                        <div class="list-answers">
-                          <v-multiselect
-                            v-model="question.answers"
-                            :options="question.answers"
-                            :taggable="true"
-                            tag-placeholder="Add this as new selection"
-                            placeholder="Type to add a selection"
-                            label="content"
-                            track-by="content"
-                            :multiple="true"
-                            :hide-selected="true"
-                            :show-no-results="false"
-                            :close-on-select="false"
-                            class="multiselect-selections theme-gray"
-                            @tag="onAddSelection($event, question)"
-                            ></v-multiselect>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </draggable>
-
-            </div>
-          </div>
-          <div class="panel-footer">
-            <button class="btn btn-white" type="button" @click="addQuestion(section)">Add question</button>
-          </div>
         </div>
-      </draggable>
-    </div>
 
-    <button class="btn btn-white btn-add-item" type="button" @click="addSection()">Add section</button>
-  </div>
+        <div class="tiptap-editor-container">
+          <div class="tiptap-toolbar" id="js-treatment-note-toolbar"></div>
+          <div id="js-treatment-note-template-editor" class="tiptap-editor"></div>
+          <%= form.hidden_field :content, id: "js-treatment-template-content" %>
+          <%= form.hidden_field :html_content, id: "js-treatment-template-html-content" %>
+        </div>
 
-
-  <div class="row">
-    <div class="col-md-12">
-      <button class="btn btn-primary" type="submit" :disabled="busy">Save template</button>
-      <a class="btn btn-white" href="<%= treatment_template.new_record? ? treatment_templates_path : treatment_template_path(treatment_template) %>">Cancel</a>
-    </div>
-  </div>
-
-</form>
-
+        <div class="mt-15">
+          <button type="submit" class="btn btn-primary">Save template</button>
+          <a href="/treatment_templates" class="btn btn-white">Cancel</a>
+        </div>
+      <% end %>
 </section>
+
+<%= content_for :page_css do %>
+<style>
+  .tiptap-editor-container {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .tiptap-toolbar {
+    background: #f9fafb;
+    border-bottom: 1px solid #d1d5db;
+    padding: 8px 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .toolbar-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: #d1d5db;
+    margin: 0 4px;
+  }
+
+  .tiptap-toolbar button {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 6px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+  }
+
+  .tiptap-toolbar button:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  .tiptap-toolbar button.is-active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+
+  .tiptap-toolbar select {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 120px;
+    height: 32px;
+  }
+
+  .tiptap-toolbar select:hover {
+    border-color: #9ca3af;
+  }
+
+  .tiptap-toolbar select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Bootstrap Dropdown Styles */
+  .toolbar-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .toolbar-dropdown .btn {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    color: #374151;
+  }
+
+  .toolbar-dropdown .btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  .toolbar-dropdown .btn:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  .toolbar-dropdown .caret {
+    margin-left: 8px;
+  }
+
+  .toolbar-dropdown .dropdown-menu {
+    min-width: 120px;
+    font-size: 14px;
+  }
+
+  .toolbar-dropdown .dropdown-menu > li > a {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .toolbar-dropdown .dropdown-menu > li.active > a {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .color-picker {
+    position: relative;
+    display: inline-block;
+  }
+
+  .color-picker button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .color-picker button:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  .color-picker-popup {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 200px;
+    display: none;
+  }
+
+  .color-picker-popup.show {
+    display: block;
+  }
+
+  .color-picker-title {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #374151;
+  }
+
+  .color-swatches {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+
+  .color-swatch:hover {
+    transform: scale(1.1);
+    border-color: #374151;
+  }
+
+  .color-picker-reset {
+    width: 100%;
+    padding: 6px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+  }
+
+  .color-picker-reset:hover {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+  }
+
+  .tiptap-editor {
+    padding: 16px;
+    min-height: 200px;
+    outline: none;
+  }
+
+  .tiptap-editor .ProseMirror {
+    outline: none;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .tiptap-editor h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 0.67em 0;
+  }
+
+  .tiptap-editor h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0.75em 0;
+  }
+
+  .tiptap-editor h3 {
+    font-size: 1.17em;
+    font-weight: bold;
+    margin: 0.83em 0;
+  }
+
+  .tiptap-editor h4 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 1.12em 0;
+  }
+
+  .tiptap-editor ul, .tiptap-editor ol {
+    margin: 1em 0;
+    padding-left: 2em;
+  }
+
+  .tiptap-editor blockquote {
+    border-left: 4px solid #d1d5db;
+    padding-left: 1em;
+    margin: 1em 0;
+    font-style: italic;
+    color: #6b7280;
+  }
+
+  .tiptap-editor code {
+    background: #f3f4f6;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+
+  .tiptap-editor pre {
+    background: #f3f4f6;
+    padding: 1em;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1em 0;
+  }
+
+  .tiptap-editor pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .tiptap-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+
+  .tiptap-editor table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+  }
+
+  .tiptap-editor table td,
+  .tiptap-editor table th {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  .tiptap-editor table th {
+    background: #f9fafb;
+    font-weight: bold;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] li {
+    display: flex;
+    align-items: flex-start;
+    margin: 0.25em 0;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] li > label {
+    margin-right: 0.5em;
+    user-select: none;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] li > div {
+    flex: 1;
+  }
+</style>
+<% end %>
+
 <%= content_for :page_js do %>
-  <%= render 'form_js', treatment_template: treatment_template %>
+<script type="module">
+    import { Editor } from 'https://esm.sh/@tiptap/core'
+    import StarterKit from 'https://esm.sh/@tiptap/starter-kit'
+    import { TextAlign } from 'https://esm.sh/@tiptap/extension-text-align'
+    import { Underline } from 'https://esm.sh/@tiptap/extension-underline'
+    import { TextStyle } from 'https://esm.sh/@tiptap/extension-text-style'
+    import { FontFamily } from 'https://esm.sh/@tiptap/extension-font-family'
+    import { Color } from 'https://esm.sh/@tiptap/extension-color'
+    import { Highlight } from 'https://esm.sh/@tiptap/extension-highlight'
+    import { Image } from 'https://esm.sh/@tiptap/extension-image'
+    import { Table } from 'https://esm.sh/@tiptap/extension-table'
+    import { TableRow } from 'https://esm.sh/@tiptap/extension-table-row'
+    import { TableHeader } from 'https://esm.sh/@tiptap/extension-table-header'
+    import { TableCell } from 'https://esm.sh/@tiptap/extension-table-cell'
+    import { TaskList } from 'https://esm.sh/@tiptap/extension-task-list'
+    import { TaskItem } from 'https://esm.sh/@tiptap/extension-task-item'
+    import { Link } from 'https://esm.sh/@tiptap/extension-link'
+
+    // Custom FontSize extension using textStyle
+    const FontSize = TextStyle.extend({
+        addAttributes() {
+            return {
+                fontSize: {
+                    default: null,
+                    parseHTML: element => element.style.fontSize.replace(/['"]+/g, ''),
+                    renderHTML: attributes => {
+                        if (!attributes.fontSize) {
+                            return {}
+                        }
+                        return {
+                            style: `font-size: ${attributes.fontSize}`,
+                        }
+                    },
+                },
+            }
+        },
+
+        addCommands() {
+            return {
+                setFontSize: fontSize => ({ chain }) => {
+                    return chain()
+                        .setMark('textStyle', { fontSize })
+                        .run()
+                },
+                unsetFontSize: () => ({ chain }) => {
+                    return chain()
+                        .setMark('textStyle', { fontSize: null })
+                        .run()
+                },
+            }
+        },
+    })
+
+    // Get existing content for editing
+    const hiddenInput = document.getElementById('js-treatment-template-content');
+    const htmlHiddenInput = document.getElementById('js-treatment-template-html-content');
+    const existingContent = hiddenInput ? hiddenInput.value : '';
+
+    let initialContent;
+    if (existingContent) {
+        try {
+            // Try to parse as JSON (for stored node content)
+            initialContent = JSON.parse(existingContent);
+        } catch (e) {
+            // Fallback to HTML string if not JSON
+            initialContent = existingContent;
+        }
+    } else {
+        initialContent = '<p>Start typing your template ...</p>';
+    }
+
+    // Initialize the editor
+    const editor = new Editor({
+        element: document.querySelector('#js-treatment-note-template-editor'),
+        extensions: [
+            StarterKit.configure({
+                // Disable Link from StarterKit to use our custom configuration
+                link: false,
+            }),
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            Underline,
+            FontSize,
+            FontFamily.configure({
+                types: ['textStyle'],
+            }),
+            Color.configure({
+                types: ['textStyle'],
+            }),
+            Highlight.configure({
+                multicolor: true,
+            }),
+            Image.configure({
+                inline: true,
+                allowBase64: true,
+            }),
+            Table.configure({
+                resizable: true,
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
+            TaskList,
+            TaskItem.configure({
+                nested: true,
+            }),
+            Link.configure({
+                openOnClick: false,
+            }),
+        ],
+        content: initialContent,
+        onUpdate: ({ editor }) => {
+            if (hiddenInput) {
+                // Store as JSON nodes instead of HTML
+                hiddenInput.value = JSON.stringify(editor.getJSON());
+            }
+            if (htmlHiddenInput) {
+                // Store as HTML for easy display/export
+                htmlHiddenInput.value = editor.getHTML();
+            }
+        }
+    });
+
+    const toolbar = document.getElementById('js-treatment-note-toolbar');
+
+    // Helper functions
+    function createButton(config) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerHTML = config.icon;
+        btn.title = config.title;
+        btn.addEventListener('click', config.action);
+
+        if (config.isActive) {
+            const updateState = () => {
+                btn.classList.toggle('is-active', config.isActive());
+            };
+            editor.on('selectionUpdate', updateState);
+            editor.on('transaction', updateState);
+            updateState();
+        }
+
+        return btn;
+    }
+
+    function createSelect(config) {
+        // Create Bootstrap dropdown
+        const dropdown = document.createElement('div');
+        dropdown.className = 'toolbar-dropdown dropdown';
+
+        const button = document.createElement('button');
+        button.className = 'btn btn-default dropdown-toggle';
+        button.type = 'button';
+        button.setAttribute('data-toggle', 'dropdown');
+        button.setAttribute('aria-haspopup', 'true');
+        button.setAttribute('aria-expanded', 'false');
+        button.title = config.title;
+
+        const buttonContent = document.createElement('span');
+        if (config.icon) {
+            buttonContent.innerHTML = config.icon;
+        } else {
+            buttonContent.textContent = config.options[0].label;
+        }
+
+        const caret = document.createElement('span');
+        caret.className = 'caret';
+
+        button.appendChild(buttonContent);
+        button.appendChild(caret);
+
+        const menu = document.createElement('ul');
+        menu.className = 'dropdown-menu';
+        menu.setAttribute('role', 'menu');
+
+        config.options.forEach(option => {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'presentation');
+
+            const a = document.createElement('a');
+            a.setAttribute('role', 'menuitem');
+            a.setAttribute('tabindex', '-1');
+            a.href = '#';
+            a.textContent = option.label;
+            a.setAttribute('data-value', option.value);
+
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                config.onChange(option.value);
+
+                if (!config.icon) {
+                    buttonContent.textContent = option.label;
+                }
+
+                // Update active state
+                menu.querySelectorAll('li').forEach(item => item.classList.remove('active'));
+                li.classList.add('active');
+            });
+
+            li.appendChild(a);
+            menu.appendChild(li);
+        });
+
+        dropdown.appendChild(button);
+        dropdown.appendChild(menu);
+
+        if (config.getCurrentValue) {
+            const updateValue = () => {
+                const currentValue = config.getCurrentValue();
+                const currentOption = config.options.find(opt => opt.value === currentValue) || config.options[0];
+
+                if (!config.icon) {
+                    buttonContent.textContent = currentOption.label;
+                }
+
+                // Update active state
+                menu.querySelectorAll('li').forEach((li, index) => {
+                    li.classList.toggle('active', config.options[index].value === currentValue);
+                });
+            };
+            editor.on('selectionUpdate', updateValue);
+            editor.on('transaction', updateValue);
+            updateValue();
+        }
+
+        return dropdown;
+    }    function createColorPicker(config) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'color-picker';
+        wrapper.title = config.title;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.innerHTML = config.icon;
+
+        const popup = document.createElement('div');
+        popup.className = 'color-picker-popup';
+
+        const title = document.createElement('div');
+        title.className = 'color-picker-title';
+        title.textContent = config.title;
+
+        const swatches = document.createElement('div');
+        swatches.className = 'color-swatches';
+
+        // Popular colors for the swatches
+        const colors = [
+            '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
+            '#ff0000', '#ff6600', '#ffcc00', '#33cc33', '#0066cc', '#6633cc',
+            '#ff3366', '#ff9933', '#ffff00', '#66ff66', '#3399ff', '#9966ff',
+            '#cc0000', '#cc6600', '#cccc00', '#00cc00', '#0000cc', '#6600cc',
+            '#990000', '#993300', '#999900', '#009900', '#000099', '#330099',
+            '#660000', '#663300', '#666600', '#006600', '#000066', '#330066'
+        ];
+
+        colors.forEach(color => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.title = color;
+            swatch.addEventListener('click', () => {
+                config.onChange(color);
+                popup.classList.remove('show');
+            });
+            swatches.appendChild(swatch);
+        });
+
+        const resetButton = document.createElement('button');
+        resetButton.className = 'color-picker-reset';
+        resetButton.type = 'button';
+        resetButton.innerHTML = '<i class="fa fa-eraser"></i>';
+        resetButton.title = config.resetText || 'Remove Color';
+        resetButton.addEventListener('click', () => {
+            config.onReset();
+            popup.classList.remove('show');
+        });
+
+        popup.appendChild(title);
+        popup.appendChild(swatches);
+        popup.appendChild(resetButton);
+
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close all other popups
+            document.querySelectorAll('.color-picker-popup.show').forEach(p => {
+                if (p !== popup) p.classList.remove('show');
+            });
+            // Toggle this popup
+            popup.classList.toggle('show');
+        });
+
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!wrapper.contains(e.target)) {
+                popup.classList.remove('show');
+            }
+        });
+
+        wrapper.appendChild(button);
+        wrapper.appendChild(popup);
+        return wrapper;
+    }
+
+    function createSeparator() {
+        const separator = document.createElement('div');
+        separator.className = 'toolbar-separator';
+        return separator;
+    }
+
+    function createGroup(items) {
+        const group = document.createElement('div');
+        group.className = 'toolbar-group';
+        items.forEach(item => group.appendChild(item));
+        return group;
+    }
+
+    // Group 1: Undo/Redo
+    const undoBtn = createButton({
+        icon: '<i class="fa fa-undo"></i>',
+        title: 'Undo',
+        action: () => editor.chain().focus().undo().run()
+    });
+
+    const redoBtn = createButton({
+        icon: '<i class="fa fa-repeat"></i>',
+        title: 'Redo',
+        action: () => editor.chain().focus().redo().run()
+    });
+
+    // Group 2: Font Family
+    const fontFamilySelect = createSelect({
+        title: 'Font Family',
+        icon: '<i class="fa fa-font"></i>',
+        options: [
+            { value: 'Arial', label: 'Arial' },
+            { value: 'Courier New', label: 'Courier New' },
+            { value: 'Georgia', label: 'Georgia' },
+            { value: 'Times New Roman', label: 'Times New Roman' }
+        ],
+        onChange: (value) => {
+            if (value === 'Arial') {
+                editor.chain().focus().unsetFontFamily().run();
+            } else {
+                editor.chain().focus().setFontFamily(value).run();
+            }
+        },
+        getCurrentValue: () => {
+            const fontFamily = editor.getAttributes('textStyle').fontFamily;
+            return fontFamily || 'Arial';
+        }
+    });
+
+    // Group 3: Font Size
+    const fontSizeSelect = createSelect({
+        title: 'Font Size',
+        icon: '<i class="fa fa-text-height"></i>',
+        options: [
+            { value: '10px', label: '10' },
+            { value: '12px', label: '12' },
+            { value: '14px', label: '14' },
+            { value: '16px', label: '16' },
+            { value: '18px', label: '18' },
+            { value: '20px', label: '20' },
+            { value: '22px', label: '22' },
+            { value: '24px', label: '24' },
+            { value: '36px', label: '36' },
+            { value: '72px', label: '72' }
+        ],
+        onChange: (value) => {
+            editor.chain().focus().setFontSize(value).run();
+        },
+        getCurrentValue: () => {
+            const fontSize = editor.getAttributes('textStyle').fontSize;
+            return fontSize || '14px';
+        }
+    });
+
+    // Group 4: Headings
+    const headingSelect = createSelect({
+        title: 'Heading Style',
+        icon: '<i class="fa fa-header"></i>',
+        options: [
+            { value: 'paragraph', label: 'Paragraph' },
+            { value: '1', label: 'Heading 1' },
+            { value: '2', label: 'Heading 2' },
+            { value: '3', label: 'Heading 3' },
+            { value: '4', label: 'Heading 4' }
+        ],
+        onChange: (value) => {
+            if (value === 'paragraph') {
+                editor.chain().focus().setParagraph().run();
+            } else {
+                editor.chain().focus().toggleHeading({ level: parseInt(value) }).run();
+            }
+        },
+        getCurrentValue: () => {
+            if (editor.isActive('heading', { level: 1 })) return '1';
+            if (editor.isActive('heading', { level: 2 })) return '2';
+            if (editor.isActive('heading', { level: 3 })) return '3';
+            if (editor.isActive('heading', { level: 4 })) return '4';
+            return 'paragraph';
+        }
+    });
+
+    // Group 5: Lists
+    const listSelect = createSelect({
+        title: 'List Type',
+        icon: '<i class="fa fa-list"></i>',
+        options: [
+            { value: 'none', label: 'No List' },
+            { value: 'bullet', label: 'Bullet List' },
+            { value: 'ordered', label: 'Numbered List' },
+            { value: 'task', label: 'Task List' }
+        ],
+        onChange: (value) => {
+            switch(value) {
+                case 'bullet':
+                    editor.chain().focus().toggleBulletList().run();
+                    break;
+                case 'ordered':
+                    editor.chain().focus().toggleOrderedList().run();
+                    break;
+                case 'task':
+                    editor.chain().focus().toggleTaskList().run();
+                    break;
+                default:
+                    editor.chain().focus().liftListItem('listItem').run();
+            }
+        },
+        getCurrentValue: () => {
+            if (editor.isActive('bulletList')) return 'bullet';
+            if (editor.isActive('orderedList')) return 'ordered';
+            if (editor.isActive('taskList')) return 'task';
+            return 'none';
+        }
+    });
+
+    // Group 6: Formatting
+    const blockquoteBtn = createButton({
+        icon: '<i class="fa fa-quote-left"></i>',
+        title: 'Blockquote',
+        action: () => editor.chain().focus().toggleBlockquote().run(),
+        isActive: () => editor.isActive('blockquote')
+    });
+
+    const boldBtn = createButton({
+        icon: '<i class="fa fa-bold"></i>',
+        title: 'Bold',
+        action: () => editor.chain().focus().toggleBold().run(),
+        isActive: () => editor.isActive('bold')
+    });
+
+    const italicBtn = createButton({
+        icon: '<i class="fa fa-italic"></i>',
+        title: 'Italic',
+        action: () => editor.chain().focus().toggleItalic().run(),
+        isActive: () => editor.isActive('italic')
+    });
+
+    const underlineBtn = createButton({
+        icon: '<i class="fa fa-underline"></i>',
+        title: 'Underline',
+        action: () => editor.chain().focus().toggleUnderline().run(),
+        isActive: () => editor.isActive('underline')
+    });
+
+    const strikeBtn = createButton({
+        icon: '<i class="fa fa-strikethrough"></i>',
+        title: 'Strikethrough',
+        action: () => editor.chain().focus().toggleStrike().run(),
+        isActive: () => editor.isActive('strike')
+    });
+
+    const linkBtn = createButton({
+        icon: '<i class="fa fa-link"></i>',
+        title: 'Link',
+        action: () => {
+            const url = window.prompt('Enter URL:');
+            if (url) {
+                editor.chain().focus().setLink({ href: url }).run();
+            }
+        },
+        isActive: () => editor.isActive('link')
+    });
+
+    const clearFormatBtn = createButton({
+        icon: '<i class="fa fa-eraser"></i>',
+        title: 'Clear Formatting',
+        action: () => {
+            editor.chain().focus()
+                .unsetBold()
+                .unsetItalic()
+                .unsetUnderline()
+                .unsetStrike()
+                .unsetCode()
+                .unsetHighlight()
+                .unsetMark('textStyle')
+                .run();
+        }
+    });
+
+    // Group 7: Colors
+    const highlightColorPicker = createColorPicker({
+        title: 'Highlight color',
+        icon: '<i class="fa fa-paint-brush"></i>',
+        resetText: 'Remove highlight color',
+        onChange: (color) => editor.chain().focus().setHighlight({ color }).run(),
+        onReset: () => editor.chain().focus().unsetHighlight().run()
+    });
+
+    const textColorPicker = createColorPicker({
+        title: 'Text color',
+        icon: '<i class="fa fa-font" style="color: #333;"></i>',
+        resetText: 'Reset text color',
+        onChange: (color) => editor.chain().focus().setColor(color).run(),
+        onReset: () => editor.chain().focus().unsetMark('textStyle').run()
+    });
+
+    // Group 8: Media
+    const imageBtn = createButton({
+        icon: '<i class="fa fa-image"></i>',
+        title: 'Insert image',
+        action: () => {
+            const url = window.prompt('Enter image URL:');
+            if (url) {
+                editor.chain().focus().setImage({ src: url }).run();
+            }
+        }
+    });
+
+    const tableBtn = createButton({
+        icon: '<i class="fa fa-table"></i>',
+        title: 'Insert Table',
+        action: () => {
+            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+        }
+    });
+
+    // Group 9: Alignment
+    const alignLeftBtn = createButton({
+        icon: '<i class="fa fa-align-left"></i>',
+        title: 'Align Left',
+        action: () => editor.chain().focus().setTextAlign('left').run(),
+        isActive: () => editor.isActive({ textAlign: 'left' })
+    });
+
+    const alignCenterBtn = createButton({
+        icon: '<i class="fa fa-align-center"></i>',
+        title: 'Align Center',
+        action: () => editor.chain().focus().setTextAlign('center').run(),
+        isActive: () => editor.isActive({ textAlign: 'center' })
+    });
+
+    const alignRightBtn = createButton({
+        icon: '<i class="fa fa-align-right"></i>',
+        title: 'Align Right',
+        action: () => editor.chain().focus().setTextAlign('right').run(),
+        isActive: () => editor.isActive({ textAlign: 'right' })
+    });
+
+    const alignJustifyBtn = createButton({
+        icon: '<i class="fa fa-align-justify"></i>',
+        title: 'Justify',
+        action: () => editor.chain().focus().setTextAlign('justify').run(),
+        isActive: () => editor.isActive({ textAlign: 'justify' })
+    });
+
+    // Assemble toolbar with groups and separators
+    toolbar.appendChild(createGroup([undoBtn, redoBtn]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([fontFamilySelect]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([fontSizeSelect]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([headingSelect]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([listSelect]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([blockquoteBtn, boldBtn, italicBtn, underlineBtn, strikeBtn, clearFormatBtn]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([highlightColorPicker, textColorPicker]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([linkBtn, imageBtn, tableBtn]));
+    toolbar.appendChild(createSeparator());
+    toolbar.appendChild(createGroup([alignLeftBtn, alignCenterBtn, alignRightBtn, alignJustifyBtn]));
+
+    // Initialize hidden inputs with content
+    if (hiddenInput) {
+        hiddenInput.value = JSON.stringify(editor.getJSON());
+    }
+    if (htmlHiddenInput) {
+        htmlHiddenInput.value = editor.getHTML();
+    }
+
+    // Handle form submission with custom AJAX
+    const form = document.getElementById('form-template');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Get form data
+        const formData = new FormData(form);
+        const isNewRecord = window.location.pathname.includes('/new');
+
+        // Determine URL and method
+        const url = form.action;
+        const method = isNewRecord ? 'POST' : 'PATCH';
+
+        // Add method override for PATCH requests
+        if (!isNewRecord) {
+            formData.append('_method', 'PATCH');
+        }
+
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        $.ajax({
+            url: url,
+            method: 'POST', // Always use POST, Rails will handle _method override
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-Token': csrfToken,
+                'Accept': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    Flash.success(response.message);
+
+                    // Handle redirect for new records
+                    if (response.redirect_url) {
+                        window.location.href = response.redirect_url;
+                    }
+                    // For existing records, just show success message (no redirect)
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'An error occurred while saving the template.';
+
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = xhr.responseJSON.errors.join(', ');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+
+                Flash.error(errorMessage);
+            }
+        });
+    });
+
+    // Make editor globally accessible
+    window.treatmentTemplateEditor = editor;
+</script>
 <% end %>

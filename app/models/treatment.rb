@@ -24,7 +24,6 @@
 #  index_treatments_on_treatment_template_id  (treatment_template_id)
 #
 
-# TODO: remove "print_***" columns
 class Treatment < ApplicationRecord
   include RansackAuthorization::Treatment
   include PgSearch

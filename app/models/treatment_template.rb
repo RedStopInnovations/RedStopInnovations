@@ -40,20 +40,4 @@ class TreatmentTemplate < ApplicationRecord
   has_and_belongs_to_many :users, validate: false
   validates_presence_of :name
   validates_length_of :name, maximum: 100
-
-  before_save :update_cached_counters
-
-  private
-
-  def update_cached_counters
-    if template_sections.present?
-      self.sections_count = template_sections.count
-      self.questions_count = template_sections.map do |section|
-        section[:questions].count
-      end.reduce(&:+)
-    else
-      self.sections_count = 0
-      self.questions_count = 0
-    end
-  end
 end

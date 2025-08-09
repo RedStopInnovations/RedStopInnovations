@@ -21,49 +21,47 @@
 </section>
 
 <section class="content">
-  <div class="box-table">
-    <table class="table-flat">
-      <thead>
-        <tr>
-          <th width="21%">Name</th>
-          <th width="21%">Sections</th>
-          <th width="13%">Questions</th>
-          <th>Created</th>
-          <th width="25%" align="center" class="text-center">Actions</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <% @treatment_templates.each do |tt| %>
+  <div class="panel">
+    <div class="panel-body">
+      <table class="table table-hover">
+        <thead>
           <tr>
-            <td width="21%">
-              <a href="<%= treatment_template_path(tt) %>"><%= tt.name %></a>
-            </td>
-            <td width="21%"><%= tt.sections_count %></td>
-            <td width="13%"><%= tt.questions_count %></td>
-            <td><%= tt.created_at.strftime(t('date.common')) %></td>
-            <td width="25%" class="text-center">
-              <a href="<%= treatment_template_path(tt) %>" class="btn btn-link" title="Show">
-                <i class="fa fa-eye" aria-hidden="true"></i>
-              </a>
-              <a href="<%= edit_treatment_template_path(tt) %>" class="btn btn-link" title="Edit">
-                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-              </a>
-              <a href="<%= treatment_template_path(tt) %>" title="Delete" rel="nofollow"
-                data-confirm="Are you sure?" data-method="delete" class="btn btn-link">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-              </a>
-            </td>
+            <th width="21%">Name</th>
+            <th>Last updated</th>
+            <th width="25%"></th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
-    <div class="row">
-      <div class="col-md-6 text-left">
-          <%= page_entries_info @treatment_templates %>
-      </div>
-      <div class="col-md-6 text-right">
-        <%= paginate @treatment_templates %>
+        </thead>
+
+        <tbody>
+          <% @treatment_templates.each do |tt| %>
+            <tr>
+              <td width="21%">
+                <a href="<%= treatment_template_path(tt) %>"><%= tt.name %></a>
+              </td>
+              <td><%= tt.updated_at.strftime(t('date.common')) %></td>
+              <td width="25%">
+                <a href="<%= treatment_template_path(tt) %>" class="btn btn-link" title="Show">
+                  <i class="fa fa-eye" aria-hidden="true"></i>
+                </a>
+                <a href="<%= edit_treatment_template_path(tt) %>" class="btn btn-link" title="Edit">
+                  <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                </a>
+                <a href="<%= treatment_template_path(tt) %>" title="Delete" rel="nofollow"
+                  data-confirm="Are you sure?" data-method="delete" class="btn btn-link">
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                </a>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <div class="row">
+        <div class="col-md-6 text-left">
+            <%= page_entries_info @treatment_templates, entry_name: 'templates' %>
+        </div>
+        <div class="col-md-6 text-right">
+          <%= paginate @treatment_templates %>
+        </div>
       </div>
     </div>
   </div>

@@ -1,3 +1,4 @@
+// TODO: implement inactivity/idle timeout to stop auto-refreshing conversations
 $(function() {
   if ($('#js-conversations-sidebar').length) {
     new Vue({
