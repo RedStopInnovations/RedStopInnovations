@@ -18,47 +18,49 @@
 </section>
 
 <section class="content">
-  <div class="box">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Notification</th>
-          <th>Enabled</th>
-          <th>Last updated</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-          <% @notification_type_settings.each do |nt_setting| %>
-          <%
-            notification_type = nt_setting.notification_type
-          %>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table table-hover">
+        <thead>
           <tr>
-            <td>
-              <a href="<%= edit_settings_notification_type_path(nt_setting) %>"><%= notification_type.name %></a>
-              <div class="small">
-                <%= notification_type.description %>
-              </div>
-            </td>
-
-            <td>
-              <div class="check-box check-box-readonly">
-                <input type="checkbox" <%= nt_setting.enabled? ? "checked" : "" %>>
-                <label>&nbsp;</label>
-              </div>
-            </td>
-            <td>
-              <%= nt_setting.updated_at.strftime(t('datetime.common')) %>
-            </td>
-            <td>
-              <a href="<%= edit_settings_notification_type_path(nt_setting) %>"
-                class="btn btn-link" title="Edit">
-                <i class="fa fa-pencil"></i>
-              </a>
-            </td>
+            <th>Notification</th>
+            <th>Enabled</th>
+            <th>Last updated</th>
+            <th></th>
           </tr>
-          <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+            <% @notification_type_settings.each do |nt_setting| %>
+            <%
+              notification_type = nt_setting.notification_type
+            %>
+            <tr>
+              <td>
+                <a href="<%= edit_settings_notification_type_path(nt_setting) %>"><%= notification_type.name %></a>
+                <div class="small">
+                  <%= notification_type.description %>
+                </div>
+              </td>
+
+              <td>
+                <div class="check-box check-box-readonly">
+                  <input type="checkbox" <%= nt_setting.enabled? ? "checked" : "" %>>
+                  <label>&nbsp;</label>
+                </div>
+              </td>
+              <td>
+                <%= nt_setting.updated_at.strftime(t('datetime.common')) %>
+              </td>
+              <td>
+                <a href="<%= edit_settings_notification_type_path(nt_setting) %>"
+                  class="btn btn-link" title="Edit">
+                  <i class="fa fa-pencil"></i>
+                </a>
+              </td>
+            </tr>
+            <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
