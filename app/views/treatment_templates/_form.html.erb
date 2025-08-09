@@ -37,7 +37,7 @@
   .tiptap-toolbar {
     background: #f9fafb;
     border-bottom: 1px solid #d1d5db;
-    padding: 8px 12px;
+    padding: 8px 20px;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
@@ -246,7 +246,7 @@
   }
 
   .tiptap-editor {
-    padding: 16px;
+    padding: 20px;
     min-height: 200px;
     outline: none;
   }
@@ -358,6 +358,33 @@
   .tiptap-editor ul[data-type="taskList"] li > div {
     flex: 1;
   }
+
+  /* Drag Handle Styles */
+  .js-drag-handle {
+    position: absolute;
+    left: -1.5rem;
+    top: 0;
+    cursor: grab;
+    padding: 0.25rem;
+    color: #9ca3af;
+  }
+
+  .js-drag-handle:hover {
+    background-color: #eeeeee;
+  }
+
+  .js-drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .ProseMirror:hover .drag-handle {
+    opacity: 0.5;
+  }
+
+  .js-drag-handle svg {
+    width: 1rem;
+    height: 1rem;
+  }
 </style>
 <% end %>
 
@@ -379,6 +406,7 @@
     import { TaskList } from 'https://esm.sh/@tiptap/extension-task-list'
     import { TaskItem } from 'https://esm.sh/@tiptap/extension-task-item'
     import { Link } from 'https://esm.sh/@tiptap/extension-link'
+    import { DragHandle } from 'https://esm.sh/@tiptap/extension-drag-handle'
 
     // Custom FontSize extension using textStyle
     const FontSize = TextStyle.extend({
@@ -471,6 +499,19 @@
             }),
             Link.configure({
                 openOnClick: false,
+            }),
+            DragHandle.configure({
+                render: () => {
+                  const element = document.createElement('div')
+
+                  // Use as a hook for CSS to insert an icon
+                  element.classList.add('js-drag-handle', 'glyphicon', 'glyphicon-option-vertical')
+
+                  return element
+                },
+                tippyOptions: {
+                  placement: 'left',
+                }
             }),
         ],
         content: initialContent,
