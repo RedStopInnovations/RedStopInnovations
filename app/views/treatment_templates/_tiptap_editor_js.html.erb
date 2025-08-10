@@ -63,9 +63,19 @@
             // Try to parse as JSON (for stored node content)
             initialContent = JSON.parse(existingContent);
 
-            // Filter out unsupported node types
+            // Filter out unsupported node types (blacklist approach)
             if (initialContent && initialContent.content && Array.isArray(initialContent.content)) {
-                const unsupportedTypes = ['image', 'signature', 'bodyChart', 'yesNo'];
+                const unsupportedTypes = [
+                    'dropdown',
+                    'yesNo',
+                    'image',
+                    'signature',
+                    'bodyChart',
+                    'multipleChoice',
+                    'multipleChoiceItem',
+                    'date',
+                    'linearScale'
+                ];
                 initialContent.content = initialContent.content.filter(node => {
                     return !unsupportedTypes.includes(node.type);
                 });

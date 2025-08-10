@@ -1,7 +1,7 @@
 <%= render 'patients/show_layout' do %>
   <div class="row">
     <div class="col-md-8 col-xs-8">
-      <h4>Treatment note details</h4>
+      <h4 class="text-bolder"><%= @treatment.name %> <span class="label <%= {Treatment::STATUS_DRAFT => 'label-default', Treatment::STATUS_FINAL => 'label-primary'}[@treatment.status] %>"><%= @treatment.status %></span></h4>
     </div>
 
     <div class="col-md-4 col-xs-4 text-right">
@@ -11,7 +11,6 @@
 
   <div class="panel panel-default mt-10">
     <div class="panel-heading">
-
       <div class="pull-right">
           <div class="btn-group">
             <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
@@ -38,11 +37,10 @@
           </div>
       </div>
 
-      <h4 class="text-bolder"><%= @treatment.name %> <span class="label <%= {Treatment::STATUS_DRAFT => 'label-default', Treatment::STATUS_FINAL => 'label-primary'}[@treatment.status] %>"><%= @treatment.status %></span></h4>
+
 
       <div class="text-smaller">
-        Author: <% if @treatment.author %> <%= @treatment.author.full_name %> <% else %> <%= @treatment.author_name %> <% end %><br>
-        ID: <%= @treatment.id %> <br>
+        Author: <% if @treatment.author %> <%= @treatment.author.full_name %> <% else %> <% if @treatment.author_name %> <%= @treatment.author_name %> <% else %> <span class="text-muted">--</span> <% end %> <% end %> <br>
         Appointment:
           <%  if @treatment.appointment %>
             <%= @treatment.appointment.start_time.strftime(t('date.common')) %> <span class="hidden-print"><span class="text-muted"> | </span><a href="<%= appointment_path(@treatment.appointment) %>">View</a></span>
