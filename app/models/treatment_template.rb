@@ -34,10 +34,8 @@ class TreatmentTemplate < ApplicationRecord
     'Integer',
     'Multiselect'
   ]
-  serialize :template_sections, type: Array
 
   belongs_to :business
-  has_and_belongs_to_many :users, validate: false
   validates_presence_of :name
-  validates_length_of :name, maximum: 100
+  validates_length_of :name, maximum: 255
 end

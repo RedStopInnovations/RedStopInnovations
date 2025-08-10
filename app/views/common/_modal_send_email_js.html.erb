@@ -1,5 +1,3 @@
-<script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
-
 <script type="text/javascript">
   $('body').on('click', '.js-btn-send-email', function(event) {
     event.preventDefault();
@@ -25,41 +23,6 @@
           },
           onEnter: function() {
             return false;
-          }
-        });
-
-        CKEDITOR.replace($('#js-modal-send-email .js-input-email-content').get(0), {
-          enterMode: CKEDITOR.ENTER_BR,
-          toolbarGroups: [{
-              "name": "basicstyles",
-              "groups": ["basicstyles"]
-            },
-            {
-              "name": "links",
-              "groups": ["links"]
-            },
-            {
-              "name": "paragraph",
-              "groups": ["list", "blocks"]
-            },
-            {
-              "name": "document",
-              "groups": ["mode"]
-            },
-            {
-              "name": "insert",
-              "groups": ["insert"]
-            },
-            {
-              "name": "styles",
-              "groups": ["styles"]
-            }
-          ],
-          on: {
-            instanceReady: function(env) {
-              this.dataProcessor.writer.indentationChars = '';
-              this.dataProcessor.writer.lineBreakChars = '';
-            }
           }
         });
 

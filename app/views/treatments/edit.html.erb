@@ -1,63 +1,83 @@
 <%= render 'patients/show_layout' do %>
-  <h4>Edit treatment note</h4>
 
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Edit treatment note</h4>
+    </div>
+    <div class="col-md-6">
+      <div class="pull-right">
+          <div class="btn-group">
+            <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
+              <i class="fa fa-envelope-o"></i>
+              Email
+            </a>
 
-      <%= simple_form_for @treatment, url: patient_treatment_path(@patient, @treatment), html: { id: 'js-form-tiptap-editor' } do |form| %>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="panel panel-default">
-              <div class="panel-body">
-
-                <%=
-                  form.input :name, required: true
-                %>
-
-                <%=
-                  form.input :status, required: true, collection: Treatment::STATUS
-                %>
-
-                <%=
-                  form.association :patient_case,
-                                as: :select,
-                                label: 'Case',
-                                collection: patient_case_options_for_treatment(@patient.patient_cases),
-                                include_blank: false
-                %>
-
-                <%=
-                  form.input :appointment_id,
-                          as: :select,
-                          collection: appointment_options_for_treatment(@patient.appointments.order(start_time: :desc).includes(:practitioner)),
-                          input_html: { class: 'selectize' }
-                %>
-              </div>
-            </div>
+            <a href="<%= print_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+              <i class="fa fa-print"></i> Print
+            </a>
           </div>
-        </div>
+      </div>
 
+    </div>
+  </div>
 
-        <div class="panel panel-default mt-20">
-          <div class="panel-heading">Note</div>
+  <%= simple_form_for @treatment, url: patient_treatment_path(@patient, @treatment), html: { id: 'js-form-tiptap-editor' } do |form| %>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
           <div class="panel-body">
 
-          <div class="tiptap-editor-container">
-            <div id="js-tiptap-editor-toolbar" class="tiptap-toolbar"></div>
-            <div id="js-tiptap-editor-main" class="tiptap-editor"></div>
-            <%= form.hidden_field :content, id: "js-hidden-input-content" %>
-            <%= form.hidden_field :html_content, id: "js-hidden-input-html-content" %>
-          </div>
+            <%=
+              form.input :name, required: true
+            %>
 
+            <%=
+              form.input :status, required: true, collection: Treatment::STATUS
+            %>
+
+            <%=
+              form.association :patient_case,
+                            as: :select,
+                            label: 'Case',
+                            collection: patient_case_options_for_treatment(@patient.patient_cases),
+                            include_blank: false
+            %>
+
+            <%=
+              form.input :appointment_id,
+                      as: :select,
+                      collection: appointment_options_for_treatment(@patient.appointments.order(start_time: :desc).includes(:practitioner)),
+                      input_html: { class: 'selectize' }
+            %>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="mb-20">
-          <button type="submit" class="btn btn-primary">Update</button>
-          <a href="<%= patient_treatment_path(@patient, @treatment) %>" class="btn btn-white">Cancel</a>
-        </div>
-      <% end %>
+
+    <div class="panel panel-default mt-20">
+      <div class="panel-heading">Note</div>
+      <div class="panel-body">
+
+      <div class="tiptap-editor-container">
+        <div id="js-tiptap-editor-toolbar" class="tiptap-toolbar"></div>
+        <div id="js-tiptap-editor-main" class="tiptap-editor"></div>
+        <%= form.hidden_field :content, id: "js-hidden-input-content" %>
+        <%= form.hidden_field :html_content, id: "js-hidden-input-html-content" %>
+      </div>
+
+      </div>
+    </div>
+
+    <div class="mb-20">
+      <button type="submit" class="btn btn-primary">Update</button>
+      <a href="<%= patient_treatment_path(@patient, @treatment) %>" class="btn btn-white">Cancel</a>
+    </div>
+  <% end %>
 
 <% end %>
 
 <%= content_for :page_js do %>
+  <%= render 'common/modal_send_email_js' %>
   <%= render 'treatment_templates/tiptap_editor_js' %>
 <% end %>

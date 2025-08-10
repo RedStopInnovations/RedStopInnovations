@@ -89,6 +89,7 @@ class TreatmentsController < ApplicationController
 
     if @treatment.valid?
       template = @treatment.treatment_template
+      @treatment.name = template.name
       @treatment.content = template.content
       @treatment.html_content = template.html_content
     end
