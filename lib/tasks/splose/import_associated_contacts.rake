@@ -102,7 +102,7 @@ namespace :splose do |args|
                   ::PatientContact.find_or_create_by!(
                     contact_id: local_contact.id,
                     patient_id: local_patient.id,
-                    type: ::PatientContact::TYPE_OTHER,
+                    type: ::PatientContact::TYPE_REFERRER,
                   )
                   @total_assoc_created += 1
                 end
