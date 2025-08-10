@@ -83,10 +83,8 @@ module Reports
         options.end_date = Date.today
       end
 
-      if params[:practitioner_ids].is_a?(Array)
-        options.practitioner_ids = params[:practitioner_ids]
-      else
-        options.practitioner_ids = []
+      if params[:name].present?
+        options.name = params[:name].to_s
       end
 
       if params[:template_ids].is_a?(Array)

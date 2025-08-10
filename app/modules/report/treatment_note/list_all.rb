@@ -2,7 +2,7 @@ module Report
   module TreatmentNote
     class ListAll
       class Options
-        attr_accessor :practitioner_ids,
+        attr_accessor :name,
                       :template_ids,
                       :start_date,
                       :end_date,
@@ -13,13 +13,16 @@ module Report
           @start_date = options[:start_date]
           @end_date = options[:end_date]
           @template_ids = options[:template_ids]
-          @practitioner_ids = options[:practitioner_ids]
           @status = options[:status]
           @page = options[:page]
         end
 
         def to_params
           params = {}
+
+          if name.present?
+            params[:name] = name.strip
+          end
 
           if start_date
             params[:start_date] = start_date.strftime('%Y-%m-%d')
@@ -31,10 +34,6 @@ module Report
 
           if template_ids.present?
             params[:template_ids] = template_ids
-          end
-
-          if practitioner_ids.present?
-            params[:practitioner_ids] = practitioner_ids
           end
 
           if status.present?
@@ -86,15 +85,13 @@ module Report
       def treatment_notes_query
         query = business.patient_treatments.includes(:patient, :author, appointment: [:practitioner])
 
+        if @options.name.present?
+          query = query.where("name ILIKE ?", "%#{@options.name}%")
+        end
+
         if @options.start_date.present? && @options.end_date.present?
           query = query.where(
             created_at: @options.start_date.beginning_of_day..@options.end_date.end_of_day
-          )
-        end
-
-        if @options.practitioner_ids.present?
-          query = query.joins(:appointment).where(
-            appointments: { practitioner_id: @options.practitioner_ids }
           )
         end
 

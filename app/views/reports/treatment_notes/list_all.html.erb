@@ -65,11 +65,8 @@
 
           <div class="col-md-3">
             <div class="form-group">
-              <label>Practitioners:</label>
-              <select class="form-control selectize" name="practitioner_ids[]" multiple="true">
-                <option value="">All</option>
-                <%= options_for_select( pracititioner_options_for_select(current_business), @options.practitioner_ids ) %>
-              </select>
+              <label>Name:</label>
+              <input type="text" name="name" class="form-control" value="<%= @options.name %>">
             </div>
           </div>
 
