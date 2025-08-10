@@ -88,7 +88,7 @@ module Helpers
         },
         'taskList' => ->(_node, children) {
             if children.present?
-                "<ul class=\"task-list\">#{children}</ul>"
+                "<ul data-type=\"taskList\">#{children}</ul>"
             else
                 "<p>(No items)</p>"
             end
@@ -96,7 +96,7 @@ module Helpers
         'taskItem' => ->(node, children) {
             checked = node.dig('attrs', 'checked') || false
             checkbox = checked ? '☑' : '☐'
-            "<li class=\"task-item\"><span>#{checkbox} #{children.gsub(/<\/?p[^>]*>/, '')}</span></li>"
+            "<li data-type=\"taskItem\"><span>#{checkbox} #{children.gsub(/<\/?p[^>]*>/, '')}</span></li>"
         },
         'horizontalRule' => ->(_node, _children) {
             "<hr />"
@@ -108,7 +108,7 @@ module Helpers
             "<p><strong>Selected:</strong> #{value}#{options_text}</p>"
         },
         'multipleChoice' => ->(_node, children) {
-            "<div class=\"multiple-choice\">#{children}</div>"
+            "<div data-type=\"multipleChoice\">#{children}</div>"
         },
         'multipleChoiceItem' => ->(node, children) {
             checked = node.dig('attrs', 'checked') || false

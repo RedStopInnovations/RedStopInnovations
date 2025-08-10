@@ -4,10 +4,6 @@ require Rails.root.join 'lib/helpers/prose_mirror'
 namespace :splose do
   # bin/rails splose:import_progress_notes_csv business_id=1 csv=/path/to/file.csv
   task import_progress_notes_csv: :environment do
-    class SploseImportRecord < ActiveRecord::Base
-      self.table_name = 'splose_records'
-    end
-
     class ImportTreatmentNote < ::ActiveRecord::Base
       self.table_name = 'treatments'
     end
@@ -65,7 +61,7 @@ namespace :splose do
             end
 
             # Find the patient using splose_records
-            patient_import_record = SploseImportRecord.find_by(
+            patient_import_record = SploseRecord.find_by(
               business_id: @business.id,
               reference_id: splose_patient_id,
               resource_type: 'Patient'
@@ -88,7 +84,7 @@ namespace :splose do
                      end
 
             # Parse and convert JSON content to HTML
-            processed_content =
+            html_content =
             if content.present?
               doc_json = JSON.parse(content)
               if doc_json['type'] == 'doc' && doc_json['content'].is_a?(Array)
@@ -99,11 +95,11 @@ namespace :splose do
                 cleaned_content.split("\n").map { |line| "<p>#{line}</p>" }.join
               end
             else
-              '<p>No content available</p>'
+              nil
             end
 
             # Check if treatment already exists in splose_records
-            treatment_import_record = SploseImportRecord.find_or_initialize_by(
+            treatment_import_record = SploseRecord.find_or_initialize_by(
               business_id: @business.id,
               reference_id: splose_note_id,
               resource_type: 'Treatment'
@@ -122,8 +118,8 @@ namespace :splose do
                 patient_id: patient.id,
                 name: title.present? ? title : 'Imported progress note from Splose',
                 status: status,
-                sections: [], # Leave sections blank
-                content: processed_content
+                content: content,
+                html_content: html_content
               )
 
               if treatment.save(validate: false) # Skip validations to avoid required field issues
@@ -143,15 +139,15 @@ namespace :splose do
               treatment.update!(
                 name: title.present? ? title : treatment.name,
                 status: status,
-                sections: [], # Leave sections blank
-                content: processed_content
+                content: content,
+                html_content: html_content
               )
 
               treatment_import_record.last_synced_at = @sync_start_at
               treatment_import_record.save!
 
               @total_updates += 1
-              log "Updated treatment #{treatment.id} for patient #{patient.full_name} (Splose ID: #{splose_note_id})"
+              log "Updated treatment #{treatment.id} for patient ##{patient.id} #{patient.full_name} (Splose ID: #{splose_note_id})"
             end
 
           rescue => e

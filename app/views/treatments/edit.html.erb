@@ -2,7 +2,7 @@
   <h4>Edit treatment note</h4>
 
 
-      <%= simple_form_for @treatment, url: patient_treatment_path(@patient, @treatment) do |form| %>
+      <%= simple_form_for @treatment, url: patient_treatment_path(@patient, @treatment), html: { id: 'js-form-tiptap-editor' } do |form| %>
         <div class="row">
           <div class="col-md-6">
             <div class="panel panel-default">

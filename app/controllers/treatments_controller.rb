@@ -126,11 +126,35 @@ class TreatmentsController < ApplicationController
         )
       end
 
-      redirect_to patient_treatment_path(@patient, @treatment),
-              notice: 'Treatment note was successfully updated.'
+      respond_to do |f|
+        f.html do
+          redirect_to patient_treatment_path(@patient, @treatment),
+                  notice: 'Treatment note was successfully updated.'
+        end
+        f.json do
+          render json: {
+            success: true,
+            message: 'Treatment note template was successfully updated.',
+            treatment_template: @treatment_template
+          }
+        end
+      end
     else
-      flash.now[:alert] = 'Failed to update treatment note. Please check for form errors.'
-      render :edit
+      respond_to do |f|
+        f.html do
+          flash.now[:alert] = 'Failed to update treatment note. Please check for form errors.'
+          render :edit
+        end
+        f.json do
+          render(
+            json: {
+              success: false,
+              errors: @treatment_template.errors.full_messages
+            },
+            status: 422
+          )
+        end
+      end
     end
   end
 

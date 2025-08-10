@@ -62,6 +62,15 @@
         try {
             // Try to parse as JSON (for stored node content)
             initialContent = JSON.parse(existingContent);
+
+            // Filter out unsupported node types
+            if (initialContent && initialContent.content && Array.isArray(initialContent.content)) {
+                const unsupportedTypes = ['image', 'signature', 'bodyChart', 'yesNo'];
+                initialContent.content = initialContent.content.filter(node => {
+                    return !unsupportedTypes.includes(node.type);
+                });
+            }
+
         } catch (e) {
             // Fallback to HTML string if not JSON
             initialContent = existingContent;
