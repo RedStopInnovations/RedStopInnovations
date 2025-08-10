@@ -6,7 +6,7 @@ class TreatmentsController < ApplicationController
                 :authorize_patient_access,
                 only: [
                   :new, :index, :create, :show, :edit, :update, :destroy,
-                  :last_treatment_note, :export_pdf,
+                  :last_treatment_note, :print,
                   :modal_send_email, :send_email
                 ]
 
@@ -17,7 +17,7 @@ class TreatmentsController < ApplicationController
                   :edit,
                   :update,
                   :destroy,
-                  :export_pdf,
+                  :print,
                   :modal_send_email, :send_email
                 ]
 
@@ -27,11 +27,12 @@ class TreatmentsController < ApplicationController
                   order(updated_at: :desc).
                   take(3)
 
-    treatments_query = @patient.treatments
-                      .includes(:appointment, :author)
+    treatments_query = @patient.treatments.includes(:appointment, :author)
+
+    # @TODO: improve this
     if params[:q].present?
       query_string = "%#{params[:q].to_s.downcase}%"
-      treatments_query = treatments_query.where("LOWER(sections) LIKE ? OR LOWER(name) LIKE ?", query_string, query_string)
+      treatments_query = treatments_query.where("LOWER(html_content) LIKE ? OR LOWER(name) LIKE ?", query_string, query_string)
     end
 
     treatments_query =
@@ -62,9 +63,6 @@ class TreatmentsController < ApplicationController
   def new
     @treatment = Treatment.new
 
-    # @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
-    @available_treatment_templates = current_business.treatment_templates.order(name: :asc).to_a
-
     if params[:patient_id] &&
        current_business.patients.exists?(id: params[:patient_id])
       @treatment.patient_id = params[:patient_id]
@@ -77,41 +75,25 @@ class TreatmentsController < ApplicationController
       @treatment.treatment_template =
         @treatment.appointment.appointment_type.default_treatment_template
     end
-
-    if @treatment.treatment_template.nil?
-      @treatment.treatment_template = current_business.treatment_templates.first
-    end
-
-    if @treatment.treatment_template
-      @treatment.sections = @treatment.treatment_template.template_sections
-    end
   end
 
   def edit
     authorize! :edit, @treatment
-
-    if @treatment.content.present?
-      redirect_back fallback_location: patient_treatment_path(@patient, @treatment),
-                    alert: 'This note is readonly'
-      return
-    end
-
-    @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
-
-    # Still show current template even if it's hidden to current user
-    current_template = @treatment.treatment_template
-    if current_template && @available_treatment_templates.map(&:id).exclude?(current_template.id)
-      @available_treatment_templates << current_template
-    end
   end
 
   def create
-    @treatment = Treatment.new(treatment_params)
+    @treatment = Treatment.new(create_treatment_params)
     @treatment.patient = @patient
+    @treatment.status = Treatment::STATUS_DRAFT
     @treatment.author_id = current_user.id
 
+    if @treatment.valid?
+      template = @treatment.treatment_template
+      @treatment.content = template.content
+      @treatment.html_content = template.html_content
+    end
+
     if @treatment.save
-      ::Webhook::Worker.perform_now(@treatment.id, WebhookSubscription::TREATMENT_NOTE_CREATED)
       if @treatment.appointment
         SubscriptionBillingService.new.bill_appointment(
           current_business,
@@ -120,13 +102,9 @@ class TreatmentsController < ApplicationController
         )
       end
 
-      if current_business.trigger_categories.count > 0
-        # Trigger::BusinessTriggersReportWorker.perform_later(current_business.id)
-      end
-      redirect_to patient_treatments_path(@patient),
+      redirect_to edit_patient_treatment_path(@patient, @treatment),
                   notice: 'Treatment note was successfully created.'
     else
-      @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
       flash.now[:alert] = 'Failed to create treatment note. Please check for form errors.'
       render :new
     end
@@ -135,17 +113,11 @@ class TreatmentsController < ApplicationController
   def update
     authorize! :edit, @treatment
 
-    if @treatment.content.present?
-      redirect_back fallback_location: patient_treatment_path(@patient, @treatment),
-                    alert: 'This note is readonly'
-      return
-    end
-
     if @treatment.author_id.blank?
       @treatment.author_id = current_user.id
     end
 
-    if @treatment.update(treatment_params)
+    if @treatment.update(update_treatment_params)
       if @treatment.appointment
         SubscriptionBillingService.new.bill_appointment(
           current_business,
@@ -154,16 +126,9 @@ class TreatmentsController < ApplicationController
         )
       end
 
-      redirect_to patient_treatments_path(@patient),
+      redirect_to patient_treatment_path(@patient, @treatment),
               notice: 'Treatment note was successfully updated.'
     else
-      @available_treatment_templates = current_user.accessible_treatment_templates.order(name: :asc).to_a
-
-      # Still show current template even if it's hidden to current user
-      current_template = @treatment.treatment_template
-      if current_template && @available_treatment_templates.map(&:id).exclude?(current_template.id)
-        @available_treatment_templates << current_template
-      end
       flash.now[:alert] = 'Failed to update treatment note. Please check for form errors.'
       render :edit
     end
@@ -182,13 +147,13 @@ class TreatmentsController < ApplicationController
     end
   end
 
-  def export_pdf
+  def print
     respond_to do |format|
       format.pdf do
         download_file_name = [@patient.full_name, @treatment.name].join('__').parameterize
 
         render pdf: download_file_name,
-              template: "pdfs/treatments/show",
+              template: "pdfs/treatment_notes/single",
               show_as_html: params.key?('__debug__'),
               locals: {
                 treatment: @treatment,
@@ -260,22 +225,22 @@ class TreatmentsController < ApplicationController
     @treatment = Treatment.find( params[:id] )
   end
 
-  def treatment_params
+  def create_treatment_params
     params.require(:treatment).permit(
       :appointment_id,
       :treatment_template_id,
       :patient_case_id,
+    )
+  end
+
+  def update_treatment_params
+    params.require(:treatment).permit(
+      :name,
+      :appointment_id,
+      :patient_case_id,
       :status,
-      sections: [
-        :name,
-        questions: [
-          :name,
-          :type,
-          :required,
-          answer: [:content],
-          answers: [:content, :selected]
-        ]
-      ]
+      :content,
+      :html_content
     )
   end
 end

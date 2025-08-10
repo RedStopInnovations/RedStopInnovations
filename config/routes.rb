@@ -283,7 +283,7 @@ Rails.application.routes.draw do
 
       resources :treatments do
         member do
-          get :export_pdf
+          get :print
           get :modal_send_email
           post :send_email
         end

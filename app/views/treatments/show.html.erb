@@ -5,7 +5,7 @@
     </div>
 
     <div class="col-md-4 col-xs-4 text-right">
-      <a href="<%= patient_treatments_path(@patient) %>">View all notes</a>
+      <a href="<%= patient_treatments_path(@patient) %>" class="btn btn-white">View all notes</a>
     </div>
   </div>
 
@@ -19,37 +19,30 @@
               Email
             </a>
 
-            <a href="<%= export_pdf_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+            <a href="<%= print_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
               <i class="fa fa-print"></i> Print
             </a>
 
-            <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-right">
-              <% unless @treatment.status == Treatment::STATUS_FINAL %>
-                <li>
-                  <a href="<%= edit_patient_treatment_path(@patient, @treatment) %>">
-                    <i class="fa fa-pencil-square-o"></i> Edit
-                  </a>
-                </li>
-                <% if can?(:destroy, @treatment) %>
-                  <li>
-                    <a href="<%= patient_treatment_path(@patient, @treatment, redirect: patient_treatments_path(@patient)) %>"
-                      data-confirm="Are you sure?" data-method="DELETE">
-                      <i class="fa fa-trash"></i> Delete
-                    </a>
-                  </li>
-                <% end %>
+            <% unless @treatment.status == Treatment::STATUS_FINAL %>
+              <a href="<%= edit_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white">
+                <i class="fa fa-pencil-square-o"></i> Edit
+              </a>
+              <% if can?(:destroy, @treatment) %>
+                <a href="<%= patient_treatment_path(@patient, @treatment, redirect: patient_treatments_path(@patient)) %>"
+                  class="btn btn-white"
+                  data-confirm="Are you sure?" data-method="DELETE">
+                  <i class="fa fa-trash text-danger"></i>
+                </a>
               <% end %>
-            </ul>
+            <% end %>
           </div>
       </div>
 
-      <h4 class="text-bolder"><%= @treatment.name %></h4>
+      <h4 class="text-bolder"><%= @treatment.name %> <span class="label <%= {Treatment::STATUS_DRAFT => 'label-default', Treatment::STATUS_FINAL => 'label-primary'}[@treatment.status] %>"><%= @treatment.status %></span></h4>
 
       <div class="text-smaller">
         Author: <% if @treatment.author %> <%= @treatment.author.full_name %> <% else %> <%= @treatment.author_name %> <% end %><br>
         ID: <%= @treatment.id %> <br>
-        Status: <span class="<%= {Treatment::STATUS_DRAFT => 'text-yellow'}[@treatment.status] %>"><%= @treatment.status %></span> <br>
         Appointment:
           <%  if @treatment.appointment %>
             <%= @treatment.appointment.start_time.strftime(t('date.common')) %> <span class="hidden-print"><span class="text-muted"> | </span><a href="<%= appointment_path(@treatment.appointment) %>">View</a></span>
@@ -63,11 +56,12 @@
 
 
     <div class="panel-body">
-
-      <% if @treatment.content %>
-        <%= @treatment.content.html_safe %>
+      <% if @treatment.html_content.present? %>
+        <div class="tiptap-content">
+          <%= @treatment.html_content.html_safe %>
+        </div>
       <% else %>
-        <%= render 'sections', treatment: @treatment %>
+      <span class="text-muted">Empty</span>
       <% end %>
     </div>
 

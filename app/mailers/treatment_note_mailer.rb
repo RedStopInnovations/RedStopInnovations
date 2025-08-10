@@ -11,7 +11,7 @@ class TreatmentNoteMailer < ApplicationMailer
       WickedPdf.new.pdf_from_string(
         render_to_string(
           pdf: "Treatment note #{treatment_note.id}",
-          template: 'pdfs/treatments/show',
+          template: 'pdfs/treatment_notes/single',
           locals: {
             treatment: treatment_note,
             patient: patient,

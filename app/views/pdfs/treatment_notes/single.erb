@@ -1,0 +1,82 @@
+<%
+  appt = treatment.appointment
+  business_p = BusinessPresenter.new(business)
+  display_timezone =
+    if appt
+      appt.practitioner.user_timezone
+    elsif treatment.author
+      treatment.author.timezone
+    else
+      'UTC'
+    end
+%>
+<!doctype html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>Treatment Note</title>
+    <%= wicked_pdf_stylesheet_link_tag "pdf/treatment-note" -%>
+  </head>
+
+  <body>
+    <div class="header">
+        <div class="row">
+            <div class="col-xs-7">
+                <div class="box-info">
+                    <span class="business-name"><%= business.name %></span>
+                    <br>
+                    <%= business.short_address %><br>
+                    <%= business.phone %><br>
+                    <% if business.abn.present? %>
+                        ABN: <%= business.abn %><br>
+                    <% end %>
+                </div>
+            </div>
+            <div class="col-xs-5">
+                <div class="box-logo">
+                    <% if business.avatar.exists? %>
+                        <img src="<%= business_p.logo_url %>" class="logo">
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box-title">
+      <h3><%= treatment.name %></h3>
+      <%= Date.current.strftime(t('date.common')) %> <br>
+      <div><%= treatment.status == Treatment::STATUS_FINAL ? "FINAL" : "DRAFT" %></div>
+    </div>
+
+    <table class="table table-bordered">
+      <tbody>
+        <tr>
+          <td style="width: 50%;">
+            <strong>CLIENT</strong><br>
+            <%= patient.full_name %> <br>
+            DOB: <%= patient.dob&.strftime(t('date.dob')) %> <br>
+            <%= patient.short_address %>
+          </td>
+          <td>
+            <strong>AUTHOR</strong><br>
+            <% if treatment.author %> <%= treatment.author.full_name %> <% else %> <%= treatment.author_name %> <% end %> <br>
+            Created: <%= treatment.created_at.in_time_zone(display_timezone).strftime(t('date.common')) %>
+          </td>
+        </tr>
+
+        <% if appt %>
+        <tr>
+          <td colspan="2">
+            <strong>APPOINTMENT</strong><br>
+            <%= appt.start_time.in_time_zone(display_timezone).strftime(t('date.common')) %>
+          </td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="tiptap-content">
+        <%= treatment.html_content.to_s.html_safe %>
+    </div>
+  </body>
+</html>

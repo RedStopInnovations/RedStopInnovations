@@ -1,0 +1,67 @@
+
+.tiptap-content p:not(:first-child) {
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+.tiptap-content ul[data-type=taskList] li:not(:has(>p:first-child)) {
+    list-style-type: none;
+}
+.tiptap-content ul {
+    padding-left: 1.5em;
+}
+
+.tiptap-content ul[data-type=taskList] {
+    padding-left: .25em;
+}
+
+.tiptap-content ul[data-type=taskList] li {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.tiptap-content ul[data-type=taskList] li label {
+    position: relative;
+    margin-bottom: 0;
+    padding-right: .5rem;
+}
+
+.tiptap-content [contenteditable="false"] {
+    white-space: normal;
+}
+
+.tiptap-content ul[data-type=taskList] li label span {
+    display: block;
+    width: 1em;
+    height: 1em;
+    position: relative;
+    cursor: pointer;
+}
+
+.tiptap-content table {
+    border-collapse: collapse;
+    margin: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+
+    td,  th {
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        min-width: 1em;
+        padding: 6px 8px;
+        position: relative;
+        vertical-align: top
+    }
+
+    td>* , th>* {
+        margin-bottom: 0
+    }
+
+    th {
+        background-color: #ddd;
+        font-weight: 600;
+        text-align: left
+    }
+}
