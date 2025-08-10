@@ -60,7 +60,7 @@ module Report
       def as_csv
         CSV.generate(headers: true) do |csv|
           csv << [
-            "ID", "Author", "Client", "Client ID", "Appointment date", "Template name", "Created date", "Status", "Content"
+            "ID", "Author", "Client", "Client ID", "Appointment date", "Name", "Created date", "Status", "Content"
           ]
 
           treatment_notes_query.find_each(batch_size: 200) do |treatment|
@@ -69,13 +69,13 @@ module Report
             csv << [
               treatment.id,
               author,
-              treatment.patient.try(:full_name),
+              treatment.patient&.full_name,
               treatment.patient&.id,
-              appointment.try(:start_time).try(:strftime, "%d %b %Y"),
+              appointment.try(:start_time).try(:strftime, "%Y-%m-%d"),
               treatment.name,
-              treatment.created_at.strftime("%d %b %Y"),
+              treatment.created_at.strftime("%Y-%m-%d"),
               treatment.status == Treatment::STATUS_FINAL ? "FINAL" : "DRAFT",
-              treatment.sections
+              treatment.html_content
             ]
           end
         end
