@@ -28,9 +28,6 @@
         <li class=<%= ((controller_name == 'patients') && ['show', 'edit'].include?(action_name)) ? 'active' : '' %> >
           <a href="<%= patient_path(@patient) %>">Client details</a>
         </li>
-        <li class=<%= (controller_name == 'patient_id_numbers' && ['index', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
-          <a href="<%= app_patient_id_numbers_path(@patient) %>">Client ID's</a>
-        </li>
         <% if can?(:read, Invoice) %>
         <li class=<%= (controller_name == 'patients' && action_name == 'invoices') ? 'active' : '' %> >
           <a href="<%= invoices_patient_path(@patient) %>">Invoices <% if invoices_count > 0 %> <span class="label label-default pull-right"><%= invoices_count %></span><% end %></a>

@@ -4,7 +4,6 @@
   business = invoice.business
   invoice_to = invoice.invoice_to_contact
   invoice_presenter = InvoicePresenter.new(invoice)
-  patient_numbers = patient.id_numbers.where(contact_id: invoice_to.try(:id))
 %>
 <!doctype html>
 <html>
@@ -53,9 +52,9 @@
               <%= patient.short_address %>
             </div>
 
-            <% if patient_numbers.present? %>
+            <% if patient.extra_invoice_info.present? %>
               <div class="line">
-                Client ID's: <%= patient_numbers.map(&:id_number).join(', ') %>
+                <%= simple_format patient.extra_invoice_info %>
               </div>
             <% end %>
           </div>

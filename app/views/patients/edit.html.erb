@@ -110,6 +110,11 @@
         <div class="panel panel-default">
           <div class="panel-heading"><span class="panel-title">Other info</span></div>
           <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <%= f.input :extra_invoice_info, label: 'Extra client invoice details', as: :text, placeholder: 'Info will be displayed on the invoice under the client name', input_html: { rows: 3 } %>
+              </div>
+            </div>
 
             <div class="row">
               <div class="col-md-6">

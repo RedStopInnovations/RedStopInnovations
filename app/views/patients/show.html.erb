@@ -264,6 +264,21 @@
           <div class="row">
             <div class="col-md-6">
               <div class="block-info">
+                <strong>Extra invoice details</strong>
+                <% if @patient.extra_invoice_info.present? %>
+                  <div><%= simple_format @patient.extra_invoice_info %></div>
+                <% else %>
+                  <p>
+                    <span class="text-muted">--</span>
+                  </p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="block-info">
                 <strong>Nationality:</strong>
                 <% if @patient.nationality.present? %>
                 <p>

@@ -17,6 +17,7 @@ namespace :splose do |args|
       internal_attrs[:timezone] = splose_attrs['timezone'].presence
 
       internal_attrs[:important_notification] = splose_attrs['alert'].presence
+      internal_attrs[:extra_invoice_info] = splose_attrs['extraBillingInfo'].strip.presence
 
       internal_attrs[:accepted_privacy_policy] =
         if splose_attrs['privacyPolicy'].present?
@@ -154,10 +155,6 @@ namespace :splose do |args|
 
       if splose_attrs['emergencyContactName'].present? || splose_attrs['emergencyContactNumber'].present?
         general_info_lines << "Emergency contact: #{splose_attrs['emergencyContactName'].to_s.strip} (#{splose_attrs['emergencyContactNumber'].to_s.strip})"
-      end
-
-      if splose_attrs['extraBillingInfo'].present?
-        general_info_lines << "Extra invoice billing details: #{splose_attrs['extraBillingInfo'].strip}"
       end
 
       internal_attrs[:general_info] = general_info_lines.compact.join("\n\n").strip.presence

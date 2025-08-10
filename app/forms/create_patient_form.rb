@@ -9,6 +9,7 @@ class CreatePatientForm < BaseForm
   attribute :nationality, String
   attribute :spoken_languages, String
   attribute :aboriginal_status, String
+  attribute :extra_invoice_info, String
 
   attribute :tag_ids, Array[Integer]
 

@@ -9,6 +9,7 @@ class UpdatePatientForm < BaseForm
   attribute :nationality, String
   attribute :spoken_languages, String
   attribute :aboriginal_status, String
+  attribute :extra_invoice_info, String
 
   attribute :email, String
   attribute :phone, String
@@ -82,6 +83,7 @@ class UpdatePatientForm < BaseForm
       :gender,
       :reminder_enable,
       :general_info,
+      :extra_invoice_info,
       :next_of_kin,
       :nationality,
       :aboriginal_status,

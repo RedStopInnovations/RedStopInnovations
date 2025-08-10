@@ -57,6 +57,7 @@ class UpdatePatientService
 
       :reminder_enable,
       :general_info,
+      :extra_invoice_info,
       :next_of_kin,
       :nationality,
       :aboriginal_status,
