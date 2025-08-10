@@ -242,18 +242,6 @@
           <% else %>
             <p><span class="text-muted">--</span></p>
           <% end %>
-
-          <%
-            if splose_record = SploseRecord.find_by(internal_id: @patient.id, business_id: current_business.id, resource_type: 'Patient')
-              if splose_record.reference_url.present?
-                %>
-                <p>
-                  <a href="<%= splose_record.reference_url %>" target="_blank">View in Splose <i class="fa fa-external-link"></i></a>
-                </p>
-                <%
-              end
-            end
-          %>
         </div>
       </div>
 
@@ -384,6 +372,61 @@
               </div>
             </div>
           </div>
+
+          <%
+            if splose_record = SploseRecord.find_by(internal_id: @patient.id, business_id: current_business.id, resource_type: 'Patient')
+              if splose_record.reference_url.present?
+                %>
+                <p>
+                  <a href="<%= splose_record.reference_url %>" target="_blank">View in Splose <i class="fa fa-external-link"></i></a>
+                </p>
+                <%
+              end
+            end
+          %>
+
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="panel-title">Associated contacts</span>
+        </div>
+
+        <div class="panel-body">
+          <% if @patient.patient_contacts.any? %>
+            <div class="row associated-contacts-header pb-10 mb-10" style="border-bottom: 1px solid #ddd;">
+              <div class="col-md-4"><strong>Name</strong></div>
+              <div class="col-md-2"><strong>Associated type</strong></div>
+              <div class="col-md-2 text-center"><strong>Appts</strong></div>
+              <div class="col-md-2 text-center"><strong>Invoices</strong></div>
+              <div class="col-md-2 text-center"><strong>Notes</strong></div>
+            </div>
+
+            <% @patient.patient_contacts.each do |patient_contact| %>
+              <div class="row associated-contact-row mb-10 pt-10 pb-10" style="border-bottom: 1px solid #f5f5f5;">
+                <div class="col-md-4">
+                  <a href="<%= contact_path(patient_contact.contact_id) %>"><%= patient_contact.contact.business_name %></a>
+                </div>
+                <div class="col-md-2">
+                  <%= patient_contact.type %>
+                </div>
+                <div class="col-md-2 text-center">
+                  <input type="checkbox" <%= patient_contact.for_appointments ? 'checked' : '' %>  onclick="return false;">
+                </div>
+                <div class="col-md-2 text-center">
+                  <input type="checkbox" <%= patient_contact.for_invoices ? 'checked' : '' %>  onclick="return false;">
+                </div>
+                <div class="col-md-2 text-center">
+                  <input type="checkbox" <%= patient_contact.for_treatment_notes ? 'checked' : '' %>  onclick="return false;">
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-muted">
+              No associated contacts
+            </div>
+          <% end %>
         </div>
       </div>
 
@@ -614,78 +657,10 @@
         </div>
       </div>
 
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <span class="panel-title">Associated contacts</span>
-        </div>
-
-        <div class="panel-body">
-          <% if @patient.patient_contacts.any? %>
-            <div class="row associated-contacts-header pb-10 mb-10" style="border-bottom: 1px solid #ddd;">
-              <div class="col-md-4"><strong>Name</strong></div>
-              <div class="col-md-2"><strong>Associated type</strong></div>
-              <div class="col-md-2 text-center"><strong>Appts</strong></div>
-              <div class="col-md-2 text-center"><strong>Invoices</strong></div>
-              <div class="col-md-2 text-center"><strong>Notes</strong></div>
-            </div>
-
-            <% @patient.patient_contacts.each do |patient_contact| %>
-              <div class="row associated-contact-row mb-10 pt-10 pb-10" style="border-bottom: 1px solid #f5f5f5;">
-                <div class="col-md-4">
-                  <a href="<%= contact_path(patient_contact.contact_id) %>"><%= patient_contact.contact.business_name %></a>
-                </div>
-                <div class="col-md-2">
-                  <%= patient_contact.type %>
-                </div>
-                <div class="col-md-2 text-center">
-                  <input type="checkbox" <%= patient_contact.for_appointments ? 'checked' : '' %>  onclick="return false;">
-                </div>
-                <div class="col-md-2 text-center">
-                  <input type="checkbox" <%= patient_contact.for_invoices ? 'checked' : '' %>  onclick="return false;">
-                </div>
-                <div class="col-md-2 text-center">
-                  <input type="checkbox" <%= patient_contact.for_treatment_notes ? 'checked' : '' %>  onclick="return false;">
-                </div>
-              </div>
-            <% end %>
-          <% else %>
-            <div class="text-muted">
-              No associated contacts
-            </div>
-          <% end %>
-        </div>
-      </div>
-
       <% if params[:audit] && (current_user.role_administrator? || current_user.role_supervisor?) %>
         <%= render 'app/audit_logs', object: @patient %>
       <% end %>
     </div>
-
-    <!-- <div class="col-lg-4 col-md-4 col-xs-12">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <span class="panel-title">Upcoming appointment</span>
-        </div>
-
-        <div class="panel-body">
-          <p>
-            There are no upcoming appointments scheduled. <a href="#">Book new appointent</a> ?
-          </p>
-        </div>
-      </div>
-
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <span class="panel-title">Open case</span>
-        </div>
-
-        <div class="panel-body">
-          <p>
-            ...
-          </p>
-        </div>
-      </div>
-    </div> -->
   </div>
 
 <% end %>

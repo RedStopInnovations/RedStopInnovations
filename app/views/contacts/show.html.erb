@@ -25,6 +25,7 @@
     </div>
 
     <div class="panel panel-default mt-20">
+      <div class="panel-heading">General info</div>
       <div class="panel-body">
         <div class="row">
           <div class="col-sm-12 col-md-4">
@@ -170,22 +171,26 @@
               </div>
             </div>
           </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default mt-20">
+      <div class="panel-heading">Notes</div>
+      <div class="panel-body">
+        <% if @contact.notes.present? %>
+          <%= simple_format @contact.notes %>
+        <% else %>
+          <p>
+            <span class="text-muted">--</span>
+          </p>
+        <% end %>
+      </div>
+    </div>
 
 
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="block-info">
-              <strong>Notes:</strong>
-              <% if @contact.notes.present? %>
-                <%= simple_format @contact.notes %>
-              <% else %>
-                <p>
-                  <span class="text-muted">--</span>
-                </p>
-              <% end %>
-            </div>
-          </div>
-        </div>
+    <div class="panel panel-default mt-20">
+      <div class="panel-heading">Other info</div>
+      <div class="panel-body">
 
         <div class="row">
           <div class="col-sm-4">
