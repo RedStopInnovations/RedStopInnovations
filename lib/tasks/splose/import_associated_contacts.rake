@@ -118,7 +118,7 @@ namespace :splose do |args|
 
       if res['links']['nextPage'].present?
         log "Next page found. Fetching more contacts ..."
-        sleep(15)
+        sleep(5)
         fetch_contacts(res['links']['nextPage'])
       end
     end

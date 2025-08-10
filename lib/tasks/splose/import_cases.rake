@@ -17,6 +17,13 @@ namespace :splose do |args|
       internal_attrs[:created_at] = Time.parse(splose_attrs['createdAt']) if splose_attrs['createdAt'].present?
       internal_attrs[:updated_at] = Time.parse(splose_attrs['updatedAt']) if splose_attrs['updatedAt'].present?
 
+      # @TODO: check "items" to update allocated appointment counter
+      # "items": [
+      #   {
+      #     "typeId": 1,
+      #     "type": "Appointment"
+      #   }
+      # ]
       internal_attrs
     end
 
@@ -162,7 +169,7 @@ namespace :splose do |args|
 
       if res['links']['nextPage'].present?
         log "Next page found. Fetching more cases ..."
-        sleep(15)
+        sleep(5)
         fetch_cases(res['links']['nextPage'])
       end
     end

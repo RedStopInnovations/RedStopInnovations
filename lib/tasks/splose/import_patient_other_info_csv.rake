@@ -74,7 +74,7 @@ namespace :splose do |args|
               next
             end
 
-            patient = @business.patients.find(patient_import_record.internal_id)
+            patient = @business.patients.with_deleted.find(patient_import_record.internal_id)
 
             # Parse the JSON data
             medications = parse_json_array(medications_json)

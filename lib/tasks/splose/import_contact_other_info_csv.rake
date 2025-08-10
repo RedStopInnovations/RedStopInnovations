@@ -63,7 +63,13 @@ namespace :splose do |args|
               next
             end
 
-            contact = @business.contacts.find(contact_import_record.internal_id)
+            contact = @business.contacts.with_deleted.find_by(id: contact_import_record.internal_id)
+
+            if !contact
+              log "Skipping row #{@total}: Contact not found (internal_id: #{contact_import_record.internal_id})"
+              @total_skipped += 1
+              next
+            end
 
             update_attrs = {
               notes: notes.presence
