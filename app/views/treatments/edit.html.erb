@@ -7,11 +7,6 @@
     <div class="col-md-6">
       <div class="pull-right">
           <div class="btn-group">
-            <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
-              <i class="fa fa-envelope-o"></i>
-              Email
-            </a>
-
             <a href="<%= print_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
               <i class="fa fa-print"></i> Print
             </a>
@@ -78,6 +73,5 @@
 <% end %>
 
 <%= content_for :page_js do %>
-  <%= render 'common/modal_send_email_js' %>
   <%= render 'treatment_templates/tiptap_editor_js' %>
 <% end %>
