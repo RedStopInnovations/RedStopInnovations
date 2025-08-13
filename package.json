@@ -2,7 +2,8 @@
   "name": "app",
   "private": true,
   "dependencies": {
-    "ahoy.js": "^0.4.3"
+    "ahoy.js": "^0.4.3",
+    "vue": "^3.4.0"
   },
   "version": "0.1.0",
   "browserslist": [
@@ -10,6 +11,11 @@
   ],
   "devDependencies": {
     "vite": "^5.0.0",
-    "vite-plugin-ruby": "^5.1.0"
+    "vite-plugin-ruby": "^5.1.0",
+    "@vitejs/plugin-vue": "^5.0.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.0.0",
+    "@rollup/rollup-linux-x64-musl": "^4.0.0"
   }
 }
