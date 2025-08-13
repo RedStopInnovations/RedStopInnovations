@@ -1,0 +1,23 @@
+{
+  "entrypoints": {
+    "frontend": {
+      "assets": {
+        "js": [
+          "/packs/js/runtime-e2a328711e6eb349ca6e.js",
+          "/packs/js/231-d4239aa1359120f06640.js",
+          "/packs/js/frontend-d215684be690eb6a257a.js"
+        ],
+        "css": [
+          "/packs/css/frontend-afe63d58.css"
+        ]
+      }
+    }
+  },
+  "frontend.css": "/packs/css/frontend-afe63d58.css",
+  "frontend.js": "/packs/js/frontend-d215684be690eb6a257a.js",
+  "js/231-d4239aa1359120f06640.js": "/packs/js/231-d4239aa1359120f06640.js",
+  "runtime.js": "/packs/js/runtime-e2a328711e6eb349ca6e.js",
+  "static/images/hero-search-bg.jpg": "/packs/static/images/hero-search-bg-4e7ca503b6b8398577d3.jpg",
+  "static/images/logo.png": "/packs/static/images/logo-10a363278b0b072a66f6.png",
+  "static/images/tracksy-logo.jpeg": "/packs/static/images/tracksy-logo-5e860abaf83aa3c09ea7.jpeg"
+}
