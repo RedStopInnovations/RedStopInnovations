@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include PackTagHelper
+
   def page_title
     if content_for?(:title)
       sanitized_title = sanitize(content_for(:title).to_s)

@@ -26,6 +26,8 @@
     <![endif]-->
     <%= yield(:head_css) %>
     <%= yield(:head_js) %>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'application' %>
   </head>
 
   <body class="fixed skin-purple-light sidebar-mini <%= yield(:body_class) %>">

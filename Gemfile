@@ -17,7 +17,6 @@ gem 'rubyzip', require: 'zip'
 gem 'bcrypt', '3.1.12'
 gem 'bumbler'
 gem 'addressable', '~> 2.8.0'
-gem "shakapacker", "6.5.4"
 
 group :development, :test do
   gem 'byebug', platform: :mri
@@ -115,3 +114,4 @@ gem 'signet'
 gem 'device_detector'
 gem 'sendgrid-ruby'
 gem 'ahoy_matey'
+gem 'vite_rails'
