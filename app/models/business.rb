@@ -108,7 +108,7 @@ class Business < ApplicationRecord
   has_many :trigger_categories
   has_many :trigger_words, through: :trigger_categories, source: :words
   has_many :availability_subtypes, class_name: 'AvailabilitySubtype'
-  has_many :patient_treatments, through: :patients, source: :treatments
+  has_many :treatment_notes
 
   has_one :stripe_account, class_name: 'BusinessStripeAccount'
   has_one :mailchimp_setting, class_name: 'BusinessMailchimpSetting'

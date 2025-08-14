@@ -106,7 +106,6 @@ class User < ApplicationRecord
   belongs_to :business
   has_one :practitioner, inverse_of: :user
   has_one :google_calendar_sync_setting, class_name: 'UserGoogleCalendarSyncSetting'
-  has_many :treatments, foreign_key: :author_id
   has_many :preferences, foreign_key: :user_id, class_name: 'UserPreference'
   accepts_nested_attributes_for :practitioner
 

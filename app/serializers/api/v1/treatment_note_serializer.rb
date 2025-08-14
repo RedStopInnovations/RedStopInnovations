@@ -1,6 +1,6 @@
 module Api
   module V1
-    class TreatmentSerializer < BaseSerializer
+    class TreatmentNoteSerializer < BaseSerializer
       type 'treatment_notes'
 
       attributes  :name,

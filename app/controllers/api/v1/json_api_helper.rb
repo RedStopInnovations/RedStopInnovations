@@ -19,7 +19,7 @@ module Api
           Business: BusinessSerializer,
           Task: TaskSerializer,
           User: UserSerializer,
-          Treatment: TreatmentSerializer,
+          TreatmentNote: TreatmentSerializer,
           PatientAttachment: PatientAttachmentSerializer,
           PatientContact: PatientContactSerializer,
           Referral: ReferralSerializer,

@@ -1,5 +1,5 @@
 module RansackAuthorization
-  module Treatment
+  module TreatmentNote
     extend ActiveSupport::Concern
 
     included do
@@ -21,8 +21,7 @@ module RansackAuthorization
 
       def self.ransortable_attributes(auth_object = nil)
         [
-          'first_name',
-          'last_name',
+          'name',
           'status',
           'created_at',
           'updated_at'

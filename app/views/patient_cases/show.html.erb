@@ -194,10 +194,10 @@
               <td style="width: 300px">
                 <% case obj %>
                 <% when Invoice %>
-                  Invoice: <a href="<%= associate[:link] %>"> #<%= obj.invoice_number %> </a>
+                  Invoice: <a href="<%= associate[:link] %>"> <%= obj.invoice_number %> </a>
                 <% when PatientAttachment %>
                   Attachment: <a href="<%= associate[:link] %>"><%= obj.attachment_file_name %> </a>
-                <% when Treatment %>
+                <% when TreatmentNote %>
                   Treatment note: <a href="<%= associate[:link] %>"><%= obj.name %> </a>
                 <% when Appointment %>
                   Appointment: <a href="<%= associate[:link] %>"><%= obj.start_time.strftime(t('date.common')) %> - <%= obj.appointment_type&.name %> </a>

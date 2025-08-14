@@ -113,11 +113,11 @@ module PatientBulkArchiveSearch
         end
 
         if threshold_date
-          query = query.joins("LEFT JOIN treatments ON treatments.patient_id = patients.id AND treatments.created_at >= '#{threshold_date.in_time_zone('UTC').strftime('%Y-%m-%d %H:%M:%S')}'").
-            where('treatments.id IS NULL')
+          query = query.joins("LEFT JOIN treatment_notes ON treatment_notes.patient_id = patients.id AND treatment_notes.created_at >= '#{threshold_date.in_time_zone('UTC').strftime('%Y-%m-%d %H:%M:%S')}'").
+            where('treatment_notes.id IS NULL')
         else
-          query = query.joins('LEFT JOIN treatments ON treatments.patient_id = patients.id').
-            where('treatments.id IS NULL')
+          query = query.joins('LEFT JOIN treatment_notes ON treatment_notes.patient_id = patients.id').
+            where('treatment_notes.id IS NULL')
         end
       end
 

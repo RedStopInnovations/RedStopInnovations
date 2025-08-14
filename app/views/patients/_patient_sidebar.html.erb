@@ -2,7 +2,7 @@
   invoices_count = @patient.invoices.count
   appointments_count = @patient.appointments.count
   attachments_count = @patient.attachments.count
-  treatment_notes_count = @patient.treatments.count
+  treatment_notes_count = @patient.treatment_notes.count
   letters_count = @patient.letters.count
   cases_count = @patient.patient_cases.count
   messages_count = Communication.
@@ -39,9 +39,9 @@
         <li class=<%= (controller_name == 'patient_attachments' && ['index', 'show', 'new', 'edit'].include?(action_name)) ? 'active' : '' %>>
           <a href="<%= patient_attachments_path(patient_id: @patient) %>">Attachments <% if attachments_count > 0 %> <span class="label label-default pull-right"><%= attachments_count %></span><% end %></a>
         </li>
-        <% if can?(:read, Treatment) %>
-        <li class=<%= (controller_name == 'treatments' && action_name == 'index') ? 'active' : '' %>>
-          <a href="<%= patient_treatments_path(@patient) %>">Treatment notes <% if treatment_notes_count > 0 %> <span class="label label-default pull-right"><%= treatment_notes_count %></span><% end %></a>
+        <% if can?(:read, TreatmentNote) %>
+        <li class=<%= (controller_name == 'treatment_notes' && action_name == 'index') ? 'active' : '' %>>
+          <a href="<%= patient_treatment_notes_path(@patient) %>">Treatment notes <% if treatment_notes_count > 0 %> <span class="label label-default pull-right"><%= treatment_notes_count %></span><% end %></a>
         </li>
         <% end %>
         <% if can?(:read, PatientLetter) %>

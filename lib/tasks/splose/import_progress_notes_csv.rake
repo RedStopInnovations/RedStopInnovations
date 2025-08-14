@@ -5,7 +5,7 @@ namespace :splose do
   # bin/rails splose:import_progress_notes_csv business_id=1 csv=/path/to/file.csv
   task import_progress_notes_csv: :environment do
     class ImportTreatmentNote < ::ActiveRecord::Base
-      self.table_name = 'treatments'
+      self.table_name = 'treatment_notes'
     end
 
     def log(what)
@@ -78,9 +78,9 @@ namespace :splose do
             # Map draft status
             status = case draft&.strip&.downcase
                      when 'yes', 'true', '1'
-                       Treatment::STATUS_DRAFT
+                       TreatmentNote::STATUS_DRAFT
                      else
-                       Treatment::STATUS_FINAL
+                       TreatmentNote::STATUS_FINAL
                      end
 
             # Parse and convert JSON content to HTML
@@ -102,7 +102,7 @@ namespace :splose do
             treatment_import_record = SploseRecord.find_or_initialize_by(
               business_id: @business.id,
               reference_id: splose_note_id,
-              resource_type: 'Treatment'
+              resource_type: 'TreatmentNote'
             )
 
             if treatment_import_record.persisted? && !@force_update

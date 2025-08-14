@@ -1,4 +1,4 @@
-class TreatmentsController < ApplicationController
+class TreatmentNotesController < ApplicationController
   include HasABusiness
   include PatientAccessRestriction
 
@@ -27,27 +27,27 @@ class TreatmentsController < ApplicationController
                   order(updated_at: :desc).
                   take(3)
 
-    treatments_query = @patient.treatments.includes(:appointment, :author)
+    treatment_notes_query = @patient.treatment_notes.includes(:appointment, :author)
 
-    # @TODO: improve this
+    # @TODO: Make a report class
     if params[:q].present?
       query_string = "%#{params[:q].to_s.downcase}%"
-      treatments_query = treatments_query.where("LOWER(html_content) LIKE ? OR LOWER(name) LIKE ?", query_string, query_string)
+      treatment_notes_query = treatment_notes_query.where("LOWER(html_content) LIKE ? OR LOWER(name) LIKE ?", query_string, query_string)
     end
 
-    treatments_query =
+    treatment_notes_query =
       case params[:order]
       when 'created_date'
-        treatments_query.order(created_at: :desc)
+        treatment_notes_query.order(created_at: :desc)
       when 'appointment_date'
-        treatments_query.order('appointment.start_time' => :desc)
+        treatment_notes_query.order('appointment.start_time' => :desc)
       when 'author'
-        treatments_query.order('author.full_name' => :desc)
+        treatment_notes_query.order('author.full_name' => :desc)
       else
-        treatments_query.order(created_at: :desc)
+        treatment_notes_query.order(created_at: :desc)
       end
 
-    @treatments = treatments_query.page(params[:page])
+    @treatment_notes = treatment_notes_query.page(params[:page])
 
     @upcoming_appointments = @patient.appointments.
                             where('start_time > ?', Time.current).
@@ -61,7 +61,7 @@ class TreatmentsController < ApplicationController
   end
 
   def new
-    @treatment = Treatment.new
+    @treatment = TreatmentNote.new
 
     if params[:patient_id] &&
        current_business.patients.exists?(id: params[:patient_id])
@@ -81,9 +81,9 @@ class TreatmentsController < ApplicationController
   end
 
   def create
-    @treatment = Treatment.new(create_treatment_params)
+    @treatment = TreatmentNote.new(create_treatment_params)
     @treatment.patient = @patient
-    @treatment.status = Treatment::STATUS_DRAFT
+    @treatment.status = TreatmentNote::STATUS_DRAFT
     @treatment.author_id = current_user.id
     @treatment.business_id = current_business.id
 
@@ -103,7 +103,7 @@ class TreatmentsController < ApplicationController
         )
       end
 
-      redirect_to edit_patient_treatment_path(@patient, @treatment),
+      redirect_to edit_patient_treatment_note_path(@patient, @treatment),
                   notice: 'Treatment note was successfully created.'
     else
       flash.now[:alert] = 'Failed to create treatment note. Please check for form errors.'
@@ -129,7 +129,7 @@ class TreatmentsController < ApplicationController
 
       respond_to do |f|
         f.html do
-          redirect_to patient_treatment_path(@patient, @treatment),
+          redirect_to patient_treatment_note_path(@patient, @treatment),
                   notice: 'Treatment note was successfully updated.'
         end
         f.json do
@@ -162,12 +162,12 @@ class TreatmentsController < ApplicationController
   def destroy
     authorize! :destroy, @treatment
 
-    if @treatment.status == Treatment::STATUS_DRAFT
+    if @treatment.status == TreatmentNote::STATUS_DRAFT
       @treatment.destroy
-      redirect_to patient_treatments_url(@patient),
+      redirect_to patient_treatment_notes_url(@patient),
                   notice: 'Treatment note was successfully deleted.'
     else
-      redirect_to patient_treatments_url(@patient),
+      redirect_to patient_treatment_notes_url(@patient),
                   alert: 'Can\'t delete Final treatment note.'
     end
   end
@@ -204,7 +204,7 @@ class TreatmentsController < ApplicationController
     render 'common/_modal_send_email',
            locals: {
              modal_title: "Send treatment note",
-             send_email_url: send_email_patient_treatment_path(@patient, @treatment),
+             send_email_url: send_email_patient_treatment_note_path(@patient, @treatment),
              patient: @patient,
              send_email_form: send_email_form,
              source: @treatment,
@@ -235,7 +235,7 @@ class TreatmentsController < ApplicationController
   end
 
   def last_treatment_note
-    @treatment = @patient.treatments.where(treatment_note_template_id: params[:template_id])
+    @treatment = @patient.treatment_notes.where(treatment_note_template_id: params[:template_id])
                          .order(updated_at: :desc).first
     render json: @treatment
   end
@@ -247,11 +247,11 @@ class TreatmentsController < ApplicationController
   end
 
   def set_treatment
-    @treatment = Treatment.find( params[:id] )
+    @treatment = TreatmentNote.find( params[:id] )
   end
 
   def create_treatment_params
-    params.require(:treatment).permit(
+    params.require(:treatment_note).permit(
       :appointment_id,
       :treatment_note_template_id,
       :patient_case_id,
@@ -259,7 +259,7 @@ class TreatmentsController < ApplicationController
   end
 
   def update_treatment_params
-    params.require(:treatment).permit(
+    params.require(:treatment_note).permit(
       :name,
       :appointment_id,
       :patient_case_id,

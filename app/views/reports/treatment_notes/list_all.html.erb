@@ -88,8 +88,8 @@
               <label>Status:</label>
               <select class="form-control" name="status">
                 <option value="">All</option>
-                <option value="<%= Treatment::STATUS_FINAL %>" <% if @options.status == Treatment::STATUS_FINAL %> selected <% end %> >Final</option>
-                <option value="<%= Treatment::STATUS_DRAFT %>" <% if @options.status == Treatment::STATUS_DRAFT %> selected <% end %> >Draft</option>
+                <option value="<%= TreatmentNote::STATUS_FINAL %>" <% if @options.status == TreatmentNote::STATUS_FINAL %> selected <% end %> >Final</option>
+                <option value="<%= TreatmentNote::STATUS_DRAFT %>" <% if @options.status == TreatmentNote::STATUS_DRAFT %> selected <% end %> >Draft</option>
               </select>
             </div>
           </div>
@@ -129,7 +129,7 @@
                   <%= treatment.name %></p>
               </td>
               <td>
-                <span class="label <%= {Treatment::STATUS_DRAFT => 'label-default', Treatment::STATUS_FINAL => 'label-primary'}[treatment.status] %>"><%= treatment.status %></span>
+                <span class="label <%= {TreatmentNote::STATUS_DRAFT => 'label-default', TreatmentNote::STATUS_FINAL => 'label-primary'}[treatment.status] %>"><%= treatment.status %></span>
               </td>
               <td>
                 <a href="<%= patient_path(treatment.patient) %>"><%= treatment.patient.full_name %></a>
@@ -138,7 +138,7 @@
                   <%= treatment.created_at.strftime(t('date.common')) %>
               </td>
               <td>
-                <a href="<%= patient_treatment_path(treatment.patient_id, treatment) %>" class="btn btn-white">Details</a>
+                <a href="<%= patient_treatment_note_path(treatment.patient_id, treatment) %>" class="btn btn-white">Details</a>
               </td>
             </tr>
           <% end %>

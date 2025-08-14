@@ -73,7 +73,7 @@ module Report
               appointment.try(:start_time).try(:strftime, "%Y-%m-%d"),
               treatment.name,
               treatment.created_at.strftime("%Y-%m-%d"),
-              treatment.status == Treatment::STATUS_FINAL ? "FINAL" : "DRAFT",
+              treatment.status == TreatmentNote::STATUS_FINAL ? "FINAL" : "DRAFT",
               treatment.html_content
             ]
           end
@@ -83,7 +83,7 @@ module Report
       private
 
       def treatment_notes_query
-        query = business.patient_treatments.includes(:patient, :author, appointment: [:practitioner])
+        query = business.treatment_notes.includes(:patient, :author, appointment: [:practitioner])
 
         if @options.name.present?
           query = query.where("name ILIKE ?", "%#{@options.name}%")

@@ -6,7 +6,7 @@
     </div>
 
     <div class="col-md-4 col-xs-6 text-right">
-      <a href="<%= new_patient_treatment_path(@patient) %>" class="btn btn-primary">
+      <a href="<%= new_patient_treatment_note_path(@patient) %>" class="btn btn-primary">
         <i class="fa fa-plus"></i> Add <span class="hidden-xs">note</span>
       </a>
     </div>
@@ -15,13 +15,13 @@
   <div class="row mt-10">
     <div class="col-lg-8 col-md-7 col-xs-12">
 
-      <form action="<%= patient_treatments_path(@patient) %>">
+      <form action="<%= patient_treatment_notes_path(@patient) %>">
         <div class="row">
           <div class="col-xs-7 col-md-8">
             <input class="form-control" placeholder="Search" type="text" name="q" value="<%= params[:q] %>">
           </div>
 
-          <% if @treatments.total_count > 0 %>
+          <% if @treatment_notes.total_count > 0 %>
             <div class="col-xs-5 col-md-4">
               <select name="order" id="js-input-treatment-notes-order" class="form-control pull-right" style="width: 170px">
                 <option value="" disabled>--- Select order ---</option>
@@ -41,26 +41,26 @@
   <div class="row list-treatments mt-10">
     <div class="col-lg-8 col-md-7">
 
-      <% @treatments.each do |treatment| %>
+      <% @treatment_notes.each do |treatment| %>
         <div class="panel panel-default js-panel-treatment-note">
           <div class="panel-body">
             <div class="pull-right">
               <div class="btn-group">
-                <a href="<%= patient_treatment_path(@patient, treatment) %>" class="btn btn-white">
+                <a href="<%= patient_treatment_note_path(@patient, treatment) %>" class="btn btn-white">
                   Details
                 </a>
 
-                <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, treatment) %>" class="btn btn-white js-btn-send-email">
+                <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_note_path(@patient, treatment) %>" class="btn btn-white js-btn-send-email">
                   <i class="fa fa-envelope-o"></i>
                   Email
                 </a>
 
-                <a href="<%= print_patient_treatment_path(@patient, treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+                <a href="<%= print_patient_treatment_note_path(@patient, treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
                   <i class="fa fa-print"></i> Print
                 </a>
 
-                <% unless treatment.status == Treatment::STATUS_FINAL %>
-                  <a href="<%= edit_patient_treatment_path(@patient, treatment) %>" class="btn btn-white">
+                <% unless treatment.status == TreatmentNote::STATUS_FINAL %>
+                  <a href="<%= edit_patient_treatment_note_path(@patient, treatment) %>" class="btn btn-white">
                     <i class="fa fa-pencil-square-o"></i> Edit
                   </a>
                 <% end %>
@@ -69,10 +69,10 @@
             </div>
 
             <h4 class="mt-0">
-              <a href="<%= patient_treatment_path(@patient, treatment) %>">
+              <a href="<%= patient_treatment_note_path(@patient, treatment) %>">
                 <%= treatment.name %>
               </a>
-               <span class="label <%= {Treatment::STATUS_DRAFT => 'label-default', Treatment::STATUS_FINAL => 'label-primary'}[treatment.status] %>"><%= treatment.status %></span>
+               <span class="label <%= {TreatmentNote::STATUS_DRAFT => 'label-default', TreatmentNote::STATUS_FINAL => 'label-primary'}[treatment.status] %>"><%= treatment.status %></span>
               </h4>
 
             <div class="text-smaller">
@@ -92,9 +92,9 @@
 
       <div class="panel panel-default">
         <div class="panel-body">
-          <% if @treatments.blank? %>
-            <% if params[:q].present? && @treatments.blank? %>
-              <p class="text-muted mb-0">Not notes match your query. <a href="<%= patient_treatments_path(@patient) %>">Clear filters</a></p>
+          <% if @treatment_notes.blank? %>
+            <% if params[:q].present? && @treatment_notes.blank? %>
+              <p class="text-muted mb-0">Not notes match your query. <a href="<%= patient_treatment_notes_path(@patient) %>">Clear filters</a></p>
             <% else %>
               <p class="text-muted">No notes created.</p>
             <% end %>
@@ -102,10 +102,10 @@
 
             <div class="row">
               <div class="col-md-6">
-                <%= page_entries_info @treatments, entry_name: 'notes' %>
+                <%= page_entries_info @treatment_notes, entry_name: 'notes' %>
               </div>
               <div class="col-md-6">
-                <%= paginate @treatments, theme: 'app' %>
+                <%= paginate @treatment_notes, theme: 'app' %>
               </div>
             </div>
           <% end %>

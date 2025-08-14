@@ -21,14 +21,14 @@ class Ability
       if user.role_administrator?
         can :manage, :all
 
-        cannot :edit, Treatment do |treatment|
-          treatment.status == Treatment::STATUS_FINAL
+        cannot :edit, TreatmentNote do |treatment_note|
+          treatment_note.status == TreatmentNote::STATUS_FINAL
         end
 
       elsif user.role_supervisor?
         [
           Patient, Contact, Invoice, Payment, Availability, Appointment,
-          Communication, Treatment, PatientLetter,
+          Communication, TreatmentNote, PatientLetter,
           AccountStatement, PatientCase, Referral
         ].
           each do |resource|
@@ -51,7 +51,7 @@ class Ability
       elsif user.role_restricted_supervisor?
         [
           Patient, Contact, Invoice, Payment, Availability, Appointment,
-          Communication, Treatment, PatientLetter,
+          Communication, TreatmentNote, PatientLetter,
           AccountStatement, PatientCase, Referral
         ].
           each do |resource|
@@ -71,7 +71,7 @@ class Ability
       elsif user.role_practitioner?
         [
           Patient, Contact, Invoice, Payment, Availability, Appointment,
-          Treatment, PatientLetter, AccountStatement, PatientCase
+          TreatmentNote, PatientLetter, AccountStatement, PatientCase
         ].
           each do |resource|
           can :manage, resource
@@ -96,17 +96,17 @@ class Ability
         cannot :read, :reports
         cannot :read, :settings
         cannot :edit, :business_profile
-        cannot :destroy, Treatment
+        cannot :destroy, TreatmentNote
         cannot :merge, Contact
         cannot :merge, Patient
 
-        cannot :edit, Treatment do |treatment|
-          treatment.status == Treatment::STATUS_FINAL
+        cannot :edit, TreatmentNote do |treatment_note|
+          treatment_note.status == TreatmentNote::STATUS_FINAL
         end
 
         cannot :edit, Invoice
       elsif user.role_restricted_practitioner?
-        [Patient, Availability, Appointment, Treatment, PatientLetter].
+        [Patient, Availability, Appointment, TreatmentNote, PatientLetter].
           each do |resource|
           can :manage, resource
         end
@@ -125,7 +125,7 @@ class Ability
         cannot :read, :reports
         cannot :read, :settings
         cannot :edit, :business_profile
-        cannot :destroy, Treatment
+        cannot :destroy, TreatmentNote
         cannot :destroy, Payment
         cannot :destroy, Invoice
         cannot :read, Payment
@@ -134,8 +134,8 @@ class Ability
         cannot :merge, Contact
         cannot :merge, Patient
 
-        cannot :edit, Treatment do |treatment|
-          treatment.status == Treatment::STATUS_FINAL
+        cannot :edit, TreatmentNote do |treatment_note|
+          treatment_note.status == TreatmentNote::STATUS_FINAL
         end
 
         cannot :edit, Invoice
@@ -158,7 +158,7 @@ class Ability
         cannot :read, Post
         cannot :export, Patient
         cannot :read, :settings
-        cannot :read, Treatment
+        cannot :read, TreatmentNote
         cannot :read, PatientLetter
         cannot :destroy, Patient
         cannot :manage_access, Patient
@@ -178,7 +178,7 @@ class Ability
         cannot :read, Post
         cannot :export, Patient
         cannot :read, :settings
-        cannot :read, Treatment
+        cannot :read, TreatmentNote
         cannot :read, PatientLetter
         cannot :destroy, Patient
         cannot :manage_access, Patient

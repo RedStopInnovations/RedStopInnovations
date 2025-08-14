@@ -47,8 +47,6 @@ module Reports
     end
 
     def triggers_by_word
-      ahoy_track_once 'View search treatments for word report'
-
       @trigger_words = current_business.
         trigger_words.
         includes(:trigger_report).
@@ -56,8 +54,6 @@ module Reports
     end
 
     def triggers_by_category
-      ahoy_track_once 'View search treatments for category report'
-
       @trigger_categories = current_business.
         trigger_categories.
         includes(:words, :trigger_report).

@@ -23,8 +23,8 @@ json.patients do
     json.last_invoice_issue_date patient.invoices.order('issue_date DESC').first.try(:issue_date)
     json.invoices_outstanding_count patient.invoices.where('outstanding > 0').count
 
-    json.treatment_notes_count patient.treatments.count
-    json.last_treatment_note_created_at patient.treatments.order('created_at DESC').first.try(:created_at)
+    json.treatment_notes_count patient.treatment_notes.count
+    json.last_treatment_note_created_at patient.treatment_notes.order('created_at DESC').first.try(:created_at)
   end
 end
 

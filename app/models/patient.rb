@@ -153,7 +153,7 @@ class Patient < ApplicationRecord
   has_many :incoming_messages
   has_many :invoices
   has_many :payments
-  has_many :treatments
+  has_many :treatment_notes, class_name: 'TreatmentNote'
   has_many :attachments, class_name: 'PatientAttachment', inverse_of: :patient
   has_many :wait_lists
   has_one  :stripe_info, dependent: :destroy # @TODO: remove

@@ -40,7 +40,7 @@
             <tr>
               <td>
                 <% if patient_case.case_number %>
-                  <%= patient_case.case_number %>
+                  <a href="<%= patient_case_path(@patient, patient_case) %>"><%= patient_case.case_number %></a>
                 <% else %>
                   <span class="text-muted">--</span>
                 <% end %>

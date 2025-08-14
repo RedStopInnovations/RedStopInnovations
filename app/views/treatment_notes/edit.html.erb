@@ -7,7 +7,7 @@
     <div class="col-md-6">
       <div class="pull-right">
           <div class="btn-group">
-            <a href="<%= print_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+            <a href="<%= print_patient_treatment_note_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
               <i class="fa fa-print"></i> Print
             </a>
           </div>
@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <%= simple_form_for @treatment, url: patient_treatment_path(@patient, @treatment), html: { id: 'js-form-tiptap-editor' } do |form| %>
+  <%= simple_form_for @treatment, url: patient_treatment_note_path(@patient, @treatment), html: { id: 'js-form-tiptap-editor' } do |form| %>
     <div class="row">
       <div class="col-md-6">
         <div class="panel panel-default">
@@ -27,21 +27,21 @@
             %>
 
             <%=
-              form.input :status, required: true, collection: Treatment::STATUS
+              form.input :status, required: true, collection: TreatmentNote::STATUS
             %>
 
             <%=
               form.association :patient_case,
                             as: :select,
                             label: 'Case',
-                            collection: patient_case_options_for_treatment(@patient.patient_cases),
+                            collection: patient_case_options_for_treatment_note(@patient.patient_cases),
                             include_blank: false
             %>
 
             <%=
               form.input :appointment_id,
                       as: :select,
-                      collection: appointment_options_for_treatment(@patient.appointments.order(start_time: :desc).includes(:practitioner)),
+                      collection: appointment_options_for_treatment_note(@patient.appointments.order(start_time: :desc).includes(:practitioner)),
                       input_html: { class: 'selectize' }
             %>
           </div>
@@ -66,7 +66,7 @@
 
     <div class="mb-20">
       <button type="submit" class="btn btn-primary">Update</button>
-      <a href="<%= patient_treatment_path(@patient, @treatment) %>" class="btn btn-white">Cancel</a>
+      <a href="<%= patient_treatment_note_path(@patient, @treatment) %>" class="btn btn-white">Cancel</a>
     </div>
   <% end %>
 

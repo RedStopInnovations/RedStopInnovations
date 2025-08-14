@@ -5,7 +5,7 @@ module Api
 
       def index
         treatment_notes = current_business.
-          patient_treatments.
+          treatment_notes.
           includes(:patient, :author, :appointment).
           order(id: :asc).
           ransack(jsonapi_filter_params).
@@ -24,7 +24,7 @@ module Api
       end
 
       def poll
-        treatment = current_business.patient_treatments
+        treatment = current_business.treatment_notes
                                .order(id: :desc)
                                .first
         result = []
@@ -35,7 +35,7 @@ module Api
       private
 
       def find_treatment_note
-        @treatment_note = current_business.patient_treatments.find(params[:id])
+        @treatment_note = current_business.treatment_notes.find(params[:id])
       end
 
       def jsonapi_whitelist_filter_params

@@ -75,8 +75,8 @@ module Report
             cancelled_at: nil,
             start_time: options.start_date.beginning_of_day..options.end_date.end_of_day
           ).
-          joins("LEFT JOIN treatments ON treatments.appointment_id = appointments.id").
-          where("treatments.id IS NULL").
+          joins("LEFT JOIN treatment_notes ON treatment_notes.appointment_id = appointments.id").
+          where("treatment_notes.id IS NULL").
           where(
             'appointments.status IS NULL OR appointments.status <> ?',
             Appointment::STATUS_COMPLETED

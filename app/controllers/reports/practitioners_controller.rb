@@ -28,19 +28,6 @@ module Reports
       end
     end
 
-    # @TODO: remove later
-    def practitioner_performance_legacy
-      ahoy_track_once 'View practitioner performance report (Legacy)'
-
-      @options = parse_practitioner_performance_legacy_report_options
-      @report = Report::Practitioners::PerformanceLegacy.make current_business, @options
-
-      respond_to do |f|
-        f.html
-        f.csv { send_data @report.as_csv }
-      end
-    end
-
     def practitioner_documents
       ahoy_track_once 'View practitioner documents report'
 
@@ -130,28 +117,6 @@ module Reports
       end
 
       redirect_back fallback_location: reports_practitioner_performance_path,
-                    notice: 'The performance report has been sent to practitioner.'
-    end
-
-    # @TODO: remove later
-    def send_practitioner_performance_legacy
-      ahoy_track_once 'Send practitioner performance report (Legacy)'
-
-      options = parse_practitioner_performance_legacy_report_options
-      @report = Report::Practitioners::PerformanceLegacy.make current_business, options
-
-      if @report.result[:data].present?
-        @report.result[:data].each do |row|
-          PractitionerMailer.performance_report_mail(
-            row[:practitioner],
-            options.start_date,
-            options.end_date,
-            row
-          ).deliver_later
-        end
-      end
-
-      redirect_back fallback_location: reports_practitioner_performance_legacy_path,
                     notice: 'The performance report has been sent to practitioner.'
     end
 
@@ -267,31 +232,6 @@ module Reports
 
       if params[:page]
         options.page = params[:page].to_i
-      end
-
-      options
-    end
-
-    # @TODO: remove later
-    def parse_practitioner_performance_legacy_report_options
-      options = Report::Practitioners::Performance::Options.new
-
-      if params[:start_date].present? && params[:end_date].present?
-        options.start_date = params[:start_date].to_s.to_date
-        options.end_date = params[:end_date].to_s.to_date
-      else
-        options.start_date = 30.days.ago.to_date
-        options.end_date = Date.current
-      end
-
-      if params[:practitioner_ids].present? && params[:practitioner_ids].is_a?(Array)
-        options.practitioner_ids = current_business.practitioners.
-          where(id: params[:practitioner_ids]).
-          pluck(:id)
-      elsif params[:practitioner_group_ids].present? && params[:practitioner_group_ids].is_a?(Array)
-        options.practitioner_group_ids = current_business.groups.
-          where(id: params[:practitioner_group_ids]).
-          pluck(:id)
       end
 
       options

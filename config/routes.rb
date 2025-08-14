@@ -116,18 +116,15 @@ Rails.application.routes.draw do
 
       scope :practitioners, controller: :practitioners do
         get :practitioner_performance
-        get :practitioner_performance_legacy # @TODO: remove later
         get :practitioner_reviews
         get :practitioner_documents
         get :practitioner_travel
         get :single_practitioner_travel
         get :practitioner_availability
         post :send_practitioner_performance
-        post :send_practitioner_performance_legacy # @TODO: remove later
       end
 
       scope :treatment_notes, controller: :treatment_notes do
-        get :draft_treatment_notes # @TODO: remove later
         get :list_all_treatment_notes, action: :list_all
         get :appointments_without_treatment_note
         get :triggers_by_word
@@ -281,7 +278,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :treatments do
+      resources :treatment_notes do
         member do
           get :print
           get :modal_send_email

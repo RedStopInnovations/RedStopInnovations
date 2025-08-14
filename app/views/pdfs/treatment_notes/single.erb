@@ -45,7 +45,7 @@
     <div class="box-title">
       <h3><%= treatment.name %></h3>
       <%= Date.current.strftime(t('date.common')) %> <br>
-      <div><%= treatment.status == Treatment::STATUS_FINAL ? "FINAL" : "DRAFT" %></div>
+      <div><%= treatment.status == TreatmentNote::STATUS_FINAL ? "FINAL" : "DRAFT" %></div>
     </div>
 
     <table class="table table-bordered">

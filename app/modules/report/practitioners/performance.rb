@@ -327,12 +327,12 @@ module Report
       def get_created_treatment_notes_by_practitioners
         query = "
           SELECT
-            practitioners.id AS practitioner_id, COUNT(treatments.id) AS treatment_notes_count
+            practitioners.id AS practitioner_id, COUNT(treatment_notes.id) AS treatment_notes_count
           FROM practitioners
-            LEFT JOIN treatments ON treatments.author_id = practitioners.user_id
+            LEFT JOIN treatment_notes ON treatment_notes.author_id = practitioners.user_id
           WHERE
-            treatments.created_at >= :start_time
-            AND treatments.created_at <= :end_time
+            treatment_notes.created_at >= :start_time
+            AND treatment_notes.created_at <= :end_time
         "
         query += " AND practitioners.id IN (:practitioner_ids)" if report_practitioner_ids.present?
         query += " GROUP BY practitioners.id"

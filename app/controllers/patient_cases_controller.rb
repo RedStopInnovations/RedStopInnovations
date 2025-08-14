@@ -82,11 +82,11 @@ class PatientCasesController < ApplicationController
       }
     end
 
-    @patient_case.treatments.each do |treatment|
+    @patient_case.treatment_notes.each do |treatment|
       @case_associates << {
         id: treatment.id,
         object: treatment,
-        link: patient_treatment_path(treatment.patient, treatment),
+        link: patient_treatment_note_path(treatment.patient, treatment),
         created_at: treatment.created_at
       }
     end

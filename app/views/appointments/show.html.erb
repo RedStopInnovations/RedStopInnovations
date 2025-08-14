@@ -254,7 +254,7 @@
               <% @treatment_notes.each do |treatment_note| %>
                 <li>
 
-                  #<%= treatment_note.id %> <span class="text-muted"> | </span> <span>Status: <%= treatment_note.status %></span> <span class="text-muted"> | </span> <span>Created: <%= treatment_note.created_at.strftime(t('datetime.common')) %></span> <span class="text-muted"> | </span> <a href="<%= patient_treatment_path(treatment_note.patient, treatment_note) %>">View</a>
+                  #<%= treatment_note.id %> <span class="text-muted"> | </span> <span>Status: <%= treatment_note.status %></span> <span class="text-muted"> | </span> <span>Created: <%= treatment_note.created_at.strftime(t('datetime.common')) %></span> <span class="text-muted"> | </span> <a href="<%= patient_treatment_note_path(treatment_note.patient, treatment_note) %>">View</a>
                 </li>
               <% end %>
             </ul>
@@ -265,7 +265,7 @@
         </div>
         <div class="panel-footer">
           <% unless @appointment.deleted_at? %>
-            <a href="<%= new_patient_treatment_path(patient_id: @appointment.patient_id, appointment_id: @appointment.id) %>">Add treatment note</a>
+            <a href="<%= new_patient_treatment_note_path(patient_id: @appointment.patient_id, appointment_id: @appointment.id) %>">Add treatment note</a>
           <% end %>
         </div>
       </div>

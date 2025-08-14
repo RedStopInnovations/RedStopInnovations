@@ -1,11 +1,11 @@
 <%= render 'patients/show_layout' do %>
   <div class="row">
     <div class="col-md-8 col-xs-8">
-      <h4 class="text-bolder"><%= @treatment.name %> <span class="label <%= {Treatment::STATUS_DRAFT => 'label-default', Treatment::STATUS_FINAL => 'label-primary'}[@treatment.status] %>"><%= @treatment.status %></span></h4>
+      <h4 class="text-bolder"><%= @treatment.name %> <span class="label <%= {TreatmentNote::STATUS_DRAFT => 'label-default', TreatmentNote::STATUS_FINAL => 'label-primary'}[@treatment.status] %>"><%= @treatment.status %></span></h4>
     </div>
 
     <div class="col-md-4 col-xs-4 text-right">
-      <a href="<%= patient_treatments_path(@patient) %>" class="btn btn-white">View all notes</a>
+      <a href="<%= patient_treatment_notes_path(@patient) %>" class="btn btn-white">View all notes</a>
     </div>
   </div>
 
@@ -13,21 +13,21 @@
     <div class="panel-heading">
       <div class="pull-right">
           <div class="btn-group">
-            <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
+            <a href="#" data-modal-content-url="<%= modal_send_email_patient_treatment_note_path(@patient, @treatment) %>" class="btn btn-white js-btn-send-email">
               <i class="fa fa-envelope-o"></i>
               Email
             </a>
 
-            <a href="<%= print_patient_treatment_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
+            <a href="<%= print_patient_treatment_note_path(@patient, @treatment, format: :pdf) %>" target="_blank" class="btn btn-white">
               <i class="fa fa-print"></i> Print
             </a>
 
-            <% unless @treatment.status == Treatment::STATUS_FINAL %>
-              <a href="<%= edit_patient_treatment_path(@patient, @treatment) %>" class="btn btn-white">
+            <% unless @treatment.status == TreatmentNote::STATUS_FINAL %>
+              <a href="<%= edit_patient_treatment_note_path(@patient, @treatment) %>" class="btn btn-white">
                 <i class="fa fa-pencil-square-o"></i> Edit
               </a>
               <% if can?(:destroy, @treatment) %>
-                <a href="<%= patient_treatment_path(@patient, @treatment, redirect: patient_treatments_path(@patient)) %>"
+                <a href="<%= patient_treatment_note_path(@patient, @treatment, redirect: patient_treatment_notes_path(@patient)) %>"
                   class="btn btn-white"
                   data-confirm="Are you sure?" data-method="DELETE">
                   <i class="fa fa-trash text-danger"></i>

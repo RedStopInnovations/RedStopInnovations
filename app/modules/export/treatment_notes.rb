@@ -21,22 +21,22 @@ module Export
     end
 
     def items_query
-      query = business.patient_treatments
+      query = business.treatment_notes
 
       if options.start_date.present?
-        query = query.where("treatments.created_at >= ?", options.start_date.to_date.beginning_of_day)
+        query = query.where("treatment_notes.created_at >= ?", options.start_date.to_date.beginning_of_day)
       end
 
       if options.end_date.present?
-        query = query.where("treatments.created_at <= ?", options.end_date.to_date.end_of_day)
+        query = query.where("treatment_notes.created_at <= ?", options.end_date.to_date.end_of_day)
       end
 
       if options.template_ids.present?
-        query = query.where("treatments.treatment_note_template_id" => options.template_ids)
+        query = query.where("treatment_notes.treatment_note_template_id" => options.template_ids)
       end
 
       if options.status.present?
-        query = query.where("treatments.status" => options.status)
+        query = query.where("treatment_notes.status" => options.status)
       end
 
       query

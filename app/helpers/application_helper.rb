@@ -332,7 +332,7 @@ module ApplicationHelper
     when Appointment
       ['View appointment', appointment_path(source)]
     when Treatment
-      ['View treatment note', patient_treatment_path(source.patient_id, source)]
+      ['View treatment note', patient_treatment_note_path(source.patient_id, source)]
     else
     end
     text = text.presence || 'N/A'

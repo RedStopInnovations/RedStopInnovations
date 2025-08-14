@@ -108,7 +108,6 @@ class Practitioner < ApplicationRecord
   has_many :availabilities, dependent: :destroy
   has_many :appointments, inverse_of: :practitioner, dependent: :destroy
   has_many :invoices
-  has_many :treatments
   has_many :reviews
   has_many :business_hours, class_name: 'PractitionerBusinessHour'
 

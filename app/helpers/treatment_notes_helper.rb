@@ -1,5 +1,5 @@
-module TreatmentsHelper
-  def patient_case_options_for_treatment(patient_cases)
+module TreatmentNotesHelper
+  def patient_case_options_for_treatment_note(patient_cases)
     options = []
     options << ['-- Select one --', nil]
     patient_cases.each do |patient_case|
@@ -11,7 +11,7 @@ module TreatmentsHelper
     options
   end
 
-  def appointment_options_for_treatment(appointments)
+  def appointment_options_for_treatment_note(appointments)
     options = []
     options << ['-- Select one --', nil]
     appointments.each do |appt|

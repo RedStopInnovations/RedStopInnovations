@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_14_022051) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_14_032307) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1840,6 +1840,28 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_14_022051) do
     t.index ["business_id"], name: "index_treatment_note_templates_on_business_id"
   end
 
+  create_table "treatment_notes", id: :serial, force: :cascade do |t|
+    t.integer "appointment_id"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.integer "patient_id"
+    t.integer "treatment_note_template_id"
+    t.string "name"
+    t.integer "patient_case_id"
+    t.string "status"
+    t.integer "author_id"
+    t.string "author_name"
+    t.text "content"
+    t.text "html_content"
+    t.integer "business_id", default: 0, null: false
+    t.index ["appointment_id"], name: "index_treatment_notes_on_appointment_id"
+    t.index ["author_id"], name: "index_treatment_notes_on_author_id"
+    t.index ["business_id"], name: "index_treatment_notes_on_business_id"
+    t.index ["patient_case_id"], name: "index_treatment_notes_on_patient_case_id"
+    t.index ["patient_id"], name: "index_treatment_notes_on_patient_id"
+    t.index ["treatment_note_template_id"], name: "index_treatment_notes_on_treatment_note_template_id"
+  end
+
   create_table "treatment_notes_exports", force: :cascade do |t|
     t.integer "business_id", null: false
     t.integer "author_id", null: false
@@ -1901,35 +1923,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_14_022051) do
   create_table "treatment_templates_users", id: :serial, force: :cascade do |t|
     t.integer "treatment_template_id", null: false
     t.integer "user_id", null: false
-  end
-
-  create_table "treatments", id: :serial, force: :cascade do |t|
-    t.integer "appointment_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "patient_id"
-    t.integer "practitioner_id"
-    t.integer "treatment_note_template_id"
-    t.string "name"
-    t.string "print_name"
-    t.boolean "print_address", default: false
-    t.boolean "print_birth", default: false
-    t.boolean "print_ref_num", default: false
-    t.boolean "print_doctor", default: false
-    t.integer "patient_case_id"
-    t.string "status"
-    t.text "sections"
-    t.integer "author_id"
-    t.string "author_name"
-    t.text "content"
-    t.text "html_content"
-    t.integer "business_id", default: 0, null: false
-    t.index ["appointment_id"], name: "index_treatments_on_appointment_id"
-    t.index ["author_id"], name: "index_treatments_on_author_id"
-    t.index ["business_id"], name: "index_treatments_on_business_id"
-    t.index ["patient_case_id"], name: "index_treatments_on_patient_case_id"
-    t.index ["patient_id"], name: "index_treatments_on_patient_id"
-    t.index ["treatment_note_template_id"], name: "index_treatments_on_treatment_note_template_id"
   end
 
   create_table "trigger_categories", id: :serial, force: :cascade do |t|
@@ -2146,10 +2139,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_14_022051) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "availabilities", "practitioners"
+  add_foreign_key "treatment_contents", "treatment_notes", column: "treatment_id"
   add_foreign_key "treatment_contents", "treatment_template_questions", column: "question_id"
   add_foreign_key "treatment_contents", "treatment_template_sections", column: "section_id"
-  add_foreign_key "treatment_contents", "treatments"
+  add_foreign_key "treatment_notes", "treatment_templates", column: "treatment_note_template_id"
   add_foreign_key "treatment_template_questions", "treatment_template_sections", column: "section_id"
   add_foreign_key "treatment_template_sections", "treatment_templates", column: "template_id"
-  add_foreign_key "treatments", "treatment_templates", column: "treatment_note_template_id"
 end

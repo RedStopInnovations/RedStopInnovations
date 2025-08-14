@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: treatments
+# Table name: treatment_notes
 #
 #  id                           :integer          not null, primary key
 #  appointment_id               :integer
@@ -11,22 +11,20 @@
 #  name                         :string
 #  patient_case_id              :integer
 #  status                       :string
-#  sections                     :text
 #  author_id                    :integer
 #  author_name                  :string
 #
 # Indexes
 #
-#  index_treatments_on_appointment_id         (appointment_id)
-#  index_treatments_on_author_id              (author_id)
-#  index_treatments_on_patient_case_id        (patient_case_id)
-#  index_treatments_on_patient_id             (patient_id)
-#  index_treatments_on_treatment_note_template_id  (treatment_note_template_id)
+#  index_treatment_notes_on_appointment_id         (appointment_id)
+#  index_treatment_notes_on_author_id              (author_id)
+#  index_treatment_notes_on_patient_case_id        (patient_case_id)
+#  index_treatment_notes_on_patient_id             (patient_id)
+#  index_treatment_notes_on_treatment_note_template_id  (treatment_note_template_id)
 #
 
-class Treatment < ApplicationRecord
-  include RansackAuthorization::Treatment
-  include PgSearch
+class TreatmentNote < ApplicationRecord
+  include RansackAuthorization::TreatmentNote
 
   STATUS = [
     STATUS_DRAFT = "Draft",

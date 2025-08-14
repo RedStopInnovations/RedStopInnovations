@@ -49,8 +49,8 @@ module Report
         patients = business.patients.
           where(id: patient_ids).
           joins('LEFT JOIN appointments ON appointments.patient_id = patients.id AND appointments.deleted_at IS NULL').
-          joins('LEFT JOIN treatments ON treatments.patient_id = patients.id').
-          select('patients.*', 'COUNT(DISTINCT appointments.id) AS appointments_count', 'COUNT(DISTINCT treatments.id) AS treatment_notes_count').
+          joins('LEFT JOIN treatment_notes ON treatment_notes.patient_id = patients.id').
+          select('patients.*', 'COUNT(DISTINCT appointments.id) AS appointments_count', 'COUNT(DISTINCT treatment_notes.id) AS treatment_notes_count').
           group('patients.id').
           order(id: :asc)
 

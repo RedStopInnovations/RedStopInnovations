@@ -2,7 +2,7 @@ namespace :cliniko do |args|
   # For business which has practitioners imported from Cliniko
   task import_treatment_notes_2: :environment do
     class ImportTreatmentNote < ::ActiveRecord::Base
-      self.table_name = 'treatments'
+      self.table_name = 'treatment_nots'
 
       serialize :sections, type: Array
     end

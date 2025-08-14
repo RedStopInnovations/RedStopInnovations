@@ -2,7 +2,7 @@
   <h4>New treatment note</h4>
   <div class="row">
     <div class="col-md-6">
-      <%= simple_form_for @treatment, url: patient_treatments_path(@patient) do |f| %>
+      <%= simple_form_for @treatment, url: patient_treatment_notes_path(@patient) do |f| %>
         <div class="panel panel-default">
           <div class="panel-body">
 
@@ -19,14 +19,14 @@
               f.association :patient_case,
                             as: :select,
                             label: 'Case',
-                            collection: patient_case_options_for_treatment(@patient.patient_cases),
+                            collection: patient_case_options_for_treatment_note(@patient.patient_cases),
                             include_blank: false
             %>
 
             <%=
               f.input :appointment_id,
                       as: :select,
-                      collection: appointment_options_for_treatment(@patient.appointments.order(start_time: :desc).includes(:practitioner)),
+                      collection: appointment_options_for_treatment_note(@patient.appointments.order(start_time: :desc).includes(:practitioner)),
                       input_html: { class: 'selectize' }
             %>
           </div>
@@ -35,7 +35,7 @@
 
         <div class="mb-20">
           <button type="submit" class="btn btn-primary">Create</button>
-          <a href="<%= patient_treatments_path %>" class="btn btn-white">Cancel</a>
+          <a href="<%= patient_treatment_notes_path %>" class="btn btn-white">Cancel</a>
         </div>
       <% end %>
     </div>

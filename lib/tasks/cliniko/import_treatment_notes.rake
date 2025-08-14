@@ -2,9 +2,7 @@ namespace :cliniko do |args|
   # bin/rails cliniko:import_treatment_notes business_id=xxx api_key=xxx api_shard=xxx
   task import_treatment_notes: :environment do
     class ImportTreatmentNote < ::ActiveRecord::Base
-      self.table_name = 'treatments'
-
-      serialize :sections, type: Array
+      self.table_name = 'treatment_notes'
     end
 
     def log(what)

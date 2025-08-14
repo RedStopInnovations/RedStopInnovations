@@ -8,7 +8,7 @@ module Trigger
           word.text.tr(' ', '_')
         end.join(' ')
 
-        query = business.patient_treatments.search_any_word(search_phase)
+        query = business.treatment_notes.search_any_word(search_phase)
 
         mentions_count = query.count
         patients_count = query.select('DISTINCT patient_id').count

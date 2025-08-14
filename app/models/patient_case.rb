@@ -54,7 +54,7 @@ class PatientCase < ApplicationRecord
   belongs_to :case_type, optional: true, class_name: "CaseType"
 
   has_many :invoices
-  has_many :treatments
+  has_many :treatment_notes, class_name: "TreatmentNote"
   has_many :attachments, class_name: "PatientAttachment", foreign_key: 'patient_case_id'
   has_many :appointments, foreign_key: 'patient_case_id'
 
