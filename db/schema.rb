@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_14_032307) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_14_042243) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -1812,23 +1812,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_14_032307) do
     t.index ["business_id"], name: "index_taxes_on_business_id"
   end
 
-  create_table "treatment_contents", id: :serial, force: :cascade do |t|
-    t.integer "treatment_id", null: false
-    t.integer "section_id", null: false
-    t.integer "question_id", null: false
-    t.text "content"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.string "sname"
-    t.integer "sorder"
-    t.string "qname"
-    t.integer "qtype"
-    t.integer "qorder"
-    t.index ["question_id"], name: "index_treatment_contents_on_question_id"
-    t.index ["section_id"], name: "index_treatment_contents_on_section_id"
-    t.index ["treatment_id"], name: "index_treatment_contents_on_treatment_id"
-  end
-
   create_table "treatment_note_templates", force: :cascade do |t|
     t.integer "business_id", null: false
     t.string "name"
@@ -1880,49 +1863,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_14_032307) do
     t.index ["business_id"], name: "index_treatment_shortcuts_on_business_id"
   end
 
-  create_table "treatment_template_questions", id: :serial, force: :cascade do |t|
-    t.integer "section_id", null: false
-    t.string "name"
-    t.integer "qtype"
-    t.integer "qorder"
-    t.text "content"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["section_id"], name: "index_treatment_template_questions_on_section_id"
-  end
-
-  create_table "treatment_template_sections", id: :serial, force: :cascade do |t|
-    t.integer "template_id", null: false
-    t.string "name"
-    t.integer "stype"
-    t.integer "sorder"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["template_id"], name: "index_treatment_template_sections_on_template_id"
-  end
-
   create_table "treatment_templates", id: :serial, force: :cascade do |t|
     t.integer "business_id", null: false
     t.string "name"
-    t.string "print_name"
-    t.boolean "print_address"
-    t.boolean "print_birth"
-    t.boolean "print_ref_num"
-    t.boolean "print_doctor"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.datetime "deleted_at", precision: nil
-    t.text "template_sections"
-    t.integer "sections_count", default: 0
-    t.integer "questions_count", default: 0
     t.text "content"
     t.text "html_content"
     t.index ["business_id"], name: "index_treatment_templates_on_business_id", where: "(deleted_at IS NULL)"
-  end
-
-  create_table "treatment_templates_users", id: :serial, force: :cascade do |t|
-    t.integer "treatment_template_id", null: false
-    t.integer "user_id", null: false
   end
 
   create_table "trigger_categories", id: :serial, force: :cascade do |t|
@@ -2139,10 +2088,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_14_032307) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "availabilities", "practitioners"
-  add_foreign_key "treatment_contents", "treatment_notes", column: "treatment_id"
-  add_foreign_key "treatment_contents", "treatment_template_questions", column: "question_id"
-  add_foreign_key "treatment_contents", "treatment_template_sections", column: "section_id"
   add_foreign_key "treatment_notes", "treatment_templates", column: "treatment_note_template_id"
-  add_foreign_key "treatment_template_questions", "treatment_template_sections", column: "section_id"
-  add_foreign_key "treatment_template_sections", "treatment_templates", column: "template_id"
 end
