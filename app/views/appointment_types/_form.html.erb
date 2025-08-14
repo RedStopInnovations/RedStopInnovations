@@ -16,7 +16,7 @@
         </div>
 
         <div class="col-md-6">
-          <%= f.association :default_treatment_template, as: :select, collection: current_business.treatment_templates.select(:id, :name), label_method: :name,
+          <%= f.association :default_treatment_note_template, as: :select, collection: current_business.treatment_note_templates.select(:id, :name), label_method: :name,
             include_blank: true, prompt: '-- Select one --', input_html: { class: 'selectize' } %>
 
           <%

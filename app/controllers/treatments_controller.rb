@@ -72,8 +72,7 @@ class TreatmentsController < ApplicationController
        current_business.appointments.exists?(id: params[:appointment_id])
       @treatment.appointment_id = params[:appointment_id]
 
-      @treatment.treatment_template =
-        @treatment.appointment.appointment_type.default_treatment_template
+      @treatment_note_template = @treatment.appointment.appointment_type.default_treatment_note_template
     end
   end
 
@@ -86,9 +85,10 @@ class TreatmentsController < ApplicationController
     @treatment.patient = @patient
     @treatment.status = Treatment::STATUS_DRAFT
     @treatment.author_id = current_user.id
+    @treatment.business_id = current_business.id
 
     if @treatment.valid?
-      template = @treatment.treatment_template
+      template = @treatment.treatment_note_template
       @treatment.name = template.name
       @treatment.content = template.content
       @treatment.html_content = template.html_content
@@ -135,8 +135,8 @@ class TreatmentsController < ApplicationController
         f.json do
           render json: {
             success: true,
-            message: 'Treatment note template was successfully updated.',
-            treatment_template: @treatment_template
+            message: 'Treatment note was successfully updated.',
+            treatment: @treatment
           }
         end
       end
@@ -150,7 +150,7 @@ class TreatmentsController < ApplicationController
           render(
             json: {
               success: false,
-              errors: @treatment_template.errors.full_messages
+              errors: @treatment.errors.full_messages
             },
             status: 422
           )
@@ -235,7 +235,7 @@ class TreatmentsController < ApplicationController
   end
 
   def last_treatment_note
-    @treatment = @patient.treatments.where(treatment_template_id: params[:template_id])
+    @treatment = @patient.treatments.where(treatment_note_template_id: params[:template_id])
                          .order(updated_at: :desc).first
     render json: @treatment
   end
@@ -253,7 +253,7 @@ class TreatmentsController < ApplicationController
   def create_treatment_params
     params.require(:treatment).permit(
       :appointment_id,
-      :treatment_template_id,
+      :treatment_note_template_id,
       :patient_case_id,
     )
   end

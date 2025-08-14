@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_10_091716) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_14_022051) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -223,7 +223,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_10_091716) do
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "reminder_enable", default: true
     t.integer "default_billable_item_id"
-    t.integer "default_treatment_template_id"
+    t.integer "treatment_note_template_id"
     t.integer "availability_type_id"
     t.datetime "deleted_at", precision: nil
     t.boolean "display_on_online_bookings", default: true
@@ -1829,6 +1829,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_10_091716) do
     t.index ["treatment_id"], name: "index_treatment_contents_on_treatment_id"
   end
 
+  create_table "treatment_note_templates", force: :cascade do |t|
+    t.integer "business_id", null: false
+    t.string "name"
+    t.text "content"
+    t.text "html_content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["business_id"], name: "index_treatment_note_templates_on_business_id"
+  end
+
   create_table "treatment_notes_exports", force: :cascade do |t|
     t.integer "business_id", null: false
     t.integer "author_id", null: false
@@ -1898,7 +1909,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_10_091716) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "patient_id"
     t.integer "practitioner_id"
-    t.integer "treatment_template_id"
+    t.integer "treatment_note_template_id"
     t.string "name"
     t.string "print_name"
     t.boolean "print_address", default: false
@@ -1912,11 +1923,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_10_091716) do
     t.string "author_name"
     t.text "content"
     t.text "html_content"
+    t.integer "business_id", default: 0, null: false
     t.index ["appointment_id"], name: "index_treatments_on_appointment_id"
     t.index ["author_id"], name: "index_treatments_on_author_id"
+    t.index ["business_id"], name: "index_treatments_on_business_id"
     t.index ["patient_case_id"], name: "index_treatments_on_patient_case_id"
     t.index ["patient_id"], name: "index_treatments_on_patient_id"
-    t.index ["treatment_template_id"], name: "index_treatments_on_treatment_template_id"
+    t.index ["treatment_note_template_id"], name: "index_treatments_on_treatment_note_template_id"
   end
 
   create_table "trigger_categories", id: :serial, force: :cascade do |t|
@@ -2138,5 +2151,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_10_091716) do
   add_foreign_key "treatment_contents", "treatments"
   add_foreign_key "treatment_template_questions", "treatment_template_sections", column: "section_id"
   add_foreign_key "treatment_template_sections", "treatment_templates", column: "template_id"
-  add_foreign_key "treatments", "treatment_templates"
+  add_foreign_key "treatments", "treatment_templates", column: "treatment_note_template_id"
 end

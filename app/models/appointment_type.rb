@@ -13,7 +13,7 @@
 #  updated_at                    :datetime         not null
 #  reminder_enable               :boolean          default(TRUE)
 #  default_billable_item_id      :integer
-#  default_treatment_template_id :integer
+#  default_treatment_note_template_id :integer
 #  availability_type_id          :integer
 #  deleted_at                    :datetime
 #  display_on_online_bookings    :boolean          default(TRUE)
@@ -30,7 +30,8 @@ class AppointmentType < ApplicationRecord
 
   belongs_to :business, inverse_of: :appointment_types
   # belongs_to :default_billable_item, class_name: 'BillableItem' # TODO: remove after issue #2287 is done
-  belongs_to :default_treatment_template, class_name: 'TreatmentTemplate'
+  belongs_to :default_treatment_note_template, class_name: 'TreatmentNoteTemplate'
+
   has_many :appointments
   has_and_belongs_to_many :practitioners, validate: false # TODO: validate business scope?
   has_and_belongs_to_many :billable_items, validate: false, uniq: true # TODO: validate business scope?

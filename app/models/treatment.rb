@@ -2,18 +2,18 @@
 #
 # Table name: treatments
 #
-#  id                    :integer          not null, primary key
-#  appointment_id        :integer
-#  created_at            :datetime         not null
-#  updated_at            :datetime         not null
-#  patient_id            :integer
-#  treatment_template_id :integer
-#  name                  :string
-#  patient_case_id       :integer
-#  status                :string
-#  sections              :text
-#  author_id             :integer
-#  author_name           :string
+#  id                           :integer          not null, primary key
+#  appointment_id               :integer
+#  created_at                   :datetime         not null
+#  updated_at                   :datetime         not null
+#  patient_id                   :integer
+#  treatment_note_template_id   :integer
+#  name                         :string
+#  patient_case_id              :integer
+#  status                       :string
+#  sections                     :text
+#  author_id                    :integer
+#  author_name                  :string
 #
 # Indexes
 #
@@ -21,7 +21,7 @@
 #  index_treatments_on_author_id              (author_id)
 #  index_treatments_on_patient_case_id        (patient_case_id)
 #  index_treatments_on_patient_id             (patient_id)
-#  index_treatments_on_treatment_template_id  (treatment_template_id)
+#  index_treatments_on_treatment_note_template_id  (treatment_note_template_id)
 #
 
 class Treatment < ApplicationRecord
@@ -38,14 +38,9 @@ class Treatment < ApplicationRecord
   belongs_to :patient_case, optional: true
   belongs_to :author, class_name: 'User', optional: true
 
-  belongs_to :treatment_template,
-             -> { with_deleted },
-             class_name: 'TreatmentTemplate',
-             foreign_key: :treatment_template_id,
-             optional: true
+  belongs_to :treatment_note_template, optional: true
 
   validates :status, inclusion: { in: STATUS }
-  validates_presence_of :treatment_template_id, on: :create
   validates_length_of :name,
                       maximum: 255,
                       allow_blank: true,

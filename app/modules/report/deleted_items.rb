@@ -22,7 +22,7 @@ module Report
         'AccountStatement' => 'Account statement',
         'Invoice' => 'Invoice',
         'Payment' => 'Payment',
-        'TreatmentTemplate' => 'Treatment note template',
+        'TreatmentNoteTemplate' => 'Treatment note template',
         'Product' => 'Product',
         'BillableItem' => 'Billable item',
       }
@@ -62,7 +62,7 @@ module Report
             resource_cell_lines << "Name: #{resource.business_name}"
           when AppointmentType
             resource_cell_lines << "Name: #{resource.name}"
-          when TreatmentTemplate
+          when TreatmentNoteTemplate
             resource_cell_lines << "Name: #{resource.name}"
           when Product
             resource_cell_lines << "Name: #{resource.name}"
@@ -115,7 +115,7 @@ module Report
       if options[:resource_types] && options[:resource_types].is_a?(Array)
         options[:resource_types] = [
           'Appointment', 'AppointmentType', 'Patient', 'AccountStatement', 'Contact',
-          'Invoice', 'Payment', 'TreatmentTemplate', 'Product', 'BillableItem'
+          'Invoice', 'Payment', 'TreatmentNoteTemplate', 'Product', 'BillableItem'
         ] & options[:resource_types]
       end
 

@@ -97,7 +97,7 @@ module Report
 
         if @options.template_ids.present?
           query = query.where(
-            treatment_template_id: @options.template_ids
+            treatment_note_template_id: @options.template_ids
           )
         end
 

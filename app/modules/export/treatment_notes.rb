@@ -32,7 +32,7 @@ module Export
       end
 
       if options.template_ids.present?
-        query = query.where("treatments.treatment_template_id" => options.template_ids)
+        query = query.where("treatments.treatment_note_template_id" => options.template_ids)
       end
 
       if options.status.present?

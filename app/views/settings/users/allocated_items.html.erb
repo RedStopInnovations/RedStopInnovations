@@ -150,62 +150,6 @@
                     </div>
                 <% end %>
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Treatment note templates</h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-8 col-xs-12">
-                                <!-- Need search if more than 10 items -->
-                                <% if @treatment_templates.count > 10 %>
-                                    <div class="form-group has-feedback has-clear">
-                                        <input type="text" class="form-control js-input-simple-search" placeholder="Search templates">
-                                        <a class="fa fa-remove form-control-feedback form-control-clear js-btn-clear-input-search"
-                                        style="pointer-events: auto; text-decoration: none; cursor: pointer; color: #333333"></a>
-                                    </div>
-                                <% end %>
-
-                                <div class="table-allocate-items-wrap">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th style="width: 200px;">
-                                                    Allow <br>
-                                                    <span class="small">
-                                                        <span class="text-green cursor-pointer js-btn-check-all">Check all</span> | <span class="text-green cursor-pointer js-btn-uncheck-all">Uncheck all</span>
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% @treatment_templates.each do |tt| %>
-                                                <tr>
-                                                    <td><%= tt.name %></td>
-                                                    <td>
-                                                        <div class="check-box">
-                                                            <input type="checkbox" class="js-cb-allocate-item" id="cb-treatment-template-<%= tt.id %>" value="<%= tt.id %>"
-                                                                <% if @allocated_treatment_template_ids.include?(tt.id) %>
-                                                                checked
-                                                                <% end %>
-                                                            >
-                                                            <label for="cb-treatment-template-<%= tt.id %>">&nbsp;</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <% end %>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <button class="btn btn-primary js-btn-submit-allocate-items" type="button" data-url="<%= update_allocated_treatment_templates_settings_user_path(@user) %>">Save changes</button>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>

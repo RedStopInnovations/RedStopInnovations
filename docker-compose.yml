@@ -16,6 +16,7 @@ services:
       - redis
     ports:
       - "${DOCKER_WEB_HOST_PORT:-3000}:3000"
+      - "3036:3036"
     stdin_open: true
     tty: true
     command: ['rails', 'server', '-p', '3000', '-b', '0.0.0.0']

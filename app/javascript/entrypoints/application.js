@@ -1,27 +1,22 @@
-// Vite ⚡️ Rails - Modern JavaScript for Dashboard
-console.log('Vite ⚡️ Rails')
+console.log('Vite ⚡️ Rails');
 
-// Import CSS
-import './application.css'
+import './application.css';
 
 // Vue 3 Setup for modern dashboard components
-import { createApp } from 'vue'
+import { createApp } from 'vue';
+import TreatmentNoteTemplateForm from '../components/TreatmentNoteTemplateForm.vue';
 
-// Example: Create a simple Vue 3 app
-// This will be used for new dashboard components
-const app = createApp({
-  data() {
-    return {
-      message: 'Vite + Vue 3 is ready for dashboard!'
-    }
+// Mount components based on element presence
+document.addEventListener('DOMContentLoaded', () => {
+  // Treatment Note Template Form
+  const treatmentNoteTemplateFormElement = document.getElementById('treatment-note-template-form');
+  if (treatmentNoteTemplateFormElement) {
+    const templateId = treatmentNoteTemplateFormElement.dataset.templateId || null;
+    const treatmentNoteTemplatesPath = treatmentNoteTemplateFormElement.dataset.treatmentNoteTemplatesPath || '/treatment_note_templates';
+
+    createApp(TreatmentNoteTemplateForm, {
+      templateId,
+      treatmentNoteTemplatesPath
+    }).mount('#treatment-note-template-form');
   }
-})
-
-// Mount Vue app only if target element exists
-const viteApp = document.getElementById('vite-app')
-if (viteApp) {
-  app.mount('#vite-app')
-}
-
-// Export for global access if needed
-window.ViteVue = { createApp }
+});

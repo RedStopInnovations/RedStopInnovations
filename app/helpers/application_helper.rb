@@ -255,7 +255,7 @@ module ApplicationHelper
       ['Contact', 'Contact'],
       ['Invoice', 'Invoice'],
       ['Payment', 'Payment'],
-      ['Treatment note template', 'TreatmentTemplate'],
+      ['Treatment note template', 'TreatmentNoteTemplate'],
       ['Product', 'Product'],
       ['Billable item', 'BillableItem']
     ]
@@ -270,7 +270,7 @@ module ApplicationHelper
       'AccountStatement' => 'Account statement',
       'Invoice' => 'Invoice',
       'Payment' => 'Payment',
-      'TreatmentTemplate' => 'Treatment note template',
+      'TreatmentNoteTemplate' => 'Treatment note template',
       'Product' => 'Product',
       'BillableItem' => 'Billable item'
     }[resource_type]

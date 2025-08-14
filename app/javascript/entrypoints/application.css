@@ -1,15 +1,1 @@
-/* Vite + Vue 3 Dashboard Styles */
-/* This will be used for new modern dashboard components */
-
-.vite-app {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.vue3-component {
-  padding: 1rem;
-  border-radius: 0.375rem;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-/* Add your modern component styles here */
+/* This will be used for dashboard components */

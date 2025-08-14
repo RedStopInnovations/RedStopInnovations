@@ -7,12 +7,11 @@ export default defineConfig({
     RubyPlugin(),
     vue(),
   ],
-  build: {
-    rollupOptions: {
-      external: ['vue'],
-    },
-  },
-  optimizeDeps: {
-    exclude: ['vue'],
-  },
+  server: {
+    host: true,
+    hmr: {
+      host: true,
+      port: 3036
+    }
+  }
 })

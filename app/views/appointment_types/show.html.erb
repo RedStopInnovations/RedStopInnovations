@@ -84,8 +84,8 @@
         <div class="block-info">
           <strong>Default treatment template:</strong>
           <p>
-          <% if @appointment_type.default_treatment_template %>
-            <a href="<%= treatment_template_path(@appointment_type.default_treatment_template) %>"><%= @appointment_type.default_treatment_template.name %></a>
+          <% if @appointment_type.default_treatment_note_template %>
+            <a href="<%= treatment_note_template_path(@appointment_type.default_treatment_note_template) %>"><%= @appointment_type.default_treatment_note_template.name %></a>
           <% else %>
             <span class="text-muted">N/A</span>
           <% end %>

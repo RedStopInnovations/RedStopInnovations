@@ -73,7 +73,7 @@
           <div class="col-md-3">
             <div class="form-group">
               <%
-                templates_options = current_business.treatment_templates.select(:id, :name).order(name: :asc).pluck(:name, :id)
+                templates_options = current_business.treatment_note_templates.select(:id, :name).order(name: :asc).pluck(:name, :id)
               %>
               <label>Templates:</label>
               <select class="form-control selectize" name="template_ids[]" multiple="true">

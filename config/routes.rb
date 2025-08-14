@@ -342,7 +342,7 @@ Rails.application.routes.draw do
     end
     resources :appointment_types
     resources :billable_items
-    resources :treatment_templates
+    resources :treatment_note_templates, only: [:index, :new, :show, :edit, :destroy]
     resource :business_profile, controller: :business_profile, only: [:edit, :update]
     resources :products
     resources :communications, except: [:edit, :update]
@@ -407,7 +407,6 @@ Rails.application.routes.draw do
           get :allocated_items
           post :update_allocated_appointment_types
           post :update_allocated_billable_items
-          post :update_allocated_treatment_templates
           get :login_activity
           get :modal_practitioner_documents, action: :modal_practitioner_documents
           post :update_practitioner_document, action: :update_practitioner_document

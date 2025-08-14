@@ -8,7 +8,6 @@ module Settings
       :allocated_items,
       :update_allocated_appointment_types,
       :update_allocated_billable_items,
-      :update_allocated_treatment_templates,
       :login_activity,
       :modal_practitioner_documents,
       :update_practitioner_document,
@@ -169,15 +168,12 @@ module Settings
     def allocated_items
       @appointment_types = current_business.appointment_types.not_deleted.order(name: :asc).to_a
       @billable_items = current_business.billable_items.not_deleted.order(name: :asc).to_a
-      @treatment_templates = current_business.treatment_templates.order(name: :asc)
 
       if @user.is_practitioner?
         practitioner = @user.practitioner
         @allocated_appointment_type_ids = practitioner.appointment_types.pluck(:id)
         @allocated_billable_item_ids = practitioner.billable_items.pluck(:id)
       end
-
-      @allocated_treatment_template_ids = @user.accessible_treatment_templates.pluck(:id)
     end
 
     def update_allocated_appointment_types
@@ -220,20 +216,6 @@ module Settings
           message: 'This user is not a practitioner'
         }, status: 400
       end
-    end
-
-    def update_allocated_treatment_templates
-      selected_ids = params.permit(ids: [])[:ids]
-
-      if selected_ids.blank?
-        sanitized_ids = []
-      else
-        sanitized_ids = current_business.treatment_templates.where(id: selected_ids).pluck(:id)
-      end
-
-      @user.accessible_treatment_template_ids = sanitized_ids
-      @user.save!(validate: false)
-      head :no_content
     end
 
     def login_activity

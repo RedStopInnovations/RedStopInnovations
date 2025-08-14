@@ -108,9 +108,6 @@ class User < ApplicationRecord
   has_one :google_calendar_sync_setting, class_name: 'UserGoogleCalendarSyncSetting'
   has_many :treatments, foreign_key: :author_id
   has_many :preferences, foreign_key: :user_id, class_name: 'UserPreference'
-  has_and_belongs_to_many :accessible_treatment_templates,
-                          class_name: 'TreatmentTemplate',
-                          validate: false
   accepts_nested_attributes_for :practitioner
 
   validates_presence_of :business

@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     resources :products, only: [:index, :show]
     resources :billable_items, only: [:index, :show]
     resources :patient_cases, only: [:index, :show]
+    resources :treatment_note_templates, only: [:create, :show, :update, :destroy]
 
     resources :account_statements, only: [:show] do
       collection do

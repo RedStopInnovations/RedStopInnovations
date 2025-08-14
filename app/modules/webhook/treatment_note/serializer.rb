@@ -18,7 +18,7 @@ module Webhook
           :created_at
         )
 
-        attrs[:template] = treatment.treatment_template&.name
+        attrs[:template] = treatment.treatment_note_template&.name
         attrs[:case] = treatment.patient_case&.case_type&.title
 
         if treatment.appointment.present?

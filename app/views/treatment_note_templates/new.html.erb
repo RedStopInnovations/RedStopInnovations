@@ -10,12 +10,15 @@
       <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
     </li>
     <li>
-      <a href="<%= treatment_templates_path %>">Treatment note templates</a>
+      <a href="<%= treatment_note_templates_path %>">Treatment note templates</a>
     </li>
     <li class="active">New</li>
   </ul>
 </section>
 
 <section class="content">
-  <%= render 'form', treatment_template: @treatment_template %>
+  <div
+    id="treatment-note-template-form"
+    data-treatment-note-templates-path="<%= treatment_note_templates_path %>"
+  ></div>
 </section>

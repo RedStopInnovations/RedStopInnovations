@@ -6,7 +6,7 @@
       <h1>Treatment note templates</h1>
     </div>
     <div class="text-right col-xs-6">
-      <a class="btn btn-primary" href="<%= new_treatment_template_path %>">+ Add template</a>
+      <a class="btn btn-primary" href="<%= new_treatment_note_template_path %>">+ Add template</a>
     </div>
   </div>
 </section>
@@ -33,20 +33,20 @@
         </thead>
 
         <tbody>
-          <% @treatment_templates.each do |tt| %>
+          <% @treatment_note_templates.each do |tt| %>
             <tr>
               <td width="21%">
-                <a href="<%= treatment_template_path(tt) %>"><%= tt.name %></a>
+                <a href="<%= treatment_note_template_path(tt) %>"><%= tt.name %></a>
               </td>
               <td><%= tt.updated_at.strftime(t('date.common')) %></td>
               <td width="25%">
-                <a href="<%= treatment_template_path(tt) %>" class="btn btn-link" title="Show">
+                <a href="<%= treatment_note_template_path(tt) %>" class="btn btn-link" title="Show">
                   <i class="fa fa-eye" aria-hidden="true"></i>
                 </a>
-                <a href="<%= edit_treatment_template_path(tt) %>" class="btn btn-link" title="Edit">
+                <a href="<%= edit_treatment_note_template_path(tt) %>" class="btn btn-link" title="Edit">
                   <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                 </a>
-                <a href="<%= treatment_template_path(tt) %>" title="Delete" rel="nofollow"
+                <a href="<%= treatment_note_template_path(tt) %>" title="Delete" rel="nofollow"
                   data-confirm="Are you sure?" data-method="delete" class="btn btn-link">
                   <i class="fa fa-trash" aria-hidden="true"></i>
                 </a>
@@ -57,10 +57,10 @@
       </table>
       <div class="row">
         <div class="col-md-6 text-left">
-            <%= page_entries_info @treatment_templates, entry_name: 'templates' %>
+            <%= page_entries_info @treatment_note_templates, entry_name: 'templates' %>
         </div>
         <div class="col-md-6 text-right">
-          <%= paginate @treatment_templates %>
+          <%= paginate @treatment_note_templates %>
         </div>
       </div>
     </div>

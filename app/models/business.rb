@@ -61,7 +61,6 @@ class Business < ApplicationRecord
            -> { where(active: true).includes(:user) },
            class_name: 'Practitioner'
   has_many :appointments, through: :practitioners
-  has_many :treatments, through: :practitioners
 
   has_many :patients
   has_many :invoices
@@ -73,9 +72,8 @@ class Business < ApplicationRecord
   has_many :conversations, class_name: 'ConversationRoom'
   has_many :appointment_types, inverse_of: :business
   has_many :users
-  has_many :treatments, through: :users
   has_many :billable_items
-  has_many :treatment_templates
+  has_many :treatment_note_templates
   has_many :treatment_shortcuts
   has_many :tasks
   has_many :outcome_measure_types

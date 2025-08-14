@@ -7,10 +7,10 @@
           <div class="panel-body">
 
             <%=
-              f.input :treatment_template_id,
+              f.input :treatment_note_template_id,
                       as: :select,
                       label: 'Template',
-                      collection: current_business.treatment_templates.order(name: :asc).to_a,
+                      collection: current_business.treatment_note_templates.order(name: :asc).to_a,
                       include_blank: '-- Select template --',
                       input_html: { class: 'selectize' }
             %>

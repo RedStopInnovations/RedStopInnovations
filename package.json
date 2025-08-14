@@ -3,7 +3,10 @@
   "private": true,
   "dependencies": {
     "ahoy.js": "^0.4.3",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "@tiptap/vue-3": "^2.1.13",
+    "@tiptap/starter-kit": "^2.1.13",
+    "@tiptap/extension-placeholder": "^2.1.13"
   },
   "version": "0.1.0",
   "browserslist": [

@@ -22,75 +22,12 @@ class CreateBusinessDefaultDataService
     )
     subsequent_item.save!(validate: false)
 
-    # Default treatmeant templates
-    initial_template = business.treatment_templates.create!(
-      name: 'Initial',
-      template_sections: [
-        {
-          name: 'Initial treatment',
-          questions: [
-            {
-              name: 'Presenting complaint',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Complaint history',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Medical history',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Assessment',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Treatment',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Plan',
-              type: 'Paragraph'
-            }
-          ]
-        }
-      ]
-    )
-    subsequent_template = business.treatment_templates.create!(
-      name: 'Subsequent',
-      template_sections: [
-        {
-          name: 'Subsequent treatment',
-          questions: [
-            {
-              name: 'Subjective',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Objective',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Treatment',
-              type: 'Paragraph'
-            },
-            {
-              name: 'Plan',
-              type: 'Paragraph'
-            }
-          ]
-        }
-      ]
-    )
-
     # Default appointment types
     business.appointment_types.create!(
       name: 'Initial consultation',
       description: 'The first home visit consultation',
       duration: 60,
       billable_item_ids: [initial_item.id],
-      default_treatment_template_id: initial_template.id,
       availability_type_id: AvailabilityType::TYPE_HOME_VISIT_ID,
       practitioner_ids: practitioner_ids,
     )
@@ -99,7 +36,6 @@ class CreateBusinessDefaultDataService
       description: 'A subsequent home visit consultation',
       duration: 45,
       billable_item_ids: [subsequent_item.id],
-      default_treatment_template_id: subsequent_template.id,
       availability_type_id: AvailabilityType::TYPE_HOME_VISIT_ID,
       practitioner_ids: practitioner_ids,
     )

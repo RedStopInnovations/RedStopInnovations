@@ -86,16 +86,8 @@ namespace :db do
       WaitList.where(business_id: business.id).delete_all
 
       # Treatment & templates
-      treatment_template_ids = TreatmentTemplate.with_deleted.where(business_id: business.id).pluck(:id)
-      treatment_template_section_ids = TreatmentTemplateSection.where(template_id: treatment_template_ids).pluck(:id)
-      TreatmentContent.delete_all
-      Treatment.where(treatment_template_id: treatment_template_ids).delete_all
-      Treatment.where(practitioner_id: practitioner_ids).delete_all
-      TreatmentTemplateQuestion.where(section_id: treatment_template_section_ids).delete_all
-      TreatmentTemplateSection.where(template_id: treatment_template_ids).delete_all
-      TreatmentTemplate.with_deleted.where(id: treatment_template_ids).delete_all
-
-      TreatmentShortcut.where(business_id: business.id).delete_all
+      TreatmentNoteTemplate.where(business_id: business.id).delete_all
+      Treatment.where(business_id: business.id).delete_all
 
       # Account statements
       AccountStatement.where(business_id: business.id).delete_all

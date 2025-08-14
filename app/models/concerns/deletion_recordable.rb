@@ -26,6 +26,16 @@ module DeletionRecordable
       destroy
     end
 
+    def soft_delete(author: nil)
+      DeletedResource.create(
+        business: business,
+        resource: self,
+        author: author,
+        deleted_at: Time.current
+      )
+      update(deleted_at: Time.current)
+    end
+
     def associated_patient_id
     end
   end

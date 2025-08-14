@@ -3,7 +3,7 @@
 <section class="box-header">
   <div class="row">
     <div class="col-xs-6">
-      <h1><%= @treatment_template.name %></h1>
+      <h1><%= @treatment_note_template.name %></h1>
     </div>
   </div>
 </section>
@@ -14,24 +14,24 @@
       <a href="<%= settings_path %>"><i class="fa fa-cog"></i> Settings</a>
     </li>
     <li>
-      <a href="<%= treatment_templates_path %>">Treatment note templates</a>
+      <a href="<%= treatment_note_templates_path %>">Treatment note templates</a>
     </li>
-    <li class="active"><%= @treatment_template.name %></li>
+    <li class="active"><%= @treatment_note_template.name %></li>
   </ul>
 </section>
 
 <section class="content">
   <div class="panel panel-default">
     <div class="panel-body">
-        <% if @treatment_template.html_content.present? %>
-            <%= @treatment_template.html_content.html_safe %>
+        <% if @treatment_note_template.html_content.present? %>
+            <%= @treatment_note_template.html_content.html_safe %>
         <% else %>
             <span class="text-muted">Empty</span>
         <% end %>
     </div>
     <div class="panel-footer">
-        <a href="<%= edit_treatment_template_path(@treatment_template) %>" class="btn btn-primary">Edit template</a>
-        <a href="<%= treatment_templates_path %>" class="btn btn-white">Back to list</a>
+        <a href="<%= edit_treatment_note_template_path(@treatment_note_template) %>" class="btn btn-primary">Edit template</a>
+        <a href="<%= treatment_note_templates_path %>" class="btn btn-white">Back to list</a>
     </div>
   </div>
 </section>
