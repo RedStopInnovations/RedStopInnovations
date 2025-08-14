@@ -9,6 +9,37 @@
       <DragHandle :editor="editor">
         <div class="custom-drag-handle"></div>
       </DragHandle>
+      <BubbleMenu :editor="editor">
+        <div class="bubble-menu">
+          <button type="button" @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }" title="Bold">
+            <i class="fa fa-bold"></i>
+          </button>
+          <button
+            type="button"
+            @click="editor.chain().focus().toggleItalic().run()"
+            :class="{ 'is-active': editor.isActive('italic') }"
+            title="Italic"
+          >
+            <i class="fa fa-italic"></i>
+          </button>
+          <button
+            type="button"
+            @click="editor.chain().focus().toggleUnderline().run()"
+            :class="{ 'is-active': editor.isActive('underline') }"
+            title="Underline"
+          >
+            <i class="fa fa-underline"></i>
+          </button>
+          <button
+            type="button"
+            @click="editor.chain().focus().toggleStrike().run()"
+            :class="{ 'is-active': editor.isActive('strike') }"
+            title="Strikethrough"
+          >
+            <i class="fa fa-strikethrough"></i>
+          </button>
+        </div>
+      </BubbleMenu>
     </template>
 
     <editor-content
@@ -42,6 +73,7 @@ import Italic from '@tiptap/extension-italic';
 import Strike from '@tiptap/extension-strike';
 import Underline from '@tiptap/extension-underline';
 import { Dropcursor, UndoRedo, Placeholder, Gapcursor, TrailingNode } from '@tiptap/extensions';
+import { BubbleMenu } from '@tiptap/vue-3/menus'; // @see: https://tiptap.dev/docs/editor/extensions/functionality/bubble-menu
 
 // Props
 const props = defineProps({
@@ -1005,5 +1037,43 @@ defineExpose({
     cursor: col-resize;
   }
 
+  /* Bubble menu */
+  .bubble-menu {
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    padding: 4px;
+    gap: 2px;
+
+    button {
+      background-color: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background-color: #f3f4f6;
+        border-color: #9ca3af;
+      }
+
+      &.is-active {
+        background-color: #3b82f6;
+        border-color: #2563eb;
+        color: #ffffff;
+
+        &:hover {
+          background-color: #2563eb;
+          border-color: #1d4ed8;
+        }
+      }
+    }
+  }
 }
 </style>
