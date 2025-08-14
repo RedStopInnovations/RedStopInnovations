@@ -24,7 +24,7 @@ module Webhook
         task = ::Task.find(resource_id)
         Webhook::Task::CreatedEventHandler.new(task).call
       when WebhookSubscription::TREATMENT_NOTE_CREATED
-        treatment = ::Treatment.find(resource_id)
+        treatment = ::TreatmentNote.find(resource_id)
         Webhook::TreatmentNote::CreatedEventHandler.new(treatment).call
       end
     end

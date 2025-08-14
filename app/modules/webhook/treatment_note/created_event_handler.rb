@@ -2,17 +2,17 @@ module Webhook
   module TreatmentNote
     class CreatedEventHandler
 
-      attr_reader :treatment
+      attr_reader :treatment_note
 
-      def initialize(treatment)
-        @treatment = treatment
+      def initialize(treatment_note)
+        @treatment_note = treatment_note
       end
 
       def call
         subs = WebhookSubscription.where(
           event: WebhookSubscription::TREATMENT_NOTE_CREATED,
           active: true,
-          business_id: treatment.author.business_id
+          business_id: treatment_note.author.business_id
         )
 
         subs.each do |sub|
@@ -34,7 +34,7 @@ module Webhook
       end
 
       def build_payload
-        Serializer.new(treatment).as_json.to_json
+        Serializer.new(treatment_note).as_json.to_json
       end
     end
   end

@@ -88,7 +88,7 @@ class Appointment < ApplicationRecord
   belongs_to :cancelled_by_user, class_name: 'User', foreign_key: :cancelled_by_id
 
   has_one :invoice
-  has_one :treatment
+  has_one :treatment_note
   has_one :zoom_meeting
   has_one :arrival_time, class_name: 'AppointmentArrivalTime' # TODO: remove after arrival time update
   has_one :arrival, class_name: 'AppointmentArrival'

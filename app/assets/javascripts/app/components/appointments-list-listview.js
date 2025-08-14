@@ -116,10 +116,10 @@
       appointmentTreatment: function(appointment) {
         var treatmentNoteUrl = null;
 
-        if (appointment.treatment) {
-          treatmentNoteUrl = '/app/patients/' + appointment.patient_id + '/treatments/' + appointment.treatment.id;
+        if (appointment.treatment_note) {
+          treatmentNoteUrl = '/app/patients/' + appointment.patient_id + '/treatment_notes/' + appointment.treatment_note.id;
         } else {
-          treatmentNoteUrl = '/app/patients/' + appointment.patient_id + '/treatments/new?appointment_id=' + appointment.id;
+          treatmentNoteUrl = '/app/patients/' + appointment.patient_id + '/treatment_notes/new?appointment_id=' + appointment.id;
         }
 
         window.location.href = treatmentNoteUrl;

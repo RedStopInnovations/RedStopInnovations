@@ -2,14 +2,14 @@ module Webhook
   module TreatmentNote
     class Serializer
 
-      attr_reader :treatment
+      attr_reader :treatment_note
 
-      def initialize(treatment)
-        @treatment = treatment
+      def initialize(treatment_note)
+        @treatment_note = treatment_note
       end
 
       def as_json(options = {})
-        attrs = treatment.attributes.symbolize_keys.slice(
+        attrs = treatment_note.attributes.symbolize_keys.slice(
           :id,
           :name,
           :status,
@@ -18,15 +18,15 @@ module Webhook
           :created_at
         )
 
-        attrs[:template] = treatment.treatment_note_template&.name
-        attrs[:case] = treatment.patient_case&.case_type&.title
+        attrs[:template] = treatment_note.treatment_note_template&.name
+        attrs[:case] = treatment_note.patient_case.case_number
 
-        if treatment.appointment.present?
+        if treatment_note.appointment.present?
           attrs[:appointment] =
-            Webhook::Appointment::Serializer.new(treatment.appointment).as_json({relations: false})
+            Webhook::Appointment::Serializer.new(treatment_note.appointment).as_json({relations: false})
         end
 
-        attrs[:patient] = Webhook::Patient::Serializer.new(treatment.patient).as_json
+        attrs[:patient] = Webhook::Patient::Serializer.new(treatment_note.patient).as_json
         attrs
       end
     end

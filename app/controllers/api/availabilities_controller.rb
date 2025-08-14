@@ -49,7 +49,7 @@ module Api
           :contacts,
           appointments: [
             :patient, :practitioner, :appointment_type, :invoice,
-            :treatment, :arrival, bookings_answers: [:question]
+            :treatment_note, :arrival, bookings_answers: [:question]
           ]
         ).
         find(params[:id])

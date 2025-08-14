@@ -19,9 +19,9 @@ json.invoice do
     json.partial! 'invoices/invoice', invoice: appointment.invoice
   end
 end
-json.treatment do
-  if appointment.treatment
-    json.partial! 'treatments/treatment', treatment: appointment.treatment
+json.treatment_note do
+  if appointment.treatment_note
+    json.partial! 'treatment_notes/treatment_note', treatment_note: appointment.treatment_note
   end
 end
 

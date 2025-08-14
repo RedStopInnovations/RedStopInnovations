@@ -21,7 +21,7 @@ class Calendar
           practitioner: [:user, :business_hours],
           appointments: [
             :patient, :appointment_type, :invoice,
-            :treatment, :arrival, :bookings_answers,
+            :treatment_note, :arrival, :bookings_answers,
             practitioner: [:user]
           ]
         ).

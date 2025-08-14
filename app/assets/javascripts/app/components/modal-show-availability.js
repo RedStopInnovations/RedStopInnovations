@@ -583,7 +583,7 @@
         });
       },
       appointmentTreatmentNoteUrl: function(appointment) {
-        return '/app/patients/' + appointment.patient_id + '/treatments/new?appointment_id=' + appointment.id;
+        return '/app/patients/' + appointment.patient_id + '/treatment_notes/new?appointment_id=' + appointment.id;
       },
 
       addInvoiceUrl: function(appointment) {

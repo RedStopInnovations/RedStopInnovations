@@ -32,7 +32,7 @@ class TreatmentNotesExportWorker
           .find_each(batch_size: 200) do |treatment_note|
 
           pdf_content = WickedPdf.new.pdf_from_string(ActionController::Base.new.render_to_string(
-            template: "pdfs/treatments/single",
+            template: "pdfs/treatment_notes/single",
             locals: {
               treatment: treatment_note,
               patient: treatment_note.patient,

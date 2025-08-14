@@ -65,7 +65,7 @@ module SearchAppointment
         joins(:practitioner).
         where(practitioners: { active: true}).
         includes(:contact, practitioner: [:user, :business_hours], appointments: [
-          :appointment_type, :practitioner, :patient, :treatment,
+          :appointment_type, :practitioner, :patient, :treatment_note,
           :arrival, :invoice,
           :bookings_answers
         ])
