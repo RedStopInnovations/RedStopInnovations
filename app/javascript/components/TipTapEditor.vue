@@ -4,6 +4,13 @@
       ref="toolbarRef"
       class="tiptap-toolbar"
     ></div>
+
+    <template v-if="editor">
+      <DragHandle :editor="editor">
+        <div class="custom-drag-handle"></div>
+      </DragHandle>
+    </template>
+
     <editor-content
       :editor="editor"
       class="tiptap-editor"
@@ -14,21 +21,27 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
-import StarterKit from '@tiptap/starter-kit';
+import Text from '@tiptap/extension-text';
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
 import TextAlign from '@tiptap/extension-text-align';
-import Underline from '@tiptap/extension-underline';
 import Color from '@tiptap/extension-color';
+import Heading from '@tiptap/extension-heading';
 import Highlight from '@tiptap/extension-highlight';
+import { BulletList, ListItem, OrderedList, TaskList, TaskItem, ListKeymap } from '@tiptap/extension-list';
 import FontFamily from '@tiptap/extension-font-family';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { TableCell } from '@tiptap/extension-table-cell';
-import { TableHeader } from '@tiptap/extension-table-header';
-import { TaskList } from '@tiptap/extension-task-list';
-import { TaskItem } from '@tiptap/extension-task-item';
+import { TableKit } from '@tiptap/extension-table';
 import { TextStyle, FontSize } from '@tiptap/extension-text-style';
+import { DragHandle } from '@tiptap/extension-drag-handle-vue-3';
+import NodeRange from '@tiptap/extension-node-range';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import Bold from '@tiptap/extension-bold';
+import Italic from '@tiptap/extension-italic';
+import Strike from '@tiptap/extension-strike';
+import Underline from '@tiptap/extension-underline';
+import { Dropcursor, UndoRedo, Placeholder, Gapcursor, TrailingNode } from '@tiptap/extensions';
 
 // Props
 const props = defineProps({
@@ -55,13 +68,24 @@ function initializeEditor() {
   editor.value = new Editor({
     content: initialContent,
     extensions: [
-      StarterKit,
+      Document,
+      Paragraph,
       TextStyle,
+      BulletList,
+      OrderedList,
+      ListItem,
+      ListKeymap,
+      Heading,
+      Text,
       FontSize,
+      HorizontalRule,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      Bold,
+      Italic,
       Underline,
+      Strike,
       Color.configure({ types: [TextStyle.name] }),
       Highlight.configure({ multicolor: true }),
       FontFamily.configure({
@@ -71,16 +95,23 @@ function initializeEditor() {
         openOnClick: false,
       }),
       Image,
-      Table.configure({
-        resizable: true,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
       TaskList,
       TaskItem.configure({
         nested: true,
       }),
+      NodeRange.configure({
+        key: null,
+      }),
+      Placeholder.configure({
+        placeholder: 'Type something...'
+      }),
+      TableKit.configure({
+        table: { resizable: true },
+      }),
+      Gapcursor,
+      TrailingNode,
+      Dropcursor,
+      UndoRedo
     ],
     editable: props.editable,
     onUpdate: ({ editor }) => {
@@ -607,6 +638,54 @@ defineExpose({
 
 
 <style lang="scss">
+::selection {
+  background-color: #7fc5e250;
+}
+
+.ProseMirror-noderangeselection {
+  *::selection {
+    background: transparent;
+  }
+
+  * {
+    caret-color: transparent;
+  }
+}
+
+.ProseMirror-selectednode,
+.ProseMirror-selectednoderange {
+  position: relative;
+
+  &::before {
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+    content: '';
+    top: -0.25rem;
+    left: -0.25rem;
+    right: -0.25rem;
+    bottom: -0.25rem;
+    background-color: #70cff850;
+    border-radius: 0.2rem;
+  }
+}
+
+.custom-drag-handle {
+  &::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1.25rem;
+    content: '⠿';
+    font-weight: 700;
+    cursor: grab;
+    background: #0d0d0d10;
+    color: #0d0d0d50;
+    border-radius: 0.25rem;
+  }
+}
+
 .tiptap-editor-container {
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -830,24 +909,45 @@ defineExpose({
         min-width: 1em;
         padding: 6px 8px;
         position: relative;
-        vertical-align: top
+        vertical-align: top;
       }
 
       td>*,
       th>* {
-        margin-bottom: 0
+        margin-bottom: 0;
       }
 
       th {
         background-color: #f4f4f4;
         font-weight: 600;
-        text-align: left
+        text-align: left;
+      }
+
+      .selectedCell:after {
+        background: var(--gray-2);
+        content: '';
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+      }
+
+      .column-resize-handle {
+        background-color: var(--purple);
+        bottom: -2px;
+        pointer-events: none;
+        position: absolute;
+        right: -2px;
+        top: 0;
+        width: 4px;
       }
     }
   }
 
   /* TaskList styling */
-
   ul[data-type=taskList] {
     padding-left: .25em;
 
@@ -878,12 +978,31 @@ defineExpose({
         }
       }
 
-      > div {
+      >div {
         p {
           margin: 0;
         }
       }
     }
+  }
+
+  /* Placeholder. only for the first line in an empty editor */
+  p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .tableWrapper {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  .resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
   }
 
 }
