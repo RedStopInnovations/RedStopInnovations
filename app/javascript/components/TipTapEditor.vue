@@ -15,6 +15,20 @@
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
+import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
+import Color from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import FontFamily from '@tiptap/extension-font-family';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TaskList } from '@tiptap/extension-task-list';
+import { TaskItem } from '@tiptap/extension-task-item';
+import { TextStyle, FontSize } from '@tiptap/extension-text-style';
 
 // Props
 const props = defineProps({
@@ -41,7 +55,32 @@ function initializeEditor() {
   editor.value = new Editor({
     content: initialContent,
     extensions: [
-      StarterKit
+      StarterKit,
+      TextStyle,
+      FontSize,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Underline,
+      Color.configure({ types: [TextStyle.name] }),
+      Highlight.configure({ multicolor: true }),
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Image,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
     ],
     editable: props.editable,
     onUpdate: ({ editor }) => {
@@ -58,13 +97,14 @@ function initializeEditor() {
 function createButton(config) {
   const btn = document.createElement('button');
   btn.type = 'button';
+  btn.className = 'btn btn-white';
   btn.innerHTML = config.icon;
   btn.title = config.title;
   btn.addEventListener('click', config.action);
 
   if (config.isActive) {
     const updateState = () => {
-      btn.classList.toggle('is-active', config.isActive());
+      btn.classList.toggle('active', config.isActive());
     };
     editor.value.on('selectionUpdate', updateState);
     editor.value.on('transaction', updateState);
@@ -74,12 +114,12 @@ function createButton(config) {
   return btn;
 }
 
-function createSelect(config) {
+function createDropdown(config) {
   const dropdown = document.createElement('div');
-  dropdown.className = 'toolbar-dropdown dropdown';
+  dropdown.className = 'btn-group dropdown';
 
   const button = document.createElement('button');
-  button.className = 'btn btn-default dropdown-toggle';
+  button.className = 'btn btn-white btn-sm dropdown-toggle';
   button.type = 'button';
   button.setAttribute('data-toggle', 'dropdown');
   button.setAttribute('aria-haspopup', 'true');
@@ -88,15 +128,18 @@ function createSelect(config) {
 
   const buttonContent = document.createElement('span');
   if (config.icon) {
-    buttonContent.innerHTML = config.icon;
-  } else {
-    buttonContent.textContent = config.options[0].label;
+    buttonContent.innerHTML = config.icon + ' ';
   }
+
+  const label = document.createElement('span');
+  label.textContent = config.defaultLabel || config.options[0].label;
 
   const caret = document.createElement('span');
   caret.className = 'caret';
 
   button.appendChild(buttonContent);
+  button.appendChild(label);
+  button.appendChild(document.createTextNode(' '));
   button.appendChild(caret);
 
   const menu = document.createElement('ul');
@@ -114,12 +157,16 @@ function createSelect(config) {
     a.textContent = option.label;
     a.setAttribute('data-value', option.value);
 
+    if (option.style) {
+      Object.assign(a.style, option.style);
+    }
+
     a.addEventListener('click', (e) => {
       e.preventDefault();
       config.onChange(option.value);
 
-      if (!config.icon) {
-        buttonContent.textContent = option.label;
+      if (!config.keepLabel) {
+        label.textContent = option.label;
       }
 
       menu.querySelectorAll('li').forEach(item => item.classList.remove('active'));
@@ -136,10 +183,10 @@ function createSelect(config) {
   if (config.getCurrentValue) {
     const updateValue = () => {
       const currentValue = config.getCurrentValue();
-      const currentOption = config.options.find(opt => opt.value === currentValue) || config.options[0];
+      const currentOption = config.options.find(opt => opt.value === currentValue);
 
-      if (!config.icon) {
-        buttonContent.textContent = currentOption.label;
+      if (currentOption && !config.keepLabel) {
+        label.textContent = currentOption.label;
       }
 
       menu.querySelectorAll('li').forEach((li, index) => {
@@ -154,6 +201,58 @@ function createSelect(config) {
   return dropdown;
 }
 
+function createColorPicker(config) {
+  const container = document.createElement('div');
+  container.className = 'btn-group dropdown color-picker';
+
+  const button = document.createElement('button');
+  button.className = 'btn btn-white btn-sm dropdown-toggle';
+  button.type = 'button';
+  button.setAttribute('data-toggle', 'dropdown');
+  button.setAttribute('aria-haspopup', 'true');
+  button.setAttribute('aria-expanded', 'false');
+  button.innerHTML = config.icon;
+  button.title = config.title;
+
+  const menu = document.createElement('div');
+  menu.className = 'dropdown-menu color-picker-dropdown';
+
+  const colors = [
+    '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
+    '#ff0000', '#ff6666', '#ffcccc', '#00ff00', '#66ff66', '#ccffcc',
+    '#0000ff', '#6666ff', '#ccccff', '#ffff00', '#ffff66', '#ffffcc',
+    '#ff00ff', '#ff66ff', '#ffccff', '#00ffff', '#66ffff', '#ccffff'
+  ];
+
+  colors.forEach(color => {
+    const colorBtn = document.createElement('button');
+    colorBtn.type = 'button';
+    colorBtn.className = 'color-swatch';
+    colorBtn.style.backgroundColor = color;
+    colorBtn.title = color;
+    colorBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      config.onChange(color);
+    });
+    menu.appendChild(colorBtn);
+  });
+
+  const clearBtn = document.createElement('button');
+  clearBtn.type = 'button';
+  clearBtn.className = 'btn btn-sm btn-white color-clear';
+  clearBtn.textContent = 'Clear';
+  clearBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    config.onClear();
+  });
+  menu.appendChild(clearBtn);
+
+  container.appendChild(button);
+  container.appendChild(menu);
+
+  return container;
+}
+
 function createSeparator() {
   const separator = document.createElement('div');
   separator.className = 'toolbar-separator';
@@ -162,19 +261,111 @@ function createSeparator() {
 
 function createGroup(items) {
   const group = document.createElement('div');
-  group.className = 'toolbar-group';
-  items.forEach(item => group.appendChild(item));
+  group.className = 'btn-group toolbar-group';
+  items.forEach(item => {
+    if (item.classList.contains('btn-group') || item.classList.contains('dropdown')) {
+      group.appendChild(item);
+    } else {
+      group.appendChild(item);
+    }
+  });
   return group;
 }
 
-// Build toolbar (using only StarterKit + TextAlign + Underline)
+// Build comprehensive toolbar
 function buildToolbar() {
   if (!toolbarRef.value || !editor.value) return;
 
   const toolbar = toolbarRef.value;
   toolbar.innerHTML = '';
 
-  // Text formatting buttons (from StarterKit)
+  // Group 1: Undo/Redo
+  const undoBtn = createButton({
+    icon: '<i class="fa fa-undo"></i>',
+    title: 'Undo',
+    action: () => editor.value.chain().focus().undo().run()
+  });
+
+  const redoBtn = createButton({
+    icon: '<i class="fa fa-repeat"></i>',
+    title: 'Redo',
+    action: () => editor.value.chain().focus().redo().run()
+  });
+
+  // Group 2: Heading Dropdown
+  const headingDropdown = createDropdown({
+    icon: '<i class="fa fa-header"></i>',
+    title: 'Heading',
+    defaultLabel: 'Normal',
+    options: [
+      { label: 'Normal', value: 'paragraph' },
+      { label: 'Heading 1', value: 'h1' },
+      { label: 'Heading 2', value: 'h2' },
+      { label: 'Heading 3', value: 'h3' },
+      { label: 'Heading 4', value: 'h4' }
+    ],
+    onChange: (value) => {
+      if (value === 'paragraph') {
+        editor.value.chain().focus().setParagraph().run();
+      } else {
+        const level = parseInt(value.replace('h', ''));
+        editor.value.chain().focus().toggleHeading({ level }).run();
+      }
+    },
+    getCurrentValue: () => {
+      if (editor.value.isActive('heading', { level: 1 })) return 'h1';
+      if (editor.value.isActive('heading', { level: 2 })) return 'h2';
+      if (editor.value.isActive('heading', { level: 3 })) return 'h3';
+      if (editor.value.isActive('heading', { level: 4 })) return 'h4';
+      return 'paragraph';
+    }
+  });
+
+  // Group 3: Font Family Dropdown
+  const fontFamilyDropdown = createDropdown({
+    icon: '<i class="fa fa-font"></i>',
+    title: 'Font Family',
+    defaultLabel: 'Arial',
+    keepLabel: true,
+    options: [
+      { label: 'Arial', value: 'Arial, sans-serif' },
+      { label: 'Times New Roman', value: 'Times New Roman, serif' },
+      { label: 'Helvetica', value: 'Helvetica, sans-serif' },
+      { label: 'Georgia', value: 'Georgia, serif' },
+      { label: 'Verdana', value: 'Verdana, sans-serif' },
+      { label: 'Comic Sans MS', value: 'Comic Sans MS, cursive' },
+      { label: 'Courier New', value: 'Courier New, monospace' }
+    ],
+    onChange: (value) => {
+      editor.value.chain().focus().setFontFamily(value).run();
+    }
+  });
+
+  // Group 4: Font Size Dropdown
+  const fontSizeDropdown = createDropdown({
+    icon: '<i class="fa fa-text-height"></i>',
+    title: 'Font Size',
+    defaultLabel: '14px',
+    keepLabel: true,
+    options: [
+      { label: '8px', value: '8px' },
+      { label: '9px', value: '9px' },
+      { label: '10px', value: '10px' },
+      { label: '11px', value: '11px' },
+      { label: '12px', value: '12px' },
+      { label: '14px', value: '14px' },
+      { label: '18px', value: '18px' },
+      { label: '24px', value: '24px' },
+      { label: '30px', value: '30px' },
+      { label: '36px', value: '36px' }
+    ],
+    onChange: (value) => {
+      // Use TextStyle extension with fontSize attribute
+      editor.value.chain().focus().setFontSize(value).run();
+    }
+  });
+
+  // Group 5: Text Formatting
   const boldBtn = createButton({
     icon: '<i class="fa fa-bold"></i>',
     title: 'Bold',
@@ -189,6 +380,13 @@ function buildToolbar() {
     isActive: () => editor.value.isActive('italic')
   });
 
+  const underlineBtn = createButton({
+    icon: '<i class="fa fa-underline"></i>',
+    title: 'Underline',
+    action: () => editor.value.chain().focus().toggleUnderline().run(),
+    isActive: () => editor.value.isActive('underline')
+  });
+
   const strikeBtn = createButton({
     icon: '<i class="fa fa-strikethrough"></i>',
     title: 'Strikethrough',
@@ -196,37 +394,74 @@ function buildToolbar() {
     isActive: () => editor.value.isActive('strike')
   });
 
-  // Headings (from StarterKit)
-  const heading1Btn = createButton({
-    icon: '<i class="fa fa-header"></i> 1',
-    title: 'Heading 1',
-    action: () => editor.value.chain().focus().toggleHeading({ level: 1 }).run(),
-    isActive: () => editor.value.isActive('heading', { level: 1 })
+  const colorPicker = createColorPicker({
+    icon: '<i class="fa fa-font"></i>',
+    title: 'Text Color',
+    onChange: (color) => editor.value.chain().focus().setColor(color).run(),
+    onClear: () => editor.value.chain().focus().unsetColor().run()
   });
 
-  const heading2Btn = createButton({
-    icon: '<i class="fa fa-header"></i> 2',
-    title: 'Heading 2',
-    action: () => editor.value.chain().focus().toggleHeading({ level: 2 }).run(),
-    isActive: () => editor.value.isActive('heading', { level: 2 })
+  const highlightPicker = createColorPicker({
+    icon: '<i class="fa fa-paint-brush"></i>',
+    title: 'Highlight Color',
+    onChange: (color) => editor.value.chain().focus().toggleHighlight({ color }).run(),
+    onClear: () => editor.value.chain().focus().unsetHighlight().run()
   });
 
-  // Lists (from StarterKit)
-  const bulletListBtn = createButton({
-    icon: '<i class="fa fa-list-ul"></i>',
-    title: 'Bullet List',
-    action: () => editor.value.chain().focus().toggleBulletList().run(),
-    isActive: () => editor.value.isActive('bulletList')
+  // Group 6: Lists
+  const listDropdown = createDropdown({
+    icon: '<i class="fa fa-list"></i>',
+    title: 'Lists',
+    defaultLabel: 'List',
+    keepLabel: true,
+    options: [
+      { label: 'Bullet List', value: 'bulletList' },
+      { label: 'Ordered List', value: 'orderedList' },
+      { label: 'Task List', value: 'taskList' }
+    ],
+    onChange: (value) => {
+      if (value === 'bulletList') {
+        editor.value.chain().focus().toggleBulletList().run();
+      } else if (value === 'orderedList') {
+        editor.value.chain().focus().toggleOrderedList().run();
+      } else if (value === 'taskList') {
+        editor.value.chain().focus().toggleTaskList().run();
+      }
+    }
   });
 
-  const orderedListBtn = createButton({
-    icon: '<i class="fa fa-list-ol"></i>',
-    title: 'Ordered List',
-    action: () => editor.value.chain().focus().toggleOrderedList().run(),
-    isActive: () => editor.value.isActive('orderedList')
+  // Group 7: Media & Structure
+  const linkBtn = createButton({
+    icon: '<i class="fa fa-link"></i>',
+    title: 'Link',
+    action: () => {
+      const url = window.prompt('URL');
+      if (url) {
+        editor.value.chain().focus().setLink({ href: url }).run();
+      }
+    },
+    isActive: () => editor.value.isActive('link')
   });
 
-  // Blockquote (from StarterKit)
+  const imageBtn = createButton({
+    icon: '<i class="fa fa-image"></i>',
+    title: 'Image',
+    action: () => {
+      const url = window.prompt('Image URL');
+      if (url) {
+        editor.value.chain().focus().setImage({ src: url }).run();
+      }
+    }
+  });
+
+  const tableBtn = createButton({
+    icon: '<i class="fa fa-table"></i>',
+    title: 'Table',
+    action: () => {
+      editor.value.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    }
+  });
+
   const blockquoteBtn = createButton({
     icon: '<i class="fa fa-quote-left"></i>',
     title: 'Blockquote',
@@ -234,37 +469,95 @@ function buildToolbar() {
     isActive: () => editor.value.isActive('blockquote')
   });
 
-  // Code (from StarterKit)
-  const codeBtn = createButton({
-    icon: '<i class="fa fa-code"></i>',
-    title: 'Inline Code',
-    action: () => editor.value.chain().focus().toggleCode().run(),
-    isActive: () => editor.value.isActive('code')
+  // Group 8: Alignment
+  const alignDropdown = createDropdown({
+    icon: '<i class="fa fa-align-left"></i>',
+    title: 'Text Align',
+    defaultLabel: 'Left',
+    options: [
+      { label: 'Left', value: 'left' },
+      { label: 'Center', value: 'center' },
+      { label: 'Right', value: 'right' },
+      { label: 'Justify', value: 'justify' }
+    ],
+    onChange: (value) => {
+      editor.value.chain().focus().setTextAlign(value).run();
+    },
+    getCurrentValue: () => {
+      if (editor.value.isActive({ textAlign: 'center' })) return 'center';
+      if (editor.value.isActive({ textAlign: 'right' })) return 'right';
+      if (editor.value.isActive({ textAlign: 'justify' })) return 'justify';
+      return 'left';
+    }
   });
 
-  // History (from StarterKit)
-  const undoBtn = createButton({
-    icon: '<i class="fa fa-undo"></i>',
-    title: 'Undo',
-    action: () => editor.value.chain().focus().undo().run()
-  });
-
-  const redoBtn = createButton({
-    icon: '<i class="fa fa-repeat"></i>',
-    title: 'Redo',
-    action: () => editor.value.chain().focus().redo().run()
+  // Group 9: Clear Format
+  const clearFormatBtn = createButton({
+    icon: '<i class="fa fa-eraser"></i>',
+    title: 'Clear Format',
+    action: () => editor.value.chain().focus().clearNodes().unsetAllMarks().run()
   });
 
   // Assemble toolbar
   toolbar.appendChild(createGroup([undoBtn, redoBtn]));
   toolbar.appendChild(createSeparator());
-  toolbar.appendChild(createGroup([boldBtn, italicBtn, strikeBtn]));
+  toolbar.appendChild(headingDropdown);
   toolbar.appendChild(createSeparator());
-  toolbar.appendChild(createGroup([heading1Btn, heading2Btn]));
+  toolbar.appendChild(fontFamilyDropdown);
   toolbar.appendChild(createSeparator());
-  toolbar.appendChild(createGroup([bulletListBtn, orderedListBtn]));
+  toolbar.appendChild(fontSizeDropdown);
   toolbar.appendChild(createSeparator());
-  toolbar.appendChild(createGroup([blockquoteBtn, codeBtn]));
+  toolbar.appendChild(createGroup([boldBtn, italicBtn, underlineBtn, strikeBtn]));
+  toolbar.appendChild(createSeparator());
+  toolbar.appendChild(colorPicker);
+  toolbar.appendChild(highlightPicker);
+  toolbar.appendChild(createSeparator());
+  toolbar.appendChild(listDropdown);
+  toolbar.appendChild(createSeparator());
+  toolbar.appendChild(createGroup([linkBtn, imageBtn, tableBtn, blockquoteBtn]));
+  toolbar.appendChild(createSeparator());
+  toolbar.appendChild(alignDropdown);
+  toolbar.appendChild(createSeparator());
+  toolbar.appendChild(clearFormatBtn);
+
+  // Add Bootstrap dropdown functionality
+  setupDropdownToggles();
+}
+
+// Setup Bootstrap 3 dropdown functionality
+function setupDropdownToggles() {
+  const dropdowns = toolbarRef.value.querySelectorAll('.dropdown');
+
+  dropdowns.forEach(dropdown => {
+    const toggle = dropdown.querySelector('.dropdown-toggle');
+    const menu = dropdown.querySelector('.dropdown-menu');
+
+    if (toggle && menu) {
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Close other dropdowns
+        dropdowns.forEach(otherDropdown => {
+          if (otherDropdown !== dropdown) {
+            otherDropdown.classList.remove('open');
+          }
+        });
+
+        // Toggle current dropdown
+        dropdown.classList.toggle('open');
+      });
+    }
+  });
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!toolbarRef.value.contains(e.target)) {
+      dropdowns.forEach(dropdown => {
+        dropdown.classList.remove('open');
+      });
+    }
+  });
 }
 
 // Watch for content changes from parent
@@ -313,16 +606,16 @@ defineExpose({
 </script>
 
 
-<style>
+<style lang="scss">
 .tiptap-editor-container {
   border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
 
   .tiptap-toolbar {
     background: #f9fafb;
     border-bottom: 1px solid #d1d5db;
-    padding: 8px 20px;
+    padding: 8px 12px;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
@@ -331,7 +624,7 @@ defineExpose({
 
   .toolbar-group {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     align-items: center;
   }
 
@@ -342,192 +635,47 @@ defineExpose({
     margin: 0 4px;
   }
 
-  .tiptap-toolbar button {
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 6px 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    height: 32px;
-  }
-
-  .tiptap-toolbar button:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
-
-  .tiptap-toolbar button.is-active {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
-  }
-
-  .tiptap-toolbar select {
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-    font-size: 14px;
-    min-width: 120px;
-    height: 32px;
-  }
-
-  .tiptap-toolbar select:hover {
-    border-color: #9ca3af;
-  }
-
-  .tiptap-toolbar select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-  }
-
-  /* Bootstrap Dropdown Styles */
-  .toolbar-dropdown {
-    position: relative;
-    display: inline-block;
-  }
-
-  .toolbar-dropdown .btn {
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-size: 14px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: left;
-    color: #374151;
-  }
-
-  .toolbar-dropdown .btn:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
-
-  .toolbar-dropdown .btn:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-  }
-
-  .toolbar-dropdown .caret {
-    margin-left: 8px;
-  }
-
-  .toolbar-dropdown .dropdown-menu {
-    min-width: 120px;
-    font-size: 14px;
-  }
-
-  .toolbar-dropdown .dropdown-menu>li>a {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-
-  .toolbar-dropdown .dropdown-menu>li.active>a {
-    background-color: #3b82f6;
-    color: white;
-  }
-
-  .color-picker {
-    position: relative;
-    display: inline-block;
-  }
-
-  .color-picker button {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 0;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .color-picker button:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
-
-  .color-picker-popup {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    min-width: 200px;
+  /* Dropdown Menu Visibility */
+  .dropdown .dropdown-menu {
     display: none;
   }
 
-  .color-picker-popup.show {
+  .dropdown.open .dropdown-menu {
     display: block;
   }
 
-  .color-picker-title {
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #374151;
+  /* Toolbar Button Styles */
+  .tiptap-toolbar .btn {
+    padding: 5px 10px;
   }
 
-  .color-swatches {
+  /* Color Picker Styles */
+  .color-picker-dropdown {
+    padding: 8px;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 4px;
-    margin-bottom: 8px;
+    min-width: 180px;
   }
 
   .color-swatch {
-    width: 24px;
-    height: 24px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
     cursor: pointer;
     transition: transform 0.1s;
   }
 
   .color-swatch:hover {
     transform: scale(1.1);
-    border-color: #374151;
+    border-color: #333;
   }
 
-  .color-picker-reset {
+  .color-clear {
+    grid-column: 1 / -1;
+    margin-top: 4px;
     width: 100%;
-    padding: 6px;
-    background: #f3f4f6;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 32px;
-  }
-
-  .color-picker-reset:hover {
-    background: #fee2e2;
-    border-color: #dc2626;
-    color: #991b1b;
   }
 
   .tiptap-editor {
@@ -536,7 +684,7 @@ defineExpose({
     outline: none;
   }
 
-  .tiptap-editor > .tiptap {
+  .tiptap-editor>.tiptap {
     outline: none;
   }
 
@@ -649,31 +797,94 @@ defineExpose({
     flex: 1;
   }
 
-  /* Drag Handle Styles */
-  .tiptap-editor :deep(.js-drag-handle) {
-    position: absolute;
-    left: -1.5rem;
-    top: 0;
-    cursor: grab;
-    padding: 0.25rem;
-    color: #9ca3af;
+  /* Text alignment classes */
+  .tiptap-editor :deep(.has-text-align-left) {
+    text-align: left;
   }
 
-  .tiptap-editor :deep(.js-drag-handle):hover {
-    background-color: #eeeeee;
+  .tiptap-editor :deep(.has-text-align-center) {
+    text-align: center;
   }
 
-  .tiptap-editor :deep(.js-drag-handle):active {
-    cursor: grabbing;
+  .tiptap-editor :deep(.has-text-align-right) {
+    text-align: right;
   }
 
-  .tiptap-editor :deep(.ProseMirror):hover .drag-handle {
-    opacity: 0.5;
+  .tiptap-editor :deep(.has-text-align-justify) {
+    text-align: justify;
   }
 
-  .tiptap-editor :deep(.js-drag-handle svg) {
-    width: 1rem;
-    height: 1rem;
+  /* Table styling */
+  .tiptap-editor {
+    table {
+      border-collapse: collapse;
+      margin: 0;
+      overflow: hidden;
+      table-layout: fixed;
+      width: 100%;
+
+      td,
+      th {
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        min-width: 1em;
+        padding: 6px 8px;
+        position: relative;
+        vertical-align: top
+      }
+
+      td>*,
+      th>* {
+        margin-bottom: 0
+      }
+
+      th {
+        background-color: #f4f4f4;
+        font-weight: 600;
+        text-align: left
+      }
+    }
   }
+
+  /* TaskList styling */
+
+  ul[data-type=taskList] {
+    padding-left: .25em;
+
+    li:not(:has(>p:first-child)) {
+      list-style-type: none;
+    }
+
+    [contenteditable="false"] {
+      white-space: normal;
+    }
+
+    li {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+
+      label {
+        position: relative;
+        margin-bottom: 0;
+        padding-right: .5rem;
+
+        span {
+          display: block;
+          width: 1em;
+          height: 1em;
+          position: relative;
+          cursor: pointer;
+        }
+      }
+
+      > div {
+        p {
+          margin: 0;
+        }
+      }
+    }
+  }
+
 }
 </style>
