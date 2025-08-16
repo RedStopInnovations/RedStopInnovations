@@ -168,7 +168,8 @@ async function submitForm() {
             if (data.redirect_url) {
                 window.location.href = data.redirect_url;
             } else {
-                window.location.href = props.treatmentNoteTemplatesPath;
+                window.location.reload();
+                // window.location.href = props.treatmentNoteTemplatesPath;
             }
         } else {
             if (data.errors) {

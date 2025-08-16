@@ -44,6 +44,7 @@ import Strike from '@tiptap/extension-strike';
 import Underline from '@tiptap/extension-underline';
 import { Dropcursor, UndoRedo, Placeholder, Gapcursor, TrailingNode } from '@tiptap/extensions';
 import { MultipleChoiceList, MultipleChoiceItem } from './tiptap/MultiChoice.js';
+import { YesNo } from './tiptap/YesNo.js';
 
 // Props
 const props = defineProps({
@@ -104,6 +105,7 @@ function initializeEditor() {
       }),
       MultipleChoiceList,
       MultipleChoiceItem,
+      YesNo,
       NodeRange.configure({
         key: null,
       }),
@@ -454,7 +456,8 @@ function buildToolbar() {
       { label: 'Bullet List', value: 'bulletList' },
       { label: 'Ordered List', value: 'orderedList' },
       { label: 'Task List', value: 'taskList' },
-      { label: 'Multiple Choice', value: 'multipleChoiceList' }
+      { label: 'Multiple Choice', value: 'multipleChoiceList' },
+      { label: 'Yes/No', value: 'yesNo' }
     ],
     onChange: (value) => {
       if (value === 'bulletList') {
@@ -465,6 +468,8 @@ function buildToolbar() {
         editor.value.chain().focus().toggleTaskList().run();
       } else if (value === 'multipleChoiceList') {
         editor.value.chain().focus().toggleMultipleChoiceList().run();
+      } else if (value === 'yesNo') {
+        editor.value.chain().focus().insertYesNo().run();
       }
     }
   });
@@ -1029,6 +1034,34 @@ defineExpose({
         p {
           margin: 0;
         }
+      }
+    }
+  }
+
+  /* YesNo styling */
+  div[data-type="yesNo"] {
+    display: flex;
+    gap: 1rem;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+      margin-bottom: 0;
+
+      span:first-child {
+        display: flex;
+        align-items: center;
+      }
+
+      input[type="radio"] {
+        margin: 0;
+        cursor: pointer;
+      }
+
+      span:last-child {
+        font-weight: 500;
       }
     }
   }

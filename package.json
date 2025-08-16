@@ -32,6 +32,7 @@
     "@tiptap/vue-3": "^3.2.0",
     "@tiptap/y-tiptap": "^3.0.0",
     "ahoy.js": "^0.4.3",
+    "uuid": "^11.1.0",
     "vue": "^3.4.0",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.27"

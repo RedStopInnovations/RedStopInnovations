@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core';
+import { Fragment } from '@tiptap/pm/model';
 
 // Custom MultipleChoice extension
 export const MultipleChoiceList = Node.create({
@@ -129,7 +130,8 @@ export const MultipleChoiceItem = Node.create({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    const id = node.attrs.id || `item-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
+    // Use existing ID or fallback to a placeholder - don't generate new random IDs here
+    const id = node.attrs.id || 'temp-id';
     const radioAttrs = {
       type: 'radio',
       name: 'placeholder-name', // This will be replaced by the list's data-id
@@ -210,68 +212,43 @@ export const MultipleChoiceItem = Node.create({
       radioInput.checked = node.attrs.checked;
 
       radioInput.addEventListener('change', () => {
-        if (typeof getPos === 'function') {
-          const pos = getPos();
-          const $pos = editor.state.doc.resolve(pos);
+        if (radioInput.checked && typeof getPos === 'function') {
+          // Prevent multiple rapid updates (YesNo pattern)
+          if (listItem._isUpdating) return;
+          listItem._isUpdating = true;
 
-          // Find the multipleChoice parent
-          let list = null;
-          let listDepth = -1;
-          for (let depth = $pos.depth; depth >= 0; depth--) {
-            const node = $pos.node(depth);
-            if (node.type.name === 'multipleChoice') {
-              list = node;
-              listDepth = depth;
-              break;
-            }
-          }
-
-          if (list) {
-            const tr = editor.state.tr;
-
-            // Find the parent list element in the DOM to update all siblings
-            const parentListElement = listItem.closest('ul[data-type="multipleChoice"]');
-
-            // First, uncheck all items in this list
-            list.forEach((child, offset) => {
-              if (child.type.name === 'multipleChoiceItem' && child.attrs.checked) {
-                const childPos = $pos.start(listDepth) + offset + 1;
-                tr.setNodeMarkup(childPos, undefined, {
-                  ...child.attrs,
-                  checked: false,
-                });
-
-                // Update DOM for unchecked siblings
-                if (parentListElement) {
-                  const siblingItems = parentListElement.querySelectorAll('li[data-id]');
-                  siblingItems.forEach(item => {
-                    if (item !== listItem) {
-                      item.setAttribute('data-checked', 'false');
-                      const siblingRadio = item.querySelector('input[type="radio"]');
-                      if (siblingRadio) {
-                        siblingRadio.checked = false;
-                      }
-                    }
-                  });
-                }
+          // Find the closest ul element
+          const ulElement = listItem.closest('ul[data-type="multipleChoice"]');
+          if (ulElement) {
+            // Remove data-checked from all li elements in this ul
+            const allListItems = ulElement.querySelectorAll('li[data-id]');
+            allListItems.forEach(li => {
+              li.setAttribute('data-checked', 'false');
+              const radio = li.querySelector('input[type="radio"]');
+              if (radio && radio !== radioInput) {
+                radio.checked = false;
               }
             });
 
-            // Then check the current item
-            tr.setNodeMarkup(pos, undefined, {
-              ...node.attrs,
-              checked: radioInput.checked,
-            });
-
-            // Update the DOM immediately for current item
-            listItem.setAttribute('data-checked', radioInput.checked);
-
-            editor.view.dispatch(tr);
+            // Set data-checked for current item
+            listItem.setAttribute('data-checked', 'true');
           }
-        }
-      });
 
-      const span = document.createElement('span');
+          // Simple approach like YesNo: only update this node
+          const pos = getPos();
+          const tr = editor.state.tr.setNodeMarkup(pos, undefined, {
+            ...node.attrs,
+            checked: true,
+          });
+
+          editor.view.dispatch(tr);
+
+          // Reset the updating flag after a brief delay (YesNo pattern)
+          setTimeout(() => {
+            listItem._isUpdating = false;
+          }, 10);
+        }
+      });      const span = document.createElement('span');
       const contentDiv = document.createElement('div');
 
       label.appendChild(radioInput);
@@ -286,25 +263,30 @@ export const MultipleChoiceItem = Node.create({
           if (updatedNode.type !== node.type) {
             return false;
           }
-          listItem.setAttribute('data-checked', updatedNode.attrs.checked);
-          radioInput.checked = updatedNode.attrs.checked;
 
-          // Update radio button name if needed
-          if (typeof getPos === 'function') {
-            try {
-              const pos = getPos();
-              const $pos = editor.state.doc.resolve(pos);
+          // Only update if not currently handling a change (YesNo pattern)
+          if (!listItem._isUpdating) {
+            const isChecked = updatedNode.attrs.checked;
+            listItem.setAttribute('data-checked', isChecked.toString());
+            radioInput.checked = isChecked;
 
-              // Find the multipleChoice parent
-              for (let depth = $pos.depth; depth >= 0; depth--) {
-                const node = $pos.node(depth);
-                if (node.type.name === 'multipleChoice' && node.attrs.id) {
-                  radioInput.name = node.attrs.id;
-                  break;
+            // Update radio button name if needed
+            if (typeof getPos === 'function') {
+              try {
+                const pos = getPos();
+                const $pos = editor.state.doc.resolve(pos);
+
+                // Find the multipleChoice parent
+                for (let depth = $pos.depth; depth >= 0; depth--) {
+                  const node = $pos.node(depth);
+                  if (node.type.name === 'multipleChoice' && node.attrs.id) {
+                    radioInput.name = node.attrs.id;
+                    break;
+                  }
                 }
+              } catch (e) {
+                // Ignore errors in update
               }
-            } catch (e) {
-              // Ignore errors in update
             }
           }
 
