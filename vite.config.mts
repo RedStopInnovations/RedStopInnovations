@@ -1,17 +1,13 @@
 import { defineConfig } from 'vite'
 import RubyPlugin from 'vite-plugin-ruby'
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [
     RubyPlugin(),
-    vue(),
+    react(),
   ],
   server: {
-    host: true,
-    hmr: {
-      host: true,
-      port: 3036
-    }
+    host: true
   }
 })

@@ -2,9 +2,10 @@ console.log('Vite ⚡️ Rails');
 
 import './application.css';
 
-// Vue 3 Setup for modern dashboard components
-import { createApp } from 'vue';
-import TreatmentNoteTemplateForm from '../components/TreatmentNoteTemplateForm.vue';
+// React Setup for modern dashboard components
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import TreatmentNoteTemplateForm from '../components/TreatmentNoteTemplateForm.jsx';
 
 // Mount components based on element presence
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,9 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const templateId = treatmentNoteTemplateFormElement.dataset.templateId || null;
     const treatmentNoteTemplatesPath = treatmentNoteTemplateFormElement.dataset.treatmentNoteTemplatesPath || '/treatment_note_templates';
 
-    createApp(TreatmentNoteTemplateForm, {
-      templateId,
-      treatmentNoteTemplatesPath
-    }).mount('#treatment-note-template-form');
+    const root = createRoot(treatmentNoteTemplateFormElement);
+    root.render(
+      React.createElement(TreatmentNoteTemplateForm, {
+        templateId,
+        treatmentNoteTemplatesPath
+      })
+    );
   }
 });
