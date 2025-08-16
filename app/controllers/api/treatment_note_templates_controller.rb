@@ -51,7 +51,7 @@ module Api
     end
 
     def treatment_note_template_params
-      params.require(:treatment_note_template).permit(:name, :content, :html_content)
+      params.require(:treatment_note_template).permit(:name, :content)
     end
   end
 end

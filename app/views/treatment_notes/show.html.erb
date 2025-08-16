@@ -53,7 +53,7 @@
 
     <div class="panel-body">
       <% if @treatment.html_content.present? %>
-        <div class="tiptap-content">
+        <div>
           <%= @treatment.html_content.html_safe %>
         </div>
       <% else %>

@@ -24,7 +24,7 @@
   <div class="panel panel-default">
     <div class="panel-body">
         <% if @treatment_note_template.html_content.present? %>
-          <div class="tiptap-content">
+          <div>
             <%= @treatment_note_template.html_content.html_safe %>
           </div>
         <% else %>

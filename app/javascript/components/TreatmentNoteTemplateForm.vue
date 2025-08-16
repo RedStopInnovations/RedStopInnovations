@@ -35,11 +35,21 @@
                         </div>
                     </div>
 
-                    <TipTapEditor
-                        :content="template.content"
-                        @update:content="updateContent"
-                        @update:htmlContent="updateHtmlContent"
-                    />
+                    <div class="form-group">
+                        <label for="template-content">Template Content</label>
+                        <textarea
+                            id="template-content"
+                            v-model="template.content"
+                            class="form-control"
+                            rows="10"
+                            placeholder="Enter template content..."
+                            :class="{ 'is-invalid': errors.content }"
+                        ></textarea>
+                        <div
+                            v-if="errors.content"
+                            class="invalid-feedback"
+                        >{{ errors.content }}</div>
+                    </div>
 
                     <div class="mt-15">
                         <button
@@ -62,7 +72,6 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import TipTapEditor from './TipTapEditor.vue';
 
 // Props
 const props = defineProps({
@@ -79,23 +88,13 @@ const props = defineProps({
 // State
 const template = reactive({
     name: '',
-    content: '',
-    html_content: ''
+    content: ''
 });
 
 const loading = ref(false);
 const isSubmitting = ref(false);
 const error = ref(null);
 const errors = reactive({});
-
-// Update content from editor
-const updateContent = (content) => {
-    template.content = content;
-};
-
-const updateHtmlContent = (htmlContent) => {
-    template.html_content = htmlContent;
-};
 
 // Fetch template data if editing
 const fetchTemplate = async () => {
@@ -119,7 +118,6 @@ const fetchTemplate = async () => {
         const data = await response.json();
         template.name = data.treatment_note_template.name || '';
         template.content = data.treatment_note_template.content || '';
-        template.html_content = data.treatment_note_template.html_content || '';
     } catch (err) {
         error.value = err.message;
     } finally {
@@ -152,8 +150,7 @@ async function submitForm() {
             body: JSON.stringify({
                 treatment_note_template: {
                     name: template.name,
-                    content: template.content,
-                    html_content: template.html_content
+                    content: template.content
                 }
             })
         });
